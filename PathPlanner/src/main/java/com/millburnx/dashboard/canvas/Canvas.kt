@@ -4,6 +4,7 @@ import com.millburnx.dashboard.canvas.canvasOp.CanvasOp
 
 // https://acmerobotics.github.io/ftc-dashboard/javadoc/com/acmerobotics/dashboard/canvas/Canvas.html
 interface Canvas {
+    fun getOperations(): List<CanvasOp>
     fun clear()
     fun drawGrid(
         x: Double,
@@ -42,7 +43,6 @@ interface Canvas {
         usePageFrame: Boolean = true,
     ): Canvas
 
-    fun getOperations(): List<CanvasOp>
     fun setAlpha(alpha: Double): Canvas
     fun setFill(color: String): Canvas
     fun setRotation(radians: Double): Canvas
