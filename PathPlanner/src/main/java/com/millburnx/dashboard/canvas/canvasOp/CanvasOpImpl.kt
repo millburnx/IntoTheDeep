@@ -20,7 +20,8 @@ abstract class CanvasOpImpl(type: Type) : CanvasOp(type) {
             transform: CanvasTransform,
         ): AffineTransform {
             val baseTransform = getBaseTransform(ctx, transform.usePageFrame)
-            baseTransform.rotate(transform.theta, transform.pivotX, transform.pivotY)
+            val (pivotX, pivotY) = scale.ppiFractionalScale(transform.pivotX to transform.pivotY)
+            baseTransform.rotate(transform.theta, pivotX, pivotY)
             return baseTransform
         }
 

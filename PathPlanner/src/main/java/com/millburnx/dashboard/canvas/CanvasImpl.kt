@@ -1,6 +1,6 @@
 package com.millburnx.dashboard.canvas
 
-import com.millburnx.dashboard.canvas.canvasOp.*;
+import com.millburnx.dashboard.canvas.canvasOp.*
 
 class CanvasImpl : Canvas {
     private val operations = mutableListOf<CanvasOp>()

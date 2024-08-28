@@ -43,12 +43,12 @@ class Grid(
 
     fun drawGrid(g2d: Graphics2D, topLeft: Vec2dInt, size: Vec2dInt, steps: Vec2dInt) {
         for (i in 0..numTicksX) {
-            val xCoord = topLeft.x + i * steps.x
-            g2d.drawLine(xCoord, topLeft.y, xCoord, topLeft.y + size.y)
+            val xCoordinate = topLeft.x + i * steps.x
+            g2d.drawLine(xCoordinate, topLeft.y, xCoordinate, topLeft.y + size.y)
         }
         for (i in 0..numTicksY) {
-            val yCoord = topLeft.y + i * steps.y
-            g2d.drawLine(topLeft.x, yCoord, topLeft.x + size.x, yCoord)
+            val yCoordinate = topLeft.y + i * steps.y
+            g2d.drawLine(topLeft.x, yCoordinate, topLeft.x + size.x, yCoordinate)
         }
     }
 }

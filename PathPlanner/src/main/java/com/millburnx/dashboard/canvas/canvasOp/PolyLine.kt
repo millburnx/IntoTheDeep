@@ -9,10 +9,10 @@ class Polyline(private val xPoints: DoubleArray, private val yPoints: DoubleArra
         val xPoints = xPoints.map { scale.ppiScale(it) }.toIntArray()
         val yPoints = yPoints.map { scale.ppiScale(it) }.toIntArray()
         setColor(ctx)
-        drawStroke(ctx.g2d, scale, Pair(xPoints, yPoints))
+        drawStroke(ctx.g2d, Pair(xPoints, yPoints))
     }
 
-    fun drawStroke(g2d: Graphics2D, scale: Scale, points: Pair<IntArray, IntArray>) {
+    fun drawStroke(g2d: Graphics2D, points: Pair<IntArray, IntArray>) {
         val (xPoints, yPoints) = points
         g2d.drawPolyline(xPoints, yPoints, xPoints.size)
     }
