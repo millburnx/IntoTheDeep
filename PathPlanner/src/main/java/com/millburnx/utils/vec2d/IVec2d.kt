@@ -9,20 +9,16 @@ interface IVec2d<T : Number> {
     val x: T
     val y: T
 
-    operator fun plus(other: IVec2d<T>): IVec2d<T>
-    operator fun plus(other: IVec2d<Number>): IVec2d<T>
+    operator fun <Y : Number> plus(other: IVec2d<Y>): IVec2d<T>
     operator fun plus(other: Number): IVec2d<T>
 
-    operator fun minus(other: IVec2d<T>): IVec2d<T>
-    operator fun minus(other: IVec2d<Number>): IVec2d<T>
+    operator fun <Y : Number> minus(other: IVec2d<Y>): IVec2d<T>
     operator fun minus(other: Number): IVec2d<T>
 
-    operator fun times(other: IVec2d<T>): IVec2d<T>
-    operator fun times(other: IVec2d<Number>): IVec2d<T>
+    operator fun <Y : Number> times(other: IVec2d<Y>): IVec2d<T>
     operator fun times(other: Number): IVec2d<T>
 
-    operator fun div(other: IVec2d<T>): IVec2d<T>
-    operator fun div(other: IVec2d<Number>): IVec2d<T>
+    operator fun <Y : Number> div(other: IVec2d<Y>): IVec2d<T>
     operator fun div(other: Number): IVec2d<T>
 
     operator fun unaryMinus(): IVec2d<T>
