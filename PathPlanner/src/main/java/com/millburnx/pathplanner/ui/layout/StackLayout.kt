@@ -1,7 +1,5 @@
-package com.millburnx.pathplanner.UI.layout
+package com.millburnx.pathplanner.ui.layout
 
-import com.millburnx.pathplanner.ui.layout.MainLayout
-import com.millburnx.pathplanner.ui.layout.PopoverLayer
 import com.millburnx.utils.vec2d.Vec2dInt
 import java.awt.event.ComponentAdapter
 import javax.swing.JFrame

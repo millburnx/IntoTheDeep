@@ -1,9 +1,10 @@
 package com.millburnx.pathplanner
 
-import com.millburnx.pathplanner.UI.layout.StackLayout
 import com.millburnx.pathplanner.ui.Theme
+import com.millburnx.pathplanner.ui.layout.StackLayout
 import java.awt.Dimension
 import javax.swing.JFrame
+import javax.swing.LookAndFeel
 import javax.swing.UIManager
 
 fun main(args: Array<String>) {
@@ -26,16 +27,16 @@ fun getScale(args: Array<String>): Double {
 }
 
 fun setScale(scale: Double) {
-    System.setProperty("flatlaf.uiScale", "$scale");
+    System.setProperty("flatlaf.uiScale", "$scale")
     Theme.scale = scale
 }
 
 fun setLAF() {
     try {
-        UIManager.setLookAndFeel(Theme.LAF);
+        UIManager.setLookAndFeel(Theme.LAF as LookAndFeel)
     } catch (e: Exception) {
         e.printStackTrace()
-        System.err.println("Failed to initialize LaF, ui will look weird");
+        System.err.println("Failed to initialize LaF, ui will look weird")
     }
 }
 
