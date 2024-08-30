@@ -9,16 +9,16 @@ data class Vec2dInt(override val x: Int, override val y: Int) : IVec2d<Int> {
     constructor(x: Number, y: Number) : this(x.toInt(), y.toInt())
     constructor(v: Number) : this(v.toInt(), v.toInt())
 
-    override fun <Y : Number> plus(other: IVec2d<Y>): Vec2dInt = Vec2dInt(x + other.x.toInt(), y + other.y.toInt())
+    override fun plus(other: IVec2d<*>): Vec2dInt = Vec2dInt(x + other.x.toInt(), y + other.y.toInt())
     override fun plus(other: Number): Vec2dInt = Vec2dInt(x + other.toInt(), y + other.toInt())
 
-    override fun <Y : Number> minus(other: IVec2d<Y>): Vec2dInt = Vec2dInt(x - other.x.toInt(), y - other.y.toInt())
+    override fun minus(other: IVec2d<*>): Vec2dInt = Vec2dInt(x - other.x.toInt(), y - other.y.toInt())
     override fun minus(other: Number): Vec2dInt = Vec2dInt(x - other.toInt(), y - other.toInt())
 
-    override fun <Y : Number> times(other: IVec2d<Y>): Vec2dInt = Vec2dInt(x * other.x.toInt(), y * other.y.toInt())
+    override fun times(other: IVec2d<*>): Vec2dInt = Vec2dInt(x * other.x.toInt(), y * other.y.toInt())
     override fun times(other: Number): Vec2dInt = Vec2dInt(x * other.toInt(), y * other.toInt())
 
-    override fun <Y : Number> div(other: IVec2d<Y>): Vec2dInt = Vec2dInt(x / other.x.toInt(), y / other.y.toInt())
+    override fun div(other: IVec2d<*>): Vec2dInt = Vec2dInt(x / other.x.toInt(), y / other.y.toInt())
     override fun div(other: Number): Vec2dInt = Vec2dInt(x / other.toInt(), y / other.toInt())
 
     override fun unaryMinus(): Vec2dInt = Vec2dInt(-x, -y)
@@ -32,4 +32,7 @@ data class Vec2dInt(override val x: Int, override val y: Int) : IVec2d<Int> {
     override fun toIntPair(): Pair<Int, Int> = Pair(x.toInt(), y.toInt())
 
     override fun roundToInt(): Pair<Int, Int> = Pair(x, y)
+
+    override fun distanceTo(other: IVec2d<*>): Double = Math.hypot((x - other.x.toDouble()), (y - other.y.toDouble()))
+    override fun lerp(other: IVec2d<*>, t: Double): Vec2d = Vec2d(this) + (other - this) * t
 }
