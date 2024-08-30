@@ -1,19 +1,15 @@
 package com.millburnx.pathplanner.ui.layout
 
-import com.millburnx.pathplanner.ui.Theme
+import com.millburnx.pathplanner.ui.components.View
 import com.millburnx.utils.vec2d.Vec2d
 import javax.swing.JPanel
-import javax.swing.border.MatteBorder
 import kotlin.math.min
 import kotlin.math.roundToInt
 
 class ViewWrapper : JPanel() {
     val padding = Vec2d(24, 0)
 
-    val content = JPanel().apply {
-        border = MatteBorder(1, 1, 1, 1, Theme.borderColor)
-        background = Theme.bg1
-    }
+    val content = View()
 
     init {
         layout = null // handle layout manually

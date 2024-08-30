@@ -25,27 +25,27 @@ class Row(val children: List<JComponent>) : JPanel(), Serializable {
 
     init {
         layout = GridBagLayout()
-        val constraints = GridBagConstraints()
-        constraints.gridy = 0
-        constraints.insets.set(padding.y, padding.x, padding.y, padding.x)
         children.forEachIndexed { index, component ->
-            constraints.gridx = index
-            add(component, constraints)
+            add(component, getConstraints(index))
         }
     }
 
     fun updateCellMargins(maxWidths: List<Int>) {
         children.forEachIndexed { index, component ->
-            val width = component.preferredSize.width
-            val max = maxWidths[index]
-            val diff = max - width
+            val diff = maxWidths[index] - component.preferredSize.width
             val gridBag = layout as GridBagLayout
-            val constraints = GridBagConstraints()
-            constraints.gridx = index
-            constraints.insets.set(padding.y, padding.x, padding.y, padding.x)
-            constraints.insets.right = diff.coerceAtLeast(0) + padding.x
+            val constraints = getConstraints(index, diff.coerceAtLeast(0))
             gridBag.setConstraints(component, constraints)
-            println("Width: $width, Max: $max, Diff: $diff")
         }
+    }
+
+    fun getConstraints(index: Int, offset: Int = 0): GridBagConstraints {
+        val constraints = GridBagConstraints()
+        constraints.gridy = 0
+        constraints.gridx = index
+        constraints.anchor = GridBagConstraints.BASELINE_LEADING
+        constraints.weightx = 1.0
+        constraints.insets.set(padding.y, padding.x, padding.y, padding.x + offset)
+        return constraints
     }
 }
