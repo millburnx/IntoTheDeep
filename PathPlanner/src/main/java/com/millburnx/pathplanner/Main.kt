@@ -1,13 +1,42 @@
 package com.millburnx.pathplanner
 
-import com.millburnx.pathplanner.Layout.StackLayout
+import com.millburnx.pathplanner.UI.layout.StackLayout
+import com.millburnx.pathplanner.ui.Theme
 import java.awt.Dimension
 import javax.swing.JFrame
+import javax.swing.UIManager
 
 fun main(args: Array<String>) {
+    val scale = getScale(args)
+    setScale(scale)
+    setLAF()
     val frame = getJFrame()
     val stackLayout = StackLayout()
     stackLayout.addTo(frame)
+}
+
+fun getScale(args: Array<String>): Double {
+    val flag = "--scale="
+    for (arg in args) {
+        if (arg.startsWith(flag)) {
+            return arg.substring(flag.length).toDouble()
+        }
+    }
+    return 1.0
+}
+
+fun setScale(scale: Double) {
+    System.setProperty("flatlaf.uiScale", "$scale");
+    Theme.scale = scale
+}
+
+fun setLAF() {
+    try {
+        UIManager.setLookAndFeel(Theme.LAF);
+    } catch (e: Exception) {
+        e.printStackTrace()
+        System.err.println("Failed to initialize LaF, ui will look weird");
+    }
 }
 
 fun getJFrame(): JFrame {

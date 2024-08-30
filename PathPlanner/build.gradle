@@ -10,6 +10,8 @@ repositories {
 }
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'com.formdev:flatlaf:3.5.1'
+    implementation 'com.formdev:flatlaf-intellij-themes:3.5.1'
 }
 kotlin {
     jvmToolchain(21)

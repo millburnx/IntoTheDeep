@@ -1,11 +1,13 @@
 package com.millburnx.utils
 
+import java.io.Serializable
+
 typealias iVec2d = IVec2d<Number>
 
 /** I can't force ppl to implement all the secondary constructors cleanly,
  * however, please implement for single value, pair, another iVec2d, for all number types
  */
-interface IVec2d<T : Number> {
+interface IVec2d<T : Number> : Serializable {
     val x: T
     val y: T
 
