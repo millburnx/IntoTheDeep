@@ -18,6 +18,8 @@ class PointManager {
                 val p3 = points.getOrNull(i + 2) ?: BezierPoint(p2.anchor - (p1.anchor - p2.anchor))
 
                 val bezier = Bezier.fromCatmullRom(p0.anchor, p1.anchor, p2.anchor, p3.anchor)
+                _points[i].next = bezier.p1
+                _points[i + 1].prev = bezier.p2
                 beziers.add(bezier)
             }
             return beziers

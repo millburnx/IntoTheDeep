@@ -76,14 +76,7 @@ class View : JPanel() {
     fun drawPoints(g: Graphics2D) {
         println("Scale $scale")
         val g2d = g.create() as Graphics2D
-        g2d.color = Theme.fg
         g2d.stroke = BasicStroke(4f)
-        for (point in pointManager.points) {
-            val size = 4.0
-            val topLeft = scale.ppiScale(point.anchor - Vec2d(size, size) / 2)
-            val sizeScaled = scale.ppiScale(Vec2d(size, size))
-            g2d.fillOval(topLeft.x, topLeft.y, sizeScaled.x, sizeScaled.y)
-        }
         g2d.color = Theme.primary
         println("Beziers: ${pointManager.beziers.size}, ${pointManager.beziers}")
         for (bezier in pointManager.beziers) {
@@ -99,6 +92,35 @@ class View : JPanel() {
                     scale.ppiScale(point).y
                 )
                 lastPoint = point
+            }
+        }
+        g2d.color = Theme.fg
+        for (point in pointManager.points) {
+            val size = 4.0
+            val topLeft = scale.ppiScale(point.anchor - Vec2d(size, size) / 2)
+            val sizeScaled = scale.ppiScale(Vec2d(size, size))
+            g2d.fillOval(topLeft.x, topLeft.y, sizeScaled.x, sizeScaled.y)
+            if (point.prev != null) {
+                val topLeft = scale.ppiScale(point.prev!! - Vec2d(size, size) / 2)
+                val sizeScaled = scale.ppiScale(Vec2d(size, size))
+                g2d.fillOval(topLeft.x, topLeft.y, sizeScaled.x, sizeScaled.y)
+                g2d.drawLine(
+                    scale.ppiScale(point.prev!!).x,
+                    scale.ppiScale(point.prev!!).y,
+                    scale.ppiScale(point.anchor).x,
+                    scale.ppiScale(point.anchor).y
+                )
+            }
+            if (point.next != null) {
+                val topLeft = scale.ppiScale(point.next!! - Vec2d(size, size) / 2)
+                val sizeScaled = scale.ppiScale(Vec2d(size, size))
+                g2d.fillOval(topLeft.x, topLeft.y, sizeScaled.x, sizeScaled.y)
+                g2d.drawLine(
+                    scale.ppiScale(point.anchor).x,
+                    scale.ppiScale(point.anchor).y,
+                    scale.ppiScale(point.next!!).x,
+                    scale.ppiScale(point.next!!).y
+                )
             }
         }
         g2d.dispose()
