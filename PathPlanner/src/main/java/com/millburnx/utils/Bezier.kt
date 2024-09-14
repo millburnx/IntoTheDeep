@@ -3,9 +3,9 @@ package com.millburnx.utils
 import com.acmerobotics.dashboard.canvas.Canvas
 import java.awt.Color
 import java.awt.Graphics2D
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.pow
+
+data class boundingData(val min: Vec2d, val max: Vec2d, val xRoots: List<Double>, val yRoots: List<Double>)
 
 data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
     companion object {
@@ -59,31 +59,79 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
      * Get a list of intersections between the Bézier curve and a circle
      * @param samples the number of segments to split the Bézier curve into; curve resolution; higher is more accurate but slower
      */
-    fun intersections(circle: Circle, samples: Int = 100): List<Intersection<Bezier>> {
-        // bounding check
-        val min = Vec2d(
-            min(min(p0.x, p1.x), min(p2.x, p3.x)),
-            min(min(p0.y, p1.y), min(p2.y, p3.y))
-        )
-        val max = Vec2d(
-            max(max(p0.x, p1.x), max(p2.x, p3.x)),
-            max(max(p0.y, p1.y), max(p2.y, p3.y))
-        )
-        val minCircle = Vec2d(
-            circle.center.x - circle.radius,
-            circle.center.y - circle.radius
-        )
-        val maxCircle = Vec2d(
-            circle.center.x + circle.radius,
-            circle.center.y + circle.radius
-        )
-        if (min.x > maxCircle.x || max.x < minCircle.x || min.y > maxCircle.y || max.y < minCircle.y) {
-            return emptyList()
+    fun intersections(
+        circle: Circle,
+        canvas: Canvas? = null,
+        iterations: Int = 4,
+        parent: Bezier = this
+    ): List<Intersection<Bezier>> {
+        if (iterations == 0) {
+            // slow line intersection check
+            val intersections = mutableListOf<Intersection<Bezier>>()
+            var lastPoint = 0.0;
+            for (i in 1..10) {
+                val t = i.toDouble() / 10
+                val segment = LineSegment(at(lastPoint), at(t))
+                val intersection = segment.intersections(circle)
+                intersections.addAll(intersection.map { Intersection(it.point, parent) })
+                lastPoint = t
+            }
+            return intersections
         }
-        // split bezier into segments
-        val samplePoints: List<Vec2d> = (0..samples).map { at(it.toDouble() / samples) }
-        val segments: List<LineSegment> = samplePoints.zipWithNext().map { LineSegment(it.first, it.second) }
-        return segments.flatMap { it.intersections(circle) }.map { Intersection(it.point, this) }
+        // bounding check
+        val bounding = getBoundingTight()
+        canvas?.setStroke("#FF0000")?.strokeRect(
+            bounding.min.x,
+            bounding.min.y,
+            bounding.max.x - bounding.min.x,
+            bounding.max.y - bounding.min.y
+        )
+        val circleBounding = circle.bounding()
+        val intersects = Utils.boundingIntersection(bounding.min to bounding.max, circleBounding)
+        if (!intersects) return listOf()
+        // split the curve into 2
+        val (left, right) = this.split()
+        // recursive binary almost
+        return left.intersections(circle, canvas, iterations - 1, parent) +
+                right.intersections(circle, canvas, iterations - 1, parent)
+    }
+
+    fun split(): Pair<Bezier, Bezier> {
+        // de Casteljau's blossoming
+        val p01 = p0.lerp(p1, 0.5)
+        val p12 = p1.lerp(p2, 0.5)
+        val p23 = p2.lerp(p3, 0.5)
+        val p012 = p01.lerp(p12, 0.5)
+        val p123 = p12.lerp(p23, 0.5)
+        val p0123 = p012.lerp(p123, 0.5)
+        return Bezier(p0, p01, p012, p0123) to Bezier(p0123, p123, p23, p3)
+    }
+
+    fun getBoundingTight(): boundingData {
+        val a = p0 * -3 + p1 * 9 - p2 * 9 + p3 * 3
+        val b = p0 * 6 - p1 * 12 + p2 * 6
+        val c = p0 * -3 + p1 * 3
+        val tx = Utils.quadraticFormula(a.x, b.x, c.x)
+        val ty = Utils.quadraticFormula(a.y, b.y, c.y)
+        val xRoots =
+            listOf(tx?.first, tx?.second).filterNotNull()
+                .filter { it in 0.0..1.0 }
+        val yRoots =
+            listOf(ty?.first, ty?.second).filterNotNull()
+                .filter { it in 0.0..1.0 }
+
+        val possible = listOf(p0, p3) + xRoots.map { at(it) } + yRoots.map { at(it) }
+        val minX = possible.minOf { it.x }
+        val minY = possible.minOf { it.y }
+        val maxX = possible.maxOf { it.x }
+        val maxY = possible.maxOf { it.y }
+
+        return boundingData(
+            Vec2d(minX, minY),
+            Vec2d(maxX, maxY),
+            xRoots,
+            yRoots
+        )
     }
 
     /**

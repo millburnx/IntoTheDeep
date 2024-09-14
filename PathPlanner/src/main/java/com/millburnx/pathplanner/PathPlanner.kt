@@ -11,6 +11,7 @@ import com.millburnx.utils.Vec2d
 import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.GridBagLayout
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
@@ -19,7 +20,8 @@ import javax.swing.JPanel
 import kotlin.math.round
 
 class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
-    val drawImage = true
+    val drawImage = false
+    val drawBounding = true
     val backgroundImage = ImageIO.read(javaClass.classLoader.getResource("bg.png"))
     val bezierPoints: MutableList<BezierPoint> = mutableListOf()
     val undoStack: MutableList<List<Change>> = mutableListOf()
@@ -70,6 +72,17 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         bezierPoints.zipWithNext { p1, p2 ->
             Bezier(p1.anchor, p1.nextHandle!!, p2.prevHandle!!, p2.anchor)
         }.forEach {
+            val bezier = it
+            if (drawBounding) {
+                drawBezierBounding(bezier, g2d)
+                val (left, right) = bezier.split()
+                val (s1, s2) = left.split()
+                val (s3, s4) = right.split()
+                drawBezierBounding(s1, g2d)
+                drawBezierBounding(s2, g2d)
+                drawBezierBounding(s3, g2d)
+                drawBezierBounding(s4, g2d)
+            }
             it.g2dDraw(g2d, ppi, scale, Color.decode(Utils.Colors.green))
         }
 
@@ -78,6 +91,44 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         }
 
         g.drawImage(bufferedImage, 0, 0, null)
+    }
+
+    private fun drawBezierBounding(
+        bezier: Bezier,
+        g2d: Graphics2D,
+    ) {
+        val bounding = bezier.getBoundingTight()
+        val min = bounding.min
+        val max = bounding.max
+        val xRoot = bounding.xRoots
+        val yRoot = bounding.yRoots
+        val xRootPoints = xRoot.map { bezier.at(it) }
+        val yRootPoints = yRoot.map { bezier.at(it) }
+        g2d.color = Color.decode(Utils.Colors.red)
+        xRootPoints.forEach {
+            g2d.fillOval(
+                (it.x * ppi - 5).toInt(),
+                (it.y * ppi - 5).toInt(),
+                10,
+                10
+            )
+        }
+        g2d.color = Color.decode(Utils.Colors.green)
+        yRootPoints.forEach {
+            g2d.fillOval(
+                (it.x * ppi - 5).toInt(),
+                (it.y * ppi - 5).toInt(),
+                10,
+                10
+            )
+        }
+        g2d.color = Color.decode(Utils.Colors.bg4)
+        g2d.drawRect(
+            (min.x * ppi).toInt(),
+            (min.y * ppi).toInt(),
+            ((max.x - min.x) * ppi).toInt(),
+            ((max.y - min.y) * ppi).toInt()
+        )
     }
 
     fun updateCatmullRom() {

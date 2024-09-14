@@ -132,17 +132,20 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
         }
 
         val remainingSegments = beziers.subList(lastSegment, beziers.size)
-        val intersections = remainingSegments.flatMap { it.intersections(robot.lookaheadCircle) }
+        val intersections = remainingSegments.flatMap { it.intersections(robot.lookaheadCircle, canvas) }
         // closest by angle from current heading
         val closestIntersection = intersections.minByOrNull { abs(PurePursuit.getAngleDiff(robot.toPair(), it.point)) }
         for (intersection in intersections) {
             val segmentIndex = beziers.indexOf(intersection.line)
-            val color = colors[segmentIndex % colors.size]
+            val fixedIndex = if (segmentIndex == -1) 0 else segmentIndex
+            val color = colors[fixedIndex % colors.size]
             canvas.setFill(if (intersection == closestIntersection) "#FFFFFF" else color)
                 .fillCircle(intersection.point.x, intersection.point.y, 1.0)
         }
         val targetIntersection = closestIntersection ?: lastIntersection
-        lastSegment = beziers.indexOf(targetIntersection.line)
+        val segmentIndex = beziers.indexOf(targetIntersection.line)
+        val fixedIndex = if (segmentIndex == -1) 0 else segmentIndex
+        lastSegment = fixedIndex
         lastIntersection = targetIntersection
         driveTo(targetIntersection.point)
 

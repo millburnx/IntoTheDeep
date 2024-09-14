@@ -15,6 +15,7 @@ import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 class Utils {
     class Colors {
@@ -146,6 +147,20 @@ class Utils {
             label.font = font
             label.foreground = color
             return label
+        }
+
+        fun quadraticFormula(a: Double, b: Double, c: Double): Pair<Double, Double>? {
+            val temp = b * b - 4 * a * c
+            if (temp < 0) return null
+            return Pair((-b + sqrt(temp)) / (2 * a), (-b - sqrt(temp)) / (2 * a))
+        }
+
+        fun boundingIntersection(a: Pair<Vec2d, Vec2d>, b: Pair<Vec2d, Vec2d>): Boolean {
+            val (aMin, aMax) = a
+            val (bMin, bMax) = b
+            if (aMax.x < bMin.x || aMin.x > bMax.x) return false
+            if (aMax.y < bMin.y || aMin.y > bMax.y) return false
+            return true
         }
     }
 }

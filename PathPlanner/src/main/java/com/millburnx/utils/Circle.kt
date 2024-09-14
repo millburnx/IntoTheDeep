@@ -8,12 +8,15 @@ class Circle(val center: Vec2d, val radius: Double) {
         return center.distanceTo(p) <= radius
     }
 
+    fun bounding(): Pair<Vec2d, Vec2d> {
+        return Pair(center - Vec2d(radius, radius), center + Vec2d(radius, radius))
+    }
+
     /**
      * Checks if a point is inside the bounding box of the circle
      */
     fun boundingContains(p: Vec2d): Boolean {
-        val min = center - Vec2d(radius, radius)
-        val max = center - Vec2d(radius, radius)
+        val (min, max) = bounding()
 
         return p.x in min.x..max.x && p.y in min.y..max.y
     }
