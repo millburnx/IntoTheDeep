@@ -108,7 +108,10 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
     }
 
     fun getBoundingTight(): boundingData {
-        val a = p0 * -3 + p1 * 9 - p2 * 9 + p3 * 3
+        val aTemp = p0 * -3 + p1 * 9 - p2 * 9 + p3 * 3
+        // avoid division by zero
+        val a =
+            Vec2d(if (aTemp.x == 0.0) 0.0001 else aTemp.x, if (aTemp.y == 0.0) 0.0001 else aTemp.y)
         val b = p0 * 6 - p1 * 12 + p2 * 6
         val c = p0 * -3 + p1 * 3
         val tx = Utils.quadraticFormula(a.x, b.x, c.x)
