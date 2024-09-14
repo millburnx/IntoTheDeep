@@ -15,13 +15,13 @@ import java.io.File
 @Config
 object AutonConfig {
     @JvmField
-    var multiF = 0.1
+    var multiF = 0.75
 
     @JvmField
-    var multiH = 0.1
+    var multiH = 0.75
 
     @JvmField
-    var pathName = "fancy"
+    var pathName = "curly"
 }
 
 @TeleOp(name = "Auton")
