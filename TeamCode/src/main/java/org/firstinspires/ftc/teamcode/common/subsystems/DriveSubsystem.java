@@ -7,13 +7,18 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import java.util.List;
+
 @Config
 public class DriveSubsystem extends SubsystemBase {
+    private double cacheThreshold = 0.1; // -1 to disable
+    private double[] prevPower = new double[]{0.0, 0.0, 0.0, 0.0};
     public MotorEx leftFront, leftRear, rightRear, rightFront;
 
     public IMU imu;
@@ -28,7 +33,8 @@ public class DriveSubsystem extends SubsystemBase {
     public Motor.Encoder leftOdom, rightOdom, centerOdom;
     public HolonomicOdometry odometry;
 
-    public DriveSubsystem(HardwareMap hardwareMap) {
+    public DriveSubsystem(HardwareMap hardwareMap, double cacheThreshold) {
+        this.cacheThreshold = cacheThreshold;
         DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -78,6 +84,12 @@ public class DriveSubsystem extends SubsystemBase {
 
         // change to reflect starting field position
         odometry.updatePose(new com.arcrobotics.ftclib.geometry.Pose2d(-60, 60, new Rotation2d(Math.toRadians(0))));
+
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
     }
 
     public void robotCentric(double power, double strafe, double turn) {
@@ -91,10 +103,34 @@ public class DriveSubsystem extends SubsystemBase {
         double frontRightPower = (power - strafe - turn) / denominator;
         double backRightPower = (power + strafe - turn) / denominator;
 
-        leftFront.set(frontLeftPower);
-        leftRear.set(backLeftPower);
-        rightFront.set(frontRightPower);
-        rightRear.set(backRightPower);
+        boolean caching = cacheThreshold == -1;
+        if (caching) {
+            double frontLeftDiff = Math.abs(prevPower[0] - frontLeftPower);
+            double backLeftDiff = Math.abs(prevPower[1] - backLeftPower);
+            double frontRightDiff = Math.abs(prevPower[2] - frontRightPower);
+            double backRightDiff = Math.abs(prevPower[3] - backRightPower);
+            if (frontLeftDiff > cacheThreshold) {
+                prevPower[0] = frontLeftPower;
+                leftFront.set(frontLeftPower);
+            }
+            if (backLeftDiff > cacheThreshold) {
+                prevPower[1] = backLeftPower;
+                leftRear.set(backLeftPower);
+            }
+            if (frontRightDiff > cacheThreshold) {
+                prevPower[2] = frontRightPower;
+                rightFront.set(frontRightPower);
+            }
+            if (backRightDiff > cacheThreshold) {
+                prevPower[3] = backRightPower;
+                rightRear.set(backRightPower);
+            }
+        } else {
+            leftFront.set(frontLeftPower);
+            leftRear.set(backLeftPower);
+            rightFront.set(frontRightPower);
+            rightRear.set(backRightPower);
+        }
     }
 
     public void updatePos() {

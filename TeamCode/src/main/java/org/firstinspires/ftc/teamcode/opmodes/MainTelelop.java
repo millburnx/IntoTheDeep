@@ -20,7 +20,7 @@ public class MainTelelop extends CommandOpMode {
 
     @Override
     public void initialize() {
-        drive = new DriveSubsystem(hardwareMap);
+        drive = new DriveSubsystem(hardwareMap, -1);
 //        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         tel = new Telemetry();
         dash = FtcDashboard.getInstance();

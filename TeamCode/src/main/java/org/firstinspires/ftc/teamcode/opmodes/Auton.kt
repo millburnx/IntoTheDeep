@@ -39,7 +39,7 @@ class Auton : CommandOpMode() {
     }()
 
     override fun initialize() {
-        val drive = DriveSubsystem(hardwareMap)
+        val drive = DriveSubsystem(hardwareMap, 0.1)
         this.drive = drive
         tel = Telemetry()
         dash = FtcDashboard.getInstance()

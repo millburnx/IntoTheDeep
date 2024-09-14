@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.command.CommandBase
 import com.millburnx.purepursuit.PurePursuit
 import com.millburnx.utils.Vec2d
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem
 import org.firstinspires.ftc.teamcode.common.subsystems.PID
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
@@ -20,6 +21,9 @@ class PurePursuitCommand(
     val purePursuit = PurePursuit(path, lookahead)
     val pidF = PID(1.0, 0.0, 0.0)
     val pidH = PID(1.0, 0.0, 0.0)
+    val timer: ElapsedTime = ElapsedTime()
+    var loops = 0
+    val fullTimer: ElapsedTime = ElapsedTime()
 
     init {
         addRequirements(drive)
@@ -28,6 +32,8 @@ class PurePursuitCommand(
     override fun initialize() {
         pidF.reset()
         pidH.reset()
+        timer.reset()
+        fullTimer.reset()
     }
 
     override fun execute() {
@@ -48,6 +54,12 @@ class PurePursuitCommand(
         PurePursuit.render(calcResults, packet, true)
         packet.put("pure_pursuit/power_forward", powerF)
         packet.put("pure_pursuit/power_heading", powerH)
+        val delta = timer.milliseconds()
+        loops++
+        val fullDelta = fullTimer.milliseconds() / loops
+        timer.reset()
+        packet.put("general/loop_time (ms)", delta)
+        packet.put("general/avg_loop_time (ms)", fullDelta)
         Telemetry.drawRobot(packet.fieldOverlay(), pose)
         dash.sendTelemetryPacket(packet)
 
