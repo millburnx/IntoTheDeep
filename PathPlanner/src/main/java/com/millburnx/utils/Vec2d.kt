@@ -10,7 +10,7 @@ import kotlin.math.abs as kAbs
 /**
  * Represents a 2D vector/point
  */
-class Vec2d(val x: Double, val y: Double) {
+data class Vec2d(val x: Double, val y: Double) {
     constructor(x: Float, y: Float) : this(x.toDouble(), y.toDouble())
     constructor(x: Int, y: Int) : this(x.toDouble(), y.toDouble())
 
@@ -59,19 +59,8 @@ class Vec2d(val x: Double, val y: Double) {
         return atan2(other.y - y, other.x - x)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is Vec2d) return false
-        return x == other.x && y == other.y
-    }
-
     override fun toString(): String {
         return "Point($x, $y)"
-    }
-
-    override fun hashCode(): Int {
-        var result = x.hashCode()
-        result = 31 * result + y.hashCode()
-        return result
     }
 
     /**
@@ -113,13 +102,6 @@ class Vec2d(val x: Double, val y: Double) {
      */
     fun dimension(): Dimension {
         return Dimension(x.toInt(), y.toInt())
-    }
-
-    /**
-     * Returns a copy of the point
-     */
-    fun copy(): Vec2d {
-        return Vec2d(x, y)
     }
 
     companion object {

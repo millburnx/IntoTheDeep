@@ -162,5 +162,9 @@ class Utils {
             if (aMax.y < bMin.y || aMin.y > bMax.y) return false
             return true
         }
+
+        fun lerp(a: Double, b: Double, t: Double): Double {
+            return a + (b - a) * t
+        }
     }
 }

@@ -3,7 +3,7 @@ package com.millburnx.purepursuit
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.millburnx.dashboard.TelemetryPacket
 import com.millburnx.utils.Bezier
-import com.millburnx.utils.Intersection
+import com.millburnx.utils.BezierIntersection
 import com.millburnx.utils.Utils
 import com.millburnx.utils.Vec2d
 import java.awt.Color
@@ -22,7 +22,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
 
     private var beziers: List<Bezier> = Utils.pathToBeziers(path)
 
-    private var lastIntersection: Intersection<Bezier> = Intersection(path[0], beziers[0]) // start of the path
+    private var lastIntersection: BezierIntersection = BezierIntersection(path[0], beziers[0], 0.0) // start of the path
     private var lastSegment: Int = 0 // prevent backtracking
 
     private val prevPositions: MutableList<Vec2d> = mutableListOf()
@@ -35,7 +35,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
             robot.heading = 0.0
             prevPositions.clear()
             lastSegment = 0
-            lastIntersection = Intersection(path[0], beziers[0])
+            lastIntersection = BezierIntersection(path[0], beziers[0], 0.0)
             lastFrame = 0L
             val packet = TelemetryPacket()
             val canvas = packet.fieldOverlay()
@@ -52,7 +52,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
     private fun updatePath() {
         beziers = Utils.pathToBeziers(path)
         lastSegment = 0
-        lastIntersection = Intersection(path[0], beziers[0])
+        lastIntersection = BezierIntersection(path[0], beziers[0], 0.0)
         val packet = TelemetryPacket()
         val canvas = packet.fieldOverlay()
         renderPath(canvas)
@@ -68,11 +68,8 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
     }
 
     private fun renderPath(canvas: Canvas) {
-        canvas.setFill(background)
-            .fillRect(-144.0 / 2, -144.0 / 2, 144.0, 144.0)
-            .setStroke(Utils.Colors.bg2)
-            .drawGrid(0.0, 0.0, 144.0, 144.0, 7, 7)
-            .setStrokeWidth(2)
+        canvas.setFill(background).fillRect(-144.0 / 2, -144.0 / 2, 144.0, 144.0).setStroke(Utils.Colors.bg2)
+            .drawGrid(0.0, 0.0, 144.0, 144.0, 7, 7).setStrokeWidth(2)
 
         var color = 0
         for (bezier in beziers) {
@@ -90,20 +87,12 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
             val p2 = path[i + 2]
             val p3 = path[i + 3]
 
-            canvas.setStroke(colors[color % colors.size])
-                .strokeLine(p0.x, p0.y, p1.x, p1.y)
-                .strokeLine(p2.x, p2.y, p3.x, p3.y)
-                .setFill(background)
-                .fillCircle(p0.x, p0.y, anchorSize)
-                .fillCircle(p1.x, p1.y, handleSize)
-                .fillCircle(p2.x, p2.y, handleSize)
-                .fillCircle(p3.x, p3.y, anchorSize)
-                .setStroke("#FFFFFF")
-                .strokeCircle(p0.x, p0.y, anchorSize)
-                .strokeCircle(p3.x, p3.y, anchorSize)
-                .setStroke(colors[color % colors.size])
-                .strokeCircle(p1.x, p1.y, handleSize)
-                .strokeCircle(p2.x, p2.y, handleSize)
+            canvas.setStroke(colors[color % colors.size]).strokeLine(p0.x, p0.y, p1.x, p1.y)
+                .strokeLine(p2.x, p2.y, p3.x, p3.y).setFill(background).fillCircle(p0.x, p0.y, anchorSize)
+                .fillCircle(p1.x, p1.y, handleSize).fillCircle(p2.x, p2.y, handleSize)
+                .fillCircle(p3.x, p3.y, anchorSize).setStroke("#FFFFFF").strokeCircle(p0.x, p0.y, anchorSize)
+                .strokeCircle(p3.x, p3.y, anchorSize).setStroke(colors[color % colors.size])
+                .strokeCircle(p1.x, p1.y, handleSize).strokeCircle(p2.x, p2.y, handleSize)
 
             color++
         }
@@ -122,7 +111,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
                 println("Reached the end of the path ${path.last()} with distance $distanceToFinal (ending at ${robot.position})")
                 return false
             }
-            lastIntersection = Intersection(path.last(), beziers.last())
+            lastIntersection = BezierIntersection(path.last(), beziers.last(), 1.0)
             canvas.setFill(Color.CYAN.rgb.toString())
                 .fillCircle(lastIntersection.point.x, lastIntersection.point.y, 1.0)
             driveTo(path.last())
@@ -131,8 +120,23 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
             return true
         }
 
-        val remainingSegments = beziers.subList(lastSegment, beziers.size)
-        val intersections = remainingSegments.flatMap { it.intersections(robot.lookaheadCircle, canvas) }
+        val remainingSegments = beziers.subList(lastSegment, beziers.size).toMutableList()
+        remainingSegments[0] =
+            remainingSegments[0].split((lastIntersection.t - 0.01).coerceAtLeast(0.0)).second // prune the first segment
+        val intersections = remainingSegments.flatMapIndexed { index, bezier ->
+            if (index == 0) {
+                bezier.intersections(
+                    robot.lookaheadCircle,
+                    canvas,
+                    start = lastIntersection.t - 0.01
+                )
+            } else {
+                bezier.intersections(
+                    robot.lookaheadCircle,
+                    canvas
+                )
+            }
+        }
         // closest by angle from current heading
         val closestIntersection = intersections.minByOrNull { abs(PurePursuit.getAngleDiff(robot.toPair(), it.point)) }
         for (intersection in intersections) {
@@ -144,7 +148,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
         }
         val targetIntersection = closestIntersection ?: lastIntersection
         val segmentIndex = beziers.indexOf(targetIntersection.line)
-        val fixedIndex = if (segmentIndex == -1) 0 else segmentIndex
+        val fixedIndex = if (segmentIndex == -1) lastSegment else segmentIndex
         lastSegment = fixedIndex
         lastIntersection = targetIntersection
         driveTo(targetIntersection.point)
@@ -163,12 +167,8 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
         val copyPositions = prevPositions.toList()
 
         canvas.setFill("#FFFFFF")
-            .strokePolyline(
-                copyPositions.map { it.x }.toDoubleArray(),
-                copyPositions.map { it.y }.toDoubleArray()
-            )
-            .setFill(Utils.Colors.purple)
-            .fillCircle(robot.position.x, robot.position.y, 1.0)
+            .strokePolyline(copyPositions.map { it.x }.toDoubleArray(), copyPositions.map { it.y }.toDoubleArray()
+            ).setFill(Utils.Colors.purple).fillCircle(robot.position.x, robot.position.y, 1.0)
             .strokeCircle(robot.position.x, robot.position.y, robot.lookahead)
             .strokeLine(robot.position.x, robot.position.y, lookaheadPoint.x, lookaheadPoint.y)
     }
@@ -177,9 +177,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
         val angleDiff = PurePursuit.getAngleDiff(robot.toPair(), point)
         val forwardPower = robot.position.distanceTo(point) / robot.lookahead
         drive(
-            forwardPower,
-            0.0,
-            angleDiff
+            forwardPower, 0.0, angleDiff
         ) // robot never strafes in pp since pp is a differential drive algorithm
     }
 }

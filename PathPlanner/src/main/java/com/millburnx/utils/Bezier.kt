@@ -63,17 +63,20 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         circle: Circle,
         canvas: Canvas? = null,
         iterations: Int = 4,
-        parent: Bezier = this
-    ): List<Intersection<Bezier>> {
+        parent: Bezier = this,
+        start: Double = 0.0,
+        end: Double = 1.0
+    ): List<BezierIntersection> {
         if (iterations == 0) {
             // slow line intersection check
-            val intersections = mutableListOf<Intersection<Bezier>>()
+            val intersections = mutableListOf<BezierIntersection>()
             var lastPoint = 0.0;
             for (i in 1..10) {
                 val t = i.toDouble() / 10
                 val segment = LineSegment(at(lastPoint), at(t))
                 val intersection = segment.intersections(circle)
-                intersections.addAll(intersection.map { Intersection(it.point, parent) })
+                val realT = Utils.lerp(start, end, t)
+                intersections.addAll(intersection.map { BezierIntersection(it.point, parent, realT) })
                 lastPoint = t
             }
             return intersections
@@ -90,20 +93,21 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         val intersects = Utils.boundingIntersection(bounding.min to bounding.max, circleBounding)
         if (!intersects) return listOf()
         // split the curve into 2
+        val center = Utils.lerp(start, end, 0.5)
         val (left, right) = this.split()
         // recursive binary almost
-        return left.intersections(circle, canvas, iterations - 1, parent) +
-                right.intersections(circle, canvas, iterations - 1, parent)
+        return left.intersections(circle, canvas, iterations - 1, parent, start, center) +
+                right.intersections(circle, canvas, iterations - 1, parent, center, end)
     }
 
-    fun split(): Pair<Bezier, Bezier> {
+    fun split(t: Double = 0.5): Pair<Bezier, Bezier> {
         // de Casteljau's blossoming
-        val p01 = p0.lerp(p1, 0.5)
-        val p12 = p1.lerp(p2, 0.5)
-        val p23 = p2.lerp(p3, 0.5)
-        val p012 = p01.lerp(p12, 0.5)
-        val p123 = p12.lerp(p23, 0.5)
-        val p0123 = p012.lerp(p123, 0.5)
+        val p01 = p0.lerp(p1, t)
+        val p12 = p1.lerp(p2, t)
+        val p23 = p2.lerp(p3, t)
+        val p012 = p01.lerp(p12, t)
+        val p123 = p12.lerp(p23, t)
+        val p0123 = p012.lerp(p123, t)
         return Bezier(p0, p01, p012, p0123) to Bezier(p0123, p123, p23, p3)
     }
 
