@@ -131,7 +131,7 @@ class PurePursuit(
                 }
                 val colorString = currentColor
                 canvas.setFill(colorString)
-                    .fillCircle(intersection.point.x, intersection.point.y, 1.0)
+                    .fillCircle(intersection.point.x, -intersection.point.y, 1.0)
                 color++
             }
         }

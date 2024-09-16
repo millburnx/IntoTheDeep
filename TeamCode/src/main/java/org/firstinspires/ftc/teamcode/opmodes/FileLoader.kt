@@ -12,7 +12,7 @@ class FileLoader : CommandOpMode() {
     override fun initialize() {
         println("FILE PATH: ${Environment.getExternalStorageDirectory()} | ${Environment.getDataDirectory()}")
         var rootDir = Environment.getExternalStorageDirectory()
-        val points = Vec2d.loadList(File("${rootDir}/Paths/fancy.tsv"))
+        val points = Vec2d.loadList(File("${rootDir}/Paths/intothedeep.tsv"))
         val path = Utils.pathToBeziers(points)
         println(path.joinToString("\n"))
     }

@@ -18,10 +18,10 @@ public class Telemetry {
     }
 
     public static void drawRobot(Canvas canvas, Pose2d pose) {
-        canvas.strokeCircle(pose.getX(), pose.getY(), 9);
-        Vec2d lookVector = new Vec2d(9, 0).rotate(pose.getHeading());
-        Vec2d lookPoint = new Vec2d(pose.getX(), pose.getY()).plus(lookVector);
-        canvas.strokeLine(pose.getX(), pose.getY(), lookPoint.getX(), lookPoint.getY());
+        canvas.strokeCircle(pose.getX(), -pose.getY(), 9);
+        Vec2d lookVector = new Vec2d(9, 0).rotate(-pose.getHeading());
+        Vec2d lookPoint = new Vec2d(pose.getX(), -pose.getY()).plus(lookVector);
+        canvas.strokeLine(pose.getX(), -pose.getY(), lookPoint.getX(), lookPoint.getY());
     }
 
     //draw all the robots on the field and send to the dashboard

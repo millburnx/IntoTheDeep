@@ -21,7 +21,7 @@ object AutonConfig {
     var multiH = 0.75
 
     @JvmField
-    var pathName = "curly"
+    var pathName = "intothedeep"
 }
 
 @TeleOp(name = "Auton")
@@ -31,12 +31,12 @@ class Auton : CommandOpMode() {
     var pos: Pose2d = Pose2d()
     var dash: FtcDashboard? = null
 
-    val path = {
+    val path = run {
         println("FILE PATH: ${Environment.getExternalStorageDirectory()} | ${Environment.getDataDirectory()}")
         var rootDir = Environment.getExternalStorageDirectory()
         val points = Vec2d.loadList(File("${rootDir}/Paths/${AutonConfig.pathName}.tsv"))
         points
-    }()
+    }
 
     override fun initialize() {
         val drive = DriveSubsystem(hardwareMap, 0.1)

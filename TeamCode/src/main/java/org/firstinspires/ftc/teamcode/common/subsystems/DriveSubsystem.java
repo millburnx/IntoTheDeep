@@ -83,7 +83,7 @@ public class DriveSubsystem extends SubsystemBase {
         );
 
         // change to reflect starting field position
-        odometry.updatePose(new com.arcrobotics.ftclib.geometry.Pose2d(-60, 60, new Rotation2d(Math.toRadians(0))));
+        odometry.updatePose(new com.arcrobotics.ftclib.geometry.Pose2d(-60, -60, new Rotation2d(Math.toRadians(0))));
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 

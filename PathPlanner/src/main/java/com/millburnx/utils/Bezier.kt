@@ -149,7 +149,7 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         for (i in 1..samples) {
             val t = i.toDouble() / samples
             val point = at(t)
-            canvas.strokeLine(lastPoint.x, lastPoint.y, point.x, point.y)
+            canvas.strokeLine(lastPoint.x, -lastPoint.y, point.x, -point.y)
             lastPoint = point
         }
     }
