@@ -63,6 +63,10 @@ class PurePursuitCommand(
         Telemetry.drawRobot(packet.fieldOverlay(), pose)
         dash.sendTelemetryPacket(packet)
 
+        if (isFinished) {
+            drive.robotCentric(0.0, 0.0, 0.0);
+            return
+        }
         drive.robotCentric(powerF, 0.0, -powerH, AutonConfig.multiF, AutonConfig.multiH)
     }
 

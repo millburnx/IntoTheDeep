@@ -17,6 +17,7 @@ public class Telemetry {
     }
 
     public static void drawRobot(Canvas canvas, Pose2d pose) {
+        canvas.setStroke("#0000ff");
         Pose2d transformed = toRR(pose);
         canvas.strokeCircle(transformed.getX(), transformed.getY(), 9);
         Vec2d lookVector = new Vec2d(9, 0).rotate(pose.getHeading()).toRR();

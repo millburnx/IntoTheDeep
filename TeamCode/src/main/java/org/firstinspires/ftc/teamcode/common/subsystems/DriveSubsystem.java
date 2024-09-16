@@ -26,7 +26,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     public static double TRACK_WIDTH = -12.375;
     public static double CENTER_WHEEL_OFFSET = 0.5; // distance between center of rotation of the robot and the center odometer
-    public static double WHEEL_DIAMETER = 1.425;
+    public static double WHEEL_DIAMETER = 1.45;
     public static double TICKS_PER_REV = 8192;
     public static double DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
     public static boolean BREAK = false;
