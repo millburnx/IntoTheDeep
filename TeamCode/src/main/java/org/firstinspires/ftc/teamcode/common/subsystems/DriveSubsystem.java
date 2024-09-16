@@ -24,12 +24,17 @@ public class DriveSubsystem extends SubsystemBase {
     public IMU imu;
     private VoltageSensor batteryVoltageSensor;
 
-    public static double TRACK_WIDTH = 12.375;
+    public static double TRACK_WIDTH = -12.375;
     public static double CENTER_WHEEL_OFFSET = 0.5; // distance between center of rotation of the robot and the center odometer
     public static double WHEEL_DIAMETER = 1.425;
     public static double TICKS_PER_REV = 8192;
     public static double DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
     public static boolean BREAK = false;
+
+    public static double startingX = -60.0;
+    public static double startingY = -60.0;
+    public static double startingH = 0.0;
+
     public Motor.Encoder leftOdom, rightOdom, centerOdom;
     public HolonomicOdometry odometry;
 
@@ -69,7 +74,9 @@ public class DriveSubsystem extends SubsystemBase {
         rightOdom = leftFront.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
         centerOdom = leftRear.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
 
+        leftOdom.setDirection(Motor.Direction.FORWARD);
         rightOdom.setDirection(Motor.Direction.REVERSE);
+        centerOdom.setDirection(Motor.Direction.REVERSE);
 
         leftOdom.reset();
         rightOdom.reset();
@@ -83,7 +90,7 @@ public class DriveSubsystem extends SubsystemBase {
         );
 
         // change to reflect starting field position
-        odometry.updatePose(new com.arcrobotics.ftclib.geometry.Pose2d(-60, -60, new Rotation2d(Math.toRadians(0))));
+        odometry.updatePose(new com.arcrobotics.ftclib.geometry.Pose2d(startingX, startingY, new Rotation2d(Math.toRadians(startingH))));
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 

@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.geometry.Pose2d;
-import com.arcrobotics.ftclib.geometry.Vector2d;
 import com.millburnx.utils.Vec2d;
 
 
@@ -18,10 +17,15 @@ public class Telemetry {
     }
 
     public static void drawRobot(Canvas canvas, Pose2d pose) {
-        canvas.strokeCircle(pose.getX(), -pose.getY(), 9);
-        Vec2d lookVector = new Vec2d(9, 0).rotate(-pose.getHeading());
-        Vec2d lookPoint = new Vec2d(pose.getX(), -pose.getY()).plus(lookVector);
-        canvas.strokeLine(pose.getX(), -pose.getY(), lookPoint.getX(), lookPoint.getY());
+        Pose2d transformed = toRR(pose);
+        canvas.strokeCircle(transformed.getX(), transformed.getY(), 9);
+        Vec2d lookVector = new Vec2d(9, 0).rotate(pose.getHeading()).toRR();
+        Vec2d lookPoint = new Vec2d(transformed.getX(), transformed.getY()).plus(lookVector);
+        canvas.strokeLine(transformed.getX(), transformed.getY(), lookPoint.getX(), lookPoint.getY());
+    }
+
+    public static Pose2d toRR(Pose2d pose) {
+        return new Pose2d(pose.getY(), -pose.getX(), pose.getRotation());
     }
 
     //draw all the robots on the field and send to the dashboard

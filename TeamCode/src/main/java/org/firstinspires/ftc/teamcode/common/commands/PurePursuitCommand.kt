@@ -63,7 +63,7 @@ class PurePursuitCommand(
         Telemetry.drawRobot(packet.fieldOverlay(), pose)
         dash.sendTelemetryPacket(packet)
 
-        drive.robotCentric(powerF, 0.0, powerH, AutonConfig.multiF, AutonConfig.multiH)
+        drive.robotCentric(powerF, 0.0, -powerH, AutonConfig.multiF, AutonConfig.multiH)
     }
 
     override fun end(interrupted: Boolean) {

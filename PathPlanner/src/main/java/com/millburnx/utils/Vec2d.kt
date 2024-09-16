@@ -104,6 +104,10 @@ data class Vec2d(val x: Double, val y: Double) {
         return Dimension(x.toInt(), y.toInt())
     }
 
+    fun toRR(): Vec2d {
+        return Vec2d(y, -x);
+    }
+
     companion object {
         /**
          * Saves a list of points to a tsv file
