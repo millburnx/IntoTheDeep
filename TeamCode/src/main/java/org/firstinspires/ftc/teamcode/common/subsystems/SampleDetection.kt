@@ -16,10 +16,13 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
+import org.opencv.core.RotatedRect
 import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.math.min
+import kotlin.math.round
 
 class SampleDetector : SubsystemBase() {
 
@@ -150,12 +153,15 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
         Imgproc.drawContours(image, contours, -1, contourColor, 2)
         contours.forEachIndexed { i, contour ->
             val minRect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
+            val angle = correctCVAngle(minRect)
             val points = Array<Point>(4) { Point() }
             minRect.points(points)
             Imgproc.line(image, points[0], points[1], boxColor, 2)
             Imgproc.line(image, points[1], points[2], boxColor, 2)
             Imgproc.line(image, points[2], points[3], boxColor, 2)
             Imgproc.line(image, points[3], points[0], boxColor, 2) //code vandalism
+
+            Imgproc.putText(image, "${round(angle)}", minRect.center, Imgproc.FONT_HERSHEY_PLAIN, 4.0, boxColor)
         }
     }
 
@@ -166,10 +172,21 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
     fun contourToDetection(contour: MatOfPoint, color: SampleColor): SampleDetection {
         val minRect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
         val center = Vec2d(minRect.center.x, minRect.center.y) // maybe make an extension function or smt
-        val angle = minRect.angle
         // 0 degrees is when the box is fully straight landscape since that's how our intake works
-        val correctedAngle = if (minRect.size.width < minRect.size.height) angle + 90 else angle
-        return SampleDetection(center, correctedAngle, color)
+
+        val angle = correctCVAngle(minRect)
+
+        return SampleDetection(center, angle, color)
+    }
+
+    fun correctCVAngle(rect: RotatedRect): Double{
+        val angle = if (rect.size.width < rect.size.height) {
+            90 - rect.angle
+        } else {
+            -rect.angle
+        }
+        val correctedAngle = angle
+        return correctedAngle
     }
 
     override fun onDrawFrame(
@@ -180,13 +197,12 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
         scaleCanvasDensity: Float,
         userContext: Any?
     ) {
-        TODO("Not yet implemented")
+        // todo
     }
 
     override fun getFrameBitmap(continuation: Continuation<out Consumer<Bitmap>>) {
         continuation.dispatch { consumer -> consumer.accept(lastFrame.get()) }
     }
-
 }
 
 enum class SampleColor{
