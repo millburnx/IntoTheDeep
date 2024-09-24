@@ -41,6 +41,7 @@ class VisionPortalOp : CommandOpMode() {
         val tags = aprilTag.getTags()
 
         for (tag in tags) {
+            if (tag.ftcPose == null) return
             val poseData = "${tag.ftcPose.x}, ${tag.ftcPose.y}, ${tag.ftcPose.z}"
             tel.addData(tag.id.toString(), poseData)
         }

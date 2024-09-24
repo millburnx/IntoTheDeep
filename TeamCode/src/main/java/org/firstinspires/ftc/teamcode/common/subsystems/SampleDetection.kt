@@ -64,22 +64,22 @@ class SampleDetector : VisionProcessor, CameraStreamSource {
             contoursImg,
             rContours,
             rHierarchy,
-            Scalar(0.0, 0.0, 0.0),
-            Scalar(0.0, 0.0, 0.0)
+            Scalar(255.0, 0.0, 0.0),
+            Scalar(0.0, 255.0, 255.0)
         )
         drawContours(
             contoursImg,
             yContours,
             yHierarchy,
-            Scalar(0.0, 0.0, 0.0),
-            Scalar(0.0, 0.0, 0.0)
+            Scalar(255.0, 255.0, 0.0),
+            Scalar(0.0, 255.0, 255.0)
         )
         drawContours(
             contoursImg,
             bContours,
             bHierarchy,
-            Scalar(0.0, 0.0, 0.0),
-            Scalar(0.0, 0.0, 0.0)
+            Scalar(0.0, 0.0, 255.0),
+            Scalar(0.0, 255.0, 255.0)
         )
         val contoursBitmap = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565)
         Utils.matToBitmap(contoursImg, contoursBitmap)
@@ -118,21 +118,25 @@ class SampleDetector : VisionProcessor, CameraStreamSource {
         boxColor: Scalar
     ) {
         Imgproc.drawContours(image, contours, -1, contourColor, 2)
+        println("processing ${contours.size} contours")
         contours.forEachIndexed { i, contour ->
-            if (hierarchy.get(0, i).get(3) != -1.0) {
+            if (hierarchy.get(0, i)[3] != -1.0) {
                 return@forEachIndexed
-                val boundingRect = Imgproc.boundingRect(contour)
-                if (boundingRect.width < 20 || boundingRect.height < 20) {
-                    return@forEachIndexed
-                }
-                val minRect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
-                val points = Array<Point>(4) { Point() }
-                minRect.points(points)
-                Imgproc.line(image, points[0], points[1], boxColor, 2)
-                Imgproc.line(image, points[1], points[2], boxColor, 2)
-                Imgproc.line(image, points[2], points[3], boxColor, 2)
-                Imgproc.line(image, points[3], points[0], boxColor, 2)
             }
+            val boundingRect = Imgproc.boundingRect(contour)
+            if (boundingRect.width < 20 || boundingRect.height < 20) {
+                println("discarded contour $i , (${boundingRect.width} x ${boundingRect.height})")
+                return@forEachIndexed
+            }
+            val minRect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
+            val points = Array<Point>(4) { Point() }
+            minRect.points(points)
+            println(points.joinToString(", "))
+            Imgproc.line(image, points[0], points[1], boxColor, 2)
+            Imgproc.line(image, points[1], points[2], boxColor, 2)
+            Imgproc.line(image, points[2], points[3], boxColor, 2)
+            Imgproc.line(image, points[3], points[0], boxColor, 2) //code vandalism
+
         }
     }
 
