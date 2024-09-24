@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.SubsystemBase
+import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.robotcore.external.function.Consumer
 import org.firstinspires.ftc.robotcore.external.function.Continuation
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource
@@ -20,7 +21,7 @@ import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.util.concurrent.atomic.AtomicReference
 
-class SampleDetection : SubsystemBase() {
+class SampleDetector : SubsystemBase() {
 
 }
 
@@ -30,9 +31,11 @@ object SampleDetectorConfig {
     var color = 0
 }
 
-class SampleDetector : VisionProcessor, CameraStreamSource {
+class SamplePipeline : VisionProcessor, CameraStreamSource {
     val lastFrame: AtomicReference<Bitmap> =
         AtomicReference(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565))
+
+    val detections: AtomicReference<List<SampleDetection>> = AtomicReference(listOf<SampleDetection>())
 
     override fun init(width: Int, height: Int, calibration: CameraCalibration?) {}
 
@@ -55,29 +58,33 @@ class SampleDetector : VisionProcessor, CameraStreamSource {
         Imgproc.threshold(cbChannel, yThreshold, 57.0, 255.0, Imgproc.THRESH_BINARY_INV)
         Imgproc.threshold(cbChannel, bThreshold, 150.0, 255.0, Imgproc.THRESH_BINARY)
 
-        val (rContours, rHierarchy) = getContours(rThreshold)
-        val (yContours, yHierarchy) = getContours(yThreshold)
-        val (bContours, bHierarchy) = getContours(bThreshold)
+        val rContours = filterContours(getContours(rThreshold))
+        val yContours = filterContours(getContours(yThreshold))
+        val bContours = filterContours(getContours(bThreshold))
+
+        val rDetections = contoursToDetections(rContours, SampleColor.RED)
+        val yDetections = contoursToDetections(yContours, SampleColor.YELLOW)
+        val bDetections = contoursToDetections(bContours, SampleColor.BLUE)
+
+        val detections = rDetections + yDetections + bDetections
+        this.detections.set(detections)
 
         val contoursImg = frame.clone()
         drawContours(
             contoursImg,
             rContours,
-            rHierarchy,
             Scalar(255.0, 0.0, 0.0),
             Scalar(0.0, 255.0, 255.0)
         )
         drawContours(
             contoursImg,
             yContours,
-            yHierarchy,
             Scalar(255.0, 255.0, 0.0),
             Scalar(0.0, 255.0, 255.0)
         )
         drawContours(
             contoursImg,
             bContours,
-            bHierarchy,
             Scalar(0.0, 0.0, 255.0),
             Scalar(0.0, 255.0, 255.0)
         )
@@ -110,34 +117,59 @@ class SampleDetector : VisionProcessor, CameraStreamSource {
         return (contours.toList() to hierarchy)
     }
 
+    fun filterContours(contoursAndHierarchy: Pair<List<MatOfPoint>, Mat>): List<MatOfPoint> {
+        return filterContours(contoursAndHierarchy.first, contoursAndHierarchy.second)
+    }
+
+    fun filterContours(
+        contours: List<MatOfPoint>,
+        hierarchy: Mat
+    ): List<MatOfPoint> {
+        return contours.filterIndexed { i, contour ->
+            isValidContour(contour, hierarchy.get(0, i)[3])
+        }
+    }
+
+    fun isValidContour(
+        contour: MatOfPoint,
+        hierarchyValue: Double
+    ): Boolean {
+        if (hierarchyValue != -1.0) {
+            return false
+        }
+        val boundingRect = Imgproc.boundingRect(contour)
+        return !(boundingRect.width < 20 || boundingRect.height < 20)
+    }
+
     fun drawContours(
         image: Mat,
         contours: List<MatOfPoint>,
-        hierarchy: Mat,
         contourColor: Scalar,
         boxColor: Scalar
     ) {
         Imgproc.drawContours(image, contours, -1, contourColor, 2)
-        println("processing ${contours.size} contours")
         contours.forEachIndexed { i, contour ->
-            if (hierarchy.get(0, i)[3] != -1.0) {
-                return@forEachIndexed
-            }
-            val boundingRect = Imgproc.boundingRect(contour)
-            if (boundingRect.width < 20 || boundingRect.height < 20) {
-                println("discarded contour $i , (${boundingRect.width} x ${boundingRect.height})")
-                return@forEachIndexed
-            }
             val minRect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
             val points = Array<Point>(4) { Point() }
             minRect.points(points)
-            println(points.joinToString(", "))
             Imgproc.line(image, points[0], points[1], boxColor, 2)
             Imgproc.line(image, points[1], points[2], boxColor, 2)
             Imgproc.line(image, points[2], points[3], boxColor, 2)
             Imgproc.line(image, points[3], points[0], boxColor, 2) //code vandalism
-
         }
+    }
+
+    fun contoursToDetections(contours: List<MatOfPoint>, color: SampleColor): List<SampleDetection> {
+        return contours.map { contour -> contourToDetection(contour, color) }
+    }
+
+    fun contourToDetection(contour: MatOfPoint, color: SampleColor): SampleDetection {
+        val minRect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
+        val center = Vec2d(minRect.center.x, minRect.center.y) // maybe make an extension function or smt
+        val angle = minRect.angle
+        // 0 degrees is when the box is fully straight landscape since that's how our intake works
+        val correctedAngle = if (minRect.size.width < minRect.size.height) angle + 90 else angle
+        return SampleDetection(center, correctedAngle, color)
     }
 
     override fun onDrawFrame(
@@ -156,3 +188,11 @@ class SampleDetector : VisionProcessor, CameraStreamSource {
     }
 
 }
+
+enum class SampleColor{
+    RED,
+    YELLOW,
+    BLUE
+}
+
+data class SampleDetection(val pos: Vec2d, val angle: Double, val color: SampleColor)
