@@ -55,29 +55,29 @@ class SampleDetector : VisionProcessor, CameraStreamSource {
         Imgproc.threshold(cbChannel, yThreshold, 57.0, 255.0, Imgproc.THRESH_BINARY_INV)
         Imgproc.threshold(cbChannel, bThreshold, 150.0, 255.0, Imgproc.THRESH_BINARY)
 
-        val (rContours, rHeirachy) = getContours(rThreshold)
-        val (yContours, yHeirachy) = getContours(yThreshold)
-        val (bContours, bHeirachy) = getContours(bThreshold)
+        val (rContours, rHierarchy) = getContours(rThreshold)
+        val (yContours, yHierarchy) = getContours(yThreshold)
+        val (bContours, bHierarchy) = getContours(bThreshold)
 
         val contoursImg = frame.clone()
         drawContours(
             contoursImg,
             rContours,
-            rHeirachy,
+            rHierarchy,
             Scalar(0.0, 0.0, 0.0),
             Scalar(0.0, 0.0, 0.0)
         )
         drawContours(
             contoursImg,
             yContours,
-            yHeirachy,
+            yHierarchy,
             Scalar(0.0, 0.0, 0.0),
             Scalar(0.0, 0.0, 0.0)
         )
         drawContours(
             contoursImg,
             bContours,
-            bHeirachy,
+            bHierarchy,
             Scalar(0.0, 0.0, 0.0),
             Scalar(0.0, 0.0, 0.0)
         )
@@ -99,27 +99,27 @@ class SampleDetector : VisionProcessor, CameraStreamSource {
         Imgproc.morphologyEx(denoised, denoised, Imgproc.MORPH_OPEN, denoiseSize)
 
         val contours = mutableListOf<MatOfPoint>()
-        val heirachy = Mat()
+        val hierarchy = Mat()
         Imgproc.findContours(
             denoised,
             contours,
-            heirachy,
+            hierarchy,
             Imgproc.RETR_TREE,
             Imgproc.CHAIN_APPROX_SIMPLE
         )
-        return (contours.toList() to heirachy)
+        return (contours.toList() to hierarchy)
     }
 
     fun drawContours(
         image: Mat,
         contours: List<MatOfPoint>,
-        heirachy: Mat,
+        hierarchy: Mat,
         contourColor: Scalar,
         boxColor: Scalar
     ) {
         Imgproc.drawContours(image, contours, -1, contourColor, 2)
         contours.forEachIndexed { i, contour ->
-            if (heirachy.get(0, i).get(3) != -1.0) {
+            if (hierarchy.get(0, i).get(3) != -1.0) {
                 return@forEachIndexed
                 val boundingRect = Imgproc.boundingRect(contour)
                 if (boundingRect.width < 20 || boundingRect.height < 20) {
