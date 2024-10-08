@@ -7,7 +7,6 @@ import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -64,14 +63,13 @@ public class DriveSubsystem extends SubsystemBase {
         leftRear.setZeroPowerBehavior(stop);
         leftFront.setZeroPowerBehavior(stop);
 
-        Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
-
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP
         ));
         imu.initialize(parameters);
+        imu.resetYaw();
 
         leftOdom = rightRear.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
         rightOdom = leftFront.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);

@@ -7,7 +7,6 @@ import com.millburnx.purepursuit.PurePursuit
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem
-import org.firstinspires.ftc.teamcode.common.subsystems.PID
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import org.firstinspires.ftc.teamcode.common.utils.Util
 import org.firstinspires.ftc.teamcode.opmodes.AutonConfig
@@ -19,8 +18,6 @@ class PurePursuitCommand(
     val lookahead: Double = 14.0,
 ) : CommandBase() {
     val purePursuit = PurePursuit(path, lookahead)
-    val pidF = PID(1.0, 0.0, 0.0)
-    val pidH = PID(1.0, 0.0, 0.0)
     val timer: ElapsedTime = ElapsedTime()
     var loops = 0
     val fullTimer: ElapsedTime = ElapsedTime()
@@ -30,13 +27,12 @@ class PurePursuitCommand(
     }
 
     override fun initialize() {
-        pidF.reset()
-        pidH.reset()
         timer.reset()
         fullTimer.reset()
     }
 
     override fun execute() {
+        if (loops == 10) fullTimer.reset()
         val pose = drive.pos
         val position = Vec2d(pose.x, pose.y)
         val heading = pose.heading
@@ -56,7 +52,8 @@ class PurePursuitCommand(
         packet.put("pure_pursuit/power_heading", powerH)
         val delta = timer.milliseconds()
         loops++
-        val fullDelta = fullTimer.milliseconds() / loops
+        val loopOffset = loops - 10
+        val fullDelta = fullTimer.milliseconds() / if (loopOffset <= 0) 1 else loopOffset
         timer.reset()
         packet.put("general/loop_time (ms)", delta)
         packet.put("general/avg_loop_time (ms)", fullDelta)

@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.common.utils.PoseColor;
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry;
@@ -39,6 +40,11 @@ public class MainTelelop extends CommandOpMode {
     public void run() {
         super.run();
 
+        if (gamepad1.a) {
+            System.out.println("RESETTING IMU");
+            drive.imu.resetYaw();
+        }
+
         double power = -gamepad1.left_stick_y;
         double strafe = gamepad1.left_stick_x;
         double turn = gamepad1.right_stick_x;
@@ -46,7 +52,9 @@ public class MainTelelop extends CommandOpMode {
         if (!field) {
             drive.robotCentric(power, strafe * 1.1, turn);
         } else {
-            drive.fieldCentric(yflip ? -power : power, strafe * 1.1, turn, drive.getPos().getHeading());
+            double heading = drive.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            telemetry.addData("heading", Math.toDegrees(heading));
+            drive.fieldCentric(yflip ? -power : power, strafe * 1.1, turn, heading + Math.toRadians(90));
         }
         drive.updatePos();
 

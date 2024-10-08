@@ -1,12 +1,28 @@
 package org.firstinspires.ftc.teamcode.common.subsystems
 
+import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.util.ElapsedTime
 
+@Config
+object MotorTestPIDConfig {
+    @JvmField
+    var kP = 0.0
+
+    @JvmField
+    var kI = 0.0
+
+    @JvmField
+    var kD = 0.0
+
+    @JvmField
+    var kF = 0.0
+
+    @JvmField
+    var target = 0.0
+}
+
 class PID(
-    val kp: Double,
-    val ki: Double,
-    val kd: Double,
     val maxIntegralSum: Double = 50.0
 ) {
     private var target: Double = 0.0
@@ -26,6 +42,10 @@ class PID(
     }
 
     fun calc(target: Double, current: Double): Double {
+        val kp = MotorTestPIDConfig.kP
+        val ki = MotorTestPIDConfig.kI
+        val kd = MotorTestPIDConfig.kD
+
         val error = target - current
         val errorChange = error - lastError
 
