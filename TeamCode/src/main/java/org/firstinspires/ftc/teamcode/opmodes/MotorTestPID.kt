@@ -18,7 +18,7 @@ object ServoTestConfig {
 
 @TeleOp(name = "Motor Test PID")
 class MotorTest() : CommandOpMode() {
-    val ticksToDegrees = -170.0 / 90.0
+    val ticksToDegrees = -160.0 / 90.0
     val startingAngle = 0.0 * ticksToDegrees
 
     lateinit var motor: DcMotor;
