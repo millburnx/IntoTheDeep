@@ -22,14 +22,13 @@ class MotorTest() : CommandOpMode() {
     val startingAngle = 0.0 * ticksToDegrees
 
     lateinit var motor: DcMotor;
-    var target: Double = 0.0
+    var target: Double = 40.0
     var pid = PID()
 
     override fun initialize() {
         motor = hardwareMap.get(DcMotor::class.java, "rotate")
         motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        motor.direction = DcMotorSimple.Direction.REVERSE
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
 
