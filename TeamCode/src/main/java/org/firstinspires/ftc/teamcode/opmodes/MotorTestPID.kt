@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.teamcode.common.subsystems.MotorTestPIDConfig
 import org.firstinspires.ftc.teamcode.common.subsystems.PID
 import kotlin.math.cos
@@ -17,7 +16,7 @@ object ServoTestConfig {
 }
 
 @TeleOp(name = "Motor Test PID")
-class MotorTest() : CommandOpMode() {
+class MotorTestPid() : CommandOpMode() {
     val ticksToDegrees = -160.0 / 90.0
     val startingAngle = 0.0 * ticksToDegrees
 

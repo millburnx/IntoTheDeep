@@ -3,12 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-
 import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID;
 
 @Config
@@ -18,8 +14,6 @@ public class LiftPIDTuner extends OpMode {
 
     public static int target = 0;
 
-    private final double ticks_in_degree = 8192/360.0;
-
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -28,10 +22,14 @@ public class LiftPIDTuner extends OpMode {
 
     @Override
     public void loop() {
-        lift.setTarget(target);
+//        lift.setTarget(target);
+        lift.setTarget(lift.rightRotate.getCurrentPosition());
         lift.run();
 
-        telemetry.addData("pos: ", lift.rotate.getCurrentPosition());
+        telemetry.addData("pos: ", lift.rightRotate.getCurrentPosition());
+        telemetry.addData("pos2: ", lift.leftRotate.getCurrentPosition());
         telemetry.addData("target: ", target);
+        telemetry.addData("angle:", lift.rightRotate.getCurrentPosition() / LiftPID.ticks_in_degree);
+        telemetry.addData("angle2:", lift.leftRotate.getCurrentPosition() / LiftPID.ticks_in_degree);
     }
 }
