@@ -13,12 +13,12 @@ public class LiftPID {
     public DcMotorEx rightRotate;
 
     private PIDController controller;
-    public static double p = 0, i = 0, d = 0;
-    public static double f = 0;
+    public static double p = 0.0115, i = 0, d = 0;
+    public static double f = 0.25;
 
-    public static int target = 0;
+    public int target = 0;
 
-    public static double ticks_in_degree = 8192 / 360.0;
+    public static double ticks_in_degree = 160.0 / 90.0;
 
     public LiftPID(HardwareMap hardwareMap) {
         controller = new PIDController(p, i, d);
@@ -35,7 +35,7 @@ public class LiftPID {
 
     public void run() {
         controller.setPID(p, i, d);
-        int pos = leftRotate.getCurrentPosition();
+        int pos = rightRotate.getCurrentPosition();
         double pid = controller.calculate(pos, target);
         double ff = Math.cos(Math.toRadians(target / ticks_in_degree)) * f;
 

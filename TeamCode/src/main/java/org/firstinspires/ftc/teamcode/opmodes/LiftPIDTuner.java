@@ -22,14 +22,13 @@ public class LiftPIDTuner extends OpMode {
 
     @Override
     public void loop() {
-//        lift.setTarget(target);
-        lift.setTarget(lift.rightRotate.getCurrentPosition());
+        lift.setTarget(target);
         lift.run();
 
         telemetry.addData("pos: ", lift.rightRotate.getCurrentPosition());
         telemetry.addData("pos2: ", lift.leftRotate.getCurrentPosition());
         telemetry.addData("target: ", target);
-        telemetry.addData("angle:", lift.rightRotate.getCurrentPosition() / LiftPID.ticks_in_degree);
+        telemetry.addData("angle4:", lift.rightRotate.getCurrentPosition() / LiftPID.ticks_in_degree);
         telemetry.addData("angle2:", lift.leftRotate.getCurrentPosition() / LiftPID.ticks_in_degree);
     }
 }
