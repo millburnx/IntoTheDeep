@@ -5,30 +5,39 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID;
 import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID;
 
 @Config
 @TeleOp
-public class LiftPIDTuner extends OpMode {
+public class PIDTuner extends OpMode {
+    public ArmPID arm;
     public LiftPID lift;
 
-    public static int target = 0;
+    public static int armTarget = 0;
+    public static int liftTarget = 0;
 
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        arm = new ArmPID(hardwareMap);
         lift = new LiftPID(hardwareMap);
     }
 
     @Override
     public void loop() {
-        lift.setTarget(target);
+        arm.setTarget(armTarget);
+        arm.run();
+
+        lift.setTarget(liftTarget);
         lift.run();
 
-        telemetry.addData("r pos: ", lift.rightRotate.getCurrentPosition());
-        telemetry.addData("l pos: ", lift.leftRotate.getCurrentPosition());
-        telemetry.addData("r angle:", lift.rightRotate.getCurrentPosition() / LiftPID.ticks_in_degree);
-        telemetry.addData("l angle:", lift.leftRotate.getCurrentPosition() / LiftPID.ticks_in_degree);
-        telemetry.addData("target: ", target);
+        telemetry.addData("arm pos: ", arm.rightRotate.getCurrentPosition());
+        telemetry.addData("arm target: ", armTarget);
+
+        telemetry.addData("lift pos: ", lift.lift.getCurrentPosition());
+        telemetry.addData("lift target; ", liftTarget);
+
     }
 }

@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
-import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID
+import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID
 import org.firstinspires.ftc.teamcode.common.subsystems.MotorTestPIDConfig
 import org.firstinspires.ftc.teamcode.common.subsystems.PID
 
@@ -21,7 +21,7 @@ class MotorTestPid() : CommandOpMode() {
     val startingAngle = 0.0 * ticksToDegrees
 
     lateinit var motor: DcMotor;
-    lateinit var liftPID: LiftPID
+    lateinit var armPID: ArmPID
     var target: Double = 40.0
     var pid = PID()
 
@@ -31,19 +31,20 @@ class MotorTestPid() : CommandOpMode() {
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
-        liftPID = LiftPID(hardwareMap)
+        armPID =
+            ArmPID(hardwareMap)
     }
 
     override fun run() {
-        liftPID.target = 160
-        liftPID.run()
+        armPID.target = 160
+        armPID.run()
 
         val f = 0
         motor.power = pid.calc(MotorTestPIDConfig.target, motor.currentPosition.toInt()) + f
 
         val dash = FtcDashboard.getInstance().telemetry
         dash.addData("power", motor.power)
-        dash.addData("target", target)
+        dash.addData("target", MotorTestPIDConfig.target)
         dash.addData("position", motor.currentPosition)
         dash.update()
     }
