@@ -16,6 +16,9 @@ public class LiftPID {
     public static double p = 0.0115, i = 0, d = 0;
     public static double f = 0.25;
 
+    public static int floor = 5;
+    public static int up = 140;
+
     public int target = 0;
 
     public static double ticks_in_degree = 160.0 / 90.0;

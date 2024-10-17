@@ -41,7 +41,7 @@ class PID(
         deltaTimer.reset()
     }
 
-    fun calc(target: Double, current: Double): Double {
+    fun calc(target: Double, current: Int): Double {
         val kp = MotorTestPIDConfig.kP
         val ki = MotorTestPIDConfig.kI
         val kd = MotorTestPIDConfig.kD
