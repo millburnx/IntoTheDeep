@@ -51,25 +51,25 @@ class Drive(hardwareMap: HardwareMap, val motorCacheThreshold: Double) : Subsyst
     val prevPower = mutableListOf(0.0, 0.0, 0.0, 0.0)
     val stopMode = if (DriveConfig.breakStop) ZeroPowerBehavior.BRAKE else ZeroPowerBehavior.FLOAT
     val leftFront: MotorEx by lazy {
-        val leftFront = hardwareMap["frontLeft"] as MotorEx
+        val leftFront = MotorEx(hardwareMap, "frontLeft")
         leftFront.inverted = true
         leftFront.setZeroPowerBehavior(stopMode)
         return@lazy leftFront
     }
     val leftRear: MotorEx by lazy {
-        val leftRear = hardwareMap["backLeft"] as MotorEx
+        val leftRear = MotorEx(hardwareMap, "backLeft")
         leftRear.inverted = true
         leftRear.setZeroPowerBehavior(stopMode)
         return@lazy leftRear
     }
     val rightFront: MotorEx by lazy {
-        val rightFront = hardwareMap["frontLeft"] as MotorEx
+        val rightFront = MotorEx(hardwareMap, "frontLeft")
         rightFront.inverted = false
         rightFront.setZeroPowerBehavior(stopMode)
         return@lazy rightFront
     }
     val rightRear: MotorEx by lazy {
-        val rightRear = hardwareMap["backLeft"] as MotorEx
+        val rightRear = MotorEx(hardwareMap, "backLeft")
         rightRear.inverted = false
         rightRear.setZeroPowerBehavior(stopMode)
         return@lazy rightRear
