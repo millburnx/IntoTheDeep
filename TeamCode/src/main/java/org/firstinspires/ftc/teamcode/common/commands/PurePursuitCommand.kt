@@ -33,7 +33,7 @@ class PurePursuitCommand(
 
     override fun execute() {
         if (loops == 10) fullTimer.reset()
-        val pose = drive.pos
+        val pose = drive.getPos()
         val position = Vec2d(pose.x, pose.y)
         val heading = pose.heading
         val calcResults = purePursuit.calc(position, heading)

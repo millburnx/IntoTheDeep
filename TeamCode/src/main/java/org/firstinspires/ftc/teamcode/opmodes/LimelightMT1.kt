@@ -35,7 +35,7 @@ class LimelightMT1() : CommandOpMode() {
 
         val poses = mutableListOf<PoseColor>()
 
-        val odom = drive.pos
+        val odom = drive.getPos()
         poses.add(PoseColor(odom, "#0000ff"))
         val result = limelight.getResults()
         if (result != null) {

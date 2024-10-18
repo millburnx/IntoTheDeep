@@ -35,7 +35,7 @@ class LimelightMT2() : CommandOpMode() {
         drive.updatePos();
 
         val poses = mutableListOf<PoseColor>()
-        val odom = drive.pos
+        val odom = drive.getPos()
         poses.add(PoseColor(odom, "#0000ff"))
 
         val orientation = drive.imu.robotYawPitchRollAngles
