@@ -153,11 +153,23 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
         val fixedIndex = if (segmentIndex == -1) lastSegment else segmentIndex
         lastSegment = fixedIndex
         lastIntersection = targetIntersection
+
+        val targetCurvature = abs(targetIntersection.line.getCurvature(targetIntersection.t))
+        val curvatureRadius = 1.0 / targetCurvature
+
         driveTo(targetIntersection.point)
 
         drawRobot(canvas)
 
         ftcDashboard.sendTelemetryPacket(packet)
+
+        val minLookahead = 8.0
+        val maxLookahead = 18.0
+        val newLookahead = Utils.lerp(minLookahead, maxLookahead, 1 - (targetCurvature * 10).coerceIn(0.0, 1.0))
+        val newPostlerp = Utils.lerp(robot.lookahead, newLookahead, 0.5)
+        println("Curvature: $targetCurvature, Radius: $curvatureRadius, NewLookaheadTarget: $newLookahead, ActualLookahead: $newPostlerp")
+        robot.targetLookahead = newPostlerp
+
         return true
     }
 

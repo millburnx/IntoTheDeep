@@ -5,9 +5,10 @@ import com.millburnx.utils.Utils
 import com.millburnx.utils.Vec2d
 import kotlin.math.abs
 
-class Robot(val size: Vec2d, val lookahead: Double = 14.0) {
+class Robot(val size: Vec2d, var lookahead: Double = 14.0) {
     var position = Vec2d(0.0, 0.0)
     var heading = 0.0
+    var targetLookahead = lookahead
     private var speed = 12.0 // inches per second
     private var turnRate = Math.toRadians(180.0) // radians per second
 
@@ -44,6 +45,7 @@ class Robot(val size: Vec2d, val lookahead: Double = 14.0) {
         val rotated = power.rotate(heading)
         position += rotated * dt
         heading = Utils.normalizeAngle(heading + anglePower * dt)
+        lookahead = Utils.lerp(lookahead, targetLookahead, dt)
     }
 
     fun toPair(): Pair<Vec2d, Double> = position to heading

@@ -55,6 +55,40 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         return s1p0.lerp(s1p1, t)
     }
 
+    fun getDerivative(t: Double): Vec2d {
+        // quadratic bezier
+        val q1 = (p1 - p0) * 3
+        val q2 = (p2 - p1) * 3
+        val q3 = p3 - p2
+
+        val s1 = q1.lerp(q2, t)
+        val s2 = q2.lerp(q3, t)
+        return s1.lerp(s2, t)
+    }
+
+    fun getSecondDerivative(t: Double): Vec2d {
+        // calculate first derivative
+        val q0 = (p1 - p0) * 3
+        val q1 = (p2 - p1) * 3
+        val q2 = p3 - p2
+
+        // calculate second derivative (linear
+        val l0 = (q1 - q0) * 2
+        val l1 = (q2 - q1) * 2
+
+        return l0.lerp(l1, t)
+    }
+
+    // https://pomax.github.io/bezierinfo/#curvature
+    fun getCurvature(t: Double): Double {
+        val derivative = getDerivative(t)
+        val secondDerivative = getSecondDerivative(t)
+        val numerator = derivative.x * secondDerivative.y - secondDerivative.x * derivative.y
+        val denominator = (derivative.x.pow(2) + derivative.y.pow(2)).pow(3.0 / 2.0)
+        if (denominator == 0.0) return Double.POSITIVE_INFINITY
+        return numerator / denominator
+    }
+
     /**
      * Get a list of intersections between the Bézier curve and a circle
      * @param samples the number of segments to split the Bézier curve into; curve resolution; higher is more accurate but slower
