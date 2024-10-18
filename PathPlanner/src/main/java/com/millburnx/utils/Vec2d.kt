@@ -105,7 +105,7 @@ data class Vec2d(val x: Double, val y: Double) {
     }
 
     fun toRR(): Vec2d {
-        return Vec2d(y, -x);
+        return Vec2d(y, -x)
     }
 
     companion object {

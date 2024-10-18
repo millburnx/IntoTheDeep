@@ -15,22 +15,20 @@ object MOTORPOWER {
 
 @TeleOp(name = "Motor Test")
 class MotorTest() : CommandOpMode() {
-    lateinit var motor: DcMotor;
-    lateinit var lift: ArmPID
-
-    override fun initialize() {
-        motor = hardwareMap.get(DcMotor::class.java, "slides")
+    val motor: DcMotor by lazy {
+        val motor = hardwareMap["slides"] as DcMotor
         motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motor.direction = DcMotorSimple.Direction.FORWARD
-
-        lift =
-            ArmPID(hardwareMap)
+        return@lazy motor
     }
+    val lift: ArmPID = ArmPID(hardwareMap)
+
+    override fun initialize() {}
 
     override fun run() {
-        lift.target = 155
+        lift.setTarget(155)
         lift.run()
         motor.power = MOTORPOWER.power
     }

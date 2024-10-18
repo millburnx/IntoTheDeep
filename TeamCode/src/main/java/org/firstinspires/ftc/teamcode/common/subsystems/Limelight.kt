@@ -7,9 +7,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
 
 class Limelight(hardwareMap: HardwareMap, telemetry: Telemetry) : SubsystemBase() {
-    val limelight = hardwareMap.get(Limelight3A::class.java, "limelight").apply {
-        pipelineSwitch(0)
-        start()
+    val limelight: Limelight3A by lazy {
+        val limelight = hardwareMap["limelight"] as Limelight3A
+        limelight.pipelineSwitch(0)
+        limelight.start()
+        return@lazy limelight
     }
 
     init {

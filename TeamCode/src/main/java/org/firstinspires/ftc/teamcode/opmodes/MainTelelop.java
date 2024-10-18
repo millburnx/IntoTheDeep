@@ -6,11 +6,10 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID;
+import org.firstinspires.ftc.teamcode.common.subsystems.ArmPIDConfig;
+import org.firstinspires.ftc.teamcode.common.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID;
 import org.firstinspires.ftc.teamcode.common.utils.PoseColor;
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry;
@@ -21,7 +20,7 @@ import java.util.List;
 @Config
 @TeleOp(name = "MainTeleOp")
 public class MainTelelop extends CommandOpMode {
-    private DriveSubsystem drive;
+    private Drive drive;
     Telemetry tel;
     GamepadEx gamepad;
     Pose2d pos;
@@ -36,7 +35,7 @@ public class MainTelelop extends CommandOpMode {
 
     @Override
     public void initialize() {
-        drive = new DriveSubsystem(hardwareMap, -1);
+        drive = new Drive(hardwareMap, -1);
 //        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         tel = new Telemetry();
         dash = FtcDashboard.getInstance();
@@ -51,13 +50,13 @@ public class MainTelelop extends CommandOpMode {
 
         if (gamepad1.b) {
             System.out.println("RESETTING IMU");
-            drive.imu.resetYaw();
+            drive.getImu().resetYaw();
         }
 
         if (gamepad1.dpad_down) {
-            arm.setTarget(ArmPID.floor);
+            arm.setTarget(ArmPIDConfig.floor);
         } else if (gamepad1.dpad_up) {
-            arm.setTarget(ArmPID.up);
+            arm.setTarget(ArmPIDConfig.up);
         }
         if (gamepad1.triangle) {
             lift.setTarget(2000);
@@ -75,9 +74,9 @@ public class MainTelelop extends CommandOpMode {
         double turn = gamepad1.right_stick_x;
 
         if (!field) {
-            drive.robotCentric(power, strafe * 1.1, turn);
+            drive.robotCentric(power, strafe * 1.1, turn, 1, 1);
         } else {
-            double heading = drive.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            double heading = drive.getImu().getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             telemetry.addData("heading", Math.toDegrees(heading));
             drive.fieldCentric(yflip ? -power : power, strafe * 1.1, turn, heading + Math.toRadians(90));
         }
@@ -85,9 +84,9 @@ public class MainTelelop extends CommandOpMode {
 
         pos = drive.getPos();
 
-        telemetry.addData("left", drive.leftOdom.getPosition());
-        telemetry.addData("center", drive.centerOdom.getPosition());
-        telemetry.addData("right", drive.rightOdom.getPosition());
+        telemetry.addData("left", drive.getLeftOdom().getPosition());
+        telemetry.addData("center", drive.getCenterOdom().getPosition());
+        telemetry.addData("right", drive.getRightOdom().getPosition());
         List<PoseColor> list = new ArrayList<>();
         list.add(new PoseColor(pos, "#0000ff"));
         tel.drawField(list, dash);

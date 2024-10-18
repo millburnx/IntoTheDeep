@@ -13,30 +13,16 @@ import org.firstinspires.ftc.teamcode.common.subsystems.VisionPortal
 @Config
 @TeleOp(name = "Vision")
 class VisionPortalOp : CommandOpMode() {
-    lateinit var aprilTag: Apriltag
-    lateinit var samplePipeline: SamplePipeline
-    lateinit var visionPortal: VisionPortal
-    lateinit var tel: Telemetry
+    val aprilTag: Apriltag = Apriltag()
+    val samplePipeline: SamplePipeline = SamplePipeline()
+    val visionPortal: VisionPortal = VisionPortal(hardwareMap, "camera1", listOf(aprilTag.processor, samplePipeline))
+    val tel: Telemetry = FtcDashboard.getInstance().telemetry
 
     override fun initialize() {
-        aprilTag = Apriltag()
-        samplePipeline = SamplePipeline()
-        visionPortal = VisionPortal(hardwareMap, "camera1", listOf(aprilTag.processor, samplePipeline))
-        tel = FtcDashboard.getInstance().telemetry
         FtcDashboard.getInstance().startCameraStream(samplePipeline, 0.0)
-
-        initCheck()
-    }
-
-    fun initCheck() {
-        require(::aprilTag.isInitialized) { "AprilTag is not initialized" }
-        require(::samplePipeline.isInitialized) { "sampleDetector is not initialized" }
-        require(::visionPortal.isInitialized) { "Vision Portal is not initialized" }
-        require(::tel.isInitialized) { "Telemetry is not initialized" }
     }
 
     override fun run() {
-        initCheck()
         super.run()
 
         val tags = aprilTag.getTags()

@@ -4,12 +4,10 @@ import android.os.Environment
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
-import com.arcrobotics.ftclib.geometry.Pose2d
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
-import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem
-import org.firstinspires.ftc.teamcode.common.utils.Telemetry
+import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import java.io.File
 
 @Config
@@ -26,10 +24,8 @@ object AutonConfig {
 
 @TeleOp(name = "Auton")
 class Auton : CommandOpMode() {
-    private var drive: DriveSubsystem? = null
-    var tel: Telemetry? = null
-    var pos: Pose2d = Pose2d()
-    var dash: FtcDashboard? = null
+    val drive: Drive = Drive(hardwareMap, 0.1)
+    val dash: FtcDashboard = FtcDashboard.getInstance()
 
     val path = run {
         println("FILE PATH: ${Environment.getExternalStorageDirectory()} | ${Environment.getDataDirectory()}")
@@ -39,16 +35,11 @@ class Auton : CommandOpMode() {
     }
 
     override fun initialize() {
-        val drive = DriveSubsystem(hardwareMap, 0.1)
-        this.drive = drive
-        tel = Telemetry()
-        dash = FtcDashboard.getInstance()
-
-        schedule(PurePursuitCommand(drive, path, dash!!))
+        schedule(PurePursuitCommand(drive, path, dash))
     }
 
     override fun run() {
-        drive!!.updatePos()
+        drive.updatePos()
         super.run()
     }
 }

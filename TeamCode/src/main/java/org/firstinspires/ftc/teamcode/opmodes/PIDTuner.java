@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID;
 import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID;
 
@@ -33,10 +32,10 @@ public class PIDTuner extends OpMode {
         lift.setTarget(liftTarget);
         lift.run();
 
-        telemetry.addData("arm pos: ", arm.rightRotate.getCurrentPosition());
+        telemetry.addData("arm pos: ", arm.getRightRotate().getCurrentPosition());
         telemetry.addData("arm target: ", armTarget);
 
-        telemetry.addData("lift pos: ", lift.lift.getCurrentPosition());
+        telemetry.addData("lift pos: ", lift.getLift().getCurrentPosition());
         telemetry.addData("lift target; ", liftTarget);
 
     }
