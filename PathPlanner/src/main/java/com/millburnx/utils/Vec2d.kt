@@ -109,6 +109,10 @@ data class Vec2d(val x: Double, val y: Double) {
     }
 
     companion object {
+        fun fromRR(point: Vec2d): Vec2d {
+            return Vec2d(-point.y, point.x)
+        }
+
         /**
          * Saves a list of points to a tsv file
          */

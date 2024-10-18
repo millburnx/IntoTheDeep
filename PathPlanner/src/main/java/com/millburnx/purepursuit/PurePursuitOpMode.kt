@@ -8,6 +8,8 @@ import com.millburnx.utils.Utils
 import com.millburnx.utils.Vec2d
 import java.awt.Color
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, updateHertz) {
     val background = Utils.Colors.bg1
@@ -82,10 +84,10 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
         val anchorSize = 1.5
         val handleSize = 1.5
         for (i in 0..path.size - 2 step 3) {
-            val p0 = path[i]
-            val p1 = path[i + 1]
-            val p2 = path[i + 2]
-            val p3 = path[i + 3]
+            val p0 = path[i].toRR()
+            val p1 = path[i + 1].toRR()
+            val p2 = path[i + 2].toRR()
+            val p3 = path[i + 3].toRR()
 
             canvas.setStroke(colors[color % colors.size]).strokeLine(p0.x, p0.y, p1.x, p1.y)
                 .strokeLine(p2.x, p2.y, p3.x, p3.y).setFill(background).fillCircle(p0.x, p0.y, anchorSize)
@@ -113,7 +115,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
             }
             lastIntersection = BezierIntersection(path.last(), beziers.last(), 1.0)
             canvas.setFill(Color.CYAN.rgb.toString())
-                .fillCircle(lastIntersection.point.x, lastIntersection.point.y, 1.0)
+                .fillCircle(lastIntersection.point.toRR().x, lastIntersection.point.toRR().y, 1.0)
             driveTo(path.last())
             drawRobot(canvas)
             ftcDashboard.sendTelemetryPacket(packet)
@@ -144,7 +146,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
             val fixedIndex = if (segmentIndex == -1) 0 else segmentIndex
             val color = colors[fixedIndex % colors.size]
             canvas.setFill(if (intersection == closestIntersection) "#FFFFFF" else color)
-                .fillCircle(intersection.point.x, intersection.point.y, 1.0)
+                .fillCircle(intersection.point.toRR().x, intersection.point.toRR().y, 1.0)
         }
         val targetIntersection = closestIntersection ?: lastIntersection
         val segmentIndex = beziers.indexOf(targetIntersection.line)
@@ -160,17 +162,43 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
     }
 
     private fun drawRobot(canvas: Canvas) {
+        prevPositions.add(robot.position)
+        val copyPositions = prevPositions.toList().map { it.toRR() }
+
         val lookaheadVector = Vec2d(robot.lookahead, 0.0).rotate(robot.heading)
         val lookaheadPoint = robot.position + lookaheadVector
+        val lookaheadPointRR = lookaheadPoint.toRR()
 
-        prevPositions.add(robot.position)
-        val copyPositions = prevPositions.toList()
+        val robotPos = robot.position.toRR()
+
+        val robotTopLeft = Vec2d(
+            cos(robot.heading) * (-robot.size.x / 2) - sin(robot.heading) * (-robot.size.y / 2),
+            sin(robot.heading) * (-robot.size.x / 2) + cos(robot.heading) * (-robot.size.y / 2)
+        )
+        val robotTopRight = Vec2d(
+            cos(robot.heading) * (robot.size.x / 2) - sin(robot.heading) * (-robot.size.y / 2),
+            sin(robot.heading) * (robot.size.x / 2) + cos(robot.heading) * (-robot.size.y / 2)
+        )
+        val robotBottomLeft = Vec2d(
+            cos(robot.heading) * (-robot.size.x / 2) - sin(robot.heading) * (robot.size.y / 2),
+            sin(robot.heading) * (-robot.size.x / 2) + cos(robot.heading) * (robot.size.y / 2)
+        )
+        val robotBottomRight = Vec2d(
+            cos(robot.heading) * (robot.size.x / 2) - sin(robot.heading) * (robot.size.y / 2),
+            sin(robot.heading) * (robot.size.x / 2) + cos(robot.heading) * (robot.size.y / 2)
+        )
+
+        val robotCorners =
+            listOf(robotTopLeft, robotTopRight, robotBottomRight, robotBottomLeft).map { it.toRR() + robotPos }
+
+        val robotPolyline = listOf(*robotCorners.toTypedArray(), robotCorners[0])
 
         canvas.setFill("#FFFFFF")
             .strokePolyline(copyPositions.map { it.x }.toDoubleArray(), copyPositions.map { it.y }.toDoubleArray()
-            ).setFill(Utils.Colors.purple).fillCircle(robot.position.x, robot.position.y, 1.0)
-            .strokeCircle(robot.position.x, robot.position.y, robot.lookahead)
-            .strokeLine(robot.position.x, robot.position.y, lookaheadPoint.x, lookaheadPoint.y)
+            ).setFill(Utils.Colors.purple).fillCircle(robotPos.x, robotPos.y, 1.0)
+            .strokeCircle(robotPos.x, robotPos.y, robot.lookahead)
+            .strokeLine(robotPos.x, robotPos.y, lookaheadPointRR.x, lookaheadPointRR.y)
+            .strokePolyline(robotPolyline.map { it.x }.toDoubleArray(), robotPolyline.map { it.y }.toDoubleArray())
     }
 
     private fun driveTo(point: Vec2d) {

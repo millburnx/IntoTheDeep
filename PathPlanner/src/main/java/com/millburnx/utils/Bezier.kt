@@ -84,10 +84,10 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         // bounding check
         val bounding = getBoundingTight()
         canvas?.setStroke("#FF0000")?.strokeRect(
-            bounding.min.x,
-            bounding.min.y,
-            bounding.max.x - bounding.min.x,
-            bounding.max.y - bounding.min.y
+            bounding.min.toRR().x,
+            bounding.min.toRR().y,
+            bounding.max.toRR().x - bounding.min.toRR().x,
+            bounding.max.toRR().y - bounding.min.toRR().y
         )
         val circleBounding = circle.bounding()
         val intersects = Utils.boundingIntersection(bounding.min to bounding.max, circleBounding)
