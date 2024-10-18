@@ -5,7 +5,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID
+import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID
 
 @Config
 object MOTORPOWER {
@@ -16,7 +16,7 @@ object MOTORPOWER {
 @TeleOp(name = "Motor Test")
 class MotorTest() : CommandOpMode() {
     lateinit var motor: DcMotor;
-    lateinit var lift: LiftPID
+    lateinit var lift: ArmPID
 
     override fun initialize() {
         motor = hardwareMap.get(DcMotor::class.java, "slides")
@@ -25,7 +25,8 @@ class MotorTest() : CommandOpMode() {
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motor.direction = DcMotorSimple.Direction.FORWARD
 
-        lift = LiftPID(hardwareMap)
+        lift =
+            ArmPID(hardwareMap)
     }
 
     override fun run() {

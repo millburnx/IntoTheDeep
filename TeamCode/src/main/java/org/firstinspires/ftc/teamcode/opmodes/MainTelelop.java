@@ -6,8 +6,11 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID;
 import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID;
 import org.firstinspires.ftc.teamcode.common.utils.PoseColor;
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry;
@@ -23,6 +26,7 @@ public class MainTelelop extends CommandOpMode {
     GamepadEx gamepad;
     Pose2d pos;
     FtcDashboard dash;
+    ArmPID arm;
     LiftPID lift;
 
     public static boolean field = false;
@@ -36,6 +40,7 @@ public class MainTelelop extends CommandOpMode {
 //        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         tel = new Telemetry();
         dash = FtcDashboard.getInstance();
+        arm = new ArmPID(hardwareMap);
         lift = new LiftPID(hardwareMap);
     }
 
@@ -50,10 +55,19 @@ public class MainTelelop extends CommandOpMode {
         }
 
         if (gamepad1.dpad_down) {
-            lift.setTarget(LiftPID.floor);
+            arm.setTarget(ArmPID.floor);
         } else if (gamepad1.dpad_up) {
-            lift.setTarget(LiftPID.up);
+            arm.setTarget(ArmPID.up);
         }
+        if (gamepad1.triangle) {
+            lift.setTarget(2000);
+        } else if (gamepad1.circle) {
+            lift.setTarget(1000);
+        } else if (gamepad1.cross) {
+            lift.setTarget(0);
+        }
+
+        arm.run();
         lift.run();
 
         double power = -gamepad1.left_stick_y;
