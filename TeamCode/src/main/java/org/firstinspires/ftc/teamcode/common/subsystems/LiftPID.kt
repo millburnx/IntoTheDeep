@@ -35,12 +35,21 @@ class LiftPID(hardwareMap: HardwareMap) {
         lift.power = power
     }
 
-    companion object {
+    @Config
+    companion object LiftPIDConfig {
+        @JvmField
         var p: Double = 0.02
+
+        @JvmField
         var i: Double = 0.0
+
+        @JvmField
         var d: Double = 0.0
+
+        @JvmField
         var f: Double = 0.0
 
+        @JvmField
         var ticks_in_degree: Double = 8192.0 / 360.0
     }
 }

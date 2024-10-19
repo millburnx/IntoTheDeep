@@ -18,6 +18,9 @@ class ArmPID(hardwareMap: HardwareMap) {
     private val controller: PIDController
     var target: Int = 0
 
+    val angle: Double
+        get() = rightRotate.currentPosition / ticks_in_degree
+
     init {
         controller = PIDController(p, i, d)
         leftRotate = hardwareMap.get<DcMotorEx>(DcMotorEx::class.java, "leftRotate")
@@ -43,15 +46,27 @@ class ArmPID(hardwareMap: HardwareMap) {
         rightRotate.power = -power
     }
 
-    companion object {
-        var p: Double = 0.0115
+    @Config
+    companion object ArmPIDConfig {
+        @JvmField
+        var p: Double = 0.02
+
+        @JvmField
         var i: Double = 0.0
+
+        @JvmField
         var d: Double = 0.0
+
+        @JvmField
         var f: Double = 0.25
 
+        @JvmField
         var floor: Int = 10
+
+        @JvmField
         var up: Int = 140
 
+        @JvmField
         var ticks_in_degree: Double = 160.0 / 90.0
     }
 }
