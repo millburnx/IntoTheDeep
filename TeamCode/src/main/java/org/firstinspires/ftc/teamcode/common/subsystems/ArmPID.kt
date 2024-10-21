@@ -6,10 +6,11 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.robotcore.external.Telemetry
 import kotlin.math.cos
 
 @Config
-class ArmPID(hardwareMap: HardwareMap) {
+class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
     var leftRotate: DcMotorEx
 
     @JvmField
@@ -25,25 +26,38 @@ class ArmPID(hardwareMap: HardwareMap) {
         controller = PIDController(p, i, d)
         leftRotate = hardwareMap.get<DcMotorEx>(DcMotorEx::class.java, "leftRotate")
         leftRotate.direction = DcMotorSimple.Direction.FORWARD
+        leftRotate.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         leftRotate.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         leftRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
         rightRotate = hardwareMap.get<DcMotorEx>(DcMotorEx::class.java, "rightRotate")
         rightRotate.direction = DcMotorSimple.Direction.REVERSE
+        rightRotate.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         rightRotate.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         rightRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
 
-    fun run() {
+    fun run(telemetry: Telemetry) {
         controller.setPID(p, i, d)
-        val pos = rightRotate.currentPosition
-        val pid = controller.calculate(pos.toDouble(), target.toDouble())
-        val ff = cos(Math.toRadians(target / ticks_in_degree)) * f
+        val pos = rightRotate.currentPosition + starting_ticks
+        val modifier = if (target < pos) {
+            downMulti
+        } else {
+            1.0
+        }
+        val pid = controller.calculate(pos.toDouble(), target.toDouble()) * modifier
+        val finalF = f + f * (liftPosition() * slideMulti) // f + mf
+        val ff = cos(Math.toRadians(target / ticks_in_degree)) * finalF
 
         val power = pid + ff
 
         leftRotate.power = -power
         rightRotate.power = -power
+
+        telemetry.addData("arm power", -power)
+        telemetry.addData("arm pid", pid)
+        telemetry.addData("arm ff", ff)
+        telemetry.addData("arm error", target.toDouble() - pos.toDouble())
     }
 
     @Config
@@ -58,15 +72,24 @@ class ArmPID(hardwareMap: HardwareMap) {
         var d: Double = 0.0
 
         @JvmField
-        var f: Double = 0.25
+        var f: Double = 0.4
 
         @JvmField
-        var floor: Int = 10
+        var floor: Int = 30
 
         @JvmField
-        var up: Int = 140
+        var up: Int = 155
 
         @JvmField
         var ticks_in_degree: Double = 160.0 / 90.0
+
+        @JvmField
+        var starting_ticks: Double = 15.0
+
+        @JvmField
+        var downMulti: Double = 0.125
+
+        @JvmField
+        var slideMulti: Double = 0.0
     }
 }

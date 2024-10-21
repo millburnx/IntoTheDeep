@@ -19,7 +19,8 @@ class LiftPID(hardwareMap: HardwareMap) {
     init {
         controller = PIDController(p, i, d)
         lift = hardwareMap.get<DcMotorEx>(DcMotorEx::class.java, "slides")
-        lift.direction = DcMotorSimple.Direction.FORWARD
+        lift.direction = DcMotorSimple.Direction.REVERSE
+        lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         lift.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         lift.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
@@ -38,7 +39,7 @@ class LiftPID(hardwareMap: HardwareMap) {
     @Config
     companion object LiftPIDConfig {
         @JvmField
-        var p: Double = 0.02
+        var p: Double = 0.01
 
         @JvmField
         var i: Double = 0.0
@@ -47,7 +48,7 @@ class LiftPID(hardwareMap: HardwareMap) {
         var d: Double = 0.0
 
         @JvmField
-        var f: Double = 0.0
+        var f: Double = 0.08
 
         @JvmField
         var ticks_in_degree: Double = 8192.0 / 360.0

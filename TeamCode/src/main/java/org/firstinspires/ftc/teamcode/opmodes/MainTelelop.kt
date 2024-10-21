@@ -30,8 +30,8 @@ class MainTelelop : CommandOpMode() {
         //        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         tel = Telemetry()
         dash = FtcDashboard.getInstance()
-        arm = ArmPID(hardwareMap)
         lift = LiftPID(hardwareMap)
+        arm = ArmPID(hardwareMap, lift!!.lift::getCurrentPosition)
     }
 
 
@@ -56,7 +56,7 @@ class MainTelelop : CommandOpMode() {
             lift!!.target = 0
         }
 
-        arm!!.run()
+        arm!!.run(telemetry)
         lift!!.run()
 
         val power = -gamepad1.left_stick_y.toDouble()

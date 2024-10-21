@@ -25,13 +25,12 @@ class MotorTest() : CommandOpMode() {
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motor.direction = DcMotorSimple.Direction.FORWARD
 
-        lift =
-            ArmPID(hardwareMap)
+        lift = ArmPID(hardwareMap) { 0 }
     }
 
     override fun run() {
         lift.target = 155
-        lift.run()
+        lift.run(telemetry)
         motor.power = MOTORPOWER.power
     }
 }

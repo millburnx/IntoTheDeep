@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID
 @TeleOp
 class PIDTuner : OpMode() {
     val arm: ArmPID by lazy {
-        ArmPID(hardwareMap)
+        ArmPID(hardwareMap, lift.lift::getCurrentPosition)
     }
     val lift: LiftPID by lazy {
         LiftPID(hardwareMap)
@@ -24,12 +24,12 @@ class PIDTuner : OpMode() {
 
     override fun loop() {
         arm.target = armTarget
-        arm.run()
+        arm.run(telemetry)
 
         lift.target = liftTarget
         lift.run()
 
-        telemetry.addData("arm pos: ", arm.rightRotate.currentPosition)
+        telemetry.addData("arm pos: ", arm.rightRotate.currentPosition + ArmPID.starting_ticks)
         telemetry.addData("arm angle: ", arm)
         telemetry.addData("arm target: ", armTarget)
 
