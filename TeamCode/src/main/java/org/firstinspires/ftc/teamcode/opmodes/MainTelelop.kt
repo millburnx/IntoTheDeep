@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID
 import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem
+import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID
 import org.firstinspires.ftc.teamcode.common.utils.PoseColor
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
@@ -24,6 +25,7 @@ class MainTelelop : CommandOpMode() {
     var dash: FtcDashboard = FtcDashboard.getInstance()
     var arm: ArmPID? = null
     var lift: LiftPID? = null
+    var intake: Intake? = null
 
     override fun initialize() {
         drive = DriveSubsystem(hardwareMap, -1.0)
@@ -32,6 +34,7 @@ class MainTelelop : CommandOpMode() {
         dash = FtcDashboard.getInstance()
         lift = LiftPID(hardwareMap)
         arm = ArmPID(hardwareMap, lift!!.lift::getCurrentPosition)
+        intake = Intake(hardwareMap)
     }
 
 
@@ -43,17 +46,39 @@ class MainTelelop : CommandOpMode() {
             drive!!.imu.resetYaw()
         }
 
+        // arm
         if (gamepad1.dpad_down) {
-            arm!!.target = ArmPID.floor
+            arm!!.target = ArmPID.base
         } else if (gamepad1.dpad_up) {
             arm!!.target = ArmPID.up
         }
-        if (gamepad1.triangle) {
-            lift!!.target = 2000
+
+        // lift
+        if (gamepad1.cross) {
+            lift!!.target = LiftPID.base
+        } else if (gamepad1.triangle) {
+            lift!!.target = LiftPID.first
+        }
+
+        // full macros
+        if (gamepad1.square) {
+            arm!!.target = ArmPID.base
+            lift!!.target = LiftPID.pickup
         } else if (gamepad1.circle) {
-            lift!!.target = 1000
-        } else if (gamepad1.cross) {
-            lift!!.target = 0
+            arm!!.target = ArmPID.floor
+            lift!!.target = LiftPID.base
+        } else if (gamepad1.dpad_left) {
+            arm!!.target = ArmPID.up
+            lift!!.target = LiftPID.first
+        }
+
+        // intake
+        if (gamepad1.left_bumper) {
+            intake!!.setPower(1.0)
+        } else if (gamepad1.right_bumper) {
+            intake!!.setPower(-1.0)
+        } else {
+            intake!!.setPower(0.0)
         }
 
         arm!!.run(telemetry)

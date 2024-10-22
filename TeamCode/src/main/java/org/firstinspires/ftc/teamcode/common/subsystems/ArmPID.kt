@@ -24,13 +24,13 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
 
     init {
         controller = PIDController(p, i, d)
-        leftRotate = hardwareMap.get<DcMotorEx>(DcMotorEx::class.java, "leftRotate")
+        leftRotate = hardwareMap["leftRotate"] as DcMotorEx
         leftRotate.direction = DcMotorSimple.Direction.FORWARD
         leftRotate.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         leftRotate.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         leftRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
-        rightRotate = hardwareMap.get<DcMotorEx>(DcMotorEx::class.java, "rightRotate")
+        rightRotate = hardwareMap["rightRotate"] as DcMotorEx
         rightRotate.direction = DcMotorSimple.Direction.REVERSE
         rightRotate.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         rightRotate.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -38,7 +38,8 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
     }
 
     fun run(telemetry: Telemetry) {
-        controller.setPID(p, i, d)
+        val newP = p + p * (liftPosition() * slidePMulti);
+        controller.setPID(newP, i, d)
         val pos = rightRotate.currentPosition + starting_ticks
         val modifier = if (target < pos) {
             downMulti
@@ -46,8 +47,9 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
             1.0
         }
         val pid = controller.calculate(pos.toDouble(), target.toDouble()) * modifier
-        val finalF = f + f * (liftPosition() * slideMulti) // f + mf
-        val ff = cos(Math.toRadians(target / ticks_in_degree)) * finalF
+        val finalF = f + f * (liftPosition() * slideFMulti) // f + mf
+        val ffAngle = (if (realtimeFF) pos else target).toDouble() / ticks_in_degree
+        val ff = cos(Math.toRadians(ffAngle)) * finalF
 
         val power = pid + ff
 
@@ -63,7 +65,7 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
     @Config
     companion object ArmPIDConfig {
         @JvmField
-        var p: Double = 0.02
+        var p: Double = 0.03
 
         @JvmField
         var i: Double = 0.0
@@ -75,10 +77,13 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
         var f: Double = 0.4
 
         @JvmField
+        var base: Int = 30
+
+        @JvmField
         var floor: Int = 30
 
         @JvmField
-        var up: Int = 155
+        var up: Int = 120
 
         @JvmField
         var ticks_in_degree: Double = 160.0 / 90.0
@@ -87,9 +92,15 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
         var starting_ticks: Double = 15.0
 
         @JvmField
-        var downMulti: Double = 0.125
+        var downMulti: Double = 0.175
 
         @JvmField
-        var slideMulti: Double = 0.0
+        var slidePMulti: Double = 0.001
+
+        @JvmField
+        var slideFMulti: Double = 0.001
+
+        @JvmField
+        var realtimeFF: Boolean = false
     }
 }

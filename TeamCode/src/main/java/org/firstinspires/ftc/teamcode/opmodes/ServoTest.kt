@@ -16,13 +16,6 @@ class ServoTest : CommandOpMode() {
     }
 
     override fun run() {
-        super.run()
-
-        servo.power = power
-    }
-
-    companion object {
-        @JvmField
-        val power = 0.0
+        servo.power = 1.0
     }
 }

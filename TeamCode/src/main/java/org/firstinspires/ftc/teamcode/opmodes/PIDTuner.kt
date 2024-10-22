@@ -30,7 +30,7 @@ class PIDTuner : OpMode() {
         lift.run()
 
         telemetry.addData("arm pos: ", arm.rightRotate.currentPosition + ArmPID.starting_ticks)
-        telemetry.addData("arm angle: ", arm)
+        telemetry.addData("arm angle: ", arm.angle)
         telemetry.addData("arm target: ", armTarget)
 
         telemetry.addData("lift pos: ", lift.lift.currentPosition)

@@ -39,7 +39,7 @@ class LiftPID(hardwareMap: HardwareMap) {
     @Config
     companion object LiftPIDConfig {
         @JvmField
-        var p: Double = 0.01
+        var p: Double = 0.005
 
         @JvmField
         var i: Double = 0.0
@@ -48,9 +48,18 @@ class LiftPID(hardwareMap: HardwareMap) {
         var d: Double = 0.0
 
         @JvmField
-        var f: Double = 0.08
+        var f: Double = 0.065
 
         @JvmField
         var ticks_in_degree: Double = 8192.0 / 360.0
+
+        @JvmField
+        var base = 100;
+
+        @JvmField
+        var pickup = 500;
+
+        @JvmField
+        var first = 1200;
     }
 }
