@@ -51,6 +51,8 @@ class MainTelelop : CommandOpMode() {
             arm!!.target = ArmPID.base
         } else if (gamepad1.dpad_up) {
             arm!!.target = ArmPID.up
+        } else if (gamepad1.dpad_right) {
+            arm!!.target = ArmPID.floor
         }
 
         // lift
@@ -58,19 +60,21 @@ class MainTelelop : CommandOpMode() {
             lift!!.target = LiftPID.base
         } else if (gamepad1.triangle) {
             lift!!.target = LiftPID.first
+        } else if (gamepad1.square) {
+            lift!!.target = LiftPID.pickup
         }
 
-        // full macros
-        if (gamepad1.square) {
-            arm!!.target = ArmPID.base
-            lift!!.target = LiftPID.pickup
-        } else if (gamepad1.circle) {
-            arm!!.target = ArmPID.floor
-            lift!!.target = LiftPID.base
-        } else if (gamepad1.dpad_left) {
-            arm!!.target = ArmPID.up
-            lift!!.target = LiftPID.first
-        }
+//        // full macros
+//        if (gamepad1.square) {
+//            arm!!.target = ArmPID.base
+//            lift!!.target = LiftPID.pickup
+//        } else if (gamepad1.circle) {
+//            arm!!.target = ArmPID.floor
+//            lift!!.target = LiftPID.base
+//        } else if (gamepad1.dpad_left) {
+//            arm!!.target = ArmPID.up
+//            lift!!.target = LiftPID.first
+//        }
 
         // intake
         if (gamepad1.left_bumper) {

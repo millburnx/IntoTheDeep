@@ -56,7 +56,7 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
         leftRotate.power = -power
         rightRotate.power = -power
 
-        telemetry.addData("arm power", -power)
+        telemetry.addData("arm power", power)
         telemetry.addData("arm pid", pid)
         telemetry.addData("arm ff", ff)
         telemetry.addData("arm error", target.toDouble() - pos.toDouble())
