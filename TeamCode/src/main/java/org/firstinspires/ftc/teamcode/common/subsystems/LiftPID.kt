@@ -36,8 +36,7 @@ class LiftPID(hardwareMap: HardwareMap) {
         lift.power = power
     }
 
-    @Config
-    companion object LiftPIDConfig {
+    companion object {
         @JvmField
         var p: Double = 0.005
 

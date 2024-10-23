@@ -91,7 +91,7 @@ class MainTelelop : CommandOpMode() {
         if (!field) {
             drive!!.robotCentric(power, strafe * 1.1, turn)
         } else {
-            val heading = drive!!.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)
+            val heading = drive!!.imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
             telemetry.addData("heading", Math.toDegrees(heading))
             drive!!.fieldCentric(if (yflip) -power else power, strafe * 1.1, turn, heading + Math.toRadians(90.0))
         }

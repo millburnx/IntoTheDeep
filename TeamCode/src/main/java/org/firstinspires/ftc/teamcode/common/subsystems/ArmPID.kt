@@ -62,8 +62,7 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
         telemetry.addData("arm error", target.toDouble() - pos.toDouble())
     }
 
-    @Config
-    companion object ArmPIDConfig {
+    companion object {
         @JvmField
         var p: Double = 0.03
 
