@@ -50,7 +50,7 @@ class MainTelelop : CommandOpMode() {
         if (gamepad1.dpad_down) {
             arm!!.target = ArmPID.base
         } else if (gamepad1.dpad_up) {
-            arm!!.target = ArmPID.up
+            arm!!.target = ArmPID.lowBasket
         } else if (gamepad1.dpad_right) {
             arm!!.target = ArmPID.floor
         }
@@ -59,7 +59,7 @@ class MainTelelop : CommandOpMode() {
         if (gamepad1.cross) {
             lift!!.target = LiftPID.base
         } else if (gamepad1.triangle) {
-            lift!!.target = LiftPID.first
+            lift!!.target = LiftPID.lowBasket
         } else if (gamepad1.square) {
             lift!!.target = LiftPID.pickup
         }

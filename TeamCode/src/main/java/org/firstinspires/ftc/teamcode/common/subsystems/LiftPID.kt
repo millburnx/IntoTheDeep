@@ -59,6 +59,9 @@ class LiftPID(hardwareMap: HardwareMap) {
         var pickup = 500;
 
         @JvmField
-        var first = 1200;
+        var lowBasket = 1150;
+
+        @JvmField
+        var highBasket = 1150;
     }
 }

@@ -79,10 +79,13 @@ class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
         var base: Int = 30
 
         @JvmField
-        var floor: Int = 30
+        var floor: Int = 0
 
         @JvmField
-        var up: Int = 120
+        var lowBasket: Int = 170
+
+        @JvmField
+        var highBasket: Int = 170
 
         @JvmField
         var ticks_in_degree: Double = 160.0 / 90.0
