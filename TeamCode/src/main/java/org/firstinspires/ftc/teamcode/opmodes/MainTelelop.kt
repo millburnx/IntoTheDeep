@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -28,6 +29,9 @@ class MainTelelop : CommandOpMode() {
     val gamepad1Ex: GamepadEx by lazy {
         GamepadEx(gamepad1)
     }
+    val gamepad2Ex: GamepadEx by lazy {
+        GamepadEx(gamepad2)
+    }
     val lift: Lift by lazy {
         Lift(hardwareMap)
     }
@@ -49,11 +53,30 @@ class MainTelelop : CommandOpMode() {
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(ArmCommand(arm, Arm.base))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(ArmCommand(arm, Arm.lowBasket))
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(ArmCommand(arm, Arm.floor))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(ArmCommand(arm, Arm.pickup))
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(LiftCommand(lift, Lift.base)) // cross
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(LiftCommand(lift, Lift.lowBasket)) // triangle
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(LiftCommand(lift, Lift.pickup)) // square
+
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(
+            ParallelCommandGroup(
+                LiftCommand(lift, Lift.base),
+                ArmCommand(arm, Arm.base)
+            )
+        )// cross
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
+            ParallelCommandGroup(
+                LiftCommand(lift, Lift.lowBasket),
+                ArmCommand(arm, Arm.lowBasket)
+            )
+        ) // triangle
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+            ParallelCommandGroup(
+                LiftCommand(lift, Lift.pickup),
+                ArmCommand(arm, Arm.pickup)
+            )
+        ) // square
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake))
