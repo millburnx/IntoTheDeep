@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlin.math.cos
 
 @Config
-class LiftPID(hardwareMap: HardwareMap) {
+class Lift(hardwareMap: HardwareMap) {
     @JvmField
     var lift: DcMotorEx
 

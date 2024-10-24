@@ -9,7 +9,15 @@ class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
         hardwareMap["Intake"] as CRServo
     }
 
-    fun setPower(power: Double) {
-        servo.power = power
+    fun intake() {
+        servo.power = 1.0
+    }
+
+    fun outtake() {
+        servo.power = -1.0
+    }
+
+    fun stop() {
+        servo.power = 0.0
     }
 }

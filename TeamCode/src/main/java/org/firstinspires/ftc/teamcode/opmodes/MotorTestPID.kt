@@ -5,9 +5,9 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
-import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID
-import org.firstinspires.ftc.teamcode.common.subsystems.MotorTestPIDConfig
-import org.firstinspires.ftc.teamcode.common.subsystems.PID
+import org.firstinspires.ftc.teamcode.common.subsystems.Arm
+import org.firstinspires.ftc.teamcode.common.utils.MotorTestPIDConfig
+import org.firstinspires.ftc.teamcode.common.utils.PID
 
 @Config
 object ServoTestConfig {
@@ -21,7 +21,7 @@ class MotorTestPid() : CommandOpMode() {
     val startingAngle = 0.0 * ticksToDegrees
 
     lateinit var motor: DcMotor;
-    lateinit var armPID: ArmPID
+    lateinit var armPID: Arm
     var target: Double = 40.0
     var pid = PID()
 
@@ -32,7 +32,7 @@ class MotorTestPid() : CommandOpMode() {
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
         armPID =
-            ArmPID(hardwareMap) { 0 }
+            Arm(hardwareMap) { 0 }
     }
 
     override fun run() {

@@ -13,7 +13,7 @@ class Telemetry {
     var telemetry: MultipleTelemetry? = null
 
     //draw all the robots on the field and send to the dashboard
-    fun drawField(poses: MutableList<PoseColor>, dash: FtcDashboard) {
+    fun drawField(poses: List<PoseColor>, dash: FtcDashboard) {
         val packet = TelemetryPacket()
         val fieldOverlay = packet.fieldOverlay()
 

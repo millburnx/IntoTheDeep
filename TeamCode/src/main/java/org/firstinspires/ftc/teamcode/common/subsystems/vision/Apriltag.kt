@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.common.subsystems
+package org.firstinspires.ftc.teamcode.common.subsystems.vision
 
 import com.arcrobotics.ftclib.command.SubsystemBase
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection

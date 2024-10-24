@@ -5,17 +5,17 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.subsystems.ArmPID
-import org.firstinspires.ftc.teamcode.common.subsystems.LiftPID
+import org.firstinspires.ftc.teamcode.common.subsystems.Arm
+import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 
 @Config
 @TeleOp
 class PIDTuner : OpMode() {
-    val arm: ArmPID by lazy {
-        ArmPID(hardwareMap, lift.lift::getCurrentPosition)
+    val arm: Arm by lazy {
+        Arm(hardwareMap, lift.lift::getCurrentPosition)
     }
-    val lift: LiftPID by lazy {
-        LiftPID(hardwareMap)
+    val lift: Lift by lazy {
+        Lift(hardwareMap)
     }
 
     override fun init() {
@@ -29,7 +29,7 @@ class PIDTuner : OpMode() {
         lift.target = liftTarget
         lift.run()
 
-        telemetry.addData("arm pos: ", arm.rightRotate.currentPosition + ArmPID.starting_ticks)
+        telemetry.addData("arm pos: ", arm.rightRotate.currentPosition + Arm.starting_ticks)
         telemetry.addData("arm angle: ", arm.angle)
         telemetry.addData("arm target: ", armTarget)
 

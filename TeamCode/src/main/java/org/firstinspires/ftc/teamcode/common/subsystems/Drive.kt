@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.subsystems
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
@@ -11,7 +12,8 @@ import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.IMU
-import com.qualcomm.robotcore.hardware.VoltageSensor
+import org.firstinspires.ftc.teamcode.common.utils.PoseColor
+import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
 import kotlin.math.cos
@@ -19,39 +21,57 @@ import kotlin.math.max
 import kotlin.math.sin
 
 @Config
-class DriveSubsystem(hardwareMap: HardwareMap, cacheThreshold: Double) : SubsystemBase() {
-    private var cacheThreshold = 0.1 // -1 to disable
+class Drive(
+    hardwareMap: HardwareMap,
+    val telemetry: Telemetry,
+    val dashboard: FtcDashboard,
+    val cacheThreshold: Double = -1.0
+) : SubsystemBase() {
     private val prevPower = doubleArrayOf(0.0, 0.0, 0.0, 0.0)
-    var leftFront: MotorEx
-    var leftRear: MotorEx
-    var rightRear: MotorEx
-    var rightFront: MotorEx
+    val leftFront: MotorEx by lazy {
+        MotorEx(hardwareMap, "frontLeft")
+    }
+    val leftRear: MotorEx by lazy {
+        MotorEx(hardwareMap, "backLeft")
+    }
+    val rightRear: MotorEx by lazy {
+        MotorEx(hardwareMap, "backRight")
+    }
+    val rightFront: MotorEx by lazy {
+        MotorEx(hardwareMap, "frontRight")
+    }
 
-    var imu: IMU
-    private val batteryVoltageSensor: VoltageSensor? = null
+    val imu: IMU by lazy {
+        hardwareMap["imu"] as IMU
+    }
 
-    var leftOdom: Motor.Encoder
-    var rightOdom: Motor.Encoder
-    var centerOdom: Motor.Encoder
-    var odometry: HolonomicOdometry
+    val leftOdom: Motor.Encoder by lazy {
+        rightRear.encoder
+    }
+    val rightOdom: Motor.Encoder by lazy {
+        leftFront.encoder
+    }
+    val centerOdom: Motor.Encoder by lazy {
+        leftRear.encoder
+    }
+    val odometry: HolonomicOdometry by lazy {
+        HolonomicOdometry(
+            DoubleSupplier { leftOdom.distance },
+            DoubleSupplier { rightOdom.distance },
+            DoubleSupplier { centerOdom.distance },
+            TRACK_WIDTH, CENTER_WHEEL_OFFSET
+        )
+    }
+    val pose: Pose2d
+        get() = odometry.pose
 
     init {
-        this.cacheThreshold = cacheThreshold
         DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV
 
-        imu = hardwareMap.get<IMU>(IMU::class.java, "imu")
-
-        leftFront = MotorEx(hardwareMap, "frontLeft")
-        leftFront.setInverted(true)
-
-        leftRear = MotorEx(hardwareMap, "backLeft")
-        leftRear.setInverted(true)
-
-        rightRear = MotorEx(hardwareMap, "backRight")
-        rightRear.setInverted(false)
-
-        rightFront = MotorEx(hardwareMap, "frontRight")
-        rightFront.setInverted(false)
+        leftFront.inverted = true
+        leftRear.inverted = true
+        rightRear.inverted = false
+        rightFront.inverted = false
 
         val stop = if (BREAK) Motor.ZeroPowerBehavior.BRAKE else Motor.ZeroPowerBehavior.FLOAT
 
@@ -60,19 +80,19 @@ class DriveSubsystem(hardwareMap: HardwareMap, cacheThreshold: Double) : Subsyst
         leftRear.setZeroPowerBehavior(stop)
         leftFront.setZeroPowerBehavior(stop)
 
-        imu = hardwareMap.get<IMU>(IMU::class.java, "imu")
-        val parameters = IMU.Parameters(
-            RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP
+        imu.initialize(
+            IMU.Parameters(
+                RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                    RevHubOrientationOnRobot.UsbFacingDirection.UP
+                )
             )
         )
-        imu.initialize(parameters)
         imu.resetYaw()
 
-        leftOdom = rightRear.encoder.setDistancePerPulse(DISTANCE_PER_PULSE)
-        rightOdom = leftFront.encoder.setDistancePerPulse(DISTANCE_PER_PULSE)
-        centerOdom = leftRear.encoder.setDistancePerPulse(DISTANCE_PER_PULSE)
+        leftOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
+        rightOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
+        centerOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
 
         leftOdom.setDirection(Motor.Direction.FORWARD)
         rightOdom.setDirection(Motor.Direction.REVERSE)
@@ -81,13 +101,6 @@ class DriveSubsystem(hardwareMap: HardwareMap, cacheThreshold: Double) : Subsyst
         leftOdom.reset()
         rightOdom.reset()
         centerOdom.reset()
-
-        odometry = HolonomicOdometry(
-            DoubleSupplier { leftOdom.getDistance() },
-            DoubleSupplier { rightOdom.getDistance() },
-            DoubleSupplier { centerOdom.getDistance() },
-            TRACK_WIDTH, CENTER_WHEEL_OFFSET
-        )
 
         // change to reflect starting field position
         odometry.updatePose(Pose2d(startingX, startingY, Rotation2d(Math.toRadians(startingH))))
@@ -99,7 +112,14 @@ class DriveSubsystem(hardwareMap: HardwareMap, cacheThreshold: Double) : Subsyst
         }
     }
 
-    @JvmOverloads
+    override fun periodic() {
+        odometry.updatePose()
+//        val list: MutableList<PoseColor> = ArrayList<PoseColor>()
+//        list.add(PoseColor(pos, "#0000ff"))
+//        telemetry.drawField(list, dashboard)
+        telemetry.drawField(listOf(PoseColor(pose, "#0000ff")), dashboard)
+    }
+
     fun robotCentric(power: Double, strafe: Double, turn: Double, multiF: Double = 1.0, multiH: Double = 1.0) {
         val denominator = max(
             abs(power * 1 / multiF) + abs(strafe * 1 / multiF) + abs(turn * 1 / multiH),
@@ -147,14 +167,6 @@ class DriveSubsystem(hardwareMap: HardwareMap, cacheThreshold: Double) : Subsyst
 
         rotX = rotX * 1.1
         robotCentric(rotY, rotX, rx)
-    }
-
-    fun updatePos() {
-        odometry.updatePose()
-    }
-
-    fun getPos(): Pose2d {
-        return odometry.pose
     }
 
     companion object {

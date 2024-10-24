@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.common.subsystems
+package org.firstinspires.ftc.teamcode.common.subsystems.vision
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -21,7 +21,6 @@ import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.math.min
 import kotlin.math.round
 
 class SampleDetector : SubsystemBase() {
@@ -179,7 +178,7 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
         return SampleDetection(center, angle, color)
     }
 
-    fun correctCVAngle(rect: RotatedRect): Double{
+    fun correctCVAngle(rect: RotatedRect): Double {
         val angle = if (rect.size.width < rect.size.height) {
             90 - rect.angle
         } else {
@@ -205,7 +204,7 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
     }
 }
 
-enum class SampleColor{
+enum class SampleColor {
     RED,
     YELLOW,
     BLUE

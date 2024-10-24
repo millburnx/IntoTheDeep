@@ -6,13 +6,13 @@ import com.arcrobotics.ftclib.command.CommandBase
 import com.millburnx.purepursuit.PurePursuit
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem
+import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import org.firstinspires.ftc.teamcode.common.utils.Util
 import org.firstinspires.ftc.teamcode.opmodes.AutonConfig
 
 class PurePursuitCommand(
-    val drive: DriveSubsystem,
+    val drive: Drive,
     val path: List<Vec2d>,
     val dash: FtcDashboard,
     val lookahead: Double = 14.0,
@@ -33,7 +33,7 @@ class PurePursuitCommand(
 
     override fun execute() {
         if (loops == 10) fullTimer.reset()
-        val pose = drive.getPos()
+        val pose = drive.pose
         val position = Vec2d(pose.x, pose.y)
         val heading = pose.heading
         val calcResults = purePursuit.calc(position, heading)

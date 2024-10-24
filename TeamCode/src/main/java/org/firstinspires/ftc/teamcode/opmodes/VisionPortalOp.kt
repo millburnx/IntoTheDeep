@@ -5,10 +5,10 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.common.subsystems.Apriltag
-import org.firstinspires.ftc.teamcode.common.subsystems.SampleColor
-import org.firstinspires.ftc.teamcode.common.subsystems.SamplePipeline
-import org.firstinspires.ftc.teamcode.common.subsystems.VisionPortal
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.Apriltag
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleColor
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 
 @Config
 @TeleOp(name = "Vision")

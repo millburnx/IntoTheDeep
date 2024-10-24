@@ -10,20 +10,19 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import kotlin.math.cos
 
 @Config
-class ArmPID(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
+class Arm(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
     var leftRotate: DcMotorEx
 
     @JvmField
     var rightRotate: DcMotorEx
 
-    private val controller: PIDController
+    val controller: PIDController = PIDController(p, i, d)
     var target: Int = 0
 
     val angle: Double
         get() = rightRotate.currentPosition / ticks_in_degree
 
     init {
-        controller = PIDController(p, i, d)
         leftRotate = hardwareMap["leftRotate"] as DcMotorEx
         leftRotate.direction = DcMotorSimple.Direction.FORWARD
         leftRotate.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE

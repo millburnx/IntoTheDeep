@@ -6,19 +6,19 @@ import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
-import org.firstinspires.ftc.teamcode.common.subsystems.DriveSubsystem
-import org.firstinspires.ftc.teamcode.common.subsystems.Limelight
+import org.firstinspires.ftc.teamcode.common.subsystems.Drive
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.Limelight
 import org.firstinspires.ftc.teamcode.common.utils.PoseColor
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 
 @TeleOp(name = "Mega Tag 2")
 class LimelightMT2() : CommandOpMode() {
     lateinit var limelight: Limelight;
-    lateinit var drive: DriveSubsystem
+    lateinit var drive: Drive
     lateinit var telem: Telemetry
     override fun initialize() {
         limelight = Limelight(hardwareMap, telemetry)
-        drive = DriveSubsystem(hardwareMap, -1.0)
+        drive = Drive(hardwareMap, telem, FtcDashboard.getInstance())
         telem = Telemetry()
     }
 
@@ -32,10 +32,9 @@ class LimelightMT2() : CommandOpMode() {
         val strafe = gamepad1.left_stick_x * 1.1;
         val turn = gamepad1.right_stick_x.toDouble();
         drive.robotCentric(power, strafe, turn);
-        drive.updatePos();
 
         val poses = mutableListOf<PoseColor>()
-        val odom = drive.getPos()
+        val odom = drive.pose
         poses.add(PoseColor(odom, "#0000ff"))
 
         val orientation = drive.imu.robotYawPitchRollAngles

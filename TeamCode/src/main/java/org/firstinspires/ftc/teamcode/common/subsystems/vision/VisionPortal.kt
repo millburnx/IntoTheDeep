@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.common.subsystems
+package org.firstinspires.ftc.teamcode.common.subsystems.vision
 
 import android.util.Size
 import com.arcrobotics.ftclib.command.SubsystemBase
@@ -8,7 +8,7 @@ import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.VisionProcessor
 
 
-class VisionPortal(val hwMap: HardwareMap, val camera: String, processors: List<VisionProcessor>) : SubsystemBase() {
+class VisionPortal(hwMap: HardwareMap, camera: String, processors: List<VisionProcessor>) : SubsystemBase() {
     val builder = VisionPortal.Builder()
         .setCamera(hwMap.get(WebcamName::class.java, camera))
         .addProcessors(*processors.toTypedArray())
