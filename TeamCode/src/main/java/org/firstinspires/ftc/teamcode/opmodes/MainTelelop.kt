@@ -4,7 +4,9 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.gamepad.GamepadEx
+import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
@@ -28,7 +30,7 @@ class MainTelelop : CommandOpMode() {
         Lift(hardwareMap)
     }
     val arm: Arm by lazy {
-        Arm(hardwareMap, lift.lift::getCurrentPosition)
+        Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition)
     }
     val intake: Intake by lazy {
         Intake(hardwareMap)
@@ -47,14 +49,9 @@ class MainTelelop : CommandOpMode() {
             drive.imu.resetYaw()
         }
 
-        // arm
-        if (gamepad1.dpad_down) {
-            arm.target = Arm.base
-        } else if (gamepad1.dpad_up) {
-            arm.target = Arm.lowBasket
-        } else if (gamepad1.dpad_right) {
-            arm.target = Arm.floor
-        }
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(ArmCommand(arm, Arm.base))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(ArmCommand(arm, Arm.lowBasket))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(ArmCommand(arm, Arm.floor))
 
         // lift
         if (gamepad1.cross) {
@@ -74,7 +71,6 @@ class MainTelelop : CommandOpMode() {
             intake.stop()
         }
 
-        arm.run(telemetry)
         lift.run()
         telemetry.update()
     }

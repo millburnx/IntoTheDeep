@@ -16,6 +16,7 @@ class ServoTest : CommandOpMode() {
     }
 
     override fun run() {
+        super.run()
         servo.power = ServoTestConfig.power
     }
 }

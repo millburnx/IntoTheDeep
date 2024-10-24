@@ -32,12 +32,12 @@ class MotorTestPid() : CommandOpMode() {
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
         armPID =
-            Arm(hardwareMap) { 0 }
+            Arm(hardwareMap, telemetry) { 0 }
     }
 
     override fun run() {
+        super.run()
         armPID.target = 160
-        armPID.run(telemetry)
 
         val f = 0
         motor.power = pid.calc(MotorTestPIDConfig.target, motor.currentPosition.toInt()) + f

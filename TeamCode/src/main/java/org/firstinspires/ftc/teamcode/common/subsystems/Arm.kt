@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -10,44 +11,51 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import kotlin.math.cos
 
 @Config
-class Arm(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
-    var leftRotate: DcMotorEx
+class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: () -> Int) : SubsystemBase() {
+    val leftRotate: DcMotorEx by lazy {
+        hardwareMap["leftRotate"] as DcMotorEx
+    }
 
-    @JvmField
-    var rightRotate: DcMotorEx
+    val rightRotate: DcMotorEx by lazy {
+        hardwareMap["rightRotate"] as DcMotorEx
+    }
 
     val controller: PIDController = PIDController(p, i, d)
     var target: Int = 0
 
+    val position: Double
+        get() = rightRotate.currentPosition + starting_ticks
+
     val angle: Double
-        get() = rightRotate.currentPosition / ticks_in_degree
+        get() = position / ticks_in_degree
 
     init {
-        leftRotate = hardwareMap["leftRotate"] as DcMotorEx
         leftRotate.direction = DcMotorSimple.Direction.FORWARD
         leftRotate.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         leftRotate.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         leftRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
-        rightRotate = hardwareMap["rightRotate"] as DcMotorEx
         rightRotate.direction = DcMotorSimple.Direction.REVERSE
         rightRotate.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         rightRotate.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         rightRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
 
+    override fun periodic() {
+        run(telemetry)
+    }
+
     fun run(telemetry: Telemetry) {
-        val newP = p + p * (liftPosition() * slidePMulti);
+        val newP = p + p * (liftPosition() * slidePMulti); // p + mp
         controller.setPID(newP, i, d)
-        val pos = rightRotate.currentPosition + starting_ticks
-        val modifier = if (target < pos) {
+        val modifier = if (target < position) {
             downMulti
         } else {
             1.0
         }
-        val pid = controller.calculate(pos.toDouble(), target.toDouble()) * modifier
+        val pid = controller.calculate(position.toDouble(), target.toDouble()) * modifier
         val finalF = f + f * (liftPosition() * slideFMulti) // f + mf
-        val ffAngle = (if (realtimeFF) pos else target).toDouble() / ticks_in_degree
+        val ffAngle = if (realtimeFF) angle else (target.toDouble() / ticks_in_degree)
         val ff = cos(Math.toRadians(ffAngle)) * finalF
 
         val power = pid + ff
@@ -58,7 +66,7 @@ class Arm(hardwareMap: HardwareMap, val liftPosition: () -> Int) {
         telemetry.addData("arm power", power)
         telemetry.addData("arm pid", pid)
         telemetry.addData("arm ff", ff)
-        telemetry.addData("arm error", target.toDouble() - pos.toDouble())
+        telemetry.addData("arm error", target.toDouble() - position)
     }
 
     companion object {
