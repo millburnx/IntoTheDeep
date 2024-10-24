@@ -16,6 +16,8 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         hardwareMap["leftRotate"] as DcMotorEx
     }
 
+    var isOn = false
+
     val rightRotate: DcMotorEx by lazy {
         hardwareMap["rightRotate"] as DcMotorEx
     }
@@ -46,6 +48,11 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
     }
 
     fun run(telemetry: Telemetry) {
+        if (!isOn) {
+            leftRotate.power = 0.0
+            rightRotate.power = 0.0
+            return
+        }
         val newP = p + p * (liftPosition() * slidePMulti); // p + mp
         controller.setPID(newP, i, d)
         val modifier = if (target < position) {
@@ -67,6 +74,14 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         telemetry.addData("arm pid", pid)
         telemetry.addData("arm ff", ff)
         telemetry.addData("arm error", target.toDouble() - position)
+    }
+
+    fun off() {
+        isOn = false
+    }
+
+    fun on() {
+        isOn = true
     }
 
     companion object {

@@ -10,6 +10,7 @@ class ArmCommand(val arm: Arm, val target: Int, val threshold: Int = 20) : Comma
     }
 
     override fun initialize() {
+        arm.on()
         arm.target = target
     }
 
@@ -17,6 +18,6 @@ class ArmCommand(val arm: Arm, val target: Int, val threshold: Int = 20) : Comma
 
     override fun isFinished(): Boolean {
         val diff = abs(arm.position - target)
-        return diff < threshold
+        return diff < threshold || arm.target != target // reached target or changed target (ie overridden)
     }
 }
