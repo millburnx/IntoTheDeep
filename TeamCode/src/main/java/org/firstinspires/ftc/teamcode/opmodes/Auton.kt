@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import java.io.File
+import java.lang.Error
 
 @Config
 object AutonConfig {
@@ -30,10 +31,18 @@ class Auton : CommandOpMode() {
     val dash: FtcDashboard = FtcDashboard.getInstance()
 
     val path = run {
-        println("FILE PATH: ${Environment.getExternalStorageDirectory()} | ${Environment.getDataDirectory()}")
+        println("FILE DIR: ${Environment.getExternalStorageDirectory()} | ${Environment.getDataDirectory()}")
         var rootDir = Environment.getExternalStorageDirectory()
-        val points = Vec2d.loadList(File("${rootDir}/Paths/${AutonConfig.pathName}.tsv"))
-        points
+        val path = "${rootDir}/Paths/${AutonConfig.pathName}.tsv"
+        try {
+            val points = Vec2d.loadList(File(path))
+            points
+        } catch (e: Error) {
+            g
+            e.printStackTrace()
+            println("PATH (`$path`) NOT FOUND")
+            listOf<Vec2d>()
+        }
     }
 
     override fun initialize() {
