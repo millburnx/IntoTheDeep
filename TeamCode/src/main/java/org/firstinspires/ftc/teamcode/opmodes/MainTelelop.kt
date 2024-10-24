@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.opmodes
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
+import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
+import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -40,38 +42,23 @@ class MainTelelop : CommandOpMode() {
         drive.defaultCommand = DriveRobotCommand(drive, gamepad1Ex, telemetry)
     }
 
-
     override fun run() {
         super.run()
 
-        if (gamepad1.b) {
-            println("RESETTING IMU")
-            drive.imu.resetYaw()
-        }
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(InstantCommand(drive.imu::resetYaw))
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(ArmCommand(arm, Arm.base))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(ArmCommand(arm, Arm.lowBasket))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(ArmCommand(arm, Arm.floor))
 
-        // lift
-        if (gamepad1.cross) {
-            lift.target = Lift.base
-        } else if (gamepad1.triangle) {
-            lift.target = Lift.lowBasket
-        } else if (gamepad1.square) {
-            lift.target = Lift.pickup
-        }
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(LiftCommand(lift, Lift.base)) // cross
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(LiftCommand(lift, Lift.lowBasket)) // triangle
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(LiftCommand(lift, Lift.pickup)) // square
 
-        // intake
-        if (gamepad1.left_bumper) {
-            intake.intake()
-        } else if (gamepad1.right_bumper) {
-            intake.outtake()
-        } else {
-            intake.stop()
-        }
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.BACK).whileHeld(InstantCommand(intake::stop))
 
-        lift.run()
         telemetry.update()
     }
 

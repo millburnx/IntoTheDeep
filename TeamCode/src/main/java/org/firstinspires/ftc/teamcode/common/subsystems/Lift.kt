@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -9,30 +10,33 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlin.math.cos
 
 @Config
-class Lift(hardwareMap: HardwareMap) {
-    @JvmField
-    var lift: DcMotorEx
+class Lift(hardwareMap: HardwareMap) : SubsystemBase() {
+    val lift: DcMotorEx by lazy {
+        hardwareMap["slides"] as DcMotorEx
+    }
 
-    private val controller: PIDController
+    val controller: PIDController = PIDController(p, i, d)
+    val position: Int
+        get() = lift.currentPosition
     var target: Int = 10
 
     init {
-        controller = PIDController(p, i, d)
-        lift = hardwareMap.get<DcMotorEx>(DcMotorEx::class.java, "slides")
         lift.direction = DcMotorSimple.Direction.REVERSE
         lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         lift.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         lift.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
 
+    override fun periodic() {
+        run()
+    }
+
     fun run() {
         controller.setPID(p, i, d)
-        val pos = lift.currentPosition
-        val pid = controller.calculate(pos.toDouble(), target.toDouble())
+        val pid = controller.calculate(position.toDouble(), target.toDouble())
         val ff = cos(Math.toRadians(target / ticks_in_degree)) * f
 
         val power = pid + ff
-
         lift.power = power
     }
 
