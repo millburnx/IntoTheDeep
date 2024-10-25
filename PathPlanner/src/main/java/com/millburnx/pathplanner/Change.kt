@@ -8,7 +8,11 @@ interface Change {
     fun undo()
 }
 
-class PointTranslation(val bezierPoint: BezierPoint, val type: BezierPoint.PointType, val change: Vec2d) : Change {
+class PointTranslation(
+    val bezierPoint: BezierPoint,
+    val type: BezierPoint.PointType,
+    val change: Vec2d,
+) : Change {
     // PointTranslation.apply will mostly be used for redoing the change
     // since creating a ton of new PointTranslations while dragging the point seems kind of inefficient
     override fun apply() {
@@ -48,9 +52,12 @@ class PointModification(
     }
 }
 
-class PointAddition(val pathPlanner: PathPlanner, val bezierPoint: BezierPoint, val index: Int) : Change {
+class PointAddition(
+    val pathPlanner: PathPlanner, val bezierPoint: BezierPoint, val index: Int,
+    val pathIndex: Int
+) : Change {
     override fun apply() {
-        pathPlanner.bezierPoints[pathPlanner.currentPath].add(bezierPoint)
+        pathPlanner.bezierPoints[pathIndex].add(bezierPoint)
     }
 
     override fun undo() {
@@ -62,12 +69,15 @@ class PointAddition(val pathPlanner: PathPlanner, val bezierPoint: BezierPoint, 
     }
 }
 
-class PointRemoval(val pathPlanner: PathPlanner, val bezierPoint: BezierPoint, val index: Int) : Change {
-    val currentPath = pathPlanner.bezierPoints[pathPlanner.currentPath]
-    val firstPrev = currentPath.getOrNull(1)?.prevHandle
-    val lastNext = currentPath.dropLast(1).last().nextHandle
+class PointRemoval(
+    val pathPlanner: PathPlanner, val bezierPoint: BezierPoint, val index: Int,
+    val pathIndex: Int
+) : Change {
+    val path = pathPlanner.bezierPoints[pathIndex]
+    val firstPrev = path.getOrNull(1)?.prevHandle
+    val lastNext = path.dropLast(1).last().nextHandle
     val wasFirst = index == 0
-    val wasLast = index == currentPath.size - 1
+    val wasLast = index == path.size - 1
 
     override fun apply() {
         pathPlanner.removePointPure(bezierPoint)
@@ -75,12 +85,12 @@ class PointRemoval(val pathPlanner: PathPlanner, val bezierPoint: BezierPoint, v
 
     override fun undo() {
         if (wasFirst) {
-            currentPath.first().prevHandle = firstPrev
+            path.first().prevHandle = firstPrev
         }
         if (wasLast) {
-            currentPath.last().nextHandle = lastNext
+            path.last().nextHandle = lastNext
         }
-        currentPath.add(index, bezierPoint)
+        path.add(index, bezierPoint)
     }
 
     override fun toString(): String {
