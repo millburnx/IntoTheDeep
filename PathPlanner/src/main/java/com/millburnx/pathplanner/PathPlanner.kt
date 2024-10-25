@@ -1,5 +1,6 @@
 package com.millburnx.pathplanner
 
+import androidx.annotation.RequiresApi
 import com.millburnx.utils.Bezier
 import com.millburnx.utils.BezierPoint
 import com.millburnx.utils.GridBagHelper
@@ -23,12 +24,13 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
     val drawImage = false
     val drawBounding = false
     val backgroundImage = ImageIO.read(javaClass.classLoader.getResource("bg.png"))
-    val bezierPoints: MutableList<BezierPoint> = mutableListOf()
+    val bezierPoints: MutableList<MutableList<BezierPoint>> = mutableListOf(mutableListOf())
     val undoStack: MutableList<List<Change>> = mutableListOf()
     val redoStack: MutableList<List<Change>> = mutableListOf()
     var currentPopoverRef: JPopover? = null
     private val listeners: PathPlannerListeners = PathPlannerListeners(this)
     val buttonPanel: ButtonPanelWrapper = ButtonPanelWrapper(this)
+    var currentPath: Int = 0
 
     init {
         addMouseListener(listeners.mouse)
@@ -69,25 +71,27 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         }
         g2d.translate(width / 2, height / 2)
 
-        bezierPoints.zipWithNext { p1, p2 ->
-            Bezier(p1.anchor, p1.nextHandle!!, p2.prevHandle!!, p2.anchor)
-        }.forEach {
-            val bezier = it
-            if (drawBounding) {
-                drawBezierBounding(bezier, g2d)
-                val (left, right) = bezier.split()
-                val (s1, s2) = left.split()
-                val (s3, s4) = right.split()
-                drawBezierBounding(s1, g2d)
-                drawBezierBounding(s2, g2d)
-                drawBezierBounding(s3, g2d)
-                drawBezierBounding(s4, g2d)
+        bezierPoints.forEach { path ->
+            path.zipWithNext { p1, p2 ->
+                Bezier(p1.anchor, p1.nextHandle!!, p2.prevHandle!!, p2.anchor)
+            }.forEach {
+                val bezier = it
+                if (drawBounding) {
+                    drawBezierBounding(bezier, g2d)
+                    val (left, right) = bezier.split()
+                    val (s1, s2) = left.split()
+                    val (s3, s4) = right.split()
+                    drawBezierBounding(s1, g2d)
+                    drawBezierBounding(s2, g2d)
+                    drawBezierBounding(s3, g2d)
+                    drawBezierBounding(s4, g2d)
+                }
+                it.g2dDraw(g2d, ppi, scale, Color.decode(Utils.Colors.green))
             }
-            it.g2dDraw(g2d, ppi, scale, Color.decode(Utils.Colors.green))
-        }
 
-        for (bezierPoint in bezierPoints) {
-            bezierPoint.draw(g2d, ppi, scale, Color.decode(Utils.Colors.red), Color.decode(Utils.Colors.blue))
+            for (bezierPoint in path) {
+                bezierPoint.draw(g2d, ppi, scale, Color.decode(Utils.Colors.red), Color.decode(Utils.Colors.blue))
+            }
         }
 
         g.drawImage(bufferedImage, 0, 0, null)
@@ -132,12 +136,13 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
     }
 
     fun updateCatmullRom() {
-        for (i in 0 until bezierPoints.size - 1) {
-            val p1 = bezierPoints[i]
-            val p2 = bezierPoints[i + 1]
+        val currentPath = bezierPoints[currentPath]
+        for (i in 0 until currentPath.size - 1) {
+            val p1 = currentPath[i]
+            val p2 = currentPath[i + 1]
 
-            val p0 = bezierPoints.getOrNull(i - 1) ?: BezierPoint(p1.anchor - (p2.anchor - p1.anchor))
-            val p3 = bezierPoints.getOrNull(i + 2) ?: BezierPoint(p2.anchor - (p1.anchor - p2.anchor))
+            val p0 = currentPath.getOrNull(i - 1) ?: BezierPoint(p1.anchor - (p2.anchor - p1.anchor))
+            val p3 = currentPath.getOrNull(i + 2) ?: BezierPoint(p2.anchor - (p1.anchor - p2.anchor))
 
             val bezier = Bezier.fromCatmullRom(p0.anchor, p1.anchor, p2.anchor, p3.anchor)
             if (!p1.modified) {
@@ -156,15 +161,17 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
     }
 
     fun setPoints(points: List<BezierPoint>) {
-        bezierPoints.clear()
-        bezierPoints.addAll(points)
+        val currentPath = bezierPoints[currentPath]
+        currentPath.clear()
+        currentPath.addAll(points)
         updateCatmullRom()
         repaint()
     }
 
     fun addPoint(bezierPoint: BezierPoint) {
 //        bezierPoints.add(bezierPoint)
-        val change = PointAddition(this, bezierPoint, bezierPoints.size)
+        val currentPath = bezierPoints[currentPath]
+        val change = PointAddition(this, bezierPoint, currentPath.size)
         addChanges(listOf(change))
         change.apply()
         updateCatmullRom()
@@ -172,7 +179,8 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
     }
 
     fun removePoint(bezierPoint: BezierPoint) {
-        val index = bezierPoints.indexOf(bezierPoint)
+        val currentPath = bezierPoints[currentPath]
+        val index = currentPath.indexOf(bezierPoint)
         val change = PointRemoval(this, bezierPoint, index)
         addChanges(listOf(change))
         change.apply()
@@ -181,16 +189,17 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
     }
 
     fun removePointPure(bezierPoint: BezierPoint) {
-        val index = bezierPoints.indexOf(bezierPoint)
-        bezierPoints.remove(bezierPoint)
-        if (bezierPoints.isEmpty()) return
+        val currentPath = bezierPoints[currentPath]
+        val index = currentPath.indexOf(bezierPoint)
+        currentPath.remove(bezierPoint)
+        if (currentPath.isEmpty()) return
         val wasFirst = index == 0
-        val wasLast = index == bezierPoints.size
+        val wasLast = index == currentPath.size
         if (wasFirst) {
-            bezierPoints.first().prevHandle = null
+            currentPath.first().prevHandle = null
         }
         if (wasLast) {
-            bezierPoints.last().nextHandle = null
+            currentPath.last().nextHandle = null
         }
     }
 
@@ -202,6 +211,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         redoStack.clear()
     }
 
+    @RequiresApi(35)
     fun undo() {
         if (undoStack.isEmpty()) return
         val change = undoStack.removeLast()
@@ -212,6 +222,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         repaint()
     }
 
+    @RequiresApi(35)
     fun redo() {
         if (redoStack.isEmpty()) return
         val change = redoStack.removeLast()

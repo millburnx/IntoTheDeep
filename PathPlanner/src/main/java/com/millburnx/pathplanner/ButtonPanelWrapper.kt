@@ -42,9 +42,10 @@ class ButtonPanelWrapper(val pathPlanner: PathPlanner) : JPanel() {
         }
     }
 
-    val buttonPanel: ButtonPanel = ButtonPanel(pathPlanner.scale, { pathPlanner.bezierPoints }) {
-        pathPlanner.setPoints(it)
-    }
+    val buttonPanel: ButtonPanel =
+        ButtonPanel(pathPlanner.scale, { pathPlanner.bezierPoints[pathPlanner.currentPath] }) {
+            pathPlanner.setPoints(it)
+        }
 
     init {
         layout = FlowLayout(FlowLayout.CENTER)

@@ -1,5 +1,6 @@
 package com.millburnx.pathplanner
 
+import androidx.annotation.RequiresApi
 import com.millburnx.utils.BezierPoint
 import com.millburnx.utils.Vec2d
 import java.awt.event.KeyAdapter
@@ -30,7 +31,7 @@ class PathPlannerListeners(pathPlanner: PathPlanner) {
                         return
                     }
                     val targetPoint = BezierPoint.selectedPoint(
-                        pathPlanner.bezierPoints, fieldPoint, listOf(
+                        pathPlanner.bezierPoints[pathPlanner.currentPath], fieldPoint, listOf(
                             BezierPoint.PointType.ANCHOR,
                             BezierPoint.PointType.PREV_HANDLE,
                             BezierPoint.PointType.NEXT_HANDLE
@@ -51,7 +52,7 @@ class PathPlannerListeners(pathPlanner: PathPlanner) {
                         return
                     }
                     val targetPoint = BezierPoint.selectedPoint(
-                        pathPlanner.bezierPoints, fieldPoint, listOf(
+                        pathPlanner.bezierPoints[pathPlanner.currentPath], fieldPoint, listOf(
                             BezierPoint.PointType.ANCHOR
                         ), thresholds
                     )
@@ -66,7 +67,7 @@ class PathPlannerListeners(pathPlanner: PathPlanner) {
                         pathPlanner.currentPopoverRef = null
                     }
                     val targetPoint = BezierPoint.selectedPoint(
-                        pathPlanner.bezierPoints, fieldPoint, listOf(
+                        pathPlanner.bezierPoints[pathPlanner.currentPath], fieldPoint, listOf(
                             BezierPoint.PointType.ANCHOR,
                             BezierPoint.PointType.PREV_HANDLE,
                             BezierPoint.PointType.NEXT_HANDLE
@@ -125,6 +126,7 @@ class PathPlannerListeners(pathPlanner: PathPlanner) {
     }
 
     class Key(val pathPlanner: PathPlanner) : KeyAdapter() {
+        @RequiresApi(35)
         override fun keyPressed(e: KeyEvent) {
             when (e.keyCode) {
                 KeyEvent.VK_Z -> {
