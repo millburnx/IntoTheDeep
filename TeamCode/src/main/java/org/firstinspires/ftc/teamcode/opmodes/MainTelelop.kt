@@ -54,19 +54,19 @@ class MainTelelop : CommandOpMode() {
     override fun run() {
         super.run()
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(InstantCommand(drive.imu::resetYaw))
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(ArmCommand(arm, Arm.lowBasket))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(ArmCommand(arm, Arm.base))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(ArmCommand(arm, Arm.pickup))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(ArmCommand(arm, Arm.highBasket))
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand(arm::off))
-
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(LiftCommand(lift, Lift.lowBasket)) // triangle
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(LiftCommand(lift, Lift.base)) // cross
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(LiftCommand(lift, Lift.pickup)) // square
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(LiftCommand(lift, Lift.base)) // square
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(LiftCommand(lift, Lift.pickup)) // cross
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(LiftCommand(lift, Lift.highBasket)) // circle
+
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake))
 
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
             SequentialCommandGroup(
@@ -88,13 +88,13 @@ class MainTelelop : CommandOpMode() {
 //                    InstantCommand(arm::off), // TODO: UNCOMMENT IF STOP IDLE POWER
                 )
             ) { arm.position < Arm.base + (Arm.lowBasket - Arm.base) / 2 }
-        )// cross
+        )// square
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(
             SequentialCommandGroup(
                 LiftCommand(lift, Lift.pickup),
                 ArmCommand(arm, Arm.pickup)
             )
-        ) // square
+        ) // cross
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(
             SequentialCommandGroup(
                 // TODO: CHECK IF ARM IS AT PICKUP OR BASE, IF AT PICKUP WE CAN GO TO BASE FIRST OR REJECT
@@ -111,8 +111,8 @@ class MainTelelop : CommandOpMode() {
             schedule(InstantCommand({ lift.target += gamepad2.right_trigger }, lift))
         }
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake))
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand(arm::off))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(InstantCommand(drive.imu::resetYaw))
 
         telem.addData("arm pos: ", arm.position)
         telem.addData("arm angle: ", arm.angle)
