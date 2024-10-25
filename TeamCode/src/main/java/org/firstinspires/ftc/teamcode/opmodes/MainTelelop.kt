@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
@@ -48,7 +49,7 @@ class MainTelelop : CommandOpMode() {
     override fun initialize() {
         drive.defaultCommand = DriveRobotCommand(drive, gamepad1Ex, telemetry)
 
-        intake.defaultCommand = InstantCommand(intake::stop, intake)
+        intake.defaultCommand = RunCommand(intake::stop, intake)
     }
 
     override fun run() {
