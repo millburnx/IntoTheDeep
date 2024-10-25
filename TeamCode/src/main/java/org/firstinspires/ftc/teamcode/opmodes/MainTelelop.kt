@@ -59,15 +59,18 @@ class MainTelelop : CommandOpMode() {
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(ArmCommand(arm, Arm.lowBasket))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(ArmCommand(arm, Arm.base))
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(ArmCommand(arm, Arm.pickup))
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(InstantCommand(arm::off))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(ArmCommand(arm, Arm.highBasket))
+
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand(arm::off))
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(LiftCommand(lift, Lift.lowBasket)) // triangle
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(LiftCommand(lift, Lift.base)) // cross
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(LiftCommand(lift, Lift.pickup)) // square
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(LiftCommand(lift, Lift.highBasket)) // circle
 
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
             SequentialCommandGroup(
-                LiftCommand(lift, Lift.base),
+                // TODO: CHECK IF ARM IS AT PICKUP OR BASE, IF AT PICKUP WE CAN GO TO BASE FIRST OR REJECT
                 ArmCommand(arm, Arm.lowBasket),
                 LiftCommand(lift, Lift.lowBasket),
             )
@@ -77,10 +80,12 @@ class MainTelelop : CommandOpMode() {
                 SequentialCommandGroup(
                     ArmCommand(arm, Arm.base).withTimeout(3000),
                     LiftCommand(lift, Lift.base),
+//                    InstantCommand(arm::off), // TODO: UNCOMMENT TO STOP IDLE POWER
                 ),
                 SequentialCommandGroup(
                     LiftCommand(lift, Lift.base),
                     ArmCommand(arm, Arm.base),
+//                    InstantCommand(arm::off), // TODO: UNCOMMENT IF STOP IDLE POWER
                 )
             ) { arm.position < Arm.base + (Arm.lowBasket - Arm.base) / 2 }
         )// cross
@@ -90,6 +95,13 @@ class MainTelelop : CommandOpMode() {
                 ArmCommand(arm, Arm.pickup)
             )
         ) // square
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+            SequentialCommandGroup(
+                // TODO: CHECK IF ARM IS AT PICKUP OR BASE, IF AT PICKUP WE CAN GO TO BASE FIRST OR REJECT
+                ArmCommand(arm, Arm.highBasket),
+                LiftCommand(lift, Lift.highBasket)
+            )
+        ) // circle
 
         if (gamepad2.left_trigger > 0.1) {
 //            lift.target -= gamepad2.left_trigger
