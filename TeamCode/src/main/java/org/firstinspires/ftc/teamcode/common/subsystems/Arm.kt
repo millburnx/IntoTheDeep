@@ -98,7 +98,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var f: Double = 0.4
 
         @JvmField
-        var base: Int = 30
+        var base: Int = 20
 
         @JvmField
         var pickup: Int = 0

@@ -21,6 +21,7 @@ class PIDTuner : CommandOpMode() {
     }
 
     override fun initialize() {
+        arm.on()
     }
 
     override fun run() {

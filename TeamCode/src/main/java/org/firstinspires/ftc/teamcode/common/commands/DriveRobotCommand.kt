@@ -15,7 +15,7 @@ class DriveRobotCommand(val drive: Drive, val gamepad: GamepadEx, val telemetry:
     }
 
     override fun execute() {
-        val power = -gamepad.leftY
+        val power = gamepad.leftY * if (flipY) -1.0 else 1.0
         val strafe = gamepad.leftX * 1.1
         val turn = gamepad.rightX
 
@@ -24,7 +24,7 @@ class DriveRobotCommand(val drive: Drive, val gamepad: GamepadEx, val telemetry:
         } else {
             val heading = drive.imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
             telemetry.addData("heading", Math.toDegrees(heading))
-            drive.fieldCentric(if (flipY) -power else power, strafe, turn, heading + Drive.Companion.startingH)
+            drive.fieldCentric(power, strafe, turn, heading + Drive.Companion.startingH)
         }
     }
 }

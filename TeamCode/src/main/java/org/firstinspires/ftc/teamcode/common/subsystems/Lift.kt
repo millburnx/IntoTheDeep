@@ -21,7 +21,7 @@ class Lift(hardwareMap: HardwareMap) : SubsystemBase() {
     var target: Int = 10
 
     init {
-        lift.direction = DcMotorSimple.Direction.REVERSE
+        lift.direction = DcMotorSimple.Direction.FORWARD
         lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         lift.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         lift.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
@@ -57,7 +57,7 @@ class Lift(hardwareMap: HardwareMap) : SubsystemBase() {
         var ticks_in_degree: Double = 8192.0 / 360.0
 
         @JvmField
-        var base = 100;
+        var base = 10;
 
         @JvmField
         var pickup = 500;

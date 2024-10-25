@@ -38,7 +38,6 @@ class Auton : CommandOpMode() {
             val points = Vec2d.loadList(File(path))
             points
         } catch (e: Error) {
-            g
             e.printStackTrace()
             println("PATH (`$path`) NOT FOUND")
             listOf<Vec2d>()
