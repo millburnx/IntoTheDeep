@@ -10,10 +10,13 @@ class LiftCommand(val lift: Lift, val target: Int, val threshold: Int = 50) : Co
     }
 
     override fun initialize() {
-        lift.target = target
     }
 
-    // no execute needed since lift will already manage running
+
+    override fun execute() {
+        lift.target = target
+        // no need to call .run() since lift will already manage running
+    }
 
     override fun isFinished(): Boolean {
         val diff = abs(lift.position - target)

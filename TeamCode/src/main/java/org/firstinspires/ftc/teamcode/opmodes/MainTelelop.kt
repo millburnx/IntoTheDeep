@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
+import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.gamepad.GamepadEx
@@ -71,13 +72,17 @@ class MainTelelop : CommandOpMode() {
                 LiftCommand(lift, Lift.lowBasket),
             )
         ) // triangle
-        // need the change the order of return to base based on the previous state (this really would be better as fsm)
-        // because from pickup, you lift arm then retract, from basket you retract then lower arm
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
-            SequentialCommandGroup(
-                ArmCommand(arm, Arm.base),
-                LiftCommand(lift, Lift.base),
-            )
+            ConditionalCommand(
+                SequentialCommandGroup(
+                    ArmCommand(arm, Arm.base).withTimeout(3000),
+                    LiftCommand(lift, Lift.base),
+                ),
+                SequentialCommandGroup(
+                    LiftCommand(lift, Lift.base),
+                    ArmCommand(arm, Arm.base),
+                )
+            ) { arm.position < Arm.base + (Arm.lowBasket - Arm.base) / 2 }
         )// cross
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(
             SequentialCommandGroup(
@@ -106,6 +111,7 @@ class MainTelelop : CommandOpMode() {
         telem.addData("x", pose.x)
         telem.addData("y", pose.y)
         telem.addData("heading", Math.toDegrees(pose.heading))
+
         telem.update()
     }
 
