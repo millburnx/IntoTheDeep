@@ -255,7 +255,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
             val diff = value - bezierPoint.getType(type)!!.x
             if (round(diff * 100) / 100 == 0.0) return@addChangeListener
             println("X: ${xNumber.model.number.toDouble()}")
-            val translation = PointTranslation(bezierPoint, type, Vec2d(diff, 0.0))
+            val translation = PointTranslation(bezierPoint, type, Vec2d(diff, 0.0), currentPath)
             addChanges(listOf(translation))
             translation.apply()
             updateCatmullRom()
@@ -269,7 +269,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
             val diff = value - bezierPoint.getType(type)!!.y
             if (round(diff * 100) / 100 == 0.0) return@addChangeListener
             println("Y: ${yNumber.model.number.toDouble()}")
-            val translation = PointTranslation(bezierPoint, type, Vec2d(0.0, diff))
+            val translation = PointTranslation(bezierPoint, type, Vec2d(0.0, diff), currentPath)
             addChanges(listOf(translation))
             translation.apply()
             updateCatmullRom()
@@ -283,7 +283,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         split.addActionListener {
             if (split.isSelected == bezierPoint.split) return@addActionListener
             println("Split: ${split.isSelected}")
-            val modification = PointModification(bezierPoint, split = split.isSelected)
+            val modification = PointModification(bezierPoint, split = split.isSelected, pathIndex = currentPath)
             addChanges(listOf(modification))
             modification.apply()
             updateCatmullRom()
@@ -297,7 +297,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
             if (mirror.isSelected == bezierPoint.mirrored) return@addActionListener
             println("Mirror: ${mirror.isSelected}")
             split.isEnabled = !mirror.isSelected
-            val modification = PointModification(bezierPoint, mirrored = mirror.isSelected)
+            val modification = PointModification(bezierPoint, mirrored = mirror.isSelected, pathIndex = currentPath)
             addChanges(listOf(modification))
             modification.apply()
             updateCatmullRom()

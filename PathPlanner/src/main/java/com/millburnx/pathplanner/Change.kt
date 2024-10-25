@@ -3,16 +3,17 @@ package com.millburnx.pathplanner
 import com.millburnx.utils.BezierPoint
 import com.millburnx.utils.Vec2d
 
-interface Change {
-    fun apply()
-    fun undo()
+abstract class Change(val pathIndex: Int) {
+    abstract fun apply()
+    abstract fun undo()
 }
 
 class PointTranslation(
     val bezierPoint: BezierPoint,
     val type: BezierPoint.PointType,
     val change: Vec2d,
-) : Change {
+    pathIndex: Int
+) : Change(pathIndex) {
     // PointTranslation.apply will mostly be used for redoing the change
     // since creating a ton of new PointTranslations while dragging the point seems kind of inefficient
     override fun apply() {
@@ -32,8 +33,9 @@ class PointModification(
     val bezierPoint: BezierPoint,
     val modified: Boolean? = null,
     val mirrored: Boolean? = null,
-    val split: Boolean? = null
-) : Change {
+    val split: Boolean? = null,
+    pathIndex: Int
+) : Change(pathIndex) {
     // Mostly for redoing the change, same/linked reasoning to PointTranslation
     override fun apply() {
         modified?.let { bezierPoint.modified = it }
@@ -54,8 +56,9 @@ class PointModification(
 
 class PointAddition(
     val pathPlanner: PathPlanner, val bezierPoint: BezierPoint, val index: Int,
-    val pathIndex: Int
-) : Change {
+    pathIndex: Int
+
+) : Change(pathIndex) {
     override fun apply() {
         pathPlanner.bezierPoints[pathIndex].add(bezierPoint)
     }
@@ -71,8 +74,8 @@ class PointAddition(
 
 class PointRemoval(
     val pathPlanner: PathPlanner, val bezierPoint: BezierPoint, val index: Int,
-    val pathIndex: Int
-) : Change {
+    pathIndex: Int
+) : Change(pathIndex) {
     val path = pathPlanner.bezierPoints[pathIndex]
     val firstPrev = path.getOrNull(1)?.prevHandle
     val lastNext = path.dropLast(1).last().nextHandle

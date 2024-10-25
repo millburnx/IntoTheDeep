@@ -89,10 +89,11 @@ class PathPlannerListeners(pathPlanner: PathPlanner) {
                     point,
                     if (point.modified != copy.modified) point.modified else null,
                     if (point.mirrored != copy.mirrored) point.mirrored else null,
-                    if (point.split != copy.split) point.split else null
+                    if (point.split != copy.split) point.split else null,
+                    pathIndex = pathPlanner.currentPath
                 )
                 val diff = point.getType(type)!! - copy.getType(type)!!
-                val change = PointTranslation(point, type, diff)
+                val change = PointTranslation(point, type, diff, pathPlanner.currentPath)
                 pathPlanner.addChanges(listOf(modification, change))
                 selectedPoint = null
                 selectedCopy = null
