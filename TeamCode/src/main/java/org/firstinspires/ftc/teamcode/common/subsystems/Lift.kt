@@ -18,7 +18,7 @@ class Lift(hardwareMap: HardwareMap) : SubsystemBase() {
     val controller: PIDController = PIDController(p, i, d)
     val position: Int
         get() = lift.currentPosition
-    var target: Int = 10
+    var target: Double = 10.0
 
     init {
         lift.direction = DcMotorSimple.Direction.FORWARD

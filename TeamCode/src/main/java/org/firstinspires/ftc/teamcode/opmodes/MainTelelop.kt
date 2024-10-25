@@ -91,10 +91,12 @@ class MainTelelop : CommandOpMode() {
             )
         ) // square
 
-        if (gamepad2.left_trigger > 0.2) {
-            lift.target -= 1
-        } else if (gamepad2.right_trigger > 0.2) {
-            lift.target += 1
+        if (gamepad2.left_trigger > 0.1) {
+//            lift.target -= gamepad2.left_trigger
+            schedule(InstantCommand({ lift.target -= gamepad2.left_trigger }, lift))
+        } else if (gamepad2.right_trigger > 0.1) {
+//            lift.target += gamepad2.right_trigger
+            schedule(InstantCommand({ lift.target += gamepad2.right_trigger }, lift))
         }
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake))

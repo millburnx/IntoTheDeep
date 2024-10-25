@@ -14,7 +14,7 @@ class LiftCommand(val lift: Lift, val target: Int, val threshold: Int = 50) : Co
 
 
     override fun execute() {
-        lift.target = target
+        lift.target = target.toDouble()
         // no need to call .run() since lift will already manage running
     }
 
