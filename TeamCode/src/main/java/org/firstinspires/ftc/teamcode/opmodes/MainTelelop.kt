@@ -65,9 +65,6 @@ class MainTelelop : CommandOpMode() {
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(LiftCommand(lift, Lift.pickup)) // cross
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(LiftCommand(lift, Lift.highBasket)) // circle
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake))
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake))
-
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
             SequentialCommandGroup(
                 // TODO: CHECK IF ARM IS AT PICKUP OR BASE, IF AT PICKUP WE CAN GO TO BASE FIRST OR REJECT
@@ -111,8 +108,12 @@ class MainTelelop : CommandOpMode() {
             schedule(InstantCommand({ lift.target += gamepad2.right_trigger }, lift))
         }
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand(arm::off))
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(InstantCommand(drive.imu::resetYaw))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake))
+
+
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(InstantCommand(arm::off))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(InstantCommand(arm::off))
 
         telem.addData("arm pos: ", arm.position)
         telem.addData("arm angle: ", arm.angle)
