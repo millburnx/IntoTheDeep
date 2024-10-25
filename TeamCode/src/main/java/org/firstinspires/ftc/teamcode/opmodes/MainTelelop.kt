@@ -112,7 +112,7 @@ class MainTelelop : CommandOpMode() {
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake))
 
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(InstantCommand(arm::off))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand(intake::intake))
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(InstantCommand(arm::off))
 
         telem.addData("arm pos: ", arm.position)
