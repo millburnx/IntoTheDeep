@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id "io.gitlab.arturbosch.detekt" version "1.23.7"
 }
 
 java {
@@ -18,4 +19,5 @@ dependencies {
 }
 kotlin {
     jvmToolchain(21)
+    explicitApi()
 }
