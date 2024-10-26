@@ -37,7 +37,7 @@ class MotorTestPid() : CommandOpMode() {
 
     override fun run() {
         super.run()
-        armPID.target = 160
+        armPID.target = 160.0
 
         val f = 0
         motor.power = pid.calc(MotorTestPIDConfig.target, motor.currentPosition.toInt()) + f

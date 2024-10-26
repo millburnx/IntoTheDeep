@@ -23,8 +23,8 @@ class DriveRobotCommand(val drive: Drive, val gamepad: GamepadEx, val telemetry:
             drive.robotCentric(power, strafe, turn)
         } else {
             val heading = drive.imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
-            telemetry.addData("heading", Math.toDegrees(heading))
-            drive.fieldCentric(power, strafe, turn, heading + Drive.Companion.startingH)
+            telemetry.addData("heading (imu)", Math.toDegrees(heading))
+            drive.fieldCentric(power, strafe, turn, heading + Math.toRadians(Drive.Companion.startingH))
         }
     }
 }

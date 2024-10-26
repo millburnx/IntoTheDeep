@@ -14,7 +14,7 @@ class ArmCommand(val arm: Arm, val target: Int, val threshold: Int = 20) : Comma
 
     override fun execute() {
         arm.on()
-        arm.target = target
+        arm.target = target.toDouble()
         // no need to call .run() since arm will already manage running
     }
 

@@ -23,7 +23,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
     }
 
     val controller: PIDController = PIDController(p, i, d)
-    var target: Int = 0
+    var target: Double = 0.0
 
     val position: Double
         get() = rightRotate.currentPosition + starting_ticks
@@ -119,10 +119,10 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var downMulti: Double = 0.175
 
         @JvmField
-        var slidePMulti: Double = 0.001
+        var slideFMulti: Double = 0.001
 
         @JvmField
-        var slideFMulti: Double = 0.001
+        var slidePMulti: Double = 0.002
 
         @JvmField
         var realtimeFF: Boolean = false

@@ -26,7 +26,7 @@ class PIDTuner : CommandOpMode() {
 
     override fun run() {
         super.run()
-        arm.target = armTarget
+        arm.target = armTarget.toDouble()
         lift.target = liftTarget.toDouble()
 
         telem.addData("arm pos: ", arm.rightRotate.currentPosition + Arm.starting_ticks)

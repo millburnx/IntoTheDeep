@@ -30,7 +30,7 @@ class MotorTest() : CommandOpMode() {
 
     override fun run() {
         super.run()
-        lift.target = 155
+        lift.target = 155.0
         motor.power = MOTORPOWER.power
     }
 }

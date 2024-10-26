@@ -103,25 +103,33 @@ class MainTelelop : CommandOpMode() {
 
         if (gamepad2.left_trigger > 0.1) {
 //            lift.target -= gamepad2.left_trigger
-            schedule(InstantCommand({ lift.target -= gamepad2.left_trigger }, lift))
+            schedule(InstantCommand({ lift.target -= gamepad2.left_trigger * manualLift }, lift))
         } else if (gamepad2.right_trigger > 0.1) {
 //            lift.target += gamepad2.right_trigger
-            schedule(InstantCommand({ lift.target += gamepad2.right_trigger }, lift))
+            schedule(InstantCommand({ lift.target += gamepad2.right_trigger * manualLift }, lift))
         }
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake))
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::intake, intake))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::outtake, intake))
 
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand(intake::intake))
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(InstantCommand(arm::off))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+            .whenPressed(InstantCommand(drive.imu::resetYaw, drive))
+
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+            .whenPressed(InstantCommand({ arm.target += manualArm }, arm))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+            .whenPressed(InstantCommand({ arm.target -= manualArm }, arm))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(InstantCommand(arm::off))
 
         telem.addData("arm pos: ", arm.position)
         telem.addData("arm angle: ", arm.angle)
         telem.addData("arm target: ", arm.target)
+        telem.addData("arm power: ", -arm.rightRotate.power)
 
         telem.addData("lift pos: ", lift.position)
         telem.addData("lift target; ", lift.target)
+        telem.addData("lift power: ", lift.lift.power)
 
         val pose = drive.pose
         telem.addData("x", pose.x)
@@ -132,7 +140,16 @@ class MainTelelop : CommandOpMode() {
     }
 
     companion object {
+        @JvmField
         var fieldCentric: Boolean = false
+
+        @JvmField
         var flipY: Boolean = false
+
+        @JvmField
+        var manualArm = 5.0
+
+        @JvmField
+        var manualLift = 50.0
     }
 }
