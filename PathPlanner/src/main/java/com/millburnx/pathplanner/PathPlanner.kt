@@ -135,14 +135,14 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         )
     }
 
-    fun updateCatmullRom() {
-        val currentPath = bezierPoints[currentPath]
-        for (i in 0 until currentPath.size - 1) {
-            val p1 = currentPath[i]
-            val p2 = currentPath[i + 1]
+    fun updateCatmullRom(pathIndex: Int = currentPath) {
+        val path = bezierPoints[pathIndex]
+        for (i in 0 until path.size - 1) {
+            val p1 = path[i]
+            val p2 = path[i + 1]
 
-            val p0 = currentPath.getOrNull(i - 1) ?: BezierPoint(p1.anchor - (p2.anchor - p1.anchor))
-            val p3 = currentPath.getOrNull(i + 2) ?: BezierPoint(p2.anchor - (p1.anchor - p2.anchor))
+            val p0 = path.getOrNull(i - 1) ?: BezierPoint(p1.anchor - (p2.anchor - p1.anchor))
+            val p3 = path.getOrNull(i + 2) ?: BezierPoint(p2.anchor - (p1.anchor - p2.anchor))
 
             val bezier = Bezier.fromCatmullRom(p0.anchor, p1.anchor, p2.anchor, p3.anchor)
             if (!p1.modified) {
@@ -160,27 +160,27 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         }
     }
 
-    fun setPoints(points: List<BezierPoint>) {
-        val currentPath = bezierPoints[currentPath]
-        currentPath.clear()
-        currentPath.addAll(points)
+    fun setPoints(points: List<BezierPoint>, pathIndex: Int = currentPath) {
+        val path = bezierPoints[pathIndex]
+        path.clear()
+        path.addAll(points)
         updateCatmullRom()
         repaint()
     }
 
-    fun addPoint(bezierPoint: BezierPoint) {
+    fun addPoint(bezierPoint: BezierPoint, pathIndex: Int = currentPath) {
 //        bezierPoints.add(bezierPoint)
-        val currentPath = bezierPoints[currentPath]
-        val change = PointAddition(this, bezierPoint, currentPath.size, this.currentPath)
+        val path = bezierPoints[pathIndex]
+        val change = PointAddition(this, bezierPoint, path.size, this.currentPath)
         addChanges(listOf(change))
         change.apply()
         updateCatmullRom()
         repaint()
     }
 
-    fun removePoint(bezierPoint: BezierPoint) {
-        val currentPath = bezierPoints[currentPath]
-        val index = currentPath.indexOf(bezierPoint)
+    fun removePoint(bezierPoint: BezierPoint, pathIndex: Int = currentPath) {
+        val path = bezierPoints[pathIndex]
+        val index = path.indexOf(bezierPoint)
         val change = PointRemoval(this, bezierPoint, index, this.currentPath)
         addChanges(listOf(change))
         change.apply()
@@ -188,18 +188,18 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         repaint()
     }
 
-    fun removePointPure(bezierPoint: BezierPoint) {
-        val currentPath = bezierPoints[currentPath]
-        val index = currentPath.indexOf(bezierPoint)
-        currentPath.remove(bezierPoint)
-        if (currentPath.isEmpty()) return
+    fun removePointPure(bezierPoint: BezierPoint, pathIndex: Int = currentPath) {
+        val path = bezierPoints[pathIndex]
+        val index = path.indexOf(bezierPoint)
+        path.remove(bezierPoint)
+        if (path.isEmpty()) return
         val wasFirst = index == 0
-        val wasLast = index == currentPath.size
+        val wasLast = index == path.size
         if (wasFirst) {
-            currentPath.first().prevHandle = null
+            path.first().prevHandle = null
         }
         if (wasLast) {
-            currentPath.last().nextHandle = null
+            path.last().nextHandle = null
         }
     }
 
