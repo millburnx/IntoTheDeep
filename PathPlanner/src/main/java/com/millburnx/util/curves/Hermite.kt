@@ -3,7 +3,8 @@ package com.millburnx.util.curves
 import com.millburnx.util.IVec2d
 import com.millburnx.util.Vec2d
 
-public class Hermite(public val p0: Vec2d, public val v0: Vec2d, public val p1: Vec2d, public val v1: Vec2d) : Curve {
+public data class Hermite(public val p0: Vec2d, public val v0: Vec2d, public val p1: Vec2d, public val v1: Vec2d) :
+    Curve {
     public constructor(p0: IVec2d, v0: IVec2d, p1: IVec2d, v1: IVec2d) : this(
         Vec2d(p0),
         Vec2d(v0),

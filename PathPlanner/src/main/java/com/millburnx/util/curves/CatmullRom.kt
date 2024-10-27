@@ -1,15 +1,24 @@
 package com.millburnx.util.curves
 
+import com.millburnx.util.IVec2d
 import com.millburnx.util.Vec2d
 import kotlin.math.pow
 
-public class CatmullRom(
+public data class CatmullRom(
     public val p0: Vec2d,
     public val p1: Vec2d,
     public val p2: Vec2d,
     public val p3: Vec2d,
     public val alpha: Double = 0.5
 ) : Curve {
+    public constructor(p0: IVec2d, p1: IVec2d, p2: IVec2d, p3: IVec2d, alpha: Double = 0.5) : this(
+        Vec2d(p0),
+        Vec2d(p1),
+        Vec2d(p2),
+        Vec2d(p3),
+        alpha
+    )
+
     override val points: List<Vec2d> = listOf(p0, p1, p2, p3)
 
     public val hermite: Hermite = run {
@@ -30,7 +39,7 @@ public class CatmullRom(
 
     public val v1: Vec2d
         get() = hermite.v0
-    
+
     public val v2: Vec2d
         get() = hermite.v1
 
