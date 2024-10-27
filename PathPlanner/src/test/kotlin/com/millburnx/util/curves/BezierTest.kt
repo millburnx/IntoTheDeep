@@ -8,6 +8,7 @@ import kotlin.test.assertEquals
 class BezierTest {
     @Test
     fun `Linear Bezier`() {
+        @Suppress("RedundantValueArgument")
         val p1 = Vector2d(0.0, 0.0)
         val p2 = Vector2d(1.0, 1.0)
         val bezier = LinearBezier(p1, p2)
@@ -22,6 +23,7 @@ class BezierTest {
 
     @Test
     fun `Quadratic Bezier`() {
+        @Suppress("RedundantValueArgument")
         val p1 = Vector2d(0.0, 0.0)
         val p2 = Vector2d(1.0, 1.0)
         val p3 = Vector2d(2.0, -1.0)
@@ -37,6 +39,7 @@ class BezierTest {
 
     @Test
     fun `Cubic Bezier`() {
+        @Suppress("RedundantValueArgument")
         val p1 = Vector2d(0.0, 0.0)
         val p2 = Vector2d(2.0, 0.0)
         val p3 = Vector2d(-1.0, 1.0)
