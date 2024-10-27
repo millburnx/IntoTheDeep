@@ -13,14 +13,16 @@ public abstract class Bezier : Curve {
     public override fun at(t: Double): Vec2d {
         // De Casteljau's algorithm
         var input = points
-        var output: Array<Vec2d>? = null
+        var output: MutableList<Vec2d> = mutableListOf()
 
         while (input.size > 1) {
-            output = Array(input.size - 1) { Vector2d() }
-            input.zipWithNext().forEachIndexed { index, (a, b) ->
-                output[index] = Vector2d(
-                    Math.lerp(a.x, b.x, t),
-                    Math.lerp(a.y, b.y, t)
+            output = mutableListOf<Vec2d>()
+            input.zipWithNext().forEach { (a, b) ->
+                output.add(
+                    Vector2d(
+                        Math.lerp(a.x, b.x, t),
+                        Math.lerp(a.y, b.y, t)
+                    )
                 )
             }
             input = output.toList()
@@ -56,73 +58,76 @@ public data class CubicBezier(
         Vector2d(end)
     )
 
-    public fun getLUT(samples: Int = 100): List<Vec2d> {
+    public fun getLUT(samples: Int = 100): Pair<List<Vec2d>, Double> {
         val points = mutableListOf<Vec2d>()
+        var distanceEpsilon = Double.MAX_VALUE
         for (i in 0..samples) {
             val t = i.toDouble() / samples
             val point = at(t)
             points.add(point)
+            if (i > 0) {
+                val last = points[i - 1]
+                val dist = abs(point.distanceTo(last))
+                if (dist < distanceEpsilon) {
+                    distanceEpsilon = dist
+                }
+            }
         }
-        return points
+        return Pair(points, distanceEpsilon)
     }
 
-    public fun intersections(circle: Circle): List<Vec2d> {
-        val LUT = getLUT().map { it -> it to null as Double? }.toMutableList()
+    val lut: Pair<List<Vec2d>, Double> by lazy { getLUT() }
+
+    public fun intersections(circle: Circle, samples: Int = 25): List<Vec2d> {
+        val distances: Array<Double> = Array(lut.first.size) { Double.MAX_VALUE }
         var start = 0
         val values = mutableListOf<Int>()
+        val distanceEpsilon = lut.second
 
-        for (count in 0..25) {
-            val i = start + findClosest(
-                circle.center,
-                LUT,
-                start,
-                LUT.getOrNull(start - 2)?.second,
-                LUT.getOrNull(start - 1)?.second,
-                circle.radius
-            )
-            if (i < start) break
-            if (i > 0 && i == start) break
+        val findClosest = fun(): Int {
+            // the largest point-to-point distance in our LUT
+            var minDist = Double.MAX_VALUE
+            var prevDist1 = distances.getOrNull(start - 1) ?: Double.MAX_VALUE
+            var prevDist2 = distances.getOrNull(start - 2) ?: Double.MAX_VALUE
+
+//            val sliced = lut.first.slice(start until lut.first.size)
+            for (i in start until lut.first.size) {
+//                val p = sliced[i]
+                val p = lut.first[i]
+//                distances[i + start] = dist
+//                distances[i] = dist
+                val dist = if (distances[i] == Double.MAX_VALUE) {
+                    val dist = abs(p.distanceTo(Vec2d(circle.center.x, circle.center.y)) - circle.radius)
+                    distances[i] = dist
+                    dist
+                } else {
+                    distances[i]
+                }
+
+                if (prevDist1 < distanceEpsilon && prevDist2 > prevDist1 && prevDist1 < dist) {
+                    return i - 1
+                }
+
+                if (dist < minDist) {
+                    minDist = dist
+                }
+
+//                prevDist = dist to prevDist.first
+                prevDist2 = prevDist1
+                prevDist1 = dist
+            }
+
+            return -1
+        }
+
+        repeat(samples) {
+            val i = findClosest()
+            if (i < start || (i > 0 && i == start)) return values.map { lut.first[it] }
             values.add(i)
             start = i + 2
         }
-        return values.map { LUT[it].first }
+        return values.map { lut.first[it] }
     }
 
-    public fun findClosest(
-        target: Vec2d,
-        LUT: MutableList<Pair<Vec2d, Double?>>,
-        start: Int,
-        pd2: Double?,
-        pd1: Double?,
-        radius: Double,
-        distanceEpsilon: Int = 5
-    ): Int {
-        var distance = Double.MAX_VALUE
-        var prevDistance2 = pd2 ?: distance
-        var prevDistance1 = pd1 ?: distance
-        var i = -1
-
-        val sliced = LUT.slice(start until LUT.size)
-        for (i in sliced.indices) {
-            val p = sliced[i]
-            val dist = abs(p.first.distanceTo(Vec2d(target.x, target.y)) - radius)
-//            sliced[i] = p.first to dist
-            LUT[i + start] = p.first to dist // offset th slice
-
-            if (prevDistance1 < distanceEpsilon && prevDistance2 > prevDistance1 && prevDistance1 < dist) {
-                return i - 1
-            }
-
-            if (dist < distance) {
-                distance = dist
-            }
-
-            prevDistance2 = prevDistance1
-            prevDistance1 = dist
-        }
-
-        return i;
-    }
-
-    override val points: List<Vec2d> = listOf(start, control1, control2, end)
+    override val points: List<Vec2d> by lazy { listOf(start, control1, control2, end) }
 }
