@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.common.commands
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.command.CommandBase
-import com.millburnx.util.Vec2d
+import com.millburnx.util.geometry.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry

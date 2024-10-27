@@ -1,7 +1,7 @@
-package com.millburnx.util.curves
+package com.millburnx.util.geometry.curves
 
-import com.millburnx.util.Circle
-import com.millburnx.util.Vector2d
+import com.millburnx.util.geometry.Circle
+import com.millburnx.util.geometry.Vector2d
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals

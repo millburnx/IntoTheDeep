@@ -1,7 +1,7 @@
-package com.millburnx.util.curves
+package com.millburnx.util.geometry.curves
 
-import com.millburnx.util.IVec2d
-import com.millburnx.util.Vec2d
+import com.millburnx.util.geometry.IVec2d
+import com.millburnx.util.geometry.Vec2d
 import kotlin.math.pow
 
 public data class CatmullRom(

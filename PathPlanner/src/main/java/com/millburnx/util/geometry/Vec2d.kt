@@ -1,5 +1,6 @@
-package com.millburnx.util
+package com.millburnx.util.geometry
 
+import com.millburnx.util.Math
 import java.io.Serializable
 import kotlin.math.cos
 import kotlin.math.round
@@ -32,7 +33,15 @@ public interface IVector2d<T : Number, Self : IVector2d<T, Self>> : Serializable
     public operator fun div(other: Number): Self
 
     public operator fun unaryMinus(): Self
+    public fun reciprocal(): Self
 }
+
+// technically just making a vec(num) impl would be better but this means we don't have to do it for every impl
+// now if the dev wants to make their own overload, they are welcome to do so
+public operator fun Number.plus(vec: IVector2d<*, *>): IVector2d<*, *> = vec + this
+public operator fun Number.minus(vec: IVector2d<*, *>): IVector2d<*, *> = -(vec - this)
+public operator fun Number.div(vec: IVector2d<*, *>): IVector2d<*, *> = vec.reciprocal() * this
+public operator fun Number.times(vec: IVector2d<*, *>): IVector2d<*, *> = vec * this
 
 public typealias Vec2d = Vector2d
 public typealias IVec2d = IVector2d<Double, *>
@@ -82,6 +91,7 @@ public data class Vector2d(override val x: Double = 0.0, override val y: Double 
 
     override fun div(other: Number): Vector2d = Vector2d(x / other.toDouble(), y / other.toDouble())
     override fun unaryMinus(): Vector2d = Vector2d(-x, -y)
+    override fun reciprocal(): Vector2d = Vector2d(1.0 / x, 1.0 / y)
 }
 
 public typealias Vec2dF = Vector2dF
@@ -130,6 +140,7 @@ public data class Vector2dF(override val x: Float = 0.0f, override val y: Float 
     override fun div(other: IVector2d<*, *>): Vector2dF = Vector2dF(x / other.x.toFloat(), y / other.y.toFloat())
     override fun div(other: Number): Vector2dF = Vector2dF(x / other.toFloat(), y / other.toFloat())
     override fun unaryMinus(): Vector2dF = Vector2dF(-x, -y)
+    override fun reciprocal(): Vector2dF = Vector2dF(1.0f / x, 1.0f / y)
 }
 
 public typealias Vec2dI = Vector2dI
@@ -172,6 +183,7 @@ public data class Vector2dI(override val x: Int = 0, override val y: Int = x) : 
     override fun div(other: IVector2d<*, *>): Vector2dI = Vector2dI(x / other.x.toInt(), y / other.y.toInt())
     override fun div(other: Number): Vector2dI = Vector2dI(x / other.toInt(), y / other.toInt())
     override fun unaryMinus(): Vector2dI = Vector2dI(-x, -y)
+    override fun reciprocal(): Vector2dI = Vector2dI(1.0 / x, 1.0 / y)
 
     public companion object {
         public fun fromRounded(vec: IVector2d<*, *>): Vector2dI =

@@ -1,7 +1,7 @@
-package com.millburnx.util.curves
+package com.millburnx.util.geometry.curves
 
-import com.millburnx.util.IVec2d
-import com.millburnx.util.Vec2d
+import com.millburnx.util.geometry.IVec2d
+import com.millburnx.util.geometry.Vec2d
 
 public data class Hermite(public val p0: Vec2d, public val v0: Vec2d, public val p1: Vec2d, public val v1: Vec2d) :
     Curve {

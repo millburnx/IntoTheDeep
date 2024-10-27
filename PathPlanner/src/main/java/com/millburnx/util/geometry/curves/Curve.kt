@@ -1,6 +1,6 @@
-package com.millburnx.util.curves
+package com.millburnx.util.geometry.curves
 
-import com.millburnx.util.IVec2d
+import com.millburnx.util.geometry.IVec2d
 
 public interface Curve {
     public val points: List<IVec2d>
