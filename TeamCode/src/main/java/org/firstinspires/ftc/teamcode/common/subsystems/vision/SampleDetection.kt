@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.SubsystemBase
-import com.millburnx.utils.Vec2d
+import com.millburnx.util.Vec2d
 import org.firstinspires.ftc.robotcore.external.function.Consumer
 import org.firstinspires.ftc.robotcore.external.function.Continuation
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource
@@ -151,7 +151,7 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
     ) {
         Imgproc.drawContours(image, contours, -1, contourColor, 2)
         contours.forEachIndexed { i, contour ->
-            val minRect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
+            val minRect = Imgproc.minAreaRect(MatOfPoint2f(*(contour.toArray())))
             val angle = correctCVAngle(minRect)
             val points = Array<Point>(4) { Point() }
             minRect.points(points)

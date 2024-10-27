@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.plugin.power-assert' version '2.0.0'
     id "io.gitlab.arturbosch.detekt" version "1.23.7"
 }
 
@@ -16,8 +17,29 @@ dependencies {
     implementation('com.acmerobotics.dashboard:dashboard:0.4.16') {
         exclude group: 'org.firstinspires.ftc'
     }
+
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+//    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }
 kotlin {
     jvmToolchain(21)
     explicitApi()
+}
+test {
+    useJUnitPlatform()
+}
+
+powerAssert {
+    functions = ["kotlin.assert", "kotlin.test.assertEquals", "kotlin.test.assertTrue", "kotlin.test.assertNull", "kotlin.require", "org.example.AssertScope.assert"]
+}
+
+sourceSets {
+    test.java.srcDirs += 'src/test/kotlin'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }

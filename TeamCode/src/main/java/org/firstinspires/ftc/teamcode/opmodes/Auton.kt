@@ -4,12 +4,10 @@ import android.os.Environment
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
-import com.millburnx.utils.Vec2d
+import com.millburnx.util.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
-import java.io.File
 import java.lang.Error
 
 @Config
@@ -35,8 +33,8 @@ class Auton : CommandOpMode() {
         var rootDir = Environment.getExternalStorageDirectory()
         val path = "${rootDir}/Paths/${AutonConfig.pathName}.tsv"
         try {
-            val points = Vec2d.loadList(File(path))
-            points
+//            val points = Vec2d.loadList(File(path))
+//            points
         } catch (e: Error) {
             e.printStackTrace()
             println("PATH (`$path`) NOT FOUND")
@@ -48,7 +46,7 @@ class Auton : CommandOpMode() {
         val drive = Drive(hardwareMap, tel, dash)
         this.drive = drive
 
-        schedule(PurePursuitCommand(drive, path, dash))
+//        schedule(PurePursuitCommand(drive, path, dash))
     }
 
     override fun run() {

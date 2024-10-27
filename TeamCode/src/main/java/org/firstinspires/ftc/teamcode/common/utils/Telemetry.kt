@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.geometry.Pose2d
-import com.millburnx.utils.Vec2d
 
 
 class Telemetry {
@@ -41,9 +40,9 @@ class Telemetry {
             canvas.setStroke(color)
             val transformed: Pose2d = toRR(pose)
             canvas.strokeCircle(transformed.x, transformed.y, 9.0)
-            val lookVector = Vec2d(9, 0).rotate(pose.heading).toRR()
-            val lookPoint = Vec2d(transformed.x, transformed.y).plus(lookVector)
-            canvas.strokeLine(transformed.x, transformed.y, lookPoint.x, lookPoint.y)
+//            val lookVector = Vec2d(9, 0).rotate(pose.heading).toRR()
+//            val lookPoint = Vec2d(transformed.x, transformed.y).plus(lookVector)
+//            canvas.strokeLine(transformed.x, transformed.y, lookPoint.x, lookPoint.y)
         }
 
         fun toRR(pose: Pose2d): Pose2d {

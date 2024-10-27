@@ -3,13 +3,10 @@ package org.firstinspires.ftc.teamcode.common.commands
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.command.CommandBase
-import com.millburnx.purepursuit.PurePursuit
-import com.millburnx.utils.Vec2d
+import com.millburnx.util.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
-import org.firstinspires.ftc.teamcode.common.utils.Util
-import org.firstinspires.ftc.teamcode.opmodes.AutonConfig
 
 class PurePursuitCommand(
     val drive: Drive,
@@ -17,7 +14,7 @@ class PurePursuitCommand(
     val dash: FtcDashboard,
     val lookahead: Double = 14.0,
 ) : CommandBase() {
-    val purePursuit = PurePursuit(path, lookahead)
+    //    val purePursuit = PurePursuit(path, lookahead)
     val timer: ElapsedTime = ElapsedTime()
     var loops = 0
     val fullTimer: ElapsedTime = ElapsedTime()
@@ -36,20 +33,20 @@ class PurePursuitCommand(
         val pose = drive.pose
         val position = Vec2d(pose.x, pose.y)
         val heading = pose.heading
-        val calcResults = purePursuit.calc(position, heading)
-        val targetPoint = calcResults.target
+//        val calcResults = purePursuit.calc(position, heading)
+//        val targetPoint = calcResults.target
 
-        val powerF = position.distanceTo(targetPoint)
-        val angleDiff = Util.getAngleDiff((position to heading), targetPoint)
-        val powerH = Math.toDegrees(angleDiff)
+//        val powerF = position.distanceTo(targetPoint)
+//        val angleDiff = Util.getAngleDiff((position to heading), targetPoint)
+//        val powerH = Math.toDegrees(angleDiff)
 
         val packet = TelemetryPacket()
         packet.put("robot/x", pose.x)
         packet.put("robot/y", pose.y)
         packet.put("robot/h", Math.toDegrees(pose.heading))
-        PurePursuit.render(calcResults, packet, true)
-        packet.put("pure_pursuit/power_forward", powerF)
-        packet.put("pure_pursuit/power_heading", powerH)
+//        PurePursuit.render(calcResults, packet, true)
+//        packet.put("pure_pursuit/power_forward", powerF)
+//        packet.put("pure_pursuit/power_heading", powerH)
         val delta = timer.milliseconds()
         loops++
         val loopOffset = loops - 10
@@ -64,7 +61,7 @@ class PurePursuitCommand(
             drive.robotCentric(0.0, 0.0, 0.0);
             return
         }
-        drive.robotCentric(powerF, 0.0, -powerH, AutonConfig.multiF, AutonConfig.multiH)
+//        drive.robotCentric(powerF, 0.0, -powerH, AutonConfig.multiF, AutonConfig.multiH)
     }
 
     override fun end(interrupted: Boolean) {
@@ -72,6 +69,7 @@ class PurePursuitCommand(
     }
 
     override fun isFinished(): Boolean {
-        return purePursuit.isFinished
+//        return purePursuit.isFinished
+        return false
     }
 }

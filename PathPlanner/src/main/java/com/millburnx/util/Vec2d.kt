@@ -4,6 +4,7 @@ import java.io.Serializable
 import kotlin.math.round
 import kotlin.math.sqrt
 
+@Suppress("detekt:TooManyFunctions")
 public interface IVector2d<T : Number> : Serializable {
     public val x: T
     public val y: T
@@ -29,7 +30,9 @@ public interface IVector2d<T : Number> : Serializable {
 }
 
 public typealias Vec2d = Vector2d
+public typealias IVec2d = IVector2d<Double>
 
+@Suppress("detekt:TooManyFunctions")
 public data class Vector2d(override val x: Double = 0.0, override val y: Double = x) : IVector2d<Double> {
     public constructor(vec: IVector2d<*>) : this(vec.x.toDouble(), vec.y.toDouble())
     public constructor(pair: Pair<Number, Number>) : this(pair.first.toDouble(), pair.second.toDouble())
@@ -61,7 +64,9 @@ public data class Vector2d(override val x: Double = 0.0, override val y: Double 
 }
 
 public typealias Vec2dF = Vector2dF
+public typealias IVec2dF = IVector2d<Float>
 
+@Suppress("detekt:TooManyFunctions")
 public data class Vector2dF(override val x: Float = 0.0f, override val y: Float = x) : IVector2d<Float> {
     public constructor(vec: IVector2d<*>) : this(vec.x.toFloat(), vec.y.toFloat())
     public constructor(pair: Pair<Number, Number>) : this(pair.first.toFloat(), pair.second.toFloat())
@@ -89,7 +94,9 @@ public data class Vector2dF(override val x: Float = 0.0f, override val y: Float 
 }
 
 public typealias Vec2dI = Vector2dI
+public typealias IVec2dI = IVector2d<Int>
 
+@Suppress("detekt:TooManyFunctions")
 public data class Vector2dI(override val x: Int = 0, override val y: Int = x) : IVector2d<Int> {
     public constructor(vec: IVector2d<*>) : this(vec.x.toInt(), vec.y.toInt())
     public constructor(pair: Pair<Number, Number>) : this(pair.first.toInt(), pair.second.toInt())
