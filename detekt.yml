@@ -1,0 +1,4 @@
+style:
+  MagicNumber:
+    # detekt magic number is really strict and gets annoying
+    active: false
