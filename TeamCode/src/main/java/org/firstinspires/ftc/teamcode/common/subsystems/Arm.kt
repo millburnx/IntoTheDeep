@@ -86,7 +86,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
     companion object {
         @JvmField
-        var p: Double = 0.03
+        var p: Double = 0.0075
 
         @JvmField
         var i: Double = 0.0
@@ -95,16 +95,16 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var d: Double = 0.0
 
         @JvmField
-        var f: Double = 0.4
+        var f: Double = 0.1
 
         @JvmField
-        var base: Int = 20
+        var base: Int = 10
 
         @JvmField
         var pickup: Int = 0
 
         @JvmField
-        var lowBasket: Int = 170
+        var lowBasket: Int = 90
 
         @JvmField
         var highBasket: Int = 170
@@ -119,7 +119,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var downMulti: Double = 0.175
 
         @JvmField
-        var slideFMulti: Double = 0.001
+        var slideFMulti: Double = 0.003
 
         @JvmField
         var slidePMulti: Double = 0.002

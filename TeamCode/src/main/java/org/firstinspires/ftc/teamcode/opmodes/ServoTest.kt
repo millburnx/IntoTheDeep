@@ -2,21 +2,19 @@ package org.firstinspires.ftc.teamcode.opmodes
 
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.CRServo
-import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
+import com.qualcomm.robotcore.hardware.Servo
 
 @TeleOp(name = "Servo Test")
 class ServoTest : CommandOpMode() {
-    val servo: CRServo by lazy {
-        hardwareMap["Intake"] as CRServo
+    val servo: Servo by lazy {
+        hardwareMap["Intake"] as Servo
     }
 
     override fun initialize() {
-        servo.direction = Direction.FORWARD
     }
 
     override fun run() {
         super.run()
-        servo.power = ServoTestConfig.power
+        servo.position = ServoTestConfig.position
     }
 }

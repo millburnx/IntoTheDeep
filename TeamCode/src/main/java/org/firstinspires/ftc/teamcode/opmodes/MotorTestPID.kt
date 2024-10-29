@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.common.utils.PID
 @Config
 object ServoTestConfig {
     @JvmField
-    var power = 0.0
+    var position = 0.0
 }
 
 @TeleOp(name = "Motor Test PID")

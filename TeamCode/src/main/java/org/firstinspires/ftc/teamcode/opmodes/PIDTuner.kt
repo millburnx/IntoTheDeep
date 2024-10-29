@@ -35,6 +35,7 @@ class PIDTuner : CommandOpMode() {
 
         telem.addData("lift pos: ", lift.lift.currentPosition)
         telem.addData("lift target; ", liftTarget)
+        telem.update()
     }
 
     companion object {

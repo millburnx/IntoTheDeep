@@ -1,23 +1,29 @@
 package org.firstinspires.ftc.teamcode.common.subsystems
 
+import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.SubsystemBase
-import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.Servo
 
+@Config
 class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
-    val servo: CRServo by lazy {
-        hardwareMap["Intake"] as CRServo
+    val servo: Servo by lazy {
+        hardwareMap["Intake"] as Servo
     }
 
-    fun intake() {
-        servo.power = 1.0
+    fun open() {
+        servo.position = openPosition
     }
 
-    fun outtake() {
-        servo.power = -1.0
+    fun close() {
+        servo.position = closedPosition
     }
 
-    fun stop() {
-        servo.power = 0.0
+    companion object {
+        @JvmField
+        var openPosition: Double = 0.25
+
+        @JvmField
+        var closedPosition: Double = 0.0325
     }
 }
