@@ -11,6 +11,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.DcMotor
 import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
 import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
@@ -73,8 +74,24 @@ class MainTelelop : CommandOpMode() {
             InstantCommand({ slowMechMode = !slowMechMode })
         )
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::close, intake))
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::open, intake))
+//        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::close, intake))
+//        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::open, intake))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(ConditionalCommand(
+            InstantCommand(intake::open, intake),
+            InstantCommand(intake::close, intake),
+            {
+                intake.servo.position != Intake.openPosition
+            }
+        ))
+
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand({
+            arm.leftRotate.mode = DcMotor.RunMode.RESET_ENCODERS
+            arm.rightRotate.mode = DcMotor.RunMode.RESET_ENCODERS
+            lift.lift.mode = DcMotor.RunMode.RESET_ENCODERS
+            arm.leftRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            arm.rightRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            lift.lift.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        }))
 
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(InstantCommand(arm::off))
 
