@@ -8,7 +8,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.sign
+import kotlin.math.sqrt
 
 @Config
 class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: () -> Int) : SubsystemBase() {
@@ -65,7 +68,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         val ffAngle = if (realtimeFF) angle else (target.toDouble() / ticks_in_degree)
         val ff = cos(Math.toRadians(ffAngle)) * finalF
 
-        val power = pid + ff
+        val power = ff + if (SQUID) sqrt(abs(pid)) * sign(pid) else pid
 
         leftRotate.power = -power
         rightRotate.power = -power
@@ -126,5 +129,8 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
         @JvmField
         var realtimeFF: Boolean = false
+
+        @JvmField
+        var SQUID: Boolean = false;
     }
 }
