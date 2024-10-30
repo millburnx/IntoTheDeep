@@ -99,7 +99,7 @@ class MainTelelop : CommandOpMode() {
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
             ConditionalCommand(
                 SequentialCommandGroup(
-                    ArmCommand(arm, Arm.base + 10).withTimeout(1000),
+                    ArmCommand(arm, Arm.base + 20).withTimeout(1000),
                     LiftCommand(lift, Lift.base),
 //                    InstantCommand(arm::off), // TODO: UNCOMMENT TO STOP IDLE POWER
                 ),
@@ -188,7 +188,7 @@ class MainTelelop : CommandOpMode() {
         var slowManualArm = 0.005
 
         @JvmField
-        var manualLift = 60.0
+        var manualLift = 70.0
 
         @JvmField
         var slowManualLift = 37.5

@@ -29,7 +29,7 @@ class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
 
     fun toggle() {
         open = !open
-        servo.position = if (open) openPosition else closedPosition
+        if (open) open() else close()
     }
 
     companion object {

@@ -101,7 +101,6 @@ class PurePursuitCommand(
                 drive.fieldCentric(finalX, finalY, finalH, pose.heading)
             }
         } else {
-            g
             val targetPoint = calcResults.target
             val powerF = position.distanceTo(targetPoint)
             val angleDiff = Util.getAngleDiff((position to heading), targetPoint)

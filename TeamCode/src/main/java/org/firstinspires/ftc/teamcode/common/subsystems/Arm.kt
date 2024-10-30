@@ -136,5 +136,8 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
         @JvmField
         var SQUID: Boolean = false;
+
+        @JvmField
+        var threshold: Int = 15
     }
 }
