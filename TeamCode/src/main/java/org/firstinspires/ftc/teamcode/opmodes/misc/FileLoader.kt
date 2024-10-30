@@ -1,13 +1,15 @@
-package org.firstinspires.ftc.teamcode.opmodes
+package org.firstinspires.ftc.teamcode.opmodes.misc
 
 import android.os.Environment
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.millburnx.utils.Utils
 import com.millburnx.utils.Vec2d
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import java.io.File
 
-@TeleOp(name = "FileLoader")
+@Disabled
+@TeleOp(name = "FileLoader", group = "Misc")
 class FileLoader : CommandOpMode() {
     override fun initialize() {
         try {

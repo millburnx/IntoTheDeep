@@ -5,8 +5,8 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
-import org.firstinspires.ftc.teamcode.opmodes.MainTelelop.Companion.fieldCentric
-import org.firstinspires.ftc.teamcode.opmodes.MainTelelop.Companion.flipY
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTelelop.Companion.fieldCentric
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTelelop.Companion.flipY
 
 
 class DriveRobotCommand(

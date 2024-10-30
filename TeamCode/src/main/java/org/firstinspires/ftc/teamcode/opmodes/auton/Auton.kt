@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.opmodes
+package org.firstinspires.ftc.teamcode.opmodes.auton
 
 import android.os.Environment
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.millburnx.utils.Vec2d
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
@@ -24,7 +24,7 @@ object AutonConfig {
     var pathName = "intothedeep"
 }
 
-@TeleOp(name = "Auton")
+@Autonomous(name = "Auton")
 class Auton : CommandOpMode() {
     var drive: Drive? = null
     val tel: Telemetry = Telemetry()

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes
+package org.firstinspires.ftc.teamcode.opmodes.tuning
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 
 @Config
-@TeleOp
+@TeleOp(name = "PID Tuner", group = "Tuning")
 class PIDTuner : CommandOpMode() {
     val telem = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 

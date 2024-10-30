@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import org.firstinspires.ftc.teamcode.common.utils.Util
-import org.firstinspires.ftc.teamcode.opmodes.AutonConfig
+import org.firstinspires.ftc.teamcode.opmodes.auton.AutonConfig
 
 class PurePursuitCommand(
     val drive: Drive,

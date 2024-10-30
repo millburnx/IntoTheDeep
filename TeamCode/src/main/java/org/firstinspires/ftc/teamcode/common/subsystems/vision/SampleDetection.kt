@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.common.subsystems.vision
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.robotcore.external.function.Consumer
@@ -25,12 +24,6 @@ import kotlin.math.round
 
 class SampleDetector : SubsystemBase() {
 
-}
-
-@Config
-object SampleDetectorConfig {
-    @JvmField
-    var color = 0
 }
 
 class SamplePipeline : VisionProcessor, CameraStreamSource {
