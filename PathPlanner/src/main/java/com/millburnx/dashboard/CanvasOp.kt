@@ -7,7 +7,7 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics2D
 import java.awt.geom.AffineTransform
-import java.io.File
+import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.JPanel
 
@@ -73,6 +73,8 @@ class Grid(
     }
 }
 
+val imageCache = mutableMapOf<String, BufferedImage>()
+
 class Image(
     private val path: String,
     val x: Double,
@@ -91,7 +93,10 @@ class Image(
             g2d.translate((panel.width - 144 * ppi) / 2, (panel.height - 144 * ppi) / 2) // center in screen
         }
         g2d.rotate(theta, pivotX * ppi, pivotY * ppi)
-        val image = ImageIO.read(File(path))
+//        val image = ImageIO.read(javaClass.classLoader.getResource(path))
+        val image = imageCache.getOrPut(path) {
+            ImageIO.read(javaClass.classLoader.getResource(path))
+        }
         g2d.drawImage(image, (x * ppi).toInt(), (y * ppi).toInt(), (width * ppi).toInt(), (height * ppi).toInt(), null)
         g2d.transform = prevTransform
     }

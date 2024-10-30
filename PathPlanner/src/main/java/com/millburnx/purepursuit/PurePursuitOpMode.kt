@@ -7,6 +7,8 @@ import com.millburnx.utils.BezierIntersection
 import com.millburnx.utils.Utils
 import com.millburnx.utils.Vec2d
 import java.awt.Color
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -14,6 +16,28 @@ import kotlin.math.sin
 class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, updateHertz) {
     val background = Utils.Colors.bg1
     val colors = listOf(Utils.Colors.red, Utils.Colors.blue, Utils.Colors.green, Utils.Colors.yellow)
+
+    init {
+        ftcDashboard.panel.addMouseListener(object : MouseAdapter() {
+            override fun mouseClicked(e: MouseEvent) {
+                if (e.button == MouseEvent.BUTTON1) {
+                    val x = e.x / ppi - 144.0 / 2
+                    val y = e.y / ppi - 144.0 / 2
+                    robot.position = Vec2d(x, y)
+                    val packet = TelemetryPacket()
+                } else if (e.button == MouseEvent.BUTTON3) {
+                    val x = e.x / ppi - 144.0 / 2
+                    val y = e.y / ppi - 144.0 / 2
+                    val angle = robot.position.angleTo(Vec2d(x, y))
+                    robot.heading = angle
+                }
+                val packet = TelemetryPacket()
+                renderPath(packet.fieldOverlay())
+                drawRobot(packet.fieldOverlay())
+                ftcDashboard.sendTelemetryPacket(packet)
+            }
+        })
+    }
 
     private var path: List<Vec2d> = listOf(
         Vec2d(0.0, 0.0),
@@ -33,7 +57,8 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
         println("Initializing Pure Pursuit")
         ftcDashboard.reset = {
             stop()
-            robot.position = Vec2d(0.0, 0.0)
+//            robot.position = Vec2d(0.0, 0.0)
+            robot.position = path[0]
             robot.heading = 0.0
             prevPositions.clear()
             lastSegment = 0
@@ -48,6 +73,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
         ftcDashboard.load = {
             stop()
             loadPath()
+            ftcDashboard.reset()
         }
     }
 
@@ -70,8 +96,10 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
     }
 
     private fun renderPath(canvas: Canvas) {
-        canvas.setFill(background).fillRect(-144.0 / 2, -144.0 / 2, 144.0, 144.0).setStroke(Utils.Colors.bg2)
-            .drawGrid(0.0, 0.0, 144.0, 144.0, 7, 7).setStrokeWidth(2)
+//        canvas.setFill(background).fillRect(-144.0 / 2, -144.0 / 2, 144.0, 144.0).setStroke(Utils.Colors.bg2)
+        canvas.drawImage("bg.png", 0.0, 0.0, 144.0, 144.0)
+//            .drawGrid(0.0, 0.0, 144.0, 144.0, 7, 7)
+            .setStrokeWidth(2)
 
         var color = 0
         for (bezier in beziers) {

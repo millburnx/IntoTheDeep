@@ -20,7 +20,7 @@ import javax.swing.JPanel
 import kotlin.math.round
 
 class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
-    val drawImage = false
+    val drawImage = true
     val drawBounding = false
     val backgroundImage = ImageIO.read(javaClass.classLoader.getResource("bg.png"))
     val bezierPoints: MutableList<BezierPoint> = mutableListOf()
