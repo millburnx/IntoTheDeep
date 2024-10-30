@@ -48,6 +48,7 @@ class PurePursuit(
             @Suppress("KotlinConstantConditions")
             return PurePursuitData(
                 lastIntersection.point,
+                isEnding = true,
                 isFinished,
                 bezier,
                 listOf(),
@@ -57,6 +58,7 @@ class PurePursuit(
         if (distanceToLast <= lookahead) {
             return PurePursuitData(
                 lastPoint,
+                isEnding = true,
                 isFinished,
                 bezier,
                 listOf(Bezier.fromLine(pos, lastPoint)),
@@ -71,6 +73,7 @@ class PurePursuit(
 
         return PurePursuitData(
             targetIntersection.point,
+            isEnding = false,
             isFinished,
             bezier,
             remainingPath,
@@ -86,9 +89,10 @@ class PurePursuit(
         }
 
         fun render(data: PurePursuitData, packet: TelemetryPacket, addTelemetry: Boolean = true) {
-            val (target, isDone, path, remainingPath, intersections) = data
+            val (target, isEnding, isDone, path, remainingPath, intersections) = data
             if (addTelemetry) {
-                packet.put("pure_pursuit/target", target)
+                packet.put("pure_pursuit/is_done", isDone)
+                packet.put("pure_pursuit/is_ending", isEnding)
                 packet.put("pure_pursuit/is_done", isDone)
                 packet.put("pure_pursuit/path", path)
                 packet.put("pure_pursuit/remaining_path", remainingPath)
@@ -140,6 +144,7 @@ class PurePursuit(
 
 data class PurePursuitData(
     val target: Vec2d,
+    val isEnding: Boolean,
     val isFinished: Boolean,
     val path: List<Bezier>,
     val remainingPath: List<Bezier>,

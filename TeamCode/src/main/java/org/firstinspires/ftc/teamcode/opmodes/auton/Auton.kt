@@ -4,6 +4,7 @@ import android.os.Environment
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandOpMode
+import com.arcrobotics.ftclib.controller.PIDController
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
@@ -22,6 +23,39 @@ object AutonConfig {
 
     @JvmField
     var pathName = "intothedeep"
+
+    @JvmField
+    var useEndingHeading = false
+
+    @JvmField
+    var endingHeading = 0.0
+
+    @JvmField
+    var pidX_kP = 0.0
+
+    @JvmField
+    var pidX_kI = 0.0
+
+    @JvmField
+    var pidX_kD = 0.0
+
+    @JvmField
+    var pidY_kP = 0.0
+
+    @JvmField
+    var pidY_kI = 0.0
+
+    @JvmField
+    var pidY_kD = 0.0
+
+    @JvmField
+    var pidH_kP = 0.0
+
+    @JvmField
+    var pidH_kI = 0.0
+
+    @JvmField
+    var pidH_kD = 0.0
 }
 
 @Autonomous(name = "Auton")
@@ -48,7 +82,20 @@ class Auton : CommandOpMode() {
         val drive = Drive(hardwareMap, tel, dash)
         this.drive = drive
 
-        schedule(PurePursuitCommand(drive, path, dash))
+        val pidX = PIDController(AutonConfig.pidX_kP, AutonConfig.pidX_kI, AutonConfig.pidX_kD)
+        val pidY = PIDController(AutonConfig.pidY_kP, AutonConfig.pidY_kI, AutonConfig.pidY_kD)
+        val pidH = PIDController(AutonConfig.pidH_kP, AutonConfig.pidH_kI, AutonConfig.pidH_kD)
+        schedule(
+            PurePursuitCommand(
+                drive,
+                path,
+                if (AutonConfig.useEndingHeading) AutonConfig.endingHeading else null,
+                dash,
+                pidX,
+                pidY,
+                pidH
+            )
+        )
     }
 
     override fun run() {

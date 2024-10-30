@@ -35,6 +35,10 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         get() = position / ticks_in_degree
 
     init {
+        resetEncoders()
+    }
+
+    fun resetEncoders() {
         leftRotate.direction = DcMotorSimple.Direction.FORWARD
         leftRotate.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         leftRotate.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER

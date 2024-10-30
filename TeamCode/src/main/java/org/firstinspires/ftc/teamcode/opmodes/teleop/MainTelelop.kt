@@ -11,7 +11,6 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotor
 import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
 import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
@@ -88,16 +87,7 @@ class MainTelelop : CommandOpMode() {
             ),
         )
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(InstantCommand({
-            arm.leftRotate.mode = DcMotor.RunMode.RESET_ENCODERS
-            arm.rightRotate.mode = DcMotor.RunMode.RESET_ENCODERS
-            lift.lift.mode = DcMotor.RunMode.RESET_ENCODERS
-            arm.leftRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-            arm.rightRotate.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-            lift.lift.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        }))
-
-//        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(InstantCommand(arm::off))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(InstantCommand(arm::resetEncoders))
 
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
             SequentialCommandGroup(
@@ -109,7 +99,7 @@ class MainTelelop : CommandOpMode() {
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
             ConditionalCommand(
                 SequentialCommandGroup(
-                    ArmCommand(arm, Arm.base).withTimeout(3000),
+                    ArmCommand(arm, Arm.base + 10).withTimeout(1000),
                     LiftCommand(lift, Lift.base),
 //                    InstantCommand(arm::off), // TODO: UNCOMMENT TO STOP IDLE POWER
                 ),
@@ -135,7 +125,6 @@ class MainTelelop : CommandOpMode() {
         ) // circle
 
         if (gamepad2.left_trigger > 0.1) {
-//            lift.target -= gamepad2.left_trigger
             schedule(
                 InstantCommand(
                     { lift.target -= gamepad2.left_trigger * if (slowMechMode) slowManualLift else manualLift },
@@ -143,7 +132,6 @@ class MainTelelop : CommandOpMode() {
                 )
             )
         } else if (gamepad2.right_trigger > 0.1) {
-//            lift.target += gamepad2.right_trigger
             schedule(
                 InstantCommand(
                     { lift.target += gamepad2.right_trigger * if (slowMechMode) slowManualLift else manualLift },
@@ -175,7 +163,6 @@ class MainTelelop : CommandOpMode() {
         telem.addData("lift pos: ", lift.position)
         telem.addData("lift target; ", lift.target)
         telem.addData("lift power: ", lift.lift.power)
-
 
         telem.addData("intake open: ", intake.open)
 
