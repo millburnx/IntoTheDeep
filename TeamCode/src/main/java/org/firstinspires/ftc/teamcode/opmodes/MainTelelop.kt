@@ -64,27 +64,31 @@ class MainTelelop : CommandOpMode() {
         }
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
-            InstantCommand({ slowDriveMode = !slowDriveMode })
+            InstantCommand({ slowDriveMode = true })
+        ).whenReleased(
+            InstantCommand({ slowDriveMode = false })
         )
+
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
             .whenPressed(InstantCommand(drive.imu::resetYaw, drive))
 
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
-            InstantCommand({ slowMechMode = !slowMechMode })
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+            InstantCommand({ slowMechMode = true })
+        ).whenReleased(
+            InstantCommand({ slowMechMode = false })
         )
 
-//        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whileHeld(InstantCommand(intake::close, intake))
-//        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whileHeld(InstantCommand(intake::open, intake))
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(ConditionalCommand(
-            InstantCommand(intake::open, intake),
-            InstantCommand(intake::close, intake),
-            {
-                intake.servo.position != Intake.openPosition
-            }
-        ))
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand({
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whileHeld(InstantCommand(intake::close, intake))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whileHeld(InstantCommand(intake::open, intake))
+        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
+            InstantCommand(
+                intake::toggle, intake
+            ),
+        )
+
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(InstantCommand({
             arm.leftRotate.mode = DcMotor.RunMode.RESET_ENCODERS
             arm.rightRotate.mode = DcMotor.RunMode.RESET_ENCODERS
             lift.lift.mode = DcMotor.RunMode.RESET_ENCODERS
@@ -93,7 +97,7 @@ class MainTelelop : CommandOpMode() {
             lift.lift.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         }))
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(InstantCommand(arm::off))
+//        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(InstantCommand(arm::off))
 
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
             SequentialCommandGroup(
@@ -171,6 +175,9 @@ class MainTelelop : CommandOpMode() {
         telem.addData("lift pos: ", lift.position)
         telem.addData("lift target; ", lift.target)
         telem.addData("lift power: ", lift.lift.power)
+
+
+        telem.addData("intake open: ", intake.open)
 
         val pose = drive.pose
         telem.addData("x", pose.x)
