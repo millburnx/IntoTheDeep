@@ -31,22 +31,13 @@ object AutonConfig {
     var endingHeading = 0.0
 
     @JvmField
-    var pidX_kP = 0.0
+    var pidT_kP = 0.0
 
     @JvmField
-    var pidX_kI = 0.0
+    var pidT_kI = 0.0
 
     @JvmField
-    var pidX_kD = 0.0
-
-    @JvmField
-    var pidY_kP = 0.0
-
-    @JvmField
-    var pidY_kI = 0.0
-
-    @JvmField
-    var pidY_kD = 0.0
+    var pidT_kD = 0.0
 
     @JvmField
     var pidH_kP = 0.0
@@ -82,8 +73,8 @@ class Auton : CommandOpMode() {
         val drive = Drive(hardwareMap, tel, dash)
         this.drive = drive
 
-        val pidX = PIDController(AutonConfig.pidX_kP, AutonConfig.pidX_kI, AutonConfig.pidX_kD)
-        val pidY = PIDController(AutonConfig.pidY_kP, AutonConfig.pidY_kI, AutonConfig.pidY_kD)
+        val pidX = PIDController(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
+        val pidY = PIDController(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
         val pidH = PIDController(AutonConfig.pidH_kP, AutonConfig.pidH_kI, AutonConfig.pidH_kD)
         schedule(
             PurePursuitCommand(

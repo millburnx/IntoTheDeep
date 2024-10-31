@@ -63,7 +63,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         val newP = p + p * (liftPosition() * slidePMulti); // p + mp
         controller.setPID(newP, i, d)
         val modifier = if (target < position) {
-            downMulti
+            downMulti + downMulti * downSlideMulti
         } else {
             1.0
         }
@@ -94,12 +94,14 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
     companion object {
         @JvmField
         var p: Double = 0.0075
+        // 0.003
 
         @JvmField
         var i: Double = 0.0
 
         @JvmField
         var d: Double = 0.0
+        // 0.0001
 
         @JvmField
         var f: Double = 0.1
@@ -111,7 +113,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var pickup: Int = 0
 
         @JvmField
-        var lowBasket: Int = 90
+        var lowBasket: Int = 110
 
         @JvmField
         var highBasket: Int = 170
@@ -124,12 +126,19 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
         @JvmField
         var downMulti: Double = 0.175
+        // 0.05
+
+        @JvmField
+        var downSlideMulti: Double = 0.0
+        // 4.0
 
         @JvmField
         var slideFMulti: Double = 0.003
+        // 0.006
 
         @JvmField
         var slidePMulti: Double = 0.002
+        // 0
 
         @JvmField
         var realtimeFF: Boolean = false

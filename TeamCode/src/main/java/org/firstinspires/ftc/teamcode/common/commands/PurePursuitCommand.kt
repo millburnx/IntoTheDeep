@@ -25,7 +25,7 @@ class PurePursuitCommand(
     val pidX: PIDController = PIDController(0.0, 0.0, 0.0),
     val pidY: PIDController = PIDController(0.0, 0.0, 0.0),
     val pidH: PIDController = PIDController(0.0, 0.0, 0.0),
-    val lookahead: Double = 14.0,
+    val lookahead: ClosedFloatingPointRange<Double> = 8.0..16.0,
 ) : CommandBase() {
     companion object {
         @JvmField
@@ -55,7 +55,7 @@ class PurePursuitCommand(
         val pose = drive.pose
         val position = Vec2d(pose.x, pose.y)
         val heading = pose.heading
-        val calcResults = purePursuit.calc(position, heading)
+        val calcResults = purePursuit.calc(position, heading, timer.seconds())
 
         val packet = TelemetryPacket()
         packet.put("robot/x", pose.x)
@@ -67,39 +67,25 @@ class PurePursuitCommand(
             packet.put("pure_pursuit/power_forward", 0.0)
             packet.put("pure_pursuit/power_heading", 0.0)
             drive.robotCentric(0.0, 0.0, 0.0);
-        } else if (calcResults.isEnding) {
+        } else if (calcResults.isEnding && endingHeading != null) {
             // pid finishing move
             if (!lastEndingState) {
                 pidX.reset()
                 pidY.reset()
                 pidH.reset()
             }
+            // just p2p
             val targetPoint = calcResults.target
-            if (endingHeading == null) {
-                // just pid forward, no heading
-                // TODO: FIX TOMORROW, MAKE NEGATIVE IF BEHIND (AKA DIRECTIONAL)
-                val distance = position.distanceTo(targetPoint)
-                val pid = pidX.calculate(distance, 0.0)
-//                val powerF = pid * AutonConfig.multiF
-                val powerF = if (useSquidTranslation) sqrt(abs(pid)) * sign(pid) else pid
-                val angleDiff = Util.getAngleDiff((position to heading), targetPoint)
-                val powerH = Math.toDegrees(angleDiff)
-                packet.put("pure_pursuit/power_forward", powerF)
-                packet.put("pure_pursuit/power_heading", powerH)
-                drive.robotCentric(powerF, 0.0, -powerH, AutonConfig.multiF, AutonConfig.multiH)
-            } else {
-                // just p2p
-                val powerX = pidX.calculate(position.x, targetPoint.x)
-                val finalX = if (useSquidTranslation) sqrt(abs(powerX)) * sign(powerX) else powerX
-                val powerY = pidY.calculate(position.y, targetPoint.y)
-                val finalY = if (useSquidTranslation) sqrt(abs(powerY)) * sign(powerY) else powerY
-                val powerH = pidH.calculate(heading, endingHeading)
-                val finalH = if (useSquidRotation) sqrt(abs(powerH)) * sign(powerH) else powerH
-                packet.put("pure_pursuit/power_x", finalX)
-                packet.put("pure_pursuit/power_y", finalY)
-                packet.put("pure_pursuit/power_heading", finalH)
-                drive.fieldCentric(finalX, finalY, finalH, pose.heading)
-            }
+            val powerX = pidX.calculate(position.x, targetPoint.x)
+            val finalX = if (useSquidTranslation) sqrt(abs(powerX)) * sign(powerX) else powerX
+            val powerY = pidY.calculate(position.y, targetPoint.y)
+            val finalY = if (useSquidTranslation) sqrt(abs(powerY)) * sign(powerY) else powerY
+            val powerH = pidH.calculate(heading, endingHeading)
+            val finalH = if (useSquidRotation) sqrt(abs(powerH)) * sign(powerH) else powerH
+            packet.put("pure_pursuit/power_x", finalX)
+            packet.put("pure_pursuit/power_y", finalY)
+            packet.put("pure_pursuit/power_heading", finalH)
+            drive.fieldCentric(finalX, finalY, finalH, pose.heading)
         } else {
             val targetPoint = calcResults.target
             val powerF = position.distanceTo(targetPoint)

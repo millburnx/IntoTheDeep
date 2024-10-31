@@ -54,7 +54,7 @@ abstract class OpMode(ppi: Double, private val updateHertz: Double) : IOpMode {
 
     override val telemetry = Telemetry()
 
-    val robot: Robot = Robot(Vec2d(18.0, 18.0), 12.0)
+    val robot: Robot = Robot(Vec2d(18.0, 17.0))
 
     fun drive(x: Double, y: Double, rx: Double) {
         robot.drive(x, y, rx)
@@ -80,9 +80,10 @@ abstract class OpMode(ppi: Double, private val updateHertz: Double) : IOpMode {
     }
 
     var lastFrame = 0L
+    var deltaTime = 0.0
     private fun update() {
         val currentFrame = System.nanoTime()
-        var deltaTime = (currentFrame - lastFrame) / 1e9
+        deltaTime = (currentFrame - lastFrame) / 1e9
         if (lastFrame == 0L) {
             deltaTime = 0.0
         }

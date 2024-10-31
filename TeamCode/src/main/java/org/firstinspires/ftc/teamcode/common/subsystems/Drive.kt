@@ -46,13 +46,13 @@ class Drive(
     }
 
     val leftOdom: Motor.Encoder by lazy {
-        rightRear.encoder
-    }
-    val rightOdom: Motor.Encoder by lazy {
-        leftFront.encoder
+        leftRear.encoder
     }
     val centerOdom: Motor.Encoder by lazy {
-        leftRear.encoder
+        leftFront.encoder
+    }
+    val rightOdom: Motor.Encoder by lazy {
+        rightFront.encoder
     }
     val odometry: HolonomicOdometry by lazy {
         HolonomicOdometry(
@@ -91,16 +91,16 @@ class Drive(
         imu.resetYaw()
 
         leftOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
-        rightOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
         centerOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
+        rightOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
 
-        leftOdom.setDirection(Motor.Direction.FORWARD)
-        rightOdom.setDirection(Motor.Direction.REVERSE)
+        leftOdom.setDirection(Motor.Direction.REVERSE)
         centerOdom.setDirection(Motor.Direction.REVERSE)
+        rightOdom.setDirection(Motor.Direction.FORWARD)
 
         leftOdom.reset()
-        rightOdom.reset()
         centerOdom.reset()
+        rightOdom.reset()
 
         // change to reflect starting field position
         odometry.updatePose(Pose2d(startingX, startingY, Rotation2d(Math.toRadians(startingH))))
@@ -170,16 +170,32 @@ class Drive(
     }
 
     companion object {
-        var TRACK_WIDTH: Double = -12.375
-        var CENTER_WHEEL_OFFSET: Double =
-            0.5 // distance between center of rotation of the robot and the center odometer
-        var WHEEL_DIAMETER: Double = 1.45
+        @JvmField
+        var TRACK_WIDTH: Double = -12.5
+
+        @JvmField
+        var CENTER_WHEEL_OFFSET: Double = -4.0
+        // distance between center of rotation of the robot and the center odometer
+
+        @JvmField
+        var WHEEL_DIAMETER: Double = 1.425
+
+        @JvmField
         var TICKS_PER_REV: Double = 8192.0
+
+        @JvmField
         var DISTANCE_PER_PULSE: Double = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV
+
+        @JvmField
         var BREAK: Boolean = false
 
+        @JvmField
         var startingX: Double = -60.0
+
+        @JvmField
         var startingY: Double = -60.0
+
+        @JvmField
         var startingH: Double = 0.0
     }
 }

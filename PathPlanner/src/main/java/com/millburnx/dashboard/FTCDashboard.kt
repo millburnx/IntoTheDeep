@@ -70,7 +70,7 @@ class FTCDashboard(
             // fps overlay
             val fps = 1.0 / deltaTime
             g2d.color = Color.WHITE
-            g2d.drawString("FPS: $fps", -width / 2 + 10, -height / 2 + 20)
+            g2d.drawString("FPS: $fps", -width / 2 + 100, -height / 2 + 20)
 
             g.drawImage(bufferedImage, 0, 0, null)
         }

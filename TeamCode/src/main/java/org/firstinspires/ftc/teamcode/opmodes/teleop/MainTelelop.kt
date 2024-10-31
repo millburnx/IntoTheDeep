@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
 import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
+import org.firstinspires.ftc.teamcode.common.commands.SleepCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -48,6 +49,7 @@ class MainTelelop : CommandOpMode() {
     }
     var slowDriveMode: Boolean = false;
     var slowMechMode: Boolean = false;
+    var clawPressed: Boolean = false;
 
     override fun initialize() {
         drive.defaultCommand =
@@ -93,6 +95,7 @@ class MainTelelop : CommandOpMode() {
             SequentialCommandGroup(
                 // TODO: CHECK IF ARM IS AT PICKUP OR BASE, IF AT PICKUP WE CAN GO TO BASE FIRST OR REJECT
                 ArmCommand(arm, Arm.lowBasket),
+                SleepCommand(1000.0),
                 LiftCommand(lift, Lift.lowBasket),
             )
         ) // triangle

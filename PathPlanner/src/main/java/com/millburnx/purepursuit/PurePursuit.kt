@@ -3,6 +3,7 @@ package com.millburnx.purepursuit
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.millburnx.utils.Bezier
+import com.millburnx.utils.BezierIntersection
 import com.millburnx.utils.Circle
 import com.millburnx.utils.Intersection
 import com.millburnx.utils.Utils
@@ -10,37 +11,38 @@ import com.millburnx.utils.Vec2d
 import kotlin.math.abs
 
 class PurePursuit(
-    path: List<Vec2d>,
-    val lookahead: Double,
+    val path: List<Vec2d>,
+    val lookahead: ClosedFloatingPointRange<Double>,
     val threshold: Double = 1.0,
 ) {
-    private val bezier: List<Bezier> = Utils.pathToBeziers(path)
-    private val lastPoint: Vec2d = path.last()
-    private var lastSegment: Int = 0
-    private var lastIntersection: Intersection<Bezier> = Intersection(path[0], bezier[0])
+    val beziers: List<Bezier> = Utils.pathToBeziers(path)
+    val lastPoint: Vec2d = path.last()
+    var lastSegment: Int = 0
+    var lastIntersection: BezierIntersection = BezierIntersection(path[0], beziers[0], 0.0)
+    var currentLookahead = lookahead.start
     var isFinished = false
 
-    fun getIntersections(lookahead: Circle, segments: List<Bezier>): List<Intersection<Bezier>> {
+    fun getIntersections(lookahead: Circle, segments: List<Bezier>): List<BezierIntersection> {
         return segments.flatMap { it.intersections(lookahead) }
     }
 
     fun getTarget(
-        intersections: List<Intersection<Bezier>>,
+        intersections: List<BezierIntersection>,
         pos: Vec2d,
         heading: Double
-    ): Intersection<Bezier> {
+    ): BezierIntersection {
         val closest = intersections.minByOrNull {
             abs(getAngleDiff((pos to heading), it.point))
         }
         return closest ?: lastIntersection
     }
 
-    fun updateLastIntersection(lastIntersection: Intersection<Bezier>) {
+    fun updateLastIntersection(lastIntersection: BezierIntersection) {
         this.lastIntersection = lastIntersection
-        this.lastSegment = bezier.indexOf(lastIntersection.line)
+        this.lastSegment = beziers.indexOf(lastIntersection.line)
     }
 
-    fun calc(pos: Vec2d, heading: Double): PurePursuitData {
+    fun calc(pos: Vec2d, heading: Double, dt: Double): PurePursuitData {
         val distanceToLast = pos.distanceTo(lastPoint)
         if (distanceToLast < threshold) {
             isFinished = true
@@ -50,32 +52,38 @@ class PurePursuit(
                 lastIntersection.point,
                 isEnding = true,
                 isFinished,
-                bezier,
+                beziers,
                 listOf(),
                 listOf(lastIntersection)
             )
         }
-        if (distanceToLast <= lookahead) {
+        if (distanceToLast <= currentLookahead) {
             return PurePursuitData(
                 lastPoint,
                 isEnding = true,
                 isFinished,
-                bezier,
+                beziers,
                 listOf(Bezier.fromLine(pos, lastPoint)),
                 listOf(lastIntersection)
             )
         }
-        val lookaheadCircle = Circle(pos, lookahead)
-        val remainingPath = bezier.subList(lastSegment, bezier.size)
+        val lookaheadCircle = Circle(pos, currentLookahead)
+        val remainingPath = beziers.subList(lastSegment, beziers.size)
         val intersections = getIntersections(lookaheadCircle, remainingPath)
         val targetIntersection = getTarget(intersections, pos, heading)
         updateLastIntersection(targetIntersection)
+
+        val targetCurvature = abs(targetIntersection.line.getCurvature(targetIntersection.t))
+        val newLookahead =
+            Utils.lerp(lookahead.endInclusive, lookahead.start, (targetCurvature * 20).coerceIn(0.0, 1.0))
+        println("Target Curvature: ${targetCurvature * 20} | $newLookahead | $dt") // large = small lookahead, small = large lookahead
+        currentLookahead = Utils.lerp(currentLookahead, newLookahead, dt * 5)
 
         return PurePursuitData(
             targetIntersection.point,
             isEnding = false,
             isFinished,
-            bezier,
+            beziers,
             remainingPath,
             intersections
         )
