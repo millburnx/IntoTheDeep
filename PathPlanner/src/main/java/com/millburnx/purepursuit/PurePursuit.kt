@@ -54,7 +54,8 @@ class PurePursuit(
                 isFinished,
                 beziers,
                 listOf(),
-                listOf(lastIntersection)
+                listOf(lastIntersection),
+                currentLookahead
             )
         }
         if (distanceToLast <= currentLookahead) {
@@ -64,7 +65,8 @@ class PurePursuit(
                 isFinished,
                 beziers,
                 listOf(Bezier.fromLine(pos, lastPoint)),
-                listOf(lastIntersection)
+                listOf(lastIntersection),
+                currentLookahead
             )
         }
         val lookaheadCircle = Circle(pos, currentLookahead)
@@ -77,7 +79,7 @@ class PurePursuit(
         val newLookahead =
             Utils.lerp(lookahead.endInclusive, lookahead.start, (targetCurvature * 20).coerceIn(0.0, 1.0))
         println("Target Curvature: ${targetCurvature * 20} | $newLookahead | $dt") // large = small lookahead, small = large lookahead
-        currentLookahead = Utils.lerp(currentLookahead, newLookahead, dt * 5)
+        currentLookahead = Utils.lerp(currentLookahead, newLookahead, (dt * 5).coerceIn(0.0, 1.0))
 
         return PurePursuitData(
             targetIntersection.point,
@@ -85,7 +87,8 @@ class PurePursuit(
             isFinished,
             beziers,
             remainingPath,
-            intersections
+            intersections,
+            currentLookahead
         )
     }
 
@@ -96,8 +99,8 @@ class PurePursuit(
             return Utils.normalizeAngle(diff - aAngle)
         }
 
-        fun render(data: PurePursuitData, packet: TelemetryPacket, addTelemetry: Boolean = true) {
-            val (target, isEnding, isDone, path, remainingPath, intersections) = data
+        fun render(data: PurePursuitData, packet: TelemetryPacket, pose: Vec2d, addTelemetry: Boolean = true) {
+            val (target, isEnding, isDone, path, remainingPath, intersections, lookahead) = data
             if (addTelemetry) {
                 packet.put("pure_pursuit/is_done", isDone)
                 packet.put("pure_pursuit/is_ending", isEnding)
@@ -114,6 +117,8 @@ class PurePursuit(
                 Utils.Colors.yellow
             )
             renderPath(canvas, path, colors)
+            val rrPose = pose.toRR()
+            canvas.strokeCircle(rrPose.x, rrPose.y, lookahead)
             renderIntersections(canvas, intersections, target, colors)
         }
 
@@ -142,8 +147,9 @@ class PurePursuit(
                     "#ffffff"
                 }
                 val colorString = currentColor
+                val rrPose = intersection.point.toRR()
                 canvas.setFill(colorString)
-                    .fillCircle(intersection.point.x, -intersection.point.y, 1.0)
+                    .fillCircle(rrPose.x, rrPose.y, 1.0)
                 color++
             }
         }
@@ -157,4 +163,5 @@ data class PurePursuitData(
     val path: List<Bezier>,
     val remainingPath: List<Bezier>,
     val intersections: List<Intersection<Bezier>>,
+    val lookahead: Double
 )

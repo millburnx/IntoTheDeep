@@ -61,7 +61,8 @@ class PurePursuitCommand(
         packet.put("robot/x", pose.x)
         packet.put("robot/y", pose.y)
         packet.put("robot/h", Math.toDegrees(pose.heading))
-        PurePursuit.render(calcResults, packet)
+        packet.put("robot/lookahead", calcResults.lookahead)
+        PurePursuit.render(calcResults, packet, Vec2d(pose.x, pose.y))
 
         if (calcResults.isFinished) {
             packet.put("pure_pursuit/power_forward", 0.0)
@@ -80,7 +81,7 @@ class PurePursuitCommand(
             val finalX = if (useSquidTranslation) sqrt(abs(powerX)) * sign(powerX) else powerX
             val powerY = pidY.calculate(position.y, targetPoint.y)
             val finalY = if (useSquidTranslation) sqrt(abs(powerY)) * sign(powerY) else powerY
-            val powerH = pidH.calculate(heading, endingHeading)
+            val powerH = pidH.calculate(Math.toDegrees(heading), endingHeading)
             val finalH = if (useSquidRotation) sqrt(abs(powerH)) * sign(powerH) else powerH
             packet.put("pure_pursuit/power_x", finalX)
             packet.put("pure_pursuit/power_y", finalY)
@@ -116,6 +117,8 @@ class PurePursuitCommand(
     }
 
     override fun isFinished(): Boolean {
-        return purePursuit.isFinished
+        if (endingHeading == null) return purePursuit.isFinished
+        val diffHeading = abs(drive.pose.heading - endingHeading)
+        return purePursuit.isFinished && diffHeading < AutonConfig.headingTolerance
     }
 }

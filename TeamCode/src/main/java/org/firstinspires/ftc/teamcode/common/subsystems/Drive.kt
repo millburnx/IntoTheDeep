@@ -4,17 +4,15 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
-import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
-import com.arcrobotics.ftclib.kinematics.HolonomicOdometry
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.IMU
 import org.firstinspires.ftc.teamcode.common.utils.PoseColor
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
-import java.util.function.DoubleSupplier
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max
@@ -44,6 +42,9 @@ class Drive(
     val imu: IMU by lazy {
         hardwareMap["imu"] as IMU
     }
+    val rrDrive: SampleMecanumDrive by lazy {
+        SampleMecanumDrive(hardwareMap)
+    }
 
     val leftOdom: Motor.Encoder by lazy {
         leftRear.encoder
@@ -54,16 +55,9 @@ class Drive(
     val rightOdom: Motor.Encoder by lazy {
         rightFront.encoder
     }
-    val odometry: HolonomicOdometry by lazy {
-        HolonomicOdometry(
-            DoubleSupplier { leftOdom.distance },
-            DoubleSupplier { rightOdom.distance },
-            DoubleSupplier { centerOdom.distance },
-            TRACK_WIDTH, CENTER_WHEEL_OFFSET
-        )
-    }
     val pose: Pose2d
-        get() = odometry.pose
+        get() = rrDrive.pose
+
 
     init {
         DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV
@@ -83,7 +77,7 @@ class Drive(
         imu.initialize(
             IMU.Parameters(
                 RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                    RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
                     RevHubOrientationOnRobot.UsbFacingDirection.UP
                 )
             )
@@ -95,7 +89,7 @@ class Drive(
         rightOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
 
         leftOdom.setDirection(Motor.Direction.REVERSE)
-        centerOdom.setDirection(Motor.Direction.REVERSE)
+        centerOdom.setDirection(Motor.Direction.FORWARD)
         rightOdom.setDirection(Motor.Direction.FORWARD)
 
         leftOdom.reset()
@@ -103,7 +97,6 @@ class Drive(
         rightOdom.reset()
 
         // change to reflect starting field position
-        odometry.updatePose(Pose2d(startingX, startingY, Rotation2d(Math.toRadians(startingH))))
 
         val allHubs = hardwareMap.getAll<LynxModule?>(LynxModule::class.java)
 
@@ -113,11 +106,14 @@ class Drive(
     }
 
     override fun periodic() {
-        odometry.updatePose()
-//        val list: MutableList<PoseColor> = ArrayList<PoseColor>()
-//        list.add(PoseColor(pos, "#0000ff"))
-//        telemetry.drawField(list, dashboard)
-        telemetry.drawField(listOf(PoseColor(pose, "#0000ff")), dashboard)
+        rrDrive.updatePoseEstimate()
+        telemetry.drawField(
+            listOf(
+                PoseColor(
+                    rrDrive.pose, "#0000ff"
+                )
+            ), dashboard
+        )
     }
 
     fun robotCentric(power: Double, strafe: Double, turn: Double, multiF: Double = 1.0, multiH: Double = 1.0) {
@@ -160,21 +156,35 @@ class Drive(
         }
     }
 
-    fun fieldCentric(x: Double, y: Double, rx: Double, heading: Double) {
+    fun fieldCentric(
+        x: Double,
+        y: Double,
+        rx: Double,
+        heading: Double,
+        tel: org.firstinspires.ftc.robotcore.external.Telemetry? = null
+    ) {
         // Rotate the movement direction counter to the bot's rotation
-        var rotX = x * cos(-heading) - y * sin(-heading)
-        val rotY = x * sin(-heading) + y * cos(-heading)
+        var rotX = x * cos(heading) - y * sin(heading)
+        val rotY = x * sin(heading) + y * cos(heading)
 
         rotX = rotX * 1.1
-        robotCentric(rotY, rotX, rx)
+
+        if (tel != null) {
+            tel.addData("rotX", rotX)
+            tel.addData("rotY", rotY)
+        }
+        if (applyPower) robotCentric(rotX, rotY, rx)
     }
 
     companion object {
         @JvmField
+        var applyPower: Boolean = true
+
+        @JvmField
         var TRACK_WIDTH: Double = -12.5
 
         @JvmField
-        var CENTER_WHEEL_OFFSET: Double = -4.0
+        var CENTER_WHEEL_OFFSET: Double = 1.75
         // distance between center of rotation of the robot and the center odometer
 
         @JvmField
@@ -190,10 +200,10 @@ class Drive(
         var BREAK: Boolean = false
 
         @JvmField
-        var startingX: Double = -60.0
+        var startingX: Double = 0.0
 
         @JvmField
-        var startingY: Double = -60.0
+        var startingY: Double = 0.0
 
         @JvmField
         var startingH: Double = 0.0

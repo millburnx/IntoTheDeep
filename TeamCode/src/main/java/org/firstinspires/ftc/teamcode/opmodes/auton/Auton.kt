@@ -22,31 +22,40 @@ object AutonConfig {
     var multiH = 0.75
 
     @JvmField
-    var pathName = "intothedeep"
+    var pathName = "simple"
 
     @JvmField
-    var useEndingHeading = false
+    var useEndingHeading = true
 
     @JvmField
-    var endingHeading = 0.0
+    var endingHeading = 180.0
 
     @JvmField
-    var pidT_kP = 0.0
+    var pidT_kP = 0.1
 
     @JvmField
     var pidT_kI = 0.0
 
     @JvmField
-    var pidT_kD = 0.0
+    var pidT_kD = 0.005
 
     @JvmField
-    var pidH_kP = 0.0
+    var pidH_kP = 0.025
 
     @JvmField
     var pidH_kI = 0.0
 
     @JvmField
     var pidH_kD = 0.0
+
+    @JvmField
+    var minRange = 8.0
+
+    @JvmField
+    var maxRange = 10.0
+
+    @JvmField
+    var headingTolerance = 5.0
 }
 
 @Autonomous(name = "Auton")
@@ -84,7 +93,8 @@ class Auton : CommandOpMode() {
                 dash,
                 pidX,
                 pidY,
-                pidH
+                pidH,
+                AutonConfig.minRange..AutonConfig.maxRange
             )
         )
     }

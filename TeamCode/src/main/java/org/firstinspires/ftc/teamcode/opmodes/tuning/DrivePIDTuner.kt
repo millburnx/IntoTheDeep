@@ -21,7 +21,7 @@ class DrivePIDTuner : CommandOpMode() {
 
     val pidX = PIDController(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
     val pidY = PIDController(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
-    val pidH = PIDController(AutonConfig.pidH_kP, AutonConfig.pidH_kI, AutonConfig.pidH_kD)
+    val pidH = APIDController(AutonConfig.pidH_kP, AutonConfig.pidH_kI, AutonConfig.pidH_kD)
 
     override fun initialize() {
         pidX.reset()
@@ -30,13 +30,14 @@ class DrivePIDTuner : CommandOpMode() {
     }
 
     override fun run() {
+        super.run()
         val pose = drive.pose
         pidX.setPID(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
         pidY.setPID(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
         pidH.setPID(AutonConfig.pidH_kP, AutonConfig.pidH_kI, AutonConfig.pidH_kD)
         val powerX = pidX.calculate(pose.x, targetX)
-        val powerY = pidX.calculate(pose.y, targetX)
-        val powerH = pidX.calculate(Math.toDegrees(pose.heading), targetX)
+        val powerY = -pidY.calculate(pose.y, targetY)
+        val powerH = -pidH.calculate(Math.toDegrees(pose.heading), targetH)
 
         telem.addData("powerX", powerX)
         telem.addData("powerY", powerY)
@@ -45,7 +46,8 @@ class DrivePIDTuner : CommandOpMode() {
         telem.addData("poseY", pose.y)
         telem.addData("poseH", Math.toDegrees(pose.heading))
 
-        drive.fieldCentric(powerX, powerY, powerH, pose.heading)
+        drive.fieldCentric(powerX, powerY, powerH, pose.heading, telem)
+        telem.update()
     }
 
     companion object {
