@@ -29,7 +29,7 @@ class Lift(hardwareMap: HardwareMap, val arm: Arm? = null) : SubsystemBase() {
         get() = if (arm == null) Vec2d(Double.POSITIVE_INFINITY, extensionLimit) else Vec2d(
             cos(arm.angle),
             sin(arm.angle)
-        ) * (extensionLimit / cos(arm.angle))
+        ) * if (arm.angle == 0.0) Double.POSITIVE_INFINITY else (extensionLimit / cos(arm.angle))
 
     val maxLiftDistance: Double
         get() = if (arm == null) Double.POSITIVE_INFINITY else Vec2d(0, 0).distanceTo(maxLiftPosition)
