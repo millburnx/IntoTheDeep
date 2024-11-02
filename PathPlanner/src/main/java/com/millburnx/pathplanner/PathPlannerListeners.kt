@@ -16,7 +16,7 @@ class PathPlannerListeners(pathPlanner: PathPlanner) {
             super.mousePressed(e)
             val clickPoint = Vec2d(e.x, e.y)
             val fieldSize = Vec2d(pathPlanner.width, pathPlanner.height)
-            val fieldPoint = (clickPoint - fieldSize / 2) / pathPlanner.ppi
+            val fieldPoint = (clickPoint - fieldSize / 2) / pathPlanner.ppi * Vec2d(1, -1)
             val thresholds = Pair(
                 10 / pathPlanner.ppi * pathPlanner.scale,
                 10 / pathPlanner.ppi * pathPlanner.scale
@@ -104,7 +104,7 @@ class PathPlannerListeners(pathPlanner: PathPlanner) {
             if (selectedPoint == null) return super.mouseDragged(e)
             val clickPoint = Vec2d(e.x, e.y)
             val fieldSize = Vec2d(pathPlanner.width, pathPlanner.height)
-            val fieldPoint = (clickPoint - fieldSize / 2) / pathPlanner.ppi
+            val fieldPoint = (clickPoint - fieldSize / 2) / pathPlanner.ppi * Vec2d(1, -1)
 
             val bezierPoint = selectedPoint!!.first
             val pointType = selectedPoint!!.second

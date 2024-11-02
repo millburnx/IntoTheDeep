@@ -193,8 +193,8 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         val samples = 100
         for (i in 1..samples) {
             val t = i.toDouble() / samples
-            val point = at(t)
-            val lastPoint = at((i - 1).toDouble() / samples)
+            val point = at(t) * Vec2d(1, -1)
+            val lastPoint = at((i - 1).toDouble() / samples) * Vec2d(1, -1)
             g2d.drawLine(
                 (lastPoint.x * ppi).toInt(),
                 (lastPoint.y * ppi).toInt(),

@@ -146,20 +146,20 @@ class BezierPoint(
             }
             g2d.color = color
             g2d.stroke = BasicStroke((handleWidth * ppi).toFloat())
-            Utils.drawLine(g2d, ppi, anchor, handle)
+            Utils.drawLine(g2d, ppi, anchor * Vec2d(1, -1), handle * Vec2d(1, -1))
             g2d.color = g2d.background
             g2d.stroke = BasicStroke((outlineWidth * ppi).toFloat())
-            Utils.drawPoint(g2d, ppi, handle, point)
+            Utils.drawPoint(g2d, ppi, handle * Vec2d(1, -1), point)
             g2d.color = color
-            Utils.drawPoint(g2d, ppi, handle, point, false)
+            Utils.drawPoint(g2d, ppi, handle * Vec2d(1, -1), point, false)
         }
 
         // draw anchor point
         g2d.color = g2d.background
-        Utils.drawPoint(g2d, ppi, anchor, point)
+        Utils.drawPoint(g2d, ppi, anchor * Vec2d(1, -1), point)
         g2d.color = Color.WHITE
         g2d.stroke = BasicStroke((outlineWidth * ppi).toFloat())
-        Utils.drawPoint(g2d, ppi, anchor, point, false)
+        Utils.drawPoint(g2d, ppi, anchor * Vec2d(1, -1), point, false)
     }
 
     fun copy(): BezierPoint {

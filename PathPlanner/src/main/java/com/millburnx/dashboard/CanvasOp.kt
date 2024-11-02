@@ -28,7 +28,7 @@ class Circle(
     Type.CIRCLE
 ) {
     override fun draw(g2d: Graphics2D, ppi: Double, panel: JPanel) {
-        Utils.drawPoint(g2d, ppi, Vec2d.fromRR(Vec2d(x, y)), radius * 2, !stroke)
+        Utils.drawPoint(g2d, ppi, Vec2d.fromRR(Vec2d(x, y)) * Vec2d(1, -1), radius * 2, !stroke)
     }
 }
 
@@ -107,7 +107,7 @@ class Polygon(private val xPoints: DoubleArray, private val yPoints: DoubleArray
     override fun draw(g2d: Graphics2D, ppi: Double, panel: JPanel) {
         val pointsScaled = xPoints.zip(yPoints).map { (x, y) -> Vec2d.fromRR(Vec2d(x, y)) * ppi }
         val xPointsScaled = pointsScaled.map { it.x.toInt() }.toIntArray()
-        val yPointsScaled = pointsScaled.map { it.y.toInt() }.toIntArray()
+        val yPointsScaled = pointsScaled.map { -it.y.toInt() }.toIntArray()
         if (stroke) {
             g2d.drawPolygon(xPointsScaled, yPointsScaled, xPoints.size)
         } else {
@@ -127,7 +127,7 @@ class Polyline(private val xPoints: DoubleArray, private val yPoints: DoubleArra
         }
         val pointsScaled = xPoints.zip(yPoints).map { (x, y) -> Vec2d.fromRR(Vec2d(x, y)) * ppi }
         val xPointsScaled = pointsScaled.map { it.x.toInt() }.toIntArray()
-        val yPointsScaled = pointsScaled.map { it.y.toInt() }.toIntArray()
+        val yPointsScaled = pointsScaled.map { -it.y.toInt() }.toIntArray()
         g2d.drawPolyline(xPointsScaled, yPointsScaled, xPoints.size)
     }
 }
