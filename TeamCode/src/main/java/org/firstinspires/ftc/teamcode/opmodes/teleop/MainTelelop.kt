@@ -39,7 +39,7 @@ class MainTelelop : CommandOpMode() {
         GamepadEx(gamepad2)
     }
     val lift: Lift by lazy {
-        Lift(hardwareMap)
+        Lift(hardwareMap, arm)
     }
     val arm: Arm by lazy {
         Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition)

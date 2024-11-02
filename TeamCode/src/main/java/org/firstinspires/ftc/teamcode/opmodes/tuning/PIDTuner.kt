@@ -17,7 +17,7 @@ class PIDTuner : CommandOpMode() {
         Arm(hardwareMap, telem, lift.lift::getCurrentPosition)
     }
     val lift: Lift by lazy {
-        Lift(hardwareMap)
+        Lift(hardwareMap, arm)
     }
 
     override fun initialize() {
