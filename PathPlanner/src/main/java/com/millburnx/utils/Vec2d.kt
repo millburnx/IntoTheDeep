@@ -124,9 +124,20 @@ data class Vec2d(val x: Double, val y: Double) {
         /**
          * Loads a list of points from a tsv file
          */
-        fun loadList(file: java.io.File): List<Vec2d> {
+        fun loadList(file: java.io.File): Path {
             val data = TSV.bufferedRead(file)
-            return data.map { Vec2d(it[0].toDouble(), it[1].toDouble()) }
+            var endHeading: Double? = null
+            val points: MutableList<Vec2d> = mutableListOf()
+            for (item in data) {
+                if (item.size == 1) {
+                    endHeading = item[0].toDouble()
+                } else {
+                    points.add(Vec2d(item[0].toDouble(), item[1].toDouble()))
+                }
+            }
+            return Path(points, endHeading)
         }
     }
 }
+
+data class Path(val points: List<Vec2d>, val endHeading: Double? = null)

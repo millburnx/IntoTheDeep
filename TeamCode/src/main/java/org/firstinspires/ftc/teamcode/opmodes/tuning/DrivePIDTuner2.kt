@@ -5,14 +5,16 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.controller.PIDController
+import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.commands.PIDCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonConfig
 
 @Config
-@TeleOp(name = "DriveTuner", group = "Tuning")
-class DrivePIDTuner : CommandOpMode() {
+@TeleOp(name = "DriveTuner2", group = "Tuning")
+class DrivePIDTuner2 : CommandOpMode() {
     val telem = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     val drive: Drive by lazy {
@@ -27,26 +29,21 @@ class DrivePIDTuner : CommandOpMode() {
         pidX.reset()
         pidY.reset()
         pidH.reset()
+
+        schedule(
+            PIDCommand(
+                drive,
+                Vec2d(targetX, targetY),
+                targetH,
+                pidX,
+                pidY,
+                pidH,
+            )
+        )
     }
 
     override fun run() {
         super.run()
-        val pose = drive.pose
-        pidX.setPID(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
-        pidY.setPID(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
-        pidH.setPID(AutonConfig.pidH_kP, AutonConfig.pidH_kI, AutonConfig.pidH_kD)
-        val powerX = pidX.calculate(pose.x, targetX)
-        val powerY = -pidY.calculate(pose.y, targetY)
-        val powerH = -pidH.calculate(Math.toDegrees(pose.heading), targetH)
-
-        telem.addData("powerX", powerX)
-        telem.addData("powerY", powerY)
-        telem.addData("powerH", powerH)
-        telem.addData("poseX", pose.x)
-        telem.addData("poseY", pose.y)
-        telem.addData("poseH", Math.toDegrees(pose.heading))
-
-        drive.fieldCentric(powerX, powerY, powerH, pose.heading, tel = telem)
         telem.update()
     }
 

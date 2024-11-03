@@ -30,7 +30,7 @@ class MainTelelop : CommandOpMode() {
     val telem = MultipleTelemetry(telemetry, dash.telemetry)
 
     val drive: Drive by lazy {
-        Drive(hardwareMap, tel, dash, -1.0)
+        Drive(hardwareMap, tel, dash)
     }
     val gamepad1Ex: GamepadEx by lazy {
         GamepadEx(gamepad1)
@@ -38,11 +38,11 @@ class MainTelelop : CommandOpMode() {
     val gamepad2Ex: GamepadEx by lazy {
         GamepadEx(gamepad2)
     }
-    val lift: Lift by lazy {
-        Lift(hardwareMap, arm)
-    }
     val arm: Arm by lazy {
         Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition)
+    }
+    val lift: Lift by lazy {
+        Lift(hardwareMap)
     }
     val intake: Intake by lazy {
         Intake(hardwareMap)
@@ -53,15 +53,27 @@ class MainTelelop : CommandOpMode() {
 
     override fun initialize() {
         drive.defaultCommand =
-            RunCommand({ schedule(DriveRobotCommand(drive, gamepad1Ex, telemetry, { slowDriveMode })) }, drive)
-
+            RunCommand({
+                schedule(
+                    DriveRobotCommand(
+                        drive,
+                        gamepad1Ex,
+                        telemetry,
+                        { slowDriveMode },
+                        { if (d1CubicAll) true else if (d1Cubic) false else slowDriveMode })
+                )
+            }, drive)
+        lift.armAngle = arm::angle
     }
 
     override fun run() {
         super.run()
 
         if (abs(gamepad2Ex.leftX) > 0.1 || abs(gamepad2Ex.leftY) > 0.1 || abs(gamepad2Ex.rightX) > 0.1) {
-            schedule(DriveRobotCommand(drive, gamepad2Ex, telemetry, { true }))
+            schedule(
+                DriveRobotCommand(drive, gamepad2Ex, telemetry, { true },
+                    { if (d2Cubic) false else true })
+            )
         }
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
@@ -89,7 +101,8 @@ class MainTelelop : CommandOpMode() {
             ),
         )
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(InstantCommand(arm::resetEncoders))
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B)
+            .whenPressed(InstantCommand({ arm.resetEncoders(); lift.resetEncoders() }))
 
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
             SequentialCommandGroup(
@@ -195,5 +208,14 @@ class MainTelelop : CommandOpMode() {
 
         @JvmField
         var slowManualLift = 37.5
+
+        @JvmField
+        var d1Cubic = true
+
+        @JvmField
+        var d1CubicAll = true
+
+        @JvmField
+        var d2Cubic = true
     }
 }

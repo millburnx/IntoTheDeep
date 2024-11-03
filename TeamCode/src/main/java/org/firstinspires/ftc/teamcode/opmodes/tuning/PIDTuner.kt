@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
+import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 
 @Config
@@ -17,17 +18,22 @@ class PIDTuner : CommandOpMode() {
         Arm(hardwareMap, telem, lift.lift::getCurrentPosition)
     }
     val lift: Lift by lazy {
-        Lift(hardwareMap, arm)
+        Lift(hardwareMap)
+    }
+    val intake: Intake by lazy {
+        Intake(hardwareMap)
     }
 
     override fun initialize() {
         arm.on()
+        lift.armAngle = arm::angle
     }
 
     override fun run() {
         super.run()
         arm.target = armTarget.toDouble()
         lift.target = liftTarget.toDouble()
+        if (intakeOpen) intake.open() else intake.close()
 
         telem.addData("arm pos: ", arm.rightRotate.currentPosition + Arm.starting_ticks)
         telem.addData("arm angle: ", arm.angle)
@@ -44,5 +50,8 @@ class PIDTuner : CommandOpMode() {
 
         @JvmField
         var liftTarget: Int = 0
+
+        @JvmField
+        var intakeOpen: Boolean = true
     }
 }

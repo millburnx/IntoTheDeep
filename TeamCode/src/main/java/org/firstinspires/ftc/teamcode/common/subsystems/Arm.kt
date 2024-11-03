@@ -60,6 +60,16 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
             rightRotate.power = 0.0
             return
         }
+        val p = if (SQUID && angle < SQUIDThreshold) squidP else p
+        val i = if (SQUID && angle < SQUIDThreshold) squidI else i
+        val d = if (SQUID && angle < SQUIDThreshold) squidD else d
+
+        val slidePMulti = if (SQUID && angle < SQUIDThreshold) squidSlidePMulti else slidePMulti
+        val downMulti = if (SQUID && angle < SQUIDThreshold) squidDownMulti else downMulti
+        val downSlideMulti = if (SQUID && angle < SQUIDThreshold) squidDownSlideMulti else downSlideMulti
+        val f = if (SQUID && angle < SQUIDThreshold) squidF else f
+        val slideFMulti = if (SQUID && angle < SQUIDThreshold) squidSlideFMulti else slideFMulti
+
         val newP = p + p * (liftPosition() * slidePMulti); // p + mp
         controller.setPID(newP, i, d)
         val modifier = if (target < position) {
@@ -72,7 +82,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         val ffAngle = if (realtimeFF) angle else (target.toDouble() / ticks_in_degree)
         val ff = cos(Math.toRadians(ffAngle)) * finalF
 
-        val power = ff + if (SQUID) sqrt(abs(pid)) * sign(pid) else pid
+        val power = ff + if (SQUID && angle < SQUIDThreshold) sqrt(abs(pid)) * sign(pid) else pid
 
         leftRotate.power = -power
         rightRotate.power = -power
@@ -93,18 +103,30 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
     companion object {
         @JvmField
-        var p: Double = 0.0075
+        var p: Double = 0.01
         // 0.003
 
         @JvmField
+        var squidP: Double = 0.003
+
+        @JvmField
         var i: Double = 0.0
+
+        @JvmField
+        var squidI: Double = 0.0
 
         @JvmField
         var d: Double = 0.0
         // 0.0001
 
         @JvmField
-        var f: Double = 0.1
+        var squidD: Double = 0.0001
+
+        @JvmField
+        var f: Double = 0.2
+
+        @JvmField
+        var squidF: Double = 0.1
 
         @JvmField
         var base: Int = 10
@@ -125,26 +147,41 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var starting_ticks: Double = 15.0
 
         @JvmField
-        var downMulti: Double = 0.175
+        var downMulti: Double = 0.6
         // 0.05
+
+        @JvmField
+        var squidDownMulti: Double = 0.05
 
         @JvmField
         var downSlideMulti: Double = 0.0
         // 4.0
 
         @JvmField
+        var squidDownSlideMulti: Double = 4.0
+
+        @JvmField
         var slideFMulti: Double = 0.003
         // 0.006
+
+        @JvmField
+        var squidSlideFMulti: Double = 0.006
 
         @JvmField
         var slidePMulti: Double = 0.002
         // 0
 
         @JvmField
+        var squidSlidePMulti: Double = 0.0
+
+        @JvmField
         var realtimeFF: Boolean = false
 
         @JvmField
-        var SQUID: Boolean = false;
+        var SQUID: Boolean = true;
+
+        @JvmField
+        var SQUIDThreshold: Double = 20.0;
 
         @JvmField
         var threshold: Int = 15

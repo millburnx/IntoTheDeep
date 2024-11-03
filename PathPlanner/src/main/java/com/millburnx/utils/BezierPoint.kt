@@ -24,7 +24,7 @@ class BezierPoint(
         }
 
         fun loadFromTSV(file: File): List<BezierPoint> {
-            val pathPoints = Vec2d.loadList(file)
+            val pathPoints = Vec2d.loadList(file).points
             val newPath: MutableList<BezierPoint> = mutableListOf()
             for (i in 0..<pathPoints.size step 3) {
                 val anchor = pathPoints[i]

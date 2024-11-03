@@ -58,7 +58,7 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
 
     private fun loadPath() {
         val file = Utils.fileDialog("paths", "*.tsv") ?: return
-        val pathList = Vec2d.loadList(file)
+        val pathList = Vec2d.loadList(file).points
         purePursuit = PurePursuit(pathList, lookahead)
         render()
     }

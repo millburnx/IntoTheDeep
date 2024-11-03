@@ -16,13 +16,13 @@ class EncoderTest() : CommandOpMode() {
     }
 
     override fun initialize() {
-        drive.leftOdom.reset()
+//        drive.leftOdom.reset()
         drive.rightOdom.reset()
         drive.rightOdom.reset()
     }
 
     override fun run() {
-        FtcDashboard.getInstance().telemetry.addData("left", drive.leftOdom.position)
+//        FtcDashboard.getInstance().telemetry.addData("left", drive.leftOdom.position)
         FtcDashboard.getInstance().telemetry.addData("center", drive.centerOdom.position)
         FtcDashboard.getInstance().telemetry.addData("right", drive.rightOdom.position)
         FtcDashboard.getInstance().telemetry.update()

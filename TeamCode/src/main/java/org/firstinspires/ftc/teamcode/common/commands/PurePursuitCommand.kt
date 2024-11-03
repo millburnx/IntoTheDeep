@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import org.firstinspires.ftc.teamcode.common.utils.Util
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonConfig
+import org.firstinspires.ftc.teamcode.opmodes.tuning.APIDController
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sqrt
@@ -24,7 +25,7 @@ class PurePursuitCommand(
     val dash: FtcDashboard,
     val pidX: PIDController = PIDController(0.0, 0.0, 0.0),
     val pidY: PIDController = PIDController(0.0, 0.0, 0.0),
-    val pidH: PIDController = PIDController(0.0, 0.0, 0.0),
+    val pidH: APIDController = APIDController(0.0, 0.0, 0.0),
     val lookahead: ClosedFloatingPointRange<Double> = 8.0..16.0,
 ) : CommandBase() {
     companion object {
@@ -35,14 +36,14 @@ class PurePursuitCommand(
         var useSquidRotation = false
     }
 
-    val purePursuit = PurePursuit(path, lookahead)
+    val purePursuit = PurePursuit(path, lookahead, AutonConfig.threshold)
     val timer: ElapsedTime = ElapsedTime()
     var loops = 0
     val fullTimer: ElapsedTime = ElapsedTime()
     var lastEndingState = false
 
     init {
-        addRequirements(drive)
+//        addRequirements(drive)
     }
 
     override fun initialize() {
@@ -64,11 +65,13 @@ class PurePursuitCommand(
         packet.put("robot/lookahead", calcResults.lookahead)
         PurePursuit.render(calcResults, packet, Vec2d(pose.x, pose.y))
 
-        if (calcResults.isFinished) {
+        if (endingHeading == null && calcResults.isFinished) {
+            println("ENDED REGULAR")
             packet.put("pure_pursuit/power_forward", 0.0)
             packet.put("pure_pursuit/power_heading", 0.0)
             drive.robotCentric(0.0, 0.0, 0.0);
-        } else if (calcResults.isEnding && endingHeading != null) {
+        } else if (endingHeading != null && calcResults.target.distanceTo(position) < lookahead.start) {
+            println("PID")
             // pid finishing move
             if (!lastEndingState) {
                 pidX.reset()
@@ -79,9 +82,9 @@ class PurePursuitCommand(
             val targetPoint = calcResults.target
             val powerX = pidX.calculate(position.x, targetPoint.x)
             val finalX = if (useSquidTranslation) sqrt(abs(powerX)) * sign(powerX) else powerX
-            val powerY = pidY.calculate(position.y, targetPoint.y)
+            val powerY = -pidY.calculate(position.y, targetPoint.y)
             val finalY = if (useSquidTranslation) sqrt(abs(powerY)) * sign(powerY) else powerY
-            val powerH = pidH.calculate(Math.toDegrees(heading), endingHeading)
+            val powerH = -pidH.calculate(Math.toDegrees(heading), endingHeading)
             val finalH = if (useSquidRotation) sqrt(abs(powerH)) * sign(powerH) else powerH
             packet.put("pure_pursuit/power_x", finalX)
             packet.put("pure_pursuit/power_y", finalY)
@@ -108,8 +111,6 @@ class PurePursuitCommand(
         packet.put("general/avg_loop_time (ms)", fullDelta)
         Telemetry.drawRobot(packet.fieldOverlay(), pose, "#0000ff")
         dash.sendTelemetryPacket(packet)
-
-
     }
 
     override fun end(interrupted: Boolean) {
@@ -118,7 +119,9 @@ class PurePursuitCommand(
 
     override fun isFinished(): Boolean {
         if (endingHeading == null) return purePursuit.isFinished
-        val diffHeading = abs(drive.pose.heading - endingHeading)
-        return purePursuit.isFinished && diffHeading < AutonConfig.headingTolerance
+        val diffHeading = abs(Math.toDegrees(drive.pose.heading) - endingHeading)
+        val done = purePursuit.isFinished && diffHeading < AutonConfig.headingTolerance
+        if (done) drive.robotCentric(0.0, 0.0, 0.0)
+        return done
     }
 }

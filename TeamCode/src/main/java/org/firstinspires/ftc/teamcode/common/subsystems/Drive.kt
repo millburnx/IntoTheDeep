@@ -23,6 +23,7 @@ class Drive(
     hardwareMap: HardwareMap,
     val telemetry: Telemetry,
     val dashboard: FtcDashboard,
+    val zeroBreak: Boolean = false,
     val cacheThreshold: Double = -1.0
 ) : SubsystemBase() {
     private val prevPower = doubleArrayOf(0.0, 0.0, 0.0, 0.0)
@@ -46,9 +47,9 @@ class Drive(
         SampleMecanumDrive(hardwareMap)
     }
 
-    val leftOdom: Motor.Encoder by lazy {
-        leftRear.encoder
-    }
+    //    val leftOdom: Motor.Encoder by lazy {
+//        leftRear.encoder
+//    }
     val centerOdom: Motor.Encoder by lazy {
         leftFront.encoder
     }
@@ -67,7 +68,7 @@ class Drive(
         rightRear.inverted = false
         rightFront.inverted = false
 
-        val stop = if (BREAK) Motor.ZeroPowerBehavior.BRAKE else Motor.ZeroPowerBehavior.FLOAT
+        val stop = if (zeroBreak) Motor.ZeroPowerBehavior.BRAKE else Motor.ZeroPowerBehavior.FLOAT
 
         rightRear.setZeroPowerBehavior(stop)
         rightFront.setZeroPowerBehavior(stop)
@@ -84,15 +85,15 @@ class Drive(
         )
         imu.resetYaw()
 
-        leftOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
+//        leftOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
         centerOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
         rightOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
 
-        leftOdom.setDirection(Motor.Direction.REVERSE)
+//        leftOdom.setDirection(Motor.Direction.REVERSE)
         centerOdom.setDirection(Motor.Direction.FORWARD)
         rightOdom.setDirection(Motor.Direction.FORWARD)
 
-        leftOdom.reset()
+//        leftOdom.reset()
         centerOdom.reset()
         rightOdom.reset()
 
@@ -103,6 +104,12 @@ class Drive(
         for (hub in allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO)
         }
+
+        rrDrive.poseEstimate = com.acmerobotics.roadrunner.geometry.Pose2d(
+            startingX,
+            -startingY,
+            Math.toRadians(-startingH)
+        )
     }
 
     override fun periodic() {
@@ -161,6 +168,7 @@ class Drive(
         y: Double,
         rx: Double,
         heading: Double,
+        multiF: Double = 1.0, multiH: Double = 1.0,
         tel: org.firstinspires.ftc.robotcore.external.Telemetry? = null
     ) {
         // Rotate the movement direction counter to the bot's rotation
@@ -173,7 +181,7 @@ class Drive(
             tel.addData("rotX", rotX)
             tel.addData("rotY", rotY)
         }
-        if (applyPower) robotCentric(rotX, rotY, rx)
+        if (applyPower) robotCentric(rotX, rotY, rx, multiF, multiH)
     }
 
     companion object {
@@ -196,14 +204,14 @@ class Drive(
         @JvmField
         var DISTANCE_PER_PULSE: Double = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV
 
-        @JvmField
-        var BREAK: Boolean = false
+//        @JvmField
+//        var BREAK: Boolean = false
 
         @JvmField
-        var startingX: Double = 0.0
+        var startingX: Double = -60.0
 
         @JvmField
-        var startingY: Double = 0.0
+        var startingY: Double = 12.0
 
         @JvmField
         var startingH: Double = 0.0

@@ -16,7 +16,7 @@ class PurePursuit(
     val threshold: Double = 1.0,
 ) {
     val beziers: List<Bezier> = Utils.pathToBeziers(path)
-    val lastPoint: Vec2d = path.last()
+    val lastPoint: Vec2d = path.lastOrNull() ?: Vec2d(0.0, 0.05)
     var lastSegment: Int = 0
     var lastIntersection: BezierIntersection = BezierIntersection(path[0], beziers[0], 0.0)
     var currentLookahead = lookahead.start
