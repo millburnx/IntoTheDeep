@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.controller.PIDController
@@ -28,66 +29,28 @@ import java.io.File
 import java.lang.Error
 
 @Config
-object AutonConfig {
+object BlueAutonConfig {
     @JvmField
-    var multiF = 0.75
+    var startX = -60.0
 
     @JvmField
-    var multiH = 0.75
+    var startY = 12.0
 
     @JvmField
-    var pathName = "blue"
-
-    @JvmField
-    var useEndingHeading = true
-
-    @JvmField
-    var endingHeading = 180.0
-
-    @JvmField
-    var pidT_kP = 0.1
-
-    @JvmField
-    var pidT_kI = 0.0
-
-    @JvmField
-    var pidT_kD = 0.005
-
-    @JvmField
-    var pidH_kP = 0.025
-
-    @JvmField
-    var pidH_kI = 0.0
-
-    @JvmField
-    var pidH_kD = 0.0
-
-    @JvmField
-    var minRange = 12.0
-
-    @JvmField
-    var maxRange = 16.0
-
-    @JvmField
-    var threshold = 0.75
-
-    @JvmField
-    var headingTolerance = 3.0
-
-    @JvmField
-    var segments: Int = 1
-
-    @JvmField
-    var timeout: Long = 5000
-
-    @JvmField
-    var barPower: Double = 0.3
+    var startH = 0.0
 }
 
-@Autonomous(name = "Auton")
-class Auton : CommandOpMode() {
+@Autonomous(name = "Blue Auton")
+class BlueAuton : CommandOpMode() {
     val drive: Drive by lazy {
-        Drive(hardwareMap, tel, dash, zeroBreak = true)
+        Drive(
+            hardwareMap,
+            tel,
+            dash,
+            Vec2d(RedAutonConfig.startX, RedAutonConfig.startY),
+            RedAutonConfig.startH,
+            zeroBreak = true
+        )
     }
     val arm: Arm by lazy {
         Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition)
@@ -168,12 +131,14 @@ class Auton : CommandOpMode() {
         commands.add(WaitCommand(100))
         commands.add(pidSegment(Vec2d(-36.0, 0.0), 0.0).withTimeout(1000))
         commands.add(WaitCommand(100))
-        commands.add(SpecimenDown2(arm, lift, intake))
-        commands.add(WaitCommand(500))
-
-        commands.add(purePursuitSegment(loadSegment(1)))
+        commands.add(
+            ParallelCommandGroup(
+                SpecimenDown2(arm, lift, intake),
+                purePursuitSegment(loadSegment(1))
+            )
+        )
         commands.add(WaitCommand(200))
-        commands.add(purePursuitSegment(loadSegment(2)).withTimeout(2500))
+        commands.add(purePursuitSegment(loadSegment(2)).withTimeout(2250))
         commands.add(WaitCommand(200))
         commands.add(pidSegment(Vec2d(-54, 52), 45.0, 0.75, 1.0).withTimeout(2500)) // place 1st
         commands.add(WaitCommand(200))
@@ -183,9 +148,9 @@ class Auton : CommandOpMode() {
         commands.add(WaitCommand(200))
         commands.add(pidSegment(Vec2d(-12, 49), 90.0, 0.5, 0.75).withTimeout(500))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-56, 53), 67.5, 0.75, 1.0).withTimeout(2500)) // place 2d
+        commands.add(pidSegment(Vec2d(-56, 53), 90.5, 0.75, 1.0).withTimeout(2500)) // place 2d
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-56, -42), 90.0, 0.75, 1.0).withTimeout(4500)) // park
+        commands.add(pidSegment(Vec2d(-58, -44), 90.0, 0.75, 1.0).withTimeout(4500)) // park
         commands.add(WaitCommand(200))
 
 

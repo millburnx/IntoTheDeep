@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.hardware.motors.MotorEx
+import com.millburnx.utils.Vec2d
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -23,6 +24,8 @@ class Drive(
     hardwareMap: HardwareMap,
     val telemetry: Telemetry,
     val dashboard: FtcDashboard,
+    val startingPosition: Vec2d = Vec2d(startingX, startingY),
+    val startingH: Double = Drive.startingH,
     val zeroBreak: Boolean = false,
     val cacheThreshold: Double = -1.0
 ) : SubsystemBase() {
@@ -106,8 +109,8 @@ class Drive(
         }
 
         rrDrive.poseEstimate = com.acmerobotics.roadrunner.geometry.Pose2d(
-            startingX,
-            -startingY,
+            startingPosition.x,
+            -startingPosition.y,
             Math.toRadians(-startingH)
         )
     }
