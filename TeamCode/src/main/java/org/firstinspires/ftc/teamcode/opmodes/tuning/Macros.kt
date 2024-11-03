@@ -42,6 +42,10 @@ class RelativeDrive(val drive: Drive, val power: Double) : CommandBase() {
         drive.robotCentric(power, 0.0, 0.0)
     }
 
+    override fun end(interrupted: Boolean) {
+        drive.robotCentric(0.0, 0.0, 0.0)
+    }
+
     override fun isFinished(): Boolean {
         return false
     }
@@ -65,5 +69,5 @@ object Specimen {
     var Lift1: Int = 350
 
     @JvmField
-    var Lift2: Int = 735
+    var Lift2: Int = 745
 }

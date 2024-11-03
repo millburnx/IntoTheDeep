@@ -151,18 +151,19 @@ class Auton : CommandOpMode() {
 
     override fun initialize() {
         lift.armAngle = arm::angle
+        intake.close()
         val commands: MutableList<Command> = mutableListOf()
 
         commands.add(InstantCommand({ arm.on() }))
-        commands.add(InstantCommand({ intake.close() }))
-        commands.add(WaitCommand(1000))
+//        commands.add(InstantCommand({ intake.close() }))
+        commands.add(WaitCommand(100))
 
         commands.add(purePursuitSegment(loadSegment(0)).withTimeout(2000))
         commands.add(WaitCommand(100))
 
         commands.add(SpecimenUp(arm, lift, intake))
         commands.add(RelativeDrive(drive, AutonConfig.barPower).withTimeout(1000))
-        commands.add(WaitCommand(500))
+        commands.add(WaitCommand(200))
         commands.add(SpecimenDown(arm, lift, intake))
         commands.add(WaitCommand(100))
         commands.add(pidSegment(Vec2d(-36.0, 0.0), 0.0).withTimeout(1000))
@@ -170,17 +171,23 @@ class Auton : CommandOpMode() {
         commands.add(SpecimenDown2(arm, lift, intake))
         commands.add(WaitCommand(500))
 
-        if (AutonConfig.segments >= 1) {
-//            commands.add(purePursuitSegment(loadSegment(1)))
-            commands.add(pidSegment(Vec2d(-36, 37), 0.0, 0.5, 0.75).withTimeout(2500))
-            commands.add(WaitCommand(200))
-            commands.add(pidSegment(Vec2d(-12, 37), 0.0, 0.5, 0.75).withTimeout(2500))
-            commands.add(WaitCommand(200))
-            commands.add(pidSegment(Vec2d(-12, 44), 90.0, 0.5, 1.0).withTimeout(2500))
-            commands.add(WaitCommand(200))
-            commands.add(pidSegment(Vec2d(-54, 44), 90.0, 0.5, 0.75).withTimeout(2500))
-            commands.add(WaitCommand(1000))
-        }
+        commands.add(purePursuitSegment(loadSegment(1)))
+        commands.add(WaitCommand(200))
+        commands.add(purePursuitSegment(loadSegment(2)).withTimeout(2500))
+        commands.add(WaitCommand(200))
+        commands.add(pidSegment(Vec2d(-54, 52), 45.0, 0.75, 1.0).withTimeout(2500)) // place 1st
+        commands.add(WaitCommand(200))
+        commands.add(pidSegment(Vec2d(-48, 44), 90.0, 0.75, 0.75).withTimeout(750))
+        commands.add(WaitCommand(200))
+        commands.add(pidSegment(Vec2d(-12, 44), 90.0, 0.75, 0.75).withTimeout(1250))
+        commands.add(WaitCommand(200))
+        commands.add(pidSegment(Vec2d(-12, 49), 90.0, 0.5, 0.75).withTimeout(500))
+        commands.add(WaitCommand(200))
+        commands.add(pidSegment(Vec2d(-56, 53), 67.5, 0.75, 1.0).withTimeout(2500)) // place 2d
+        commands.add(WaitCommand(200))
+        commands.add(pidSegment(Vec2d(-56, -42), 90.0, 0.75, 1.0).withTimeout(4500)) // park
+        commands.add(WaitCommand(200))
+
 
         schedule(
             SequentialCommandGroup(*commands.toTypedArray())
