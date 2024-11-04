@@ -164,11 +164,13 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
     fun contourToDetection(contour: MatOfPoint, color: SampleColor): SampleDetection {
         val minRect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
         val center = Vec2d(minRect.center.x, minRect.center.y) // maybe make an extension function or smt
+        val size = Vec2d(minRect.size.width, minRect.size.height)
         // 0 degrees is when the box is fully straight landscape since that's how our intake works
 
         val angle = correctCVAngle(minRect)
 
-        return SampleDetection(center, angle, color)
+        val boundingBox: BoundingBox = BoundingBox(center, size)
+        return SampleDetection(center, angle, color, boundingBox)
     }
 
     fun correctCVAngle(rect: RotatedRect): Double {
@@ -203,4 +205,9 @@ enum class SampleColor {
     BLUE
 }
 
-data class SampleDetection(val pos: Vec2d, val angle: Double, val color: SampleColor)
+data class BoundingBox(val center: Vec2d, val size: Vec2d) {
+    val area: Double
+        get() = size.x * size.y
+}
+
+data class SampleDetection(val pos: Vec2d, val angle: Double, val color: SampleColor, val boundingBox: BoundingBox)

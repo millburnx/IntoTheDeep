@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.misc
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.arcrobotics.ftclib.command.CommandOpMode
-import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.Apriltag
@@ -10,7 +9,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleColor
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 
-@Disabled
+//@Disabled
 @TeleOp(name = "Vision", group = "Misc")
 class VisionPortalOp : CommandOpMode() {
     lateinit var aprilTag: Apriltag

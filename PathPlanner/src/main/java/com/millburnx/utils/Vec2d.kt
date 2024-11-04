@@ -97,6 +97,8 @@ data class Vec2d(val x: Double, val y: Double) {
         return java.awt.Insets(y.toInt(), x.toInt(), y.toInt(), x.toInt())
     }
 
+    fun flip() = Vec2d(y, x)
+
     /**
      * Converts the point to a java.awt dimension
      */
