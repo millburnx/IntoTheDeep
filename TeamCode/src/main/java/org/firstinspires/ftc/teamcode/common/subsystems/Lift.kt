@@ -21,6 +21,7 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
     fun resetEncoders() {
         lift.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         lift.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        lift.direction = DcMotorSimple.Direction.REVERSE
     }
 
     val controller: PIDController = PIDController(p, i, d)
@@ -69,7 +70,7 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
 
     companion object {
         @JvmField
-        var p: Double = 0.0025
+        var p: Double = 0.002
 
         @JvmField
         var i: Double = 0.1

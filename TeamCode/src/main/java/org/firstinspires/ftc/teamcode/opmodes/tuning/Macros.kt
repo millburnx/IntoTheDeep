@@ -30,6 +30,7 @@ fun SpecimenDown2(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup
     LiftCommand(lift, 30).withTimeout(500),
     WaitCommand(300),
     ArmCommand(arm, Specimen.Arm1).withTimeout(500),
+    ArmCommand(arm, Specimen.Arm0_5).withTimeout(500),
     ArmCommand(arm, Specimen.Arm0).withTimeout(500),
 )
 
@@ -54,7 +55,10 @@ class RelativeDrive(val drive: Drive, val power: Double) : CommandBase() {
 @Config
 object Specimen {
     @JvmField
-    var Arm0: Int = 0
+    var Arm0: Int = 10
+
+    @JvmField
+    var Arm0_5: Int = 45
 
     @JvmField
     var Arm1: Int = 90

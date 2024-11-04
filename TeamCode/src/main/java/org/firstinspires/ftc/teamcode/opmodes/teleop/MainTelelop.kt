@@ -20,6 +20,8 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
+import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenDown2
+import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenUp
 import kotlin.math.abs
 
 @Config
@@ -127,17 +129,10 @@ class MainTelelop : CommandOpMode() {
             ) { arm.position < Arm.base + (Arm.lowBasket - Arm.base) / 2 }
         )// square
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(
-            SequentialCommandGroup(
-                LiftCommand(lift, Lift.pickup),
-                ArmCommand(arm, Arm.pickup)
-            )
+            SpecimenDown2(arm, lift, intake)
         ) // cross
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-            SequentialCommandGroup(
-                // TODO: CHECK IF ARM IS AT PICKUP OR BASE, IF AT PICKUP WE CAN GO TO BASE FIRST OR REJECT
-                ArmCommand(arm, Arm.highBasket),
-                LiftCommand(lift, Lift.highBasket)
-            )
+            SpecimenUp(arm, lift, intake)
         ) // circle
 
         if (gamepad2.left_trigger > 0.1) {

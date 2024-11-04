@@ -40,15 +40,15 @@ object BlueAutonConfig {
     var startH = 0.0
 }
 
-@Autonomous(name = "Blue Auton")
+@Autonomous(name = "Full Auton")
 class BlueAuton : CommandOpMode() {
     val drive: Drive by lazy {
         Drive(
             hardwareMap,
             tel,
             dash,
-            Vec2d(RedAutonConfig.startX, RedAutonConfig.startY),
-            RedAutonConfig.startH,
+            Vec2d(BlueAutonConfig.startX, BlueAutonConfig.startY),
+            BlueAutonConfig.startH,
             zeroBreak = true
         )
     }
@@ -140,17 +140,17 @@ class BlueAuton : CommandOpMode() {
         commands.add(WaitCommand(200))
         commands.add(purePursuitSegment(loadSegment(2)).withTimeout(2250))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-54, 52), 45.0, 0.75, 1.0).withTimeout(2500)) // place 1st
+        commands.add(pidSegment(Vec2d(-54, 50), 45.0, 0.75, 1.0).withTimeout(2500)) // place 1st
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-48, 44), 90.0, 0.75, 0.75).withTimeout(750))
+        commands.add(pidSegment(Vec2d(-48, 42), 90.0, 0.75, 0.75).withTimeout(750))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-12, 44), 90.0, 0.75, 0.75).withTimeout(1250))
+        commands.add(pidSegment(Vec2d(-12, 42), 90.0, 0.75, 0.75).withTimeout(1250))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-12, 49), 90.0, 0.5, 0.75).withTimeout(500))
+        commands.add(pidSegment(Vec2d(-12, 47), 90.0, 0.5, 0.75).withTimeout(500))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-56, 53), 90.5, 0.75, 1.0).withTimeout(2500)) // place 2d
+        commands.add(pidSegment(Vec2d(-56, 51), 90.5, 0.75, 1.0).withTimeout(2500)) // place 2d
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-58, -44), 90.0, 0.75, 1.0).withTimeout(4500)) // park
+        commands.add(pidSegment(Vec2d(-58, -46), 90.0, 0.75, 1.0).withTimeout(4500)) // park
         commands.add(WaitCommand(200))
 
 

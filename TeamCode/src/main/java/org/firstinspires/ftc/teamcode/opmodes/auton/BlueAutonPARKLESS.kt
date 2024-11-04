@@ -2,11 +2,9 @@ package org.firstinspires.ftc.teamcode.opmodes.auton
 
 import android.os.Environment
 import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.InstantCommand
-import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.controller.PIDController
@@ -28,27 +26,15 @@ import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenUp
 import java.io.File
 import java.lang.Error
 
-@Config
-object RedAutonConfig {
-    @JvmField
-    var startX = 60.0
-
-    @JvmField
-    var startY = -12.0
-
-    @JvmField
-    var startH = 180.0
-}
-
-@Autonomous(name = "Red Auton")
-class RedAuton : CommandOpMode() {
+@Autonomous(name = "Slower Auton")
+class BlueAutonSeq : CommandOpMode() {
     val drive: Drive by lazy {
         Drive(
             hardwareMap,
             tel,
             dash,
-            Vec2d(RedAutonConfig.startX, RedAutonConfig.startY),
-            RedAutonConfig.startH,
+            Vec2d(BlueAutonConfig.startX, BlueAutonConfig.startY),
+            BlueAutonConfig.startH,
             zeroBreak = true
         )
     }
@@ -132,27 +118,27 @@ class RedAuton : CommandOpMode() {
         commands.add(pidSegment(Vec2d(-36.0, 0.0), 0.0).withTimeout(1000))
         commands.add(WaitCommand(100))
         commands.add(
-            ParallelCommandGroup(
+            SequentialCommandGroup(
                 SpecimenDown2(arm, lift, intake),
+                WaitCommand(1000),
                 purePursuitSegment(loadSegment(1))
             )
         )
         commands.add(WaitCommand(200))
         commands.add(purePursuitSegment(loadSegment(2)).withTimeout(2250))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-54, 52), 45.0, 0.75, 1.0).withTimeout(2500)) // place 1st
+        commands.add(pidSegment(Vec2d(-54, 50), 45.0, 0.75, 1.0).withTimeout(2500)) // place 1st
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-48, 44), 90.0, 0.75, 0.75).withTimeout(750))
+        commands.add(pidSegment(Vec2d(-48, 42), 90.0, 0.75, 0.75).withTimeout(750))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-12, 44), 90.0, 0.75, 0.75).withTimeout(1250))
+        commands.add(pidSegment(Vec2d(-12, 42), 90.0, 0.75, 0.75).withTimeout(1250))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-12, 49), 90.0, 0.5, 0.75).withTimeout(500))
+        commands.add(pidSegment(Vec2d(-12, 47), 90.0, 0.5, 0.75).withTimeout(500))
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-56, 53), 90.5, 0.75, 1.0).withTimeout(2500)) // place 2d
+        commands.add(pidSegment(Vec2d(-56, 51), 90.5, 0.75, 1.0).withTimeout(2500)) // place 2d
         commands.add(WaitCommand(200))
-        commands.add(pidSegment(Vec2d(-58, -44), 90.0, 0.75, 1.0).withTimeout(4500)) // park
+        commands.add(pidSegment(Vec2d(-58, -46), 90.0, 0.75, 1.0).withTimeout(4500)) // park
         commands.add(WaitCommand(200))
-
 
         schedule(
             SequentialCommandGroup(*commands.toTypedArray())
