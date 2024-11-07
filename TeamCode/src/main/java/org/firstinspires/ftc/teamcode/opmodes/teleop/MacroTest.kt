@@ -10,14 +10,14 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenDown
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenDown2
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenUp
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenDown
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenDown2
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenUp
 
 @Config
 @TeleOp(name = "Macro Test")

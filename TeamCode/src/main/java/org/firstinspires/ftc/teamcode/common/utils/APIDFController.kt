@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes.tuning
+package org.firstinspires.ftc.teamcode.common.utils
 
 import kotlin.math.abs
-import kotlin.math.floor
 import kotlin.math.min
 
 /**
@@ -188,18 +187,6 @@ open class APIDFController @JvmOverloads constructor(
      * @return the next output using the current measured value via
      * [.calculate].
      */
-//    // normalize radians to be between -pi and pi
-//    14   │     // for Odometry.java
-//    15   │     public static double normalizeRadians(double radians) {
-//        16   │         double temp = (radians + Math.PI) / (2.0 * Math.PI);
-//        17   │         return (temp - Math.floor(temp) - 0.5) * 2.0 * Math.PI;
-//        18   │     }
-
-    fun normalizeRadians(radians: Double): Double {
-        val temp = (radians + Math.PI) / (2.0 * Math.PI)
-        return (temp - floor(temp) - 0.5) * 2.0
-    }
-
     @JvmOverloads
     fun calculate(pv: Double = measuredValue): Double {
         prevErrorVal = errorVal_p
@@ -210,9 +197,9 @@ open class APIDFController @JvmOverloads constructor(
         lastTimeStamp = currentTimeStamp
 
         if (measuredValue == pv) {
-            errorVal_p = Math.toDegrees(normalizeRadians(Math.toRadians(setPoint - measuredValue)))
+            errorVal_p = Util.normalizeDegrees(setPoint - measuredValue)
         } else {
-            errorVal_p = Math.toDegrees(normalizeRadians(Math.toRadians(setPoint - pv)))
+            errorVal_p = Util.normalizeDegrees(setPoint - pv)
             measuredValue = pv
         }
 

@@ -6,8 +6,8 @@ import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand.Companion.useSquidRotation
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand.Companion.useSquidTranslation
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
+import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonConfig
-import org.firstinspires.ftc.teamcode.opmodes.tuning.APIDController
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sqrt

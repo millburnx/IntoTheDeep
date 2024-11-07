@@ -1,11 +1,12 @@
 package com.millburnx.utils
 
 import java.awt.Dimension
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlin.math.abs as kAbs
 
 /**
  * Represents a 2D vector/point
@@ -81,7 +82,14 @@ data class Vec2d(val x: Double, val y: Double) {
     /**
      * Returns a copy of the vector with the absolute value of each component
      */
-    fun abs() = Vec2d(kAbs(x), kAbs(y))
+    fun abs() = Vec2d(abs(x), abs(y))
+
+    fun sqrt() = Vec2d(sqrt(x), sqrt(y))
+
+    fun sign() = Vec2d(sign(x), sign(y))
+
+    fun coerceIn(min: Vec2d, max: Vec2d) = Vec2d(x.coerceIn(min.x, max.x), y.coerceIn(min.y, max.y))
+    fun coerceIn(min: Double, max: Double) = coerceIn(Vec2d(min), Vec2d(max))
 
     /**
      * Converts the point to a java.awt point

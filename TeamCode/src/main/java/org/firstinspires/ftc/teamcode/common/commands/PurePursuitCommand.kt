@@ -9,10 +9,10 @@ import com.millburnx.purepursuit.PurePursuit
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
+import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import org.firstinspires.ftc.teamcode.common.utils.Util
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonConfig
-import org.firstinspires.ftc.teamcode.opmodes.tuning.APIDController
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sqrt

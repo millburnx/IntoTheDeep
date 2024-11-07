@@ -15,16 +15,16 @@ import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.commands.PIDCommand
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
+import org.firstinspires.ftc.teamcode.common.commands.RelativeDrive
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenDown
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenDown2
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenUp
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
+import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
-import org.firstinspires.ftc.teamcode.opmodes.tuning.APIDController
-import org.firstinspires.ftc.teamcode.opmodes.tuning.RelativeDrive
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenDown
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenDown2
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenUp
 import java.io.File
 import java.lang.Error
 

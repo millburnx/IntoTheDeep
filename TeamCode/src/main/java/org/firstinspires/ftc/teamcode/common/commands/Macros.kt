@@ -1,12 +1,10 @@
-package org.firstinspires.ftc.teamcode.opmodes.tuning
+package org.firstinspires.ftc.teamcode.common.commands
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
-import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
-import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake

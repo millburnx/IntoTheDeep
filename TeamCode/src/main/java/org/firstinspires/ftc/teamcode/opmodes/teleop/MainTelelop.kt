@@ -14,14 +14,18 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
 import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
+import org.firstinspires.ftc.teamcode.common.commands.PickupGroup
 import org.firstinspires.ftc.teamcode.common.commands.SleepCommand
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenDown2
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenUp
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.ClipPipeline
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenDown2
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SpecimenUp
 import kotlin.math.abs
 
 @Config
@@ -30,6 +34,15 @@ class MainTelelop : CommandOpMode() {
     val tel: Telemetry = Telemetry()
     val dash: FtcDashboard = FtcDashboard.getInstance()
     val telem = MultipleTelemetry(telemetry, dash.telemetry)
+    val samplePipeline: SamplePipeline by lazy { SamplePipeline() }
+    val clipPipeline: ClipPipeline by lazy { ClipPipeline() }
+    val visionPortal: VisionPortal by lazy {
+        VisionPortal(
+            hardwareMap,
+            "camera1",
+            listOf(samplePipeline, clipPipeline)
+        )
+    }
 
     val drive: Drive by lazy {
         Drive(hardwareMap, tel, dash)
@@ -51,7 +64,6 @@ class MainTelelop : CommandOpMode() {
     }
     var slowDriveMode: Boolean = false;
     var slowMechMode: Boolean = false;
-    var clawPressed: Boolean = false;
 
     override fun initialize() {
         drive.defaultCommand =
@@ -66,6 +78,8 @@ class MainTelelop : CommandOpMode() {
                 )
             }, drive)
         lift.armAngle = arm::angle
+        visionPortal
+        FtcDashboard.getInstance().startCameraStream(clipPipeline, 0.0)
     }
 
     override fun run() {
@@ -82,6 +96,14 @@ class MainTelelop : CommandOpMode() {
             InstantCommand({ slowDriveMode = true })
         ).whenReleased(
             InstantCommand({ slowDriveMode = false })
+        )
+
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(
+            PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { samplePipeline.detections.get() })
+        )
+
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+            InstantCommand(arm::off)
         )
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
