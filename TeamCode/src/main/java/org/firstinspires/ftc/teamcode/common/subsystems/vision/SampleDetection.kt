@@ -30,7 +30,7 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
     val lastFrame: AtomicReference<Bitmap> =
         AtomicReference(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565))
 
-    val detections: AtomicReference<List<SampleDetection>> = AtomicReference(listOf<SampleDetection>())
+    val detections: AtomicReference<List<SampleDetection>> = AtomicReference(emptyList())
 
     override fun init(width: Int, height: Int, calibration: CameraCalibration?) {}
 
@@ -210,4 +210,15 @@ data class BoundingBox(val center: Vec2d, val size: Vec2d) {
         get() = size.x * size.y
 }
 
-data class SampleDetection(val pos: Vec2d, val angle: Double, val color: SampleColor, val boundingBox: BoundingBox)
+interface Detection {
+    val pos: Vec2d
+    val angle: Double
+    val boundingBox: BoundingBox
+}
+
+data class SampleDetection(
+    override val pos: Vec2d,
+    override val angle: Double,
+    val color: SampleColor,
+    override val boundingBox: BoundingBox
+) : Detection
