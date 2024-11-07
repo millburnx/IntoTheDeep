@@ -86,6 +86,11 @@ class PickupCommand(
         return doneX && doneY && doneH
     }
 
+
+    override fun end(interrupted: Boolean) {
+        drive.robotCentric(0.0, 0.0, 0.0)
+    }
+
     companion object {
         @JvmField
         val kS = 0.05
