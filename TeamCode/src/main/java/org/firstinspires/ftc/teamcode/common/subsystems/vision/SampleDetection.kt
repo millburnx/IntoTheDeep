@@ -50,7 +50,7 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
         val yThreshold = Mat()
         val bThreshold = Mat()
         Imgproc.threshold(crChannel, rThreshold, 190.0, 255.0, Imgproc.THRESH_BINARY)
-        Imgproc.threshold(cbChannel, yThreshold, 57.0, 255.0, Imgproc.THRESH_BINARY_INV)
+        Imgproc.threshold(cbChannel, yThreshold, 90.0, 255.0, Imgproc.THRESH_BINARY_INV)
         Imgproc.threshold(cbChannel, bThreshold, 150.0, 255.0, Imgproc.THRESH_BINARY)
 
         val rContours = filterContours(getContours(rThreshold))

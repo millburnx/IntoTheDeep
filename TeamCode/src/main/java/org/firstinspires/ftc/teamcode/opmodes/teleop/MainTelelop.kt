@@ -102,6 +102,10 @@ class MainTelelop : CommandOpMode() {
             PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { samplePipeline.detections.get() })
         )
 
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+            PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { clipPipeline.detections.get() }, true)
+        )
+
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
             InstantCommand(arm::off)
         )

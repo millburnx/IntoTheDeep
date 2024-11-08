@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
-import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleDetection
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.Detection
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kStab
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kSum
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kd
@@ -34,7 +34,7 @@ import kotlin.math.abs
 class PickupCommand(
     val drive: Drive,
     val cameraSize: Vec2d,
-    val getSamples: () -> List<SampleDetection>
+    val getSamples: () -> List<Detection>
 ) :
     CommandBase() {
     val xPID: PIDEx by lazy { PIDEx(PIDCoefficientsEx(kp, ki, kd, kSum, kStab, 0.3)) }
@@ -44,7 +44,7 @@ class PickupCommand(
     // power instead of error cuz steady state error, so we don't get stuck
     var lastPower = Vec2d(0.0, 0.0)
     var lastPowerH = 0.0
-    var targetSample: SampleDetection? = null
+    var targetSample: Detection? = null
 
     init {
         addRequirements(drive)
@@ -103,6 +103,9 @@ class PickupCommand(
 
 //        @JvmField
 //        val pickupArm: Int = 0
+
+        @JvmField
+        val clipOffset = 0
     }
 }
 
@@ -112,15 +115,17 @@ fun PickupGroup(
     lift: Lift,
     intake: Intake,
     cameraSize: Vec2d,
-    samples: () -> List<SampleDetection>
+    samples: () -> List<Detection>,
+    isClip: Boolean = false
 ): CommandGroupBase {
     return SequentialCommandGroup(
         ParallelCommandGroup(
-            LiftCommand(lift, Lift.base),
+            LiftCommand(lift, Lift.base + if (isClip) PickupCommand.clipOffset else 0),
             ArmCommand(arm, PickupCommand.visionArm),
             InstantCommand(intake::open, intake),
         ),
         PickupCommand(drive, cameraSize, samples),
+        if (isClip) LiftCommand(lift, Lift.base) else InstantCommand({ null }),
 //        ArmCommand(arm, PickupCommand.pickupArm),
         InstantCommand(arm::off),
         WaitCommand(1000),
