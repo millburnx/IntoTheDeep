@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.util;
+package org.firstinspires.ftc.teamcode.rr.util;
 
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -72,6 +72,7 @@ public class Encoder {
 
     /**
      * Allows you to set the direction of the counts and velocity without modifying the motor's direction state
+     *
      * @param direction either reverse or forward depending on if encoder counts should be negated
      */
     public void setDirection(Direction direction) {

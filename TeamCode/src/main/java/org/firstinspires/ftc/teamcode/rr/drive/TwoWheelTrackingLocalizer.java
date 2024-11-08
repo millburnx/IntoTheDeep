@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.firstinspires.ftc.teamcode.rr.drive;
 
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
@@ -6,7 +6,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.TwoTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.teamcode.util.Encoder;
+import org.firstinspires.ftc.teamcode.rr.util.Encoder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,22 +41,10 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     public static double PARALLEL_X = 2.5; // X is the up and down direction
     public static double PARALLEL_Y = 6.5; // Y is the strafe direction
 
-
     public static double PERPENDICULAR_X = 1.875;
-    //    public static double PERPENDICULAR_Y = -0.5;
     public static double PERPENDICULAR_Y = 0.375;
 
-
-    //    public static double X_MULTIPLIER = 100 / 196.68751; // Multiplier in the X direction
-    /*
-     * 153.1115
-     * 153.287
-     *----
-     * 147.349
-     * 147.046
-     * */
     public static double X_MULTIPLIER = 100.0 / 197.0; // Multiplier in the X direction
-    //    public static double Y_MULTIPLIER = 100 / 195.07846667; // Multiplier in the Y direction
     public static double Y_MULTIPLIER = 100.0 / 195.0; // Multiplier in the Y direction
 
     // Parallel/Perpendicular to the forward axis
@@ -77,11 +65,7 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
         perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "frontLeft"));
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
         parallelEncoder.setDirection(Encoder.Direction.FORWARD);
-//        parallelEncoder.setDirection(Encoder.Direction.FORWARD);
         perpendicularEncoder.setDirection(Encoder.Direction.FORWARD);
-
-//        hardwareMap.get(DcMotorEx.class, "frontRight").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        hardwareMap.get(DcMotorEx.class, "frontLeft").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public static double encoderTicksToInches(double ticks) {
