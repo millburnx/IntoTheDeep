@@ -79,7 +79,7 @@ class MainTelelop : CommandOpMode() {
             }, drive)
         lift.armAngle = arm::angle
         visionPortal
-        FtcDashboard.getInstance().startCameraStream(clipPipeline, 0.0)
+        FtcDashboard.getInstance().startCameraStream(samplePipeline, 0.0)
     }
 
     override fun run() {
@@ -103,7 +103,7 @@ class MainTelelop : CommandOpMode() {
         )
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-            PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { clipPipeline.detections.get() }, true)
+            PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { samplePipeline.detections.get() }, true)
         )
 
         gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
