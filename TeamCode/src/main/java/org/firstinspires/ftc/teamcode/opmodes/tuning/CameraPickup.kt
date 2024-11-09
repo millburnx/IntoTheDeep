@@ -11,6 +11,7 @@ import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
+import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -50,6 +51,7 @@ class CameraPickup : CommandOpMode() {
     override fun run() {
         super.run()
         schedule(ArmCommand(arm, armTarget))
+        schedule(LiftCommand(lift, liftTarget))
         schedule(ConditionalCommand(
             InstantCommand({ intake.open() }),
             InstantCommand({ intake.close() }),
@@ -140,6 +142,9 @@ class CameraPickup : CommandOpMode() {
 
         @JvmField
         var armThres: Int = 30
+
+        @JvmField
+        var liftTarget: Int = Lift.base
 
         @JvmField
         var maxSpeed = 0.2

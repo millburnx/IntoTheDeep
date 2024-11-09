@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 //@Disabled
 @Config
 @TeleOp(name = "CameraPickup - Clip", group = "Tuning")
-class CameraPickup2 : CommandOpMode() {
+class CameraPickupClip : CommandOpMode() {
     val samplePipeline: ClipPipeline by lazy { ClipPipeline() }
     val visionPortal: VisionPortal by lazy { VisionPortal(hardwareMap, "camera1", listOf(samplePipeline)) }
     val tel: Telemetry = FtcDashboard.getInstance().telemetry
