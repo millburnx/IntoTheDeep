@@ -93,19 +93,19 @@ class PickupCommand(
 
     companion object {
         @JvmField
-        val kS = 0.05
+        var kS = 0.05
 
         @JvmField
-        val kSRot = 0.05
+        var kSRot = 0.05
 
         @JvmField
-        val visionArm: Int = 70
+        var visionArm: Int = 70
 
 //        @JvmField
 //        val pickupArm: Int = 0
 
         @JvmField
-        val clipOffset = 0
+        var clipOffset = 0
     }
 }
 

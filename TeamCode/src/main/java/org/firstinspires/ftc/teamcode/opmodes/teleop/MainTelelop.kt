@@ -129,7 +129,7 @@ class MainTelelop : CommandOpMode() {
             ),
         )
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B)
+        gamepad1Ex.getGamepadButton(GamepadKeys.Button.Y)
             .whenPressed(InstantCommand({ arm.resetEncoders(); lift.resetEncoders() }))
 
         gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(

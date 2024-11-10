@@ -8,10 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import kotlin.math.abs
 import kotlin.math.cos
-import kotlin.math.sign
-import kotlin.math.sqrt
 
 @Config
 class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: () -> Int) : SubsystemBase() {
@@ -60,15 +57,6 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
             rightRotate.power = 0.0
             return
         }
-        val p = if (SQUID && angle < SQUIDThreshold) squidP else p
-        val i = if (SQUID && angle < SQUIDThreshold) squidI else i
-        val d = if (SQUID && angle < SQUIDThreshold) squidD else d
-
-        val slidePMulti = if (SQUID && angle < SQUIDThreshold) squidSlidePMulti else slidePMulti
-        val downMulti = if (SQUID && angle < SQUIDThreshold) squidDownMulti else downMulti
-        val downSlideMulti = if (SQUID && angle < SQUIDThreshold) squidDownSlideMulti else downSlideMulti
-        val f = if (SQUID && angle < SQUIDThreshold) squidF else f
-        val slideFMulti = if (SQUID && angle < SQUIDThreshold) squidSlideFMulti else slideFMulti
 
         val newP = p + p * (liftPosition() * slidePMulti); // p + mp
         controller.setPID(newP, i, d)
@@ -78,11 +66,11 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
             1.0
         }
         val pid = controller.calculate(position.toDouble(), target.toDouble()) * modifier
-        val finalF = f + f * (liftPosition() * slideFMulti) // f + mf
+        val finalKCos = kCos + kCos * (liftPosition() * slideKCosMulti) // f + mf
         val ffAngle = if (realtimeFF) angle else (target.toDouble() / ticks_in_degree)
-        val ff = cos(Math.toRadians(ffAngle)) * finalF
+        val ff = kG + kG * (liftPosition() * slideKGMulti) + cos(Math.toRadians(ffAngle)) * finalKCos
 
-        val power = ff + if (SQUID && angle < SQUIDThreshold) sqrt(abs(pid)) * sign(pid) else pid
+        val power = ff + pid
 
         leftRotate.power = -power
         rightRotate.power = -power
@@ -103,42 +91,25 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
     companion object {
         @JvmField
-        var p: Double = 0.01
-        // 0.003
-
-        @JvmField
-        var squidP: Double = 0.003
+        var p: Double = 0.0225
 
         @JvmField
         var i: Double = 0.0
 
         @JvmField
-        var squidI: Double = 0.0
+        var d: Double = 0.0005
 
         @JvmField
-        var d: Double = 0.0
-        // 0.0001
+        var kG: Double = 0.2
 
         @JvmField
-        var squidD: Double = 0.0001
-
-        @JvmField
-        var f: Double = 0.2
-
-        @JvmField
-        var squidF: Double = 0.1
+        var kCos: Double = 0.0
 
         @JvmField
         var base: Int = 10
 
         @JvmField
-        var pickup: Int = 0
-
-        @JvmField
         var lowBasket: Int = 110
-
-        @JvmField
-        var highBasket: Int = 170
 
         @JvmField
         var ticks_in_degree: Double = 160.0 / 90.0
@@ -148,40 +119,21 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
         @JvmField
         var downMulti: Double = 0.6
-        // 0.05
-
-        @JvmField
-        var squidDownMulti: Double = 0.05
 
         @JvmField
         var downSlideMulti: Double = 0.0
-        // 4.0
 
         @JvmField
-        var squidDownSlideMulti: Double = 4.0
+        var slideKCosMulti: Double = 0.000
 
         @JvmField
-        var slideFMulti: Double = 0.003
-        // 0.006
+        var slideKGMulti: Double = 0.000875
 
         @JvmField
-        var squidSlideFMulti: Double = 0.006
-
-        @JvmField
-        var slidePMulti: Double = 0.002
-        // 0
-
-        @JvmField
-        var squidSlidePMulti: Double = 0.0
+        var slidePMulti: Double = 0.000
 
         @JvmField
         var realtimeFF: Boolean = false
-
-        @JvmField
-        var SQUID: Boolean = true;
-
-        @JvmField
-        var SQUIDThreshold: Double = 20.0;
 
         @JvmField
         var threshold: Int = 15
