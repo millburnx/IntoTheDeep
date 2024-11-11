@@ -7,6 +7,8 @@ import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
+import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
@@ -25,7 +27,6 @@ class TeleopBeta : CommandOpMode() {
     val gp1: GamepadSRL by lazy {
         GamepadSRL(GamepadEx(gamepad1), maxLeftRate, maxRightRate, deltaTime)
     }
-
     val drive: Drive by lazy {
         Drive(hardwareMap, telUtil, FtcDashboard.getInstance())
     }
@@ -42,13 +43,15 @@ class TeleopBeta : CommandOpMode() {
 
     override fun run() {
         super.run()
+        schedule(ArmCommand(arm, armTarget))
+        schedule(LiftCommand(lift, liftTarget))
 
         if (!fieldCentric) {
             drive.robotCentric(gp1.leftStick.y, gp1.leftStick.x * 1.1, gp1.rightStick.x)
         } else {
             val heading = drive.imuHeading
             tel.addData("heading (imu)", Math.toDegrees(heading))
-            drive.fieldCentric(gp1.leftStick.x, gp1.leftStick.y, gp1.rightStick.x, heading)
+            drive.fieldCentric(gp1.leftStick.x, -gp1.leftStick.y, gp1.rightStick.x, heading + Math.toRadians(90.0))
         }
 
         tel.addData("leftStick: ", gp1.leftStick)
@@ -61,12 +64,18 @@ class TeleopBeta : CommandOpMode() {
 
     companion object {
         @JvmField
-        var maxLeftRate = 0.25
+        var maxLeftRate = 8.0
 
         @JvmField
-        var maxRightRate = 0.25
+        var maxRightRate = 8.0
 
         @JvmField
-        var fieldCentric = false
+        var fieldCentric = true
+
+        @JvmField
+        var armTarget: Int = 15
+
+        @JvmField
+        var liftTarget: Int = 30
     }
 }

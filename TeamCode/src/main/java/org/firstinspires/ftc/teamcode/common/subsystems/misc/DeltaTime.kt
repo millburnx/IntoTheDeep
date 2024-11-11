@@ -11,9 +11,9 @@ class DeltaTime : SubsystemBase() {
         get() = if (hasStarted) timer.seconds() else 0.0
 
     override fun periodic() {
-        if (!hasStarted) {
-            hasStarted = true
-            timer.reset()
-        }
+//        if (!hasStarted) {
+        hasStarted = true
+        timer.reset()
+//        }
     }
 }

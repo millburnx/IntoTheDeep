@@ -73,7 +73,7 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
         var p: Double = 0.002
 
         @JvmField
-        var i: Double = 0.1
+        var i: Double = 0.15
 
         @JvmField
         var d: Double = 0.0

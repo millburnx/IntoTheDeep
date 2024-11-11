@@ -22,9 +22,11 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
+import org.firstinspires.ftc.teamcode.common.subsystems.misc.DeltaTime
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.ClipPipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
+import org.firstinspires.ftc.teamcode.common.utils.GamepadSRL
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import kotlin.math.abs
 
@@ -47,11 +49,12 @@ class MainTelelop : CommandOpMode() {
     val drive: Drive by lazy {
         Drive(hardwareMap, tel, dash)
     }
-    val gamepad1Ex: GamepadEx by lazy {
-        GamepadEx(gamepad1)
+    val deltaTime: DeltaTime = DeltaTime()
+    val gp1: GamepadSRL by lazy {
+        GamepadSRL(GamepadEx(gamepad1), TeleopBeta.maxLeftRate, TeleopBeta.maxRightRate, deltaTime)
     }
-    val gamepad2Ex: GamepadEx by lazy {
-        GamepadEx(gamepad2)
+    val gp2: GamepadSRL by lazy {
+        GamepadSRL(GamepadEx(gamepad2), TeleopBeta.maxLeftRate, TeleopBeta.maxRightRate, deltaTime)
     }
     val arm: Arm by lazy {
         Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition)
@@ -71,7 +74,7 @@ class MainTelelop : CommandOpMode() {
                 schedule(
                     DriveRobotCommand(
                         drive,
-                        gamepad1Ex,
+                        gp1,
                         telemetry,
                         { slowDriveMode },
                         { if (d1CubicAll) true else if (d1Cubic) false else slowDriveMode })
@@ -85,54 +88,54 @@ class MainTelelop : CommandOpMode() {
     override fun run() {
         super.run()
 
-        if (abs(gamepad2Ex.leftX) > 0.1 || abs(gamepad2Ex.leftY) > 0.1 || abs(gamepad2Ex.rightX) > 0.1) {
+        if (abs(gp2.gamepad.leftX) > 0.1 || abs(gp2.gamepad.leftY) > 0.1 || abs(gp2.gamepad.rightX) > 0.1) {
             schedule(
-                DriveRobotCommand(drive, gamepad2Ex, telemetry, { true },
+                DriveRobotCommand(drive, gp2, telemetry, { true },
                     { if (d2Cubic) false else true })
             )
         }
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand({ slowDriveMode = true })
         ).whenReleased(
             InstantCommand({ slowDriveMode = false })
         )
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.A).whenPressed(
             PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { samplePipeline.detections.get() })
         )
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.B).whenPressed(
             PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { samplePipeline.detections.get() }, true)
         )
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.X).whenPressed(
             InstantCommand(arm::off)
         )
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
             .whenPressed(InstantCommand(drive.imu::resetYaw, drive))
 
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
             InstantCommand({ slowMechMode = true })
         ).whenReleased(
             InstantCommand({ slowMechMode = false })
         )
 
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whileHeld(InstantCommand(intake::close, intake))
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whileHeld(InstantCommand(intake::open, intake))
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whileHeld(InstantCommand(intake::close, intake))
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whileHeld(InstantCommand(intake::open, intake))
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand(
                 intake::toggle, intake
             ),
         )
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.Y)
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.Y)
             .whenPressed(InstantCommand({ arm.resetEncoders(); lift.resetEncoders() }))
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
             SequentialCommandGroup(
                 // TODO: CHECK IF ARM IS AT PICKUP OR BASE, IF AT PICKUP WE CAN GO TO BASE FIRST OR REJECT
                 ArmCommand(arm, Arm.lowBasket),
@@ -140,7 +143,7 @@ class MainTelelop : CommandOpMode() {
                 LiftCommand(lift, Lift.lowBasket),
             )
         ) // triangle
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.X).whenPressed(
             ConditionalCommand(
                 SequentialCommandGroup(
                     ArmCommand(arm, Arm.base + 20).withTimeout(1000),
@@ -154,10 +157,10 @@ class MainTelelop : CommandOpMode() {
                 )
             ) { arm.position < Arm.base + (Arm.lowBasket - Arm.base) / 2 }
         )// square
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.A).whenPressed(
             SpecimenDown2(arm, lift, intake)
         ) // cross
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.B).whenPressed(
             SpecimenUp(arm, lift, intake)
         ) // circle
 
@@ -177,14 +180,14 @@ class MainTelelop : CommandOpMode() {
             )
         }
 
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
             .whileHeld(
                 InstantCommand(
                     { arm.on(); arm.target += if (slowMechMode) slowManualArm else manualArm },
                     arm
                 )
             )
-        gamepad2Ex.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
             .whileHeld(
                 InstantCommand(
                     { arm.on(); arm.target -= if (slowMechMode) slowManualArm else manualArm },
@@ -213,7 +216,7 @@ class MainTelelop : CommandOpMode() {
 
     companion object {
         @JvmField
-        var fieldCentric: Boolean = false
+        var fieldCentric: Boolean = true
 
         @JvmField
         var flipY: Boolean = false

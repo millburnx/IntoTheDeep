@@ -17,6 +17,8 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
+import org.firstinspires.ftc.teamcode.common.subsystems.misc.DeltaTime
+import org.firstinspires.ftc.teamcode.common.utils.GamepadSRL
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 
 @Config
@@ -29,11 +31,12 @@ class MacroTest : CommandOpMode() {
     val drive: Drive by lazy {
         Drive(hardwareMap, tel, dash)
     }
-    val gamepad1Ex: GamepadEx by lazy {
-        GamepadEx(gamepad1)
+    val deltaTime: DeltaTime = DeltaTime()
+    val gp1: GamepadSRL by lazy {
+        GamepadSRL(GamepadEx(gamepad1), TeleopBeta.maxLeftRate, TeleopBeta.maxRightRate, deltaTime)
     }
-    val gamepad2Ex: GamepadEx by lazy {
-        GamepadEx(gamepad2)
+    val gp2: GamepadSRL by lazy {
+        GamepadSRL(GamepadEx(gamepad2), TeleopBeta.maxLeftRate, TeleopBeta.maxRightRate, deltaTime)
     }
     val arm: Arm by lazy {
         Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition)
@@ -51,7 +54,7 @@ class MacroTest : CommandOpMode() {
                 schedule(
                     DriveRobotCommand(
                         drive,
-                        gamepad1Ex,
+                        gp1,
                         telemetry,
                         { true },
                         { true }
@@ -64,12 +67,12 @@ class MacroTest : CommandOpMode() {
     override fun run() {
         super.run()
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand({ intake.close() }))
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(InstantCommand({ intake.open() }))
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(InstantCommand({ intake.close() }))
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(InstantCommand({ intake.open() }))
 
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.Y).whenPressed(SpecimenUp(arm, lift, intake))
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.X).whenPressed(SpecimenDown(arm, lift, intake))
-        gamepad1Ex.getGamepadButton(GamepadKeys.Button.A).whenPressed(SpecimenDown2(arm, lift, intake))
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(SpecimenUp(arm, lift, intake))
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.X).whenPressed(SpecimenDown(arm, lift, intake))
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.A).whenPressed(SpecimenDown2(arm, lift, intake))
 
         telem.addData("arm pos: ", arm.position)
         telem.addData("arm angle: ", arm.angle)

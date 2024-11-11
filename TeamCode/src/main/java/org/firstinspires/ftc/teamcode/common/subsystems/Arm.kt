@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import kotlin.math.abs
 import kotlin.math.cos
 
 @Config
@@ -65,18 +66,21 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         } else {
             1.0
         }
-        val pid = controller.calculate(position.toDouble(), target.toDouble()) * modifier
         val finalKCos = kCos + kCos * (liftPosition() * slideKCosMulti) // f + mf
         val ffAngle = if (realtimeFF) angle else (target.toDouble() / ticks_in_degree)
         val ff = kG + kG * (liftPosition() * slideKGMulti) + cos(Math.toRadians(ffAngle)) * finalKCos
 
-        val power = ff + pid
+        val pid = controller.calculate(position.toDouble(), target.toDouble()) * modifier
+        val maxPossiblePower = (1 - abs(ff)).coerceAtLeast(0.0)
+        val clampedPid = pid.coerceIn(-(maxPossiblePower), maxPossiblePower)
+
+        val power = ff + clampedPid
 
         leftRotate.power = -power
         rightRotate.power = -power
 
         telemetry.addData("arm power", power)
-        telemetry.addData("arm pid", pid)
+        telemetry.addData("arm pid", clampedPid)
         telemetry.addData("arm ff", ff)
         telemetry.addData("arm error", target.toDouble() - position)
     }
@@ -91,13 +95,13 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
     companion object {
         @JvmField
-        var p: Double = 0.0225
+        var p: Double = 0.004
 
         @JvmField
-        var i: Double = 0.0
+        var i: Double = 0.09
 
         @JvmField
-        var d: Double = 0.0005
+        var d: Double = 0.0
 
         @JvmField
         var kG: Double = 0.2
@@ -106,7 +110,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var kCos: Double = 0.0
 
         @JvmField
-        var base: Int = 10
+        var base: Int = 0
 
         @JvmField
         var lowBasket: Int = 110
@@ -115,27 +119,27 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var ticks_in_degree: Double = 160.0 / 90.0
 
         @JvmField
-        var starting_ticks: Double = 15.0
+        var starting_ticks: Double = 0.0
 
         @JvmField
-        var downMulti: Double = 0.6
+        var downMulti: Double = 1.0
 
         @JvmField
         var downSlideMulti: Double = 0.0
 
         @JvmField
-        var slideKCosMulti: Double = 0.000
+        var slideKCosMulti: Double = 0.0
 
         @JvmField
-        var slideKGMulti: Double = 0.000875
+        var slideKGMulti: Double = 0.00125
 
         @JvmField
-        var slidePMulti: Double = 0.000
+        var slidePMulti: Double = 0.0
 
         @JvmField
         var realtimeFF: Boolean = false
 
         @JvmField
-        var threshold: Int = 15
+        var threshold: Int = 0
     }
 }
