@@ -70,16 +70,16 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
 
     companion object {
         @JvmField
-        var p: Double = 0.002
+        var p: Double = 0.005
 
         @JvmField
-        var i: Double = 0.15
+        var i: Double = 0.0
 
         @JvmField
         var d: Double = 0.0
 
         @JvmField
-        var f: Double = 0.065
+        var f: Double = 0.0
 
         @JvmField
         var base = 10;

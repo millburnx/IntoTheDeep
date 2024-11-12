@@ -105,10 +105,10 @@ class CameraPickup : CommandOpMode() {
 
     companion object {
         @JvmField
-        var kp: Double = 0.001
+        var kp: Double = 0.0025
 
         @JvmField
-        var ki: Double = 0.01
+        var ki: Double = 0.0
 
         @JvmField
         var kd: Double = 0.0
@@ -117,10 +117,10 @@ class CameraPickup : CommandOpMode() {
         var kStab: Double = 0.15
 
         @JvmField
-        var kSum: Double = 0.4
+        var kSum: Double = 0.0
 
         @JvmField
-        var kpRot: Double = 0.01
+        var kpRot: Double = 1.0
 
         @JvmField
         var kiRot: Double = 0.0
@@ -129,7 +129,7 @@ class CameraPickup : CommandOpMode() {
         var kdRot: Double = 0.0
 
         @JvmField
-        var strafeMulti: Double = 1.35
+        var strafeMulti: Double = 2.5
 
         @JvmField
         var offsetX: Double = 0.0 // -1.0 to 1.0
@@ -147,10 +147,10 @@ class CameraPickup : CommandOpMode() {
         var liftTarget: Int = Lift.base
 
         @JvmField
-        var maxSpeed = 0.2
+        var maxSpeed = 0.075
 
         @JvmField
-        var maxRotation = 0.2
+        var maxRotation = 0.1
 
         @JvmField
         var clawOpen: Boolean = true
