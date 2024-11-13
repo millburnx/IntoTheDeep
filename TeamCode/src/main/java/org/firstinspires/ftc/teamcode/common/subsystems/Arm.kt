@@ -71,7 +71,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         val ff = kG + kG * (liftPosition() * slideKGMulti) + cos(Math.toRadians(ffAngle)) * finalKCos
 
         val pid = controller.calculate(position.toDouble(), target.toDouble()) * modifier
-        val maxPossiblePower = (1 - abs(ff)).coerceAtLeast(0.0)
+        val maxPossiblePower = (1 - abs(ff)).coerceIn(0.0, maxPid)
         val clampedPid = pid.coerceIn(-(maxPossiblePower), maxPossiblePower)
 
         val power = ff + clampedPid
@@ -95,10 +95,10 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
     companion object {
         @JvmField
-        var p: Double = 0.004
+        var p: Double = 0.008
 
         @JvmField
-        var i: Double = 0.09
+        var i: Double = 0.0
 
         @JvmField
         var d: Double = 0.0
@@ -140,6 +140,9 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var realtimeFF: Boolean = false
 
         @JvmField
-        var threshold: Int = 0
+        var threshold: Int = 10
+
+        @JvmField
+        var maxPid: Double = 0.2
     }
 }

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.common.commands
 
-import com.ThermalEquilibrium.homeostasis.Controllers.Feedback.PIDEx
-import com.ThermalEquilibrium.homeostasis.Parameters.PIDCoefficientsEx
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.command.CommandGroupBase
@@ -9,14 +7,14 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
+import com.arcrobotics.ftclib.controller.PIDController
 import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.Detection
-import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kStab
-import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kSum
+import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kd
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kdRot
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.ki
@@ -29,17 +27,19 @@ import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.offs
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.offsetY
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.strafeMulti
 import kotlin.math.abs
+import kotlin.math.sign
+import kotlin.math.sqrt
 
 @Config
-class PickupCommand(
+open class PickupCommand(
     val drive: Drive,
     val cameraSize: Vec2d,
     val getSamples: () -> List<Detection>
 ) :
     CommandBase() {
-    val xPID: PIDEx by lazy { PIDEx(PIDCoefficientsEx(kp, ki, kd, kSum, kStab, 0.3)) }
-    val yPID: PIDEx by lazy { PIDEx(PIDCoefficientsEx(kp, ki, kd, kSum, kStab, 0.3)) }
-    val rPID: PIDEx by lazy { PIDEx(PIDCoefficientsEx(kpRot, kiRot, kdRot, 0.25 / kiRot, 0.1, 0.3)) }
+    val xPID: PIDController by lazy { PIDController(kp, ki, kd) }
+    val yPID: PIDController by lazy { PIDController(kp, ki, kd) }
+    val rPID: APIDController by lazy { APIDController(kpRot, kiRot, kdRot) }
 
     // power instead of error cuz steady state error, so we don't get stuck
     var lastPower = Vec2d(0.0, 0.0)
@@ -51,8 +51,14 @@ class PickupCommand(
     }
 
     override fun execute() {
+        xPID.setPID(kp, ki, kd)
+        yPID.setPID(kp, ki, kd)
+        rPID.setPID(kpRot, kiRot, kdRot)
+
         val samples = getSamples()
         val targetSample = samples.maxByOrNull { sample -> sample.boundingBox.area }
+
+        println("Target Sample $targetSample")
 
         if (targetSample != null) {
             val offset = Vec2d(offsetX, offsetY)
@@ -63,12 +69,24 @@ class PickupCommand(
             val diff = targetCenter - sampleCenter
             val diffH = targetSample.angle
 
-            val xPower = xPID.calculate(0.0, diff.x).coerceIn(-maxSpeed, maxSpeed) * strafeMulti
-            val yPower = yPID.calculate(0.0, diff.y).coerceIn(-maxSpeed, maxSpeed)
-            val rPower = rPID.calculate(0.0, diffH).coerceIn(-maxRotation, maxRotation)
+            var xPower = xPID.calculate(0.0, diff.x)
+            var yPower = yPID.calculate(0.0, diff.y)
+            var rPower = rPID.calculate(0.0, diffH)
+
+            if (squid) {
+                xPower = sqrt(abs(xPower)) * sign(xPower)
+                yPower = sqrt(abs(yPower)) * sign(yPower)
+                rPower = sqrt(abs(rPower)) * sign(rPower)
+            }
+
+            xPower = xPower.coerceIn(-maxSpeed, maxSpeed) * strafeMulti
+            yPower = yPower.coerceIn(-maxSpeed, maxSpeed)
+            rPower = rPower.coerceIn(-maxRotation, maxRotation)
 
             lastPower = Vec2d(xPower, yPower)
             lastPowerH = rPower
+
+            println("$yPower $xPower $rPower")
 
             drive.robotCentric(yPower, xPower, rPower)
         } else {
@@ -106,6 +124,12 @@ class PickupCommand(
 
         @JvmField
         var clipOffset = 0
+
+        @JvmField
+        var closeDelay: Long = 500
+
+        @JvmField
+        var squid: Boolean = true
     }
 }
 
@@ -124,13 +148,14 @@ fun PickupGroup(
             ArmCommand(arm, PickupCommand.visionArm),
             InstantCommand(intake::open, intake),
         ),
+        InstantCommand({ println("STARTING PICKUP") }),
         PickupCommand(drive, cameraSize, samples),
         if (isClip) LiftCommand(lift, Lift.base) else InstantCommand({ null }),
 //        ArmCommand(arm, PickupCommand.pickupArm),
         InstantCommand(arm::off),
-        WaitCommand(1000),
+        WaitCommand(PickupCommand.closeDelay),
         InstantCommand(intake::close, intake),
-        WaitCommand(1000),
+        WaitCommand(100),
         ArmCommand(arm, PickupCommand.visionArm),
     )
 }
