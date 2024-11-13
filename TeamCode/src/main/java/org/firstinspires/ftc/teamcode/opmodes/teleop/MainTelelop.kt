@@ -4,25 +4,23 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
-import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.RunCommand
-import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
-import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
 import org.firstinspires.ftc.teamcode.common.commands.PickupGroup
-import org.firstinspires.ftc.teamcode.common.commands.SleepCommand
-import org.firstinspires.ftc.teamcode.common.commands.SpecimenDown2
-import org.firstinspires.ftc.teamcode.common.commands.SpecimenUp
+import org.firstinspires.ftc.teamcode.common.commands.ReturnToBase
+import org.firstinspires.ftc.teamcode.common.commands.Specimen
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore1
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore2
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 import org.firstinspires.ftc.teamcode.common.subsystems.misc.DeltaTime
+import org.firstinspires.ftc.teamcode.common.subsystems.misc.RisingEdge
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.ClipPipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
@@ -45,7 +43,6 @@ class MainTelelop : CommandOpMode() {
             listOf(samplePipeline, clipPipeline)
         )
     }
-
     val drive: Drive by lazy {
         Drive(hardwareMap, tel, dash)
     }
@@ -68,87 +65,122 @@ class MainTelelop : CommandOpMode() {
     var slowDriveMode: Boolean = false;
     var slowMechMode: Boolean = false;
 
+    val triangle = GamepadKeys.Button.Y
+    val circle = GamepadKeys.Button.B
+    val cross = GamepadKeys.Button.A
+    val square = GamepadKeys.Button.X
+
+    val samplePickup by lazy {
+        PickupGroup(
+            drive, arm, lift, intake,
+            visionPortal.cameraSize,
+            samplePipeline.detections::get
+        )
+    }
+    val samplePickupTrigger by lazy {
+        RisingEdge(gp1, circle) {
+            println("sample pickup ${samplePickup.isScheduled} ${samplePickup.isFinished}")
+            if (samplePickup.isScheduled) {
+                // cancel
+                samplePickup.cancel()
+                return@RisingEdge
+            }
+            schedule(samplePickup)
+        }
+    }
+
+    val specimenPickup by lazy {
+        PickupGroup(
+            drive, arm, lift, intake,
+            visionPortal.cameraSize,
+            samplePipeline.detections::get, true
+        )
+    }
+    val specimenPickupTrigger by lazy {
+        RisingEdge(gp1, square) {
+            if (specimenPickup.isScheduled) {
+                // cancel
+                specimenPickup.cancel()
+                return@RisingEdge
+            }
+            schedule(specimenPickup)
+        }
+    }
+    val specimenScore1 by lazy { SpecimenScore1(arm, lift, intake) }
+    val specimenScore2 by lazy { SpecimenScore2(arm, lift, intake) }
+    val specimenScoreTrigger by lazy {
+        RisingEdge(gp1, triangle) {
+            if (arm.target < Specimen.arm - Arm.threshold || arm.target > Specimen.arm + Arm.threshold) {
+                schedule(specimenScore1)
+            } else {
+                schedule(specimenScore2)
+            }
+        }
+    }
+
+    val returnToBase by lazy { ReturnToBase(arm, lift) }
+    val returnToBaseTrigger by lazy {
+        RisingEdge(gp1, GamepadKeys.Button.LEFT_BUMPER) {
+            schedule(returnToBase)
+        }
+    }
+
+    val intakeToggle by lazy {
+        InstantCommand({
+            val prev = intake.open
+            intake.toggle()
+            println("intake, $prev -> ${intake.open}")
+        })
+    }
+    val intakeToggleTrigger by lazy {
+        RisingEdge(gp1, GamepadKeys.Button.DPAD_LEFT) {
+            schedule(intakeToggle)
+        }
+    }
+    val intakeToggle2 by lazy {
+        InstantCommand({
+            val prev = intake.open
+            intake.toggle()
+            println("intake, $prev -> ${intake.open}")
+        })
+    }
+    val intakeToggleTrigger2 by lazy {
+        RisingEdge(gp2, GamepadKeys.Button.LEFT_BUMPER) {
+            schedule(intakeToggle2)
+        }
+    }
+
     override fun initialize() {
         drive.defaultCommand =
             RunCommand({
                 schedule(
                     DriveRobotCommand(
-                        drive,
-                        gp1,
-                        telemetry,
-                        { slowDriveMode },
-                        { if (d1CubicAll) true else if (d1Cubic) false else slowDriveMode })
+                        drive, gp1, telemetry,
+                        { slowDriveMode }, { d1CubicAll || !d1Cubic && slowDriveMode }
+                    )
                 )
             }, drive)
         lift.armAngle = arm::angle
         visionPortal
         FtcDashboard.getInstance().startCameraStream(samplePipeline, 0.0)
-    }
 
-    override fun run() {
-        super.run()
-
-        if (abs(gp2.gamepad.leftX) > 0.1 || abs(gp2.gamepad.leftY) > 0.1 || abs(gp2.gamepad.rightX) > 0.1) {
-            schedule(
-                DriveRobotCommand(drive, gp2, telemetry, { true },
-                    { if (d2Cubic) false else true })
-            )
-        }
-
-        gp1.gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
-            InstantCommand(
-                {
-                    val prev = intake.open
-                    intake.toggle()
-                    println("intake $prev -> ${intake.open}")
-                }, intake
-            ),
-        )
+        samplePickupTrigger
+        specimenPickupTrigger
+        specimenScoreTrigger
+        returnToBaseTrigger
+        intakeToggleTrigger
+        intakeToggleTrigger2
 
         gp1.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand({ slowDriveMode = true })
         ).whenReleased(
             InstantCommand({ slowDriveMode = false })
         )
-
-        gp1.gamepad.getGamepadButton(GamepadKeys.Button.A).whenPressed(
-            PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { samplePipeline.detections.get() })
-        )
-
-        gp1.gamepad.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-            PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, { samplePipeline.detections.get() }, true)
-        )
-
-        gp1.gamepad.getGamepadButton(GamepadKeys.Button.X).whenPressed(
-            InstantCommand(arm::off)
-        )
-
-        gp1.gamepad.getGamepadButton(GamepadKeys.Button.Y)
-            .whenPressed(InstantCommand({ arm.resetEncoders(); lift.resetEncoders() }))
-
-        gp1.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-            .whenPressed(InstantCommand(drive.imu::resetYaw, drive))
-
-        // ---- Driver 2 ---- //
-
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand({ slowMechMode = true })
         ).whenReleased(
             InstantCommand({ slowMechMode = false })
         )
-
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
-            InstantCommand(
-                {
-                    val prev = intake.open
-                    intake.toggle()
-                    println("intake $prev -> ${intake.open}")
-                }, intake
-            ),
-        )
-
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whileHeld(InstantCommand(intake::close, intake))
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whileHeld(InstantCommand(intake::open, intake))
 
         gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
             .whileHeld(
@@ -165,34 +197,17 @@ class MainTelelop : CommandOpMode() {
                 )
             )
 
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
-            SequentialCommandGroup(
-                // TODO: CHECK IF ARM IS AT PICKUP OR BASE, IF AT PICKUP WE CAN GO TO BASE FIRST OR REJECT
-                ArmCommand(arm, Arm.lowBasket),
-                SleepCommand(1000.0),
-                LiftCommand(lift, Lift.lowBasket),
+        schedule(InstantCommand(intake::open))
+    }
+
+    override fun run() {
+        super.run()
+
+        if (abs(gp2.gamepad.leftX) > 0.1 || abs(gp2.gamepad.leftY) > 0.1 || abs(gp2.gamepad.rightX) > 0.1) {
+            schedule(
+                DriveRobotCommand(drive, gp2, telemetry, { true }, { !d2Cubic })
             )
-        ) // triangle
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.X).whenPressed(
-            ConditionalCommand(
-                SequentialCommandGroup(
-                    ArmCommand(arm, Arm.base + 20).withTimeout(1000),
-                    LiftCommand(lift, Lift.base),
-//                    InstantCommand(arm::off), // TODO: UNCOMMENT TO STOP IDLE POWER
-                ),
-                SequentialCommandGroup(
-                    LiftCommand(lift, Lift.base),
-                    ArmCommand(arm, Arm.base),
-//                    InstantCommand(arm::off), // TODO: UNCOMMENT IF STOP IDLE POWER
-                )
-            ) { arm.position < Arm.base + (Arm.lowBasket - Arm.base) / 2 }
-        )// square
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.A).whenPressed(
-            SpecimenDown2(arm, lift, intake)
-        ) // cross
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-            SpecimenUp(arm, lift, intake)
-        ) // circle
+        }
 
         if (gamepad2.left_trigger > 0.1) {
             schedule(
@@ -237,16 +252,16 @@ class MainTelelop : CommandOpMode() {
         var flipY: Boolean = false
 
         @JvmField
-        var manualArm = 0.01
+        var manualArm = 4.0
 
         @JvmField
-        var slowManualArm = 0.005
+        var slowManualArm = 1.0
 
         @JvmField
-        var manualLift = 70.0
+        var manualLift = 75.0
 
         @JvmField
-        var slowManualLift = 37.5
+        var slowManualLift = 15.0
 
         @JvmField
         var d1Cubic = true

@@ -16,9 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.commands.PIDCommand
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.RelativeDrive
-import org.firstinspires.ftc.teamcode.common.commands.SpecimenDown
-import org.firstinspires.ftc.teamcode.common.commands.SpecimenDown2
-import org.firstinspires.ftc.teamcode.common.commands.SpecimenUp
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore1
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -124,16 +122,16 @@ class BlueAuton : CommandOpMode() {
         commands.add(purePursuitSegment(loadSegment(0)).withTimeout(2000))
         commands.add(WaitCommand(100))
 
-        commands.add(SpecimenUp(arm, lift, intake))
+        commands.add(SpecimenScore1(arm, lift, intake))
         commands.add(RelativeDrive(drive, AutonConfig.barPower).withTimeout(1000))
         commands.add(WaitCommand(200))
-        commands.add(SpecimenDown(arm, lift, intake))
+//        commands.add(SpecimenDown(arm, lift, intake))
         commands.add(WaitCommand(100))
         commands.add(pidSegment(Vec2d(-36.0, 0.0), 0.0).withTimeout(1000))
         commands.add(WaitCommand(100))
         commands.add(
             ParallelCommandGroup(
-                SpecimenDown2(arm, lift, intake),
+//                SpecimenDown2(arm, lift, intake),
                 purePursuitSegment(loadSegment(1))
             )
         )

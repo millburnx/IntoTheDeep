@@ -34,7 +34,8 @@ import kotlin.math.sqrt
 open class PickupCommand(
     val drive: Drive,
     val cameraSize: Vec2d,
-    val getSamples: () -> List<Detection>
+    val getSamples: () -> List<Detection>,
+    val isClip: Boolean = false,
 ) :
     CommandBase() {
     val xPID: PIDController by lazy { PIDController(kp, ki, kd) }
@@ -42,8 +43,6 @@ open class PickupCommand(
     val rPID: APIDController by lazy { APIDController(kpRot, kiRot, kdRot) }
 
     // power instead of error cuz steady state error, so we don't get stuck
-    var lastPower = Vec2d(0.0, 0.0)
-    var lastPowerH = 0.0
     var targetSample: Detection? = null
 
     init {
@@ -81,9 +80,6 @@ open class PickupCommand(
             yPower = yPower.coerceIn(-maxSpeed, maxSpeed)
             rPower = rPower.coerceIn(-maxRotation, maxRotation)
 
-            lastPower = Vec2d(xPower, yPower)
-            lastPowerH = rPower
-
             drive.robotCentric(yPower, xPower, rPower)
         } else {
             drive.robotCentric(0.0, 0.0, 0.0)
@@ -92,11 +88,21 @@ open class PickupCommand(
     }
 
     override fun isFinished(): Boolean {
+        val targetSample = this.targetSample
         if (targetSample == null) return false
-        val minPower = Vec2d(kS * strafeMulti, kS)
-        val doneX = abs(lastPower.x) < minPower.x
-        val doneY = abs(lastPower.y) < minPower.y
-        val doneH = abs(lastPowerH) < kSRot
+        val tolerance = Vec2d(1 * strafeMulti, 1.0) * if (isClip) tolClip else tol
+
+        val offset = Vec2d(offsetX, offsetY)
+        val cameraCenter = (cameraSize / 2).flip()
+        val targetCenter = cameraCenter * (offset + 1)
+        val sampleCenter = targetSample.pos.flip()
+
+        val diff = targetCenter - sampleCenter
+        val diffH = targetSample.angle
+
+        val doneX = abs(diff.x) < tolerance.x
+        val doneY = abs(diff.y) < tolerance.y
+        val doneH = abs(diffH) < if (isClip) tolHClip else tolH
         return doneX && doneY && doneH
     }
 
@@ -107,10 +113,16 @@ open class PickupCommand(
 
     companion object {
         @JvmField
-        var kS = 0.05
+        var tol = 10
 
         @JvmField
-        var kSRot = 0.05
+        var tolClip = 10
+
+        @JvmField
+        var tolH = 0.05
+
+        @JvmField
+        var tolHClip = 0.05
 
         @JvmField
         var visionArm: Int = 70
@@ -122,13 +134,28 @@ open class PickupCommand(
         var clipOffset = 0
 
         @JvmField
-        var closeDelay: Long = 500
+        var clipPostOffset = 50
+
+        @JvmField
+        var closeDelay: Long = 250
 
         @JvmField
         var squid: Boolean = true
 
         @JvmField
         var clipPower: Double = -0.5
+
+        @JvmField
+        var clipDelay: Long = 250
+
+        @JvmField
+        var clipLower: Double = Arm.kG / 3
+
+        @JvmField
+        var lowerDuration: Long = 250
+
+        @JvmField
+        var armUpDuration: Long = 500
     }
 }
 
@@ -144,17 +171,20 @@ fun PickupGroup(
     return SequentialCommandGroup(
         ParallelCommandGroup(
             LiftCommand(lift, Lift.base + if (isClip) PickupCommand.clipOffset else 0),
-            ArmCommand(arm, PickupCommand.visionArm),
+            ArmCommand(arm, PickupCommand.visionArm).withTimeout(PickupCommand.armUpDuration),
             InstantCommand(intake::open, intake),
         ),
-        PickupCommand(drive, cameraSize, samples),
-        if (isClip) LiftCommand(lift, Lift.base) else InstantCommand({}),
-        InstantCommand(arm::off),
-        WaitCommand(PickupCommand.closeDelay),
+        PickupCommand(drive, cameraSize, samples, isClip),
+        if (isClip) LiftCommand(lift, Lift.base + PickupCommand.clipPostOffset) else InstantCommand({}),
+        SequentialCommandGroup(InstantCommand({
+            arm.isOverride = true; arm.setPower(PickupCommand.clipLower)
+        }), WaitCommand(PickupCommand.lowerDuration)),
+        InstantCommand({ arm.isOverride = false; arm.off() }),
         // bend clip
-        if (isClip) InstantCommand({
+        if (isClip) SequentialCommandGroup(InstantCommand({
             arm.isOverride = true; arm.setPower(PickupCommand.clipPower)
-        }) else InstantCommand({}),
+        }), WaitCommand(PickupCommand.clipDelay)) else InstantCommand({}),
+        WaitCommand(PickupCommand.closeDelay),
         InstantCommand(intake::close, intake),
         WaitCommand(100),
         // re-enable arm

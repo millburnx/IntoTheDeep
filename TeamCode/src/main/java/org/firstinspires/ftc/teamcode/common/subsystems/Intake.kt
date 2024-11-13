@@ -17,14 +17,17 @@ class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
     }
 
     fun fullOpen() {
+        open = true
         servo.position = fullOpenPosition
     }
 
     fun open() {
+        open = true
         servo.position = openPosition
     }
 
     fun close() {
+        open = false
         servo.position = closedPosition
     }
 

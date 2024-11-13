@@ -76,9 +76,17 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         } else {
             1.0
         }
+
         val finalKCos = kCos + kCos * (liftPosition() * slideKCosMulti) // f + mf
         val ffAngle = if (realtimeFF) angle else (target.toDouble() / ticks_in_degree)
-        val ff = kG + kG * (liftPosition() * slideKGMulti) + cos(Math.toRadians(ffAngle)) * finalKCos
+
+        // ff gets slow around 45 so we increase
+        val extraFF = kTF / (abs(angle - kTFAngle) + 1)
+
+        val ff = extraFF + extraFF * (liftPosition() * slideKTFMulti) + kG + kG * (liftPosition() * slideKGMulti) + cos(
+            Math.toRadians(ffAngle)
+        ) * finalKCos
+
 
         val pid = controller.calculate(position.toDouble(), target.toDouble()) * modifier
         val maxPossiblePower = (1 - abs(ff)).coerceIn(0.0, maxPid)
@@ -104,7 +112,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
     companion object {
         @JvmField
-        var p: Double = 0.008
+        var p: Double = 0.01
 
         @JvmField
         var i: Double = 0.0
@@ -113,13 +121,19 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var d: Double = 0.0
 
         @JvmField
-        var kG: Double = 0.2
+        var kG: Double = 0.205
 
         @JvmField
         var kCos: Double = 0.0
 
         @JvmField
-        var base: Int = 0
+        var kTFAngle: Double = 50.0
+
+        @JvmField
+        var kTF: Double = 0.15
+
+        @JvmField
+        var base: Int = 30
 
         @JvmField
         var lowBasket: Int = 110
@@ -143,7 +157,10 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var slideKGMulti: Double = 0.00125
 
         @JvmField
-        var slidePMulti: Double = 0.0
+        var slideKTFMulti: Double = 0.0
+
+        @JvmField
+        var slidePMulti: Double = 0.002
 
         @JvmField
         var realtimeFF: Boolean = false
