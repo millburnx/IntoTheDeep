@@ -58,8 +58,6 @@ open class PickupCommand(
         val samples = getSamples()
         val targetSample = samples.maxByOrNull { sample -> sample.boundingBox.area }
 
-        println("Target Sample $targetSample")
-
         if (targetSample != null) {
             val offset = Vec2d(offsetX, offsetY)
             val cameraCenter = (cameraSize / 2).flip()
@@ -85,8 +83,6 @@ open class PickupCommand(
 
             lastPower = Vec2d(xPower, yPower)
             lastPowerH = rPower
-
-            println("$yPower $xPower $rPower")
 
             drive.robotCentric(yPower, xPower, rPower)
         } else {
@@ -130,6 +126,9 @@ open class PickupCommand(
 
         @JvmField
         var squid: Boolean = true
+
+        @JvmField
+        var clipPower: Double = -0.5
     }
 }
 
@@ -148,14 +147,20 @@ fun PickupGroup(
             ArmCommand(arm, PickupCommand.visionArm),
             InstantCommand(intake::open, intake),
         ),
-        InstantCommand({ println("STARTING PICKUP") }),
         PickupCommand(drive, cameraSize, samples),
-        if (isClip) LiftCommand(lift, Lift.base) else InstantCommand({ null }),
-//        ArmCommand(arm, PickupCommand.pickupArm),
+        if (isClip) LiftCommand(lift, Lift.base) else InstantCommand({}),
         InstantCommand(arm::off),
         WaitCommand(PickupCommand.closeDelay),
+        // bend clip
+        if (isClip) InstantCommand({
+            arm.isOverride = true; arm.setPower(PickupCommand.clipPower)
+        }) else InstantCommand({}),
         InstantCommand(intake::close, intake),
         WaitCommand(100),
+        // re-enable arm
+        if (isClip) InstantCommand({
+            arm.isOverride = false; arm.setPower(0.0)
+        }) else InstantCommand({}),
         ArmCommand(arm, PickupCommand.visionArm),
     )
 }

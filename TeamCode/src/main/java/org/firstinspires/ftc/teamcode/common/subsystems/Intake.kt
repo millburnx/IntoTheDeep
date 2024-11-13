@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.common.subsystems
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.robotcore.hardware.HardwareMap
-import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.Servo
-import com.qualcomm.robotcore.hardware.ServoImplEx
 
 @Config
 class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
@@ -15,8 +13,11 @@ class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
     var open: Boolean = true
 
     init {
-//        (servo.controller as ServoControllerEx).setServoPwmRange(500, 2500)
-        (servo as ServoImplEx).pwmRange = PwmControl.PwmRange(500.0, 2500.0, 5000.0)
+//        (servo as ServoImplEx).pwmRange = PwmControl.PwmRange(500.0, 2500.0, 5000.0)
+    }
+
+    fun fullOpen() {
+        servo.position = fullOpenPosition
     }
 
     fun open() {
@@ -33,6 +34,9 @@ class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
     }
 
     companion object {
+        @JvmField
+        var fullOpenPosition: Double = 1.0
+
         @JvmField
         var openPosition: Double = 0.85
 

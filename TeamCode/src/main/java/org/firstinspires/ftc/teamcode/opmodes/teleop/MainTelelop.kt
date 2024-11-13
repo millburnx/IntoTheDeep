@@ -95,6 +95,16 @@ class MainTelelop : CommandOpMode() {
             )
         }
 
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+            InstantCommand(
+                {
+                    val prev = intake.open
+                    intake.toggle()
+                    println("intake $prev -> ${intake.open}")
+                }, intake
+            ),
+        )
+
         gp1.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand({ slowDriveMode = true })
         ).whenReleased(
@@ -113,9 +123,13 @@ class MainTelelop : CommandOpMode() {
             InstantCommand(arm::off)
         )
 
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.Y)
+            .whenPressed(InstantCommand({ arm.resetEncoders(); lift.resetEncoders() }))
+
         gp1.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
             .whenPressed(InstantCommand(drive.imu::resetYaw, drive))
 
+        // ---- Driver 2 ---- //
 
         gp2.gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
             InstantCommand({ slowMechMode = true })
@@ -123,17 +137,33 @@ class MainTelelop : CommandOpMode() {
             InstantCommand({ slowMechMode = false })
         )
 
-
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whileHeld(InstantCommand(intake::close, intake))
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whileHeld(InstantCommand(intake::open, intake))
         gp2.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand(
-                intake::toggle, intake
+                {
+                    val prev = intake.open
+                    intake.toggle()
+                    println("intake $prev -> ${intake.open}")
+                }, intake
             ),
         )
 
-        gp1.gamepad.getGamepadButton(GamepadKeys.Button.Y)
-            .whenPressed(InstantCommand({ arm.resetEncoders(); lift.resetEncoders() }))
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whileHeld(InstantCommand(intake::close, intake))
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whileHeld(InstantCommand(intake::open, intake))
+
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+            .whileHeld(
+                InstantCommand(
+                    { arm.on(); arm.target += if (slowMechMode) slowManualArm else manualArm },
+                    arm
+                )
+            )
+        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+            .whileHeld(
+                InstantCommand(
+                    { arm.on(); arm.target -= if (slowMechMode) slowManualArm else manualArm },
+                    arm
+                )
+            )
 
         gp2.gamepad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
             SequentialCommandGroup(
@@ -179,21 +209,6 @@ class MainTelelop : CommandOpMode() {
                 )
             )
         }
-
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-            .whileHeld(
-                InstantCommand(
-                    { arm.on(); arm.target += if (slowMechMode) slowManualArm else manualArm },
-                    arm
-                )
-            )
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-            .whileHeld(
-                InstantCommand(
-                    { arm.on(); arm.target -= if (slowMechMode) slowManualArm else manualArm },
-                    arm
-                )
-            )
 
         telem.addData("arm pos: ", arm.position)
         telem.addData("arm angle: ", arm.angle)

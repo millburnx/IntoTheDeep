@@ -11,22 +11,22 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 
 fun SpecimenUp(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
-    ArmCommand(arm, Specimen.Arm1).withTimeout(500),
-    ArmCommand(arm, Specimen.Arm3).withTimeout(500),
-    LiftCommand(lift, Specimen.Lift1).withTimeout(500),
-    LiftCommand(lift, Specimen.Lift2).withTimeout(500),
+    ArmCommand(arm, Specimen.Arm3).withTimeout(1000),
+    LiftCommand(lift, Specimen.Lift1).withTimeout(1000),
 )
 
 fun SpecimenDown(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
-    ArmCommand(arm, Specimen.Arm2).withTimeout(500),
-    LiftCommand(lift, Specimen.Lift1).withTimeout(1000),
-    InstantCommand({ intake.open() }),
+    // reg open gets stuck occasionally
+    // typically happens if driver tries to back out first instead of going to base
+    // and they don't move fully straight out
+    InstantCommand({ intake.fullOpen() }),
     WaitCommand(200),
 )
 
 fun SpecimenDown2(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
     LiftCommand(lift, 30).withTimeout(500),
     WaitCommand(300),
+    // probably not fully needed
     ArmCommand(arm, Specimen.Arm1).withTimeout(500),
     ArmCommand(arm, Specimen.Arm0_5).withTimeout(500),
     ArmCommand(arm, Specimen.Arm0).withTimeout(500),
@@ -46,6 +46,8 @@ class RelativeDrive(val drive: Drive, val power: Double) : CommandBase() {
     }
 
     override fun isFinished(): Boolean {
+        // we should add smt w/ odom to seem if we are moving at all
+        // if we are fully still for a while then we're already hitting the wall
         return false
     }
 }

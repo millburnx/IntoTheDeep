@@ -17,6 +17,8 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         hardwareMap["leftRotate"] as DcMotorEx
     }
 
+    var isOverride = false
+
     var isOn = false
 
     val rightRotate: DcMotorEx by lazy {
@@ -52,10 +54,18 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         run(telemetry)
     }
 
+    fun setPower(power: Double) {
+        leftRotate.power = -power
+        rightRotate.power = -power
+    }
+
     fun run(telemetry: Telemetry) {
+        if (isOverride) {
+            return // manual power
+        }
+
         if (!isOn) {
-            leftRotate.power = 0.0
-            rightRotate.power = 0.0
+            setPower(0.0)
             return
         }
 
@@ -76,8 +86,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
         val power = ff + clampedPid
 
-        leftRotate.power = -power
-        rightRotate.power = -power
+        setPower(power)
 
         telemetry.addData("arm power", power)
         telemetry.addData("arm pid", clampedPid)
