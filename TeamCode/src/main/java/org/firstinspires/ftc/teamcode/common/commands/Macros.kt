@@ -16,10 +16,6 @@ fun SpecimenScore1(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGrou
     LiftCommand(lift, Specimen.lift1).withTimeout(1000),
 )
 
-fun SpecimenScore2(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
-    LiftCommand(lift, Specimen.lift2).withTimeout(1000),
-)
-
 fun ReturnToBase(arm: Arm, lift: Lift): CommandGroupBase {
     return SequentialCommandGroup(
         LiftCommand(lift, Lift.base),

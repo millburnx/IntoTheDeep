@@ -12,9 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
 import org.firstinspires.ftc.teamcode.common.commands.PickupGroup
 import org.firstinspires.ftc.teamcode.common.commands.ReturnToBase
-import org.firstinspires.ftc.teamcode.common.commands.Specimen
 import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore1
-import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore2
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -107,14 +105,9 @@ class MainTelelop : CommandOpMode() {
         }
     }
     val specimenScore1 by lazy { SpecimenScore1(arm, lift, intake) }
-    val specimenScore2 by lazy { SpecimenScore2(arm, lift, intake) }
     val specimenScoreTrigger by lazy {
         RisingEdge(gp1, triangle) {
-            if (arm.target < Specimen.arm - Arm.threshold || arm.target > Specimen.arm + Arm.threshold) {
-                schedule(specimenScore1)
-            } else {
-                schedule(specimenScore2)
-            }
+            schedule(specimenScore1)
         }
     }
 
@@ -213,6 +206,20 @@ class MainTelelop : CommandOpMode() {
             schedule(
                 InstantCommand(
                     { lift.target -= gamepad2.left_trigger * if (slowMechMode) slowManualLift else manualLift },
+                    lift
+                )
+            )
+        } else if (gamepad2.right_trigger > 0.1) {
+            schedule(
+                InstantCommand(
+                    { lift.target += gamepad2.right_trigger * if (slowMechMode) slowManualLift else manualLift },
+                    lift
+                )
+            )
+        } else if (gamepad1.left_trigger > 0.1) {
+            schedule(
+                InstantCommand(
+                    { lift.target -= gamepad1.left_trigger * if (slowMechMode) slowManualLift else manualLift },
                     lift
                 )
             )
