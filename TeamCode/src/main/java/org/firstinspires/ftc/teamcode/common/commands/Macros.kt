@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.command.CommandGroupBase
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -11,10 +12,12 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 
 fun SpecimenScore1(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
     ArmCommand(arm, Specimen.arm).withTimeout(1000),
+    WaitCommand(1000),
+    LiftCommand(lift, Specimen.lift1).withTimeout(1000),
 )
 
 fun SpecimenScore2(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
-    LiftCommand(lift, Specimen.lift).withTimeout(1000),
+    LiftCommand(lift, Specimen.lift2).withTimeout(1000),
 )
 
 fun ReturnToBase(arm: Arm, lift: Lift): CommandGroupBase {
@@ -50,5 +53,8 @@ object Specimen {
     var arm: Int = 160
 
     @JvmField
-    var lift: Int = 1150
+    var lift1: Int = 1000
+
+    @JvmField
+    var lift2: Int = 1150
 }
