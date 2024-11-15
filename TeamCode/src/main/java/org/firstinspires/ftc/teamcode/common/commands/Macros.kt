@@ -12,13 +12,13 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 
 fun SpecimenScore(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
     ArmCommand(arm, Specimen.arm).withTimeout(1000),
-    WaitCommand(1000),
+    WaitCommand(Specimen.delay),
     LiftCommand(lift, Specimen.lift1).withTimeout(1000),
 )
 
 fun SampleScore(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
     ArmCommand(arm, Sample.arm).withTimeout(1000),
-    WaitCommand(1000),
+    WaitCommand(Sample.delay),
     LiftCommand(lift, Sample.lift).withTimeout(1000),
 )
 
@@ -56,6 +56,9 @@ object Sample {
 
     @JvmField
     var lift: Int = 1325
+
+    @JvmField
+    var delay: Long = 1000
 }
 
 @Config
@@ -65,4 +68,7 @@ object Specimen {
 
     @JvmField
     var lift1: Int = 1325
+
+    @JvmField
+    var delay: Long = 1000
 }

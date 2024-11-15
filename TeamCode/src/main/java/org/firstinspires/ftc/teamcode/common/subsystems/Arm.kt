@@ -27,6 +27,9 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
     val controller: PIDController = PIDController(p, i, d)
     var target: Double = 0.0
+        set(value) {
+            field = value.coerceAtMost(max)
+        }
 
     val position: Double
         get() = rightRotate.currentPosition + starting_ticks
@@ -69,6 +72,12 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
             return
         }
 
+        if (position > max) {
+            // MOVE THE ARM DOWN
+            setPower(-kCos / 2)
+            return
+        }
+
         val newP = p + p * (liftPosition() * slidePMulti); // p + mp
         controller.setPID(newP, i, d)
         val modifier = if (target < position) {
@@ -89,7 +98,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
 
         val pid = controller.calculate(position.toDouble(), target.toDouble()) * modifier
-        val maxPossiblePower = (1 - abs(ff)).coerceIn(0.0, maxPid)
+        val maxPossiblePower = (1 - abs(ff)).coerceIn(0.0, maxPid * slidePMulti)
         val clampedPid = pid.coerceIn(-(maxPossiblePower), maxPossiblePower)
 
         val power = ff + clampedPid
@@ -136,9 +145,6 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var base: Int = 30
 
         @JvmField
-        var lowBasket: Int = 110
-
-        @JvmField
         var ticks_in_degree: Double = 160.0 / 90.0
 
         @JvmField
@@ -170,5 +176,8 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
         @JvmField
         var maxPid: Double = 0.2
+
+        @JvmField
+        var max: Double = 160.0
     }
 }
