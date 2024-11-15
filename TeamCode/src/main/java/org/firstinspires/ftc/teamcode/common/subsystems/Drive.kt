@@ -12,8 +12,8 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.IMU
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
-import org.firstinspires.ftc.teamcode.common.utils.PoseColor
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
+import org.firstinspires.ftc.teamcode.common.utils.TelemetryPose
 import org.firstinspires.ftc.teamcode.rr.drive.SampleMecanumDrive
 import kotlin.math.abs
 import kotlin.math.cos
@@ -124,7 +124,7 @@ class Drive(
         rrDrive.updatePoseEstimate()
         telemetry.drawField(
             listOf(
-                PoseColor(
+                TelemetryPose(
                     rrDrive.pose, "#0000ff"
                 )
             ), dashboard

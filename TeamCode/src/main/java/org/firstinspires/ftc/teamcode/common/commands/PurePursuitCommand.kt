@@ -111,7 +111,7 @@ class PurePursuitCommand(
         timer.reset()
         packet.put("general/loop_time (ms)", delta)
         packet.put("general/avg_loop_time (ms)", fullDelta)
-        Telemetry.drawRobot(packet.fieldOverlay(), pose, "#0000ff")
+        Telemetry.drawRobot(packet.fieldOverlay(), pose, "#0000ff", purePursuit.currentLookahead / 2.0)
         dash.sendTelemetryPacket(packet)
     }
 

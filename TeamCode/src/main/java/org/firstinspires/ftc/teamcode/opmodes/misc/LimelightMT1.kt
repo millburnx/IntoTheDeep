@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.Limelight
-import org.firstinspires.ftc.teamcode.common.utils.PoseColor
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
+import org.firstinspires.ftc.teamcode.common.utils.TelemetryPose
 
 @Disabled
 @TeleOp(name = "Mega Tag 1", group = "Misc")
@@ -34,10 +34,10 @@ class LimelightMT1() : CommandOpMode() {
         val turn = gamepad1.right_stick_x.toDouble();
         drive.robotCentric(power, strafe, turn);
 
-        val poses = mutableListOf<PoseColor>()
+        val poses = mutableListOf<TelemetryPose>()
 
         val odom = drive.pose
-        poses.add(PoseColor(odom, "#0000ff"))
+        poses.add(TelemetryPose(odom, "#0000ff"))
         val result = limelight.getResults()
         if (result != null) {
             val pose = result.botpose
@@ -46,7 +46,7 @@ class LimelightMT1() : CommandOpMode() {
             FtcDashboard.getInstance().telemetry.addData("ty", result.ty * mtoin)
             FtcDashboard.getInstance().telemetry.update()
             poses.add(
-                PoseColor(
+                TelemetryPose(
                     Pose2d(
                         -pose.position.y * mtoin,
                         pose.position.x * mtoin,

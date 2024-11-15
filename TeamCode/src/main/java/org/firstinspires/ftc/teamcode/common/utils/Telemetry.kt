@@ -13,7 +13,7 @@ class Telemetry {
     var telemetry: MultipleTelemetry? = null
 
     //draw all the robots on the field and send to the dashboard
-    fun drawField(poses: List<PoseColor>, dash: FtcDashboard) {
+    fun drawField(poses: List<TelemetryPose>, dash: FtcDashboard) {
         val packet = TelemetryPacket()
         val fieldOverlay = packet.fieldOverlay()
 
@@ -26,21 +26,21 @@ class Telemetry {
 //        packet.put("y", pose.getY());
 //        packet.put("heading (deg)", Math.toDegrees(pose.getHeading()));
         for (i in poses.indices) {
-            val pose = poses.get(i)!!.pose
-            drawRobot(fieldOverlay, pose, poses.get(i)!!.color)
-            packet.put(i.toString() + " | x", pose.getX())
-            packet.put(i.toString() + " | y", pose.getY())
-            packet.put(i.toString() + " | heading (deg)", Math.toDegrees(pose.getHeading()))
+            val robot = poses[i]
+            drawRobot(fieldOverlay, robot.pose, robot.color, robot.size ?: 9.0)
+            packet.put("$i | x", robot.pose.x)
+            packet.put("$i | y", robot.pose.y)
+            packet.put("$i | heading (deg)", Math.toDegrees(robot.pose.heading))
         }
 
         dash.sendTelemetryPacket(packet)
     }
 
     companion object {
-        fun drawRobot(canvas: Canvas, pose: Pose2d, color: String?) {
+        fun drawRobot(canvas: Canvas, pose: Pose2d, color: String?, size: Double = 9.0) {
             canvas.setStroke(color)
             val transformed: Pose2d = toRR(pose)
-            canvas.strokeCircle(transformed.x, transformed.y, 9.0)
+            canvas.strokeCircle(transformed.x, transformed.y, size)
             val lookVector = Vec2d(9, 0).rotate(pose.heading).toRR()
             val lookPoint = Vec2d(transformed.x, transformed.y).plus(lookVector)
             canvas.strokeLine(transformed.x, transformed.y, lookPoint.x, lookPoint.y)
