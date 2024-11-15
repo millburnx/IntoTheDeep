@@ -7,11 +7,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.PtzControl
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBalanceControl
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleColor
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
+import java.util.concurrent.TimeUnit
 
 @Config
 @TeleOp(name = "Camera Debugger", group = "Misc")
@@ -30,11 +32,13 @@ class CameraDebugger : CommandOpMode() {
         visionPortal.visionPortal.setProcessorEnabled(samplePipeline, enableSpecimens)
 
         val exposure = visionPortal.visionPortal.getCameraControl(ExposureControl::class.java)
+        val gain = visionPortal.visionPortal.getCameraControl(GainControl::class.java)
         val whiteBalance = visionPortal.visionPortal.getCameraControl(WhiteBalanceControl::class.java)
         val focus = visionPortal.visionPortal.getCameraControl(FocusControl::class.java)
         val panTilt = visionPortal.visionPortal.getCameraControl(PtzControl::class.java)
 
-//        tel.clear()
+        tel.addData("Exposure Set", exposure.setExposure(exposureTime, TimeUnit.MILLISECONDS))
+        tel.addData("Exposure Set", gain.setGain(CameraDebugger.gain))
 
         tel.addData("Exposure Support", exposure.isExposureSupported)
         for (exposureMode in ExposureControl.Mode.entries) {
@@ -64,5 +68,11 @@ class CameraDebugger : CommandOpMode() {
     companion object {
         @JvmField
         var enableSpecimens: Boolean = false
+
+        @JvmField
+        var exposureTime: Long = 100
+
+        @JvmField
+        var gain: Int = 0
     }
 }
