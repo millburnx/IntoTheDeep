@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
 import org.firstinspires.ftc.teamcode.common.commands.PickupGroup
 import org.firstinspires.ftc.teamcode.common.commands.ReturnToBase
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
+import org.firstinspires.ftc.teamcode.common.subsystems.Park
 import org.firstinspires.ftc.teamcode.common.subsystems.misc.DeltaTime
 import org.firstinspires.ftc.teamcode.common.subsystems.misc.RisingEdge
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.ClipPipeline
@@ -149,6 +151,9 @@ class MainTelelop : CommandOpMode() {
             schedule(intakeToggle2)
         }
     }
+    val parkServo: Servo by lazy {
+        hardwareMap["parkServo"] as Servo
+    }
 
     override fun initialize() {
         drive.defaultCommand =
@@ -200,10 +205,7 @@ class MainTelelop : CommandOpMode() {
 
         schedule(InstantCommand(intake::open, intake))
         schedule(ReturnToBase(arm, lift))
-    }
-
-    override fun run() {
-        super.run()
+        schedule(InstantCommand({parkServo.position = 1.0}))
 
         if (abs(gp2.gamepad.leftX) > 0.1 || abs(gp2.gamepad.leftY) > 0.1 || abs(gp2.gamepad.rightX) > 0.1) {
             schedule(

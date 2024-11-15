@@ -61,7 +61,7 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
         val targetInches = ticksToInches(target)
         val clampedTarget = if (!useExtensionLimit) targetInches else min(maxLiftDistance, targetInches)
         val clampedTargetTicks = inchesToTicks(clampedTarget)
-        val pid = controller.calculate(position.toDouble(), clampedTargetTicks.toDouble())
+        val pid = controller.calculate(position.toDouble(), clampedTargetTicks).coerceIn(-maxP, maxP)
         val ff = sin(armAngle()) * f
 
         val power = pid + ff
@@ -85,13 +85,7 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
         var base = 30;
 
         @JvmField
-        var pickup = 500;
-
-        @JvmField
-        var lowBasket = 1150;
-
-        @JvmField
-        var highBasket = 1150;
+        var maxP: Double = 0.8
 
         @JvmField
         var useExtensionLimit = false // enable after tuned

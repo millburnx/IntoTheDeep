@@ -14,7 +14,7 @@ object ServoTestConfig {
 @TeleOp(name = "Servo Test", group = "Tuning")
 class ServoTest : CommandOpMode() {
     val servo: Servo by lazy {
-        hardwareMap["Intake"] as Servo
+        hardwareMap["parkServo"] as Servo
     }
 
     override fun initialize() {

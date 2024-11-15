@@ -8,7 +8,9 @@ import com.arcrobotics.ftclib.geometry.Pose2d
 import com.millburnx.utils.Vec2d
 
 
-class Telemetry(val telemetry: MultipleTelemetry? = null) {
+class Telemetry {
+    var pos: Pose2d? = null
+    var telemetry: MultipleTelemetry? = null
 
     //draw all the robots on the field and send to the dashboard
     fun drawField(poses: List<TelemetryPose>, dash: FtcDashboard) {
@@ -18,6 +20,11 @@ class Telemetry(val telemetry: MultipleTelemetry? = null) {
         fieldOverlay.setStrokeWidth(1)
         fieldOverlay.setStroke("#3F51B5")
 
+        //        drawRobot(fieldOverlay, pose, "#0000ff");
+//
+//        packet.put("x", pose.getX());
+//        packet.put("y", pose.getY());
+//        packet.put("heading (deg)", Math.toDegrees(pose.getHeading()));
         for (i in poses.indices) {
             val robot = poses[i]
             drawRobot(fieldOverlay, robot.pose, robot.color, robot.size ?: 9.0)

@@ -87,7 +87,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         }
 
         val finalKCos = kCos + kCos * (liftPosition() * slideKCosMulti) // f + mf
-        val ffAngle = if (realtimeFF) angle else (target.toDouble() / ticks_in_degree)
+        val ffAngle = if (realtimeFF) angle else (target / ticks_in_degree)
 
         // ff gets slow around 45 so we increase
         val extraFF = kTF / (abs(angle - kTFAngle) + 1)
@@ -97,8 +97,8 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         ) * finalKCos
 
 
-        val pid = controller.calculate(position.toDouble(), target.toDouble()) * modifier
-        val maxPossiblePower = (1 - abs(ff)).coerceIn(0.0, maxPid * slidePMulti)
+        val pid = controller.calculate(position, target) * modifier
+        val maxPossiblePower = (1 - abs(ff)).coerceIn(0.0, maxPid + maxPid * slidePMulti)
         val clampedPid = pid.coerceIn(-(maxPossiblePower), maxPossiblePower)
 
         val power = ff + clampedPid
@@ -108,7 +108,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         telemetry.addData("arm power", power)
         telemetry.addData("arm pid", clampedPid)
         telemetry.addData("arm ff", ff)
-        telemetry.addData("arm error", target.toDouble() - position)
+        telemetry.addData("arm error", target - position)
     }
 
     fun off() {
