@@ -12,7 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
 import org.firstinspires.ftc.teamcode.common.commands.PickupGroup
 import org.firstinspires.ftc.teamcode.common.commands.ReturnToBase
-import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore1
+import org.firstinspires.ftc.teamcode.common.commands.SampleScore
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -104,7 +105,13 @@ class MainTelelop : CommandOpMode() {
             schedule(specimenPickup)
         }
     }
-    val specimenScore1 by lazy { SpecimenScore1(arm, lift, intake) }
+    val sampleScore by lazy { SampleScore(arm, lift, intake) }
+    val sampleScoreTrigger by lazy {
+        RisingEdge(gp1, cross) {
+            schedule(sampleScore)
+        }
+    }
+    val specimenScore1 by lazy { SpecimenScore(arm, lift, intake) }
     val specimenScoreTrigger by lazy {
         RisingEdge(gp1, triangle) {
             schedule(specimenScore1)
@@ -159,6 +166,7 @@ class MainTelelop : CommandOpMode() {
 
         samplePickupTrigger
         specimenPickupTrigger
+        sampleScoreTrigger
         specimenScoreTrigger
         returnToBaseTrigger
         intakeToggleTrigger
@@ -190,7 +198,8 @@ class MainTelelop : CommandOpMode() {
                 )
             )
 
-        schedule(InstantCommand(intake::open))
+        schedule(InstantCommand(intake::open, intake))
+        schedule(ReturnToBase(arm, lift))
     }
 
     override fun run() {
@@ -223,10 +232,10 @@ class MainTelelop : CommandOpMode() {
                     lift
                 )
             )
-        } else if (gamepad2.right_trigger > 0.1) {
+        } else if (gamepad1.right_trigger > 0.1) {
             schedule(
                 InstantCommand(
-                    { lift.target += gamepad2.right_trigger * if (slowMechMode) slowManualLift else manualLift },
+                    { lift.target += gamepad1.right_trigger * if (slowMechMode) slowManualLift else manualLift },
                     lift
                 )
             )

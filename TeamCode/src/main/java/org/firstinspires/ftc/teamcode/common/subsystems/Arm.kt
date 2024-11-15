@@ -112,7 +112,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
 
     companion object {
         @JvmField
-        var p: Double = 0.01
+        var p: Double = 0.015
 
         @JvmField
         var i: Double = 0.0
@@ -121,16 +121,16 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var d: Double = 0.0
 
         @JvmField
-        var kG: Double = 0.205
+        var kG: Double = 0.29
 
         @JvmField
-        var kCos: Double = 0.0
+        var kCos: Double = -0.1
 
         @JvmField
         var kTFAngle: Double = 50.0
 
         @JvmField
-        var kTF: Double = 0.15
+        var kTF: Double = 0.0
 
         @JvmField
         var base: Int = 30

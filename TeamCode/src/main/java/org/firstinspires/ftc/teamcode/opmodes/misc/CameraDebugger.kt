@@ -34,7 +34,7 @@ class CameraDebugger : CommandOpMode() {
         val focus = visionPortal.visionPortal.getCameraControl(FocusControl::class.java)
         val panTilt = visionPortal.visionPortal.getCameraControl(PtzControl::class.java)
 
-        tel.clear()
+//        tel.clear()
 
         tel.addData("Exposure Support", exposure.isExposureSupported)
         for (exposureMode in ExposureControl.Mode.entries) {

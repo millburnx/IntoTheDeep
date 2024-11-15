@@ -23,8 +23,6 @@ import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kp
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kpRot
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.maxRotation
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.maxSpeed
-import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.offsetX
-import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.offsetY
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.strafeMulti
 import kotlin.math.abs
 import kotlin.math.sign
@@ -36,6 +34,7 @@ open class PickupCommand(
     val cameraSize: Vec2d,
     val getSamples: () -> List<Detection>,
     val isClip: Boolean = false,
+    val offset: Vec2d = Vec2d(0.0, 0.0),
 ) :
     CommandBase() {
     val xPID: PIDController by lazy { PIDController(kp, ki, kd) }
@@ -58,7 +57,6 @@ open class PickupCommand(
         val targetSample = samples.maxByOrNull { sample -> sample.boundingBox.area }
 
         if (targetSample != null) {
-            val offset = Vec2d(offsetX, offsetY)
             val cameraCenter = (cameraSize / 2).flip()
             val targetCenter = cameraCenter * (offset + 1)
             val sampleCenter = targetSample.pos.flip()
@@ -92,7 +90,6 @@ open class PickupCommand(
         if (targetSample == null) return false
         val tolerance = Vec2d(1 * strafeMulti, 1.0) * if (isClip) tolClip else tol
 
-        val offset = Vec2d(offsetX, offsetY)
         val cameraCenter = (cameraSize / 2).flip()
         val targetCenter = cameraCenter * (offset + 1)
         val sampleCenter = targetSample.pos.flip()
@@ -113,16 +110,16 @@ open class PickupCommand(
 
     companion object {
         @JvmField
-        var tol = 10
+        var tol = 20
 
         @JvmField
         var tolClip = 10
 
         @JvmField
-        var tolH = 0.05
+        var tolH = 10
 
         @JvmField
-        var tolHClip = 0.05
+        var tolHClip = 2
 
         @JvmField
         var visionArm: Int = 70
@@ -134,7 +131,13 @@ open class PickupCommand(
         var clipOffset = 0
 
         @JvmField
-        var clipPostOffset = 50
+        var sampleOffset = 0
+
+        @JvmField
+        var clipPostOffset = 100
+
+        @JvmField
+        var samplePostOffset = 0
 
         @JvmField
         var closeDelay: Long = 250
@@ -156,6 +159,24 @@ open class PickupCommand(
 
         @JvmField
         var armUpDuration: Long = 500
+
+        @JvmField
+        var clipOffsetX: Double = 0.0
+
+        @JvmField
+        var clipOffsetY: Double = 0.0
+
+        @JvmField
+        var sampleOffsetX: Double = 0.0
+
+        @JvmField
+        var sampleOffsetY: Double = -0.4
+
+        @JvmField
+        var postClose: Long = 200
+
+        @JvmField
+        var duration: Long = 4000
     }
 }
 
@@ -170,12 +191,24 @@ fun PickupGroup(
 ): CommandGroupBase {
     return SequentialCommandGroup(
         ParallelCommandGroup(
-            LiftCommand(lift, Lift.base + if (isClip) PickupCommand.clipOffset else 0),
+            LiftCommand(lift, Lift.base + if (isClip) PickupCommand.clipOffset else PickupCommand.sampleOffset),
             ArmCommand(arm, PickupCommand.visionArm).withTimeout(PickupCommand.armUpDuration),
             InstantCommand(intake::open, intake),
         ),
-        PickupCommand(drive, cameraSize, samples, isClip),
-        if (isClip) LiftCommand(lift, Lift.base + PickupCommand.clipPostOffset) else InstantCommand({}),
+        PickupCommand(
+            drive,
+            cameraSize,
+            samples,
+            isClip,
+            if (isClip) Vec2d(
+                PickupCommand.clipOffsetX,
+                PickupCommand.clipOffsetY
+            ) else Vec2d(PickupCommand.sampleOffsetX, PickupCommand.sampleOffsetY)
+        ).withTimeout(PickupCommand.duration),
+        if (isClip) LiftCommand(lift, Lift.base + PickupCommand.clipPostOffset) else LiftCommand(
+            lift,
+            Lift.base + PickupCommand.samplePostOffset
+        ),
         SequentialCommandGroup(InstantCommand({
             arm.isOverride = true; arm.setPower(PickupCommand.clipLower)
         }), WaitCommand(PickupCommand.lowerDuration)),
@@ -186,7 +219,7 @@ fun PickupGroup(
         }), WaitCommand(PickupCommand.clipDelay)) else InstantCommand({}),
         WaitCommand(PickupCommand.closeDelay),
         InstantCommand(intake::close, intake),
-        WaitCommand(100),
+        WaitCommand(PickupCommand.postClose),
         // re-enable arm
         if (isClip) InstantCommand({
             arm.isOverride = false; arm.setPower(0.0)

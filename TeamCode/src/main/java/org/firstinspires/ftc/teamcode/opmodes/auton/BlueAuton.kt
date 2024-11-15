@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.commands.PIDCommand
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.RelativeDrive
-import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore1
+import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -122,7 +122,7 @@ class BlueAuton : CommandOpMode() {
         commands.add(purePursuitSegment(loadSegment(0)).withTimeout(2000))
         commands.add(WaitCommand(100))
 
-        commands.add(SpecimenScore1(arm, lift, intake))
+        commands.add(SpecimenScore(arm, lift, intake))
         commands.add(RelativeDrive(drive, AutonConfig.barPower).withTimeout(1000))
         commands.add(WaitCommand(200))
 //        commands.add(SpecimenDown(arm, lift, intake))

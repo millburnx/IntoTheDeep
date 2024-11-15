@@ -10,10 +10,16 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 
-fun SpecimenScore1(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
+fun SpecimenScore(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
     ArmCommand(arm, Specimen.arm).withTimeout(1000),
     WaitCommand(1000),
     LiftCommand(lift, Specimen.lift1).withTimeout(1000),
+)
+
+fun SampleScore(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
+    ArmCommand(arm, Sample.arm).withTimeout(1000),
+    WaitCommand(1000),
+    LiftCommand(lift, Sample.lift).withTimeout(1000),
 )
 
 fun ReturnToBase(arm: Arm, lift: Lift): CommandGroupBase {
@@ -44,13 +50,19 @@ class RelativeDrive(val drive: Drive, val power: Double) : CommandBase() {
 }
 
 @Config
+object Sample {
+    @JvmField
+    var arm: Int = 140
+
+    @JvmField
+    var lift: Int = 1325
+}
+
+@Config
 object Specimen {
     @JvmField
-    var arm: Int = 160
+    var arm: Int = 115
 
     @JvmField
-    var lift1: Int = 1000
-
-    @JvmField
-    var lift2: Int = 1150
+    var lift1: Int = 1325
 }
