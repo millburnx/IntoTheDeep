@@ -27,6 +27,7 @@ class PurePursuitCommand(
     val pidY: PIDController = PIDController(0.0, 0.0, 0.0),
     val pidH: APIDController = APIDController(0.0, 0.0, 0.0),
     val lookahead: ClosedFloatingPointRange<Double> = 8.0..16.0,
+    val headingIndependent: Boolean = false,
 ) : CommandBase() {
     companion object {
         @JvmField
@@ -70,7 +71,7 @@ class PurePursuitCommand(
             packet.put("pure_pursuit/power_forward", 0.0)
             packet.put("pure_pursuit/power_heading", 0.0)
             drive.robotCentric(0.0, 0.0, 0.0);
-        } else if (endingHeading != null && calcResults.target.distanceTo(position) < lookahead.start) {
+        } else if (headingIndependent || endingHeading != null && calcResults.target.distanceTo(position) < lookahead.start) {
             println("PID")
             // pid finishing move
             if (!lastEndingState) {
@@ -84,7 +85,7 @@ class PurePursuitCommand(
             val finalX = if (useSquidTranslation) sqrt(abs(powerX)) * sign(powerX) else powerX
             val powerY = -pidY.calculate(position.y, targetPoint.y)
             val finalY = if (useSquidTranslation) sqrt(abs(powerY)) * sign(powerY) else powerY
-            val powerH = -pidH.calculate(Math.toDegrees(heading), endingHeading)
+            val powerH = -pidH.calculate(Math.toDegrees(heading), endingHeading ?: heading)
             val finalH = if (useSquidRotation) sqrt(abs(powerH)) * sign(powerH) else powerH
             packet.put("pure_pursuit/power_x", finalX)
             packet.put("pure_pursuit/power_y", finalY)
@@ -92,6 +93,7 @@ class PurePursuitCommand(
             drive.fieldCentric(finalX, finalY, finalH, pose.heading)
         } else {
             val targetPoint = calcResults.target
+
             val powerF = position.distanceTo(targetPoint)
             val angleDiff = Util.getAngleDiff((position to heading), targetPoint)
             val powerH = Math.toDegrees(angleDiff)
