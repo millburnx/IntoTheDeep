@@ -205,7 +205,11 @@ class MainTelelop : CommandOpMode() {
 
         schedule(InstantCommand(intake::open, intake))
         schedule(ReturnToBase(arm, lift))
-        schedule(InstantCommand({parkServo.position = 1.0}))
+        schedule(InstantCommand({ parkServo.position = 1.0 }))
+    }
+
+    override fun run() {
+        super.run()
 
         if (abs(gp2.gamepad.leftX) > 0.1 || abs(gp2.gamepad.leftY) > 0.1 || abs(gp2.gamepad.rightX) > 0.1) {
             schedule(

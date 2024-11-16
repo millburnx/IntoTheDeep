@@ -18,9 +18,12 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
         hardwareMap["slides"] as DcMotorEx
     }
 
+    var isOverride = false
+
     fun resetEncoders() {
         lift.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         lift.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
         lift.direction = DcMotorSimple.Direction.REVERSE
     }
 
@@ -28,6 +31,9 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
     val position: Int
         get() = lift.currentPosition
     var target: Double = 50.0
+        set(value) {
+            field = value.coerceAtLeast(10.0)
+        }
 
     fun ticksToInches(ticks: Double): Double {
         return 0.0102 * ticks + 17.1
@@ -57,14 +63,28 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
     }
 
     fun run() {
+        if (isOverride) {
+            if (lift.currentPosition < 10) {
+                // DONT DEFORM STRING
+                lift.power = 0.0
+            }
+            return // manual power
+        }
+
         controller.setPID(p, i, d)
         val targetInches = ticksToInches(target)
-        val clampedTarget = if (!useExtensionLimit) targetInches else min(maxLiftDistance, targetInches)
+        val clampedTarget =
+            if (!useExtensionLimit) targetInches else min(maxLiftDistance, targetInches)
         val clampedTargetTicks = inchesToTicks(clampedTarget)
-        val pid = controller.calculate(position.toDouble(), clampedTargetTicks).coerceIn(-maxP, maxP)
+        val pid =
+            controller.calculate(position.toDouble(), clampedTargetTicks).coerceIn(-maxP, maxP)
         val ff = sin(armAngle()) * f
 
         val power = pid + ff
+        setPower(power)
+    }
+
+    fun setPower(power: Double) {
         lift.power = power
     }
 
@@ -82,7 +102,7 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
         var f: Double = 0.0
 
         @JvmField
-        var base = 30;
+        var base: Double = 30.0;
 
         @JvmField
         var maxP: Double = 0.8

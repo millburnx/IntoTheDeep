@@ -22,7 +22,13 @@ import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 @TeleOp(name = "CameraPickup", group = "Tuning")
 class CameraPickup : CommandOpMode() {
     val samplePipeline: SamplePipeline by lazy { SamplePipeline() }
-    val visionPortal: VisionPortal by lazy { VisionPortal(hardwareMap, "camera1", listOf(samplePipeline)) }
+    val visionPortal: VisionPortal by lazy {
+        VisionPortal(
+            hardwareMap,
+            "camera1",
+            listOf(samplePipeline)
+        )
+    }
     val tel: Telemetry = FtcDashboard.getInstance().telemetry
     val drive: Drive
             by lazy {
@@ -40,7 +46,8 @@ class CameraPickup : CommandOpMode() {
     override fun initialize() {
         visionPortal
         FtcDashboard.getInstance().startCameraStream(samplePipeline, 0.0)
-        schedule(object : PickupCommand(drive, visionPortal.cameraSize, samplePipeline.detections::get) {
+        schedule(object :
+            PickupCommand(drive, visionPortal.cameraSize, samplePipeline.detections::get) {
             override fun isFinished(): Boolean {
                 return false
             }
@@ -93,7 +100,7 @@ class CameraPickup : CommandOpMode() {
         var armThres: Int = 30
 
         @JvmField
-        var liftTarget: Int = Lift.base
+        var liftTarget: Double = Lift.base
 
         @JvmField
         var maxSpeed = 0.3

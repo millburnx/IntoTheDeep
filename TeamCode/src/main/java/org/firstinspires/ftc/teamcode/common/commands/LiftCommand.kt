@@ -4,7 +4,7 @@ import com.arcrobotics.ftclib.command.CommandBase
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 import kotlin.math.abs
 
-class LiftCommand(val lift: Lift, val target: Int, val threshold: Int = 50) : CommandBase() {
+class LiftCommand(val lift: Lift, val target: Double, val threshold: Int = 50) : CommandBase() {
     init {
         addRequirements(lift)
     }
@@ -14,7 +14,7 @@ class LiftCommand(val lift: Lift, val target: Int, val threshold: Int = 50) : Co
 
 
     override fun execute() {
-        lift.target = target.toDouble()
+        lift.target = target
         // no need to call .run() since lift will already manage running
     }
 

@@ -51,7 +51,12 @@ class TeleopBeta : CommandOpMode() {
         } else {
             val heading = drive.imuHeading
             tel.addData("heading (imu)", Math.toDegrees(heading))
-            drive.fieldCentric(gp1.leftStick.x, -gp1.leftStick.y, gp1.rightStick.x, heading + Math.toRadians(90.0))
+            drive.fieldCentric(
+                gp1.leftStick.x,
+                -gp1.leftStick.y,
+                gp1.rightStick.x,
+                heading + Math.toRadians(90.0)
+            )
         }
 
         tel.addData("leftStick: ", gp1.leftStick)
@@ -76,6 +81,6 @@ class TeleopBeta : CommandOpMode() {
         var armTarget: Int = 15
 
         @JvmField
-        var liftTarget: Int = 30
+        var liftTarget: Double = 30.0
     }
 }

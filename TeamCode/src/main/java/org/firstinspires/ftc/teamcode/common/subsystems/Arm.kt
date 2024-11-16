@@ -12,7 +12,8 @@ import kotlin.math.abs
 import kotlin.math.cos
 
 @Config
-class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: () -> Int) : SubsystemBase() {
+class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: () -> Int) :
+    SubsystemBase() {
     val leftRotate: DcMotorEx by lazy {
         hardwareMap["leftRotate"] as DcMotorEx
     }
@@ -92,9 +93,10 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         // ff gets slow around 45 so we increase
         val extraFF = kTF / (abs(angle - kTFAngle) + 1)
 
-        val ff = extraFF + extraFF * (liftPosition() * slideKTFMulti) + kG + kG * (liftPosition() * slideKGMulti) + cos(
-            Math.toRadians(ffAngle)
-        ) * finalKCos
+        val ff =
+            extraFF + extraFF * (liftPosition() * slideKTFMulti) + kG + kG * (liftPosition() * slideKGMulti) + cos(
+                Math.toRadians(ffAngle)
+            ) * finalKCos
 
 
         val pid = controller.calculate(position, target) * modifier
@@ -130,7 +132,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var d: Double = 0.0
 
         @JvmField
-        var kG: Double = 0.29
+        var kG: Double = 0.3125
 
         @JvmField
         var kCos: Double = -0.1
@@ -175,7 +177,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         var threshold: Int = 10
 
         @JvmField
-        var maxPid: Double = 0.2
+        var maxPid: Double = 0.225
 
         @JvmField
         var max: Double = 160.0
