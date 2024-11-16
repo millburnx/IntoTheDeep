@@ -12,8 +12,13 @@ import kotlin.math.abs
 import kotlin.math.cos
 
 @Config
-class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: () -> Int) :
-    SubsystemBase() {
+class Arm(
+    hardwareMap: HardwareMap,
+    val telemetry: Telemetry,
+    val liftPosition: () -> Int,
+    val startingOffset: Double = starting_ticks
+) : SubsystemBase() {
+
     val leftRotate: DcMotorEx by lazy {
         hardwareMap["leftRotate"] as DcMotorEx
     }
@@ -33,7 +38,7 @@ class Arm(hardwareMap: HardwareMap, val telemetry: Telemetry, val liftPosition: 
         }
 
     val position: Double
-        get() = rightRotate.currentPosition + starting_ticks
+        get() = rightRotate.currentPosition + startingOffset
 
     val angle: Double
         get() = position / ticks_in_degree

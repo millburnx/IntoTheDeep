@@ -13,7 +13,7 @@ import kotlin.math.min
 import kotlin.math.sin
 
 @Config
-class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : SubsystemBase() {
+class Lift(hardwareMap: HardwareMap, val starting: Int = 0, var armAngle: () -> Double = { 90.0 }) : SubsystemBase() {
     val lift: DcMotorEx by lazy {
         hardwareMap["slides"] as DcMotorEx
     }
@@ -29,7 +29,7 @@ class Lift(hardwareMap: HardwareMap, var armAngle: () -> Double = { 90.0 }) : Su
 
     val controller: PIDController = PIDController(p, i, d)
     val position: Int
-        get() = lift.currentPosition
+        get() = lift.currentPosition + starting
     var target: Double = 50.0
         set(value) {
             field = value.coerceAtLeast(10.0)

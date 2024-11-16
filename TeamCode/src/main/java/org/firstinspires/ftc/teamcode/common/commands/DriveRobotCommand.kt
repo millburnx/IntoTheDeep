@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.common.commands
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.utils.GamepadSRL
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTelelop.Companion.fieldCentric
@@ -17,7 +16,7 @@ import kotlin.math.sqrt
 class DriveRobotCommand(
     val drive: Drive,
     val gamepad: GamepadSRL,
-    val telemetry: Telemetry,
+    val telemetry: Telemetry?,
     val isSlowMode: () -> Boolean,
     val cubic: () -> Boolean
 ) : CommandBase() {
@@ -38,9 +37,9 @@ class DriveRobotCommand(
         if (!fieldCentric) {
             drive.robotCentric(power, strafe, turn)
         } else {
-            val heading = drive.imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
-            telemetry.addData("heading (imu)", Math.toDegrees(heading))
-            drive.fieldCentric(strafe, -power, turn, heading + Math.toRadians(Drive.Companion.startingH + 90.0))
+            val heading = drive.imuHeading
+            telemetry?.addData("heading (imu)", Math.toDegrees(heading))
+            drive.fieldCentric(strafe, -power, turn, heading + Math.toRadians(90.0), tel = telemetry)
         }
     }
 

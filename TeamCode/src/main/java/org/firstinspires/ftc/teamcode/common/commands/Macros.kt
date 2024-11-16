@@ -52,10 +52,10 @@ class RelativeDrive(val drive: Drive, val power: Double) : CommandBase() {
 @Config
 object Sample {
     @JvmField
-    var arm: Int = 140
+    var arm: Int = 115
 
     @JvmField
-    var lift: Double = 1325.0
+    var lift: Double = 1400.0
 
     @JvmField
     var delay: Long = 1000

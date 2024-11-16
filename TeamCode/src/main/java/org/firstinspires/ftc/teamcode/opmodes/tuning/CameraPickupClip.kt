@@ -35,7 +35,7 @@ class CameraPickupClip : CommandOpMode() {
             }
 
     val lift: Lift by lazy { Lift(hardwareMap) { 0.0 } }
-    val arm: Arm by lazy { Arm(hardwareMap, tel) { 0 } }
+    val arm: Arm by lazy { Arm(hardwareMap, tel, { 0 }) }
     val xPID: PIDEx = PIDEx(PIDCoefficientsEx(kp, ki, kd, kSum, kStab, 0.3))
     val yPID: PIDEx = PIDEx(PIDCoefficientsEx(kp, ki, kd, kSum, kStab, 0.3))
     val rPID: PIDEx = PIDEx(PIDCoefficientsEx(kpRot, kiRot, kdRot, 0.25 / kiRot, 0.1, 0.3))

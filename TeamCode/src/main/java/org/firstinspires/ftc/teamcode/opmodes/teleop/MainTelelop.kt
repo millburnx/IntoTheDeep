@@ -15,11 +15,12 @@ import org.firstinspires.ftc.teamcode.common.commands.PickupGroup
 import org.firstinspires.ftc.teamcode.common.commands.ReturnToBase
 import org.firstinspires.ftc.teamcode.common.commands.SampleScore
 import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore
+import org.firstinspires.ftc.teamcode.common.commands.SubmersibleGroup
+import org.firstinspires.ftc.teamcode.common.commands.SummersibleEnter
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
-import org.firstinspires.ftc.teamcode.common.subsystems.Park
 import org.firstinspires.ftc.teamcode.common.subsystems.misc.DeltaTime
 import org.firstinspires.ftc.teamcode.common.subsystems.misc.RisingEdge
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.ClipPipeline
@@ -45,7 +46,7 @@ class MainTelelop : CommandOpMode() {
         )
     }
     val drive: Drive by lazy {
-        Drive(hardwareMap, tel, dash)
+        Drive(hardwareMap, tel, dash, startingH = startingHeading)
     }
     val deltaTime: DeltaTime = DeltaTime()
     val gp1: GamepadSRL by lazy {
@@ -55,10 +56,10 @@ class MainTelelop : CommandOpMode() {
         GamepadSRL(GamepadEx(gamepad2), TeleopBeta.maxLeftRate, TeleopBeta.maxRightRate, deltaTime)
     }
     val arm: Arm by lazy {
-        Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition)
+        Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition, startingArm)
     }
     val lift: Lift by lazy {
-        Lift(hardwareMap)
+        Lift(hardwareMap, startingLift)
     }
     val intake: Intake by lazy {
         Intake(hardwareMap)
@@ -119,6 +120,38 @@ class MainTelelop : CommandOpMode() {
             schedule(specimenScore1)
         }
     }
+    val submersibleEnter by lazy {
+        SummersibleEnter(
+            drive,
+            arm,
+            lift,
+            intake,
+            visionPortal.cameraSize,
+            samplePipeline.detections::get,
+            telem
+        )
+    }
+    val submersibleEnterTrigger by lazy {
+        RisingEdge(gp1, GamepadKeys.Button.DPAD_UP) {
+            schedule(submersibleEnter)
+        }
+    }
+    val submersibleScore by lazy {
+        SubmersibleGroup(
+            drive,
+            arm,
+            lift,
+            intake,
+            visionPortal.cameraSize,
+            samplePipeline.detections::get,
+            telem
+        )
+    }
+    val submersibleScoreTrigger by lazy {
+        RisingEdge(gp1, GamepadKeys.Button.DPAD_DOWN) {
+            schedule(submersibleScore)
+        }
+    }
 
     val returnToBase by lazy { ReturnToBase(arm, lift) }
     val returnToBaseTrigger by lazy {
@@ -151,9 +184,32 @@ class MainTelelop : CommandOpMode() {
             schedule(intakeToggle2)
         }
     }
+    val resetImu by lazy {
+        InstantCommand({
+            drive.imu.resetYaw()
+            drive.startingH = 0.0
+        })
+    }
+    val resetImuToggle by lazy {
+        RisingEdge(gp2, circle) {
+            schedule(resetImu)
+        }
+    }
+    val resetRest by lazy {
+        InstantCommand({
+            arm.resetEncoders()
+            lift.resetEncoders()
+        })
+    }
+    val resetRestToggle by lazy {
+        RisingEdge(gp2, cross) {
+            schedule(resetRest)
+        }
+    }
     val parkServo: Servo by lazy {
         hardwareMap["parkServo"] as Servo
     }
+    var hasStarted: Boolean = false
 
     override fun initialize() {
         drive.defaultCommand =
@@ -173,9 +229,13 @@ class MainTelelop : CommandOpMode() {
         specimenPickupTrigger
         sampleScoreTrigger
         specimenScoreTrigger
+        submersibleEnterTrigger
+        submersibleScoreTrigger
         returnToBaseTrigger
         intakeToggleTrigger
         intakeToggleTrigger2
+        resetImuToggle
+        resetRestToggle
 
         gp1.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand({ slowDriveMode = true })
@@ -203,13 +263,17 @@ class MainTelelop : CommandOpMode() {
                 )
             )
 
-        schedule(InstantCommand(intake::open, intake))
         schedule(ReturnToBase(arm, lift))
-        schedule(InstantCommand({ parkServo.position = 1.0 }))
     }
 
     override fun run() {
         super.run()
+
+        if (!hasStarted) {
+            schedule(InstantCommand(intake::open, intake))
+            schedule(InstantCommand({ parkServo.position = 1.0 }))
+            hasStarted = true
+        }
 
         if (abs(gp2.gamepad.leftX) > 0.1 || abs(gp2.gamepad.leftY) > 0.1 || abs(gp2.gamepad.rightX) > 0.1) {
             schedule(
@@ -293,5 +357,14 @@ class MainTelelop : CommandOpMode() {
 
         @JvmField
         var d2Cubic = true
+
+        @JvmField
+        var startingArm: Double = -20.0
+
+        @JvmField
+        var startingLift: Int = 35
+
+        @JvmField
+        var startingHeading: Double = 90.0
     }
 }

@@ -26,7 +26,7 @@ class Drive(
     val telemetry: Telemetry,
     val dashboard: FtcDashboard,
     val startingPosition: Vec2d = Vec2d(startingX, startingY),
-    val startingH: Double = Drive.startingH,
+    var startingH: Double = Drive.startingH,
     val zeroBreak: Boolean = false,
     val cacheThreshold: Double = -1.0
 ) : SubsystemBase() {
@@ -48,9 +48,9 @@ class Drive(
         hardwareMap["imu"] as IMU
     }
     val imuHeading: Double
-        get() = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
+        get() = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS) + Math.toRadians(startingH)
     val imuHeadingDegrees: Double
-        get() = imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
+        get() = imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES) + startingH
     val rrDrive: SampleMecanumDrive by lazy {
         SampleMecanumDrive(hardwareMap)
     }
