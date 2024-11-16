@@ -44,7 +44,7 @@ object AutonConfig {
     var maxRange = 16.0
 
     @JvmField
-    var threshold = 0.75
+    var threshold = 1.0
 
     @JvmField
     var headingTolerance = 3.0

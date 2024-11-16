@@ -23,7 +23,6 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 import org.firstinspires.ftc.teamcode.common.subsystems.misc.DeltaTime
 import org.firstinspires.ftc.teamcode.common.subsystems.misc.RisingEdge
-import org.firstinspires.ftc.teamcode.common.subsystems.vision.ClipPipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 import org.firstinspires.ftc.teamcode.common.utils.GamepadSRL
@@ -37,12 +36,11 @@ class MainTelelop : CommandOpMode() {
     val dash: FtcDashboard = FtcDashboard.getInstance()
     val telem = MultipleTelemetry(telemetry, dash.telemetry)
     val samplePipeline: SamplePipeline by lazy { SamplePipeline() }
-    val clipPipeline: ClipPipeline by lazy { ClipPipeline() }
     val visionPortal: VisionPortal by lazy {
         VisionPortal(
             hardwareMap,
             "camera1",
-            listOf(samplePipeline, clipPipeline)
+            listOf(samplePipeline)
         )
     }
     val drive: Drive by lazy {

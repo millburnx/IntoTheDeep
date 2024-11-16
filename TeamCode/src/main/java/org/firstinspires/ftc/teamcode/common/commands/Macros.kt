@@ -55,7 +55,7 @@ object Sample {
     var arm: Int = 115
 
     @JvmField
-    var lift: Double = 1400.0
+    var lift: Double = 1550.0
 
     @JvmField
     var delay: Long = 1000
@@ -64,7 +64,7 @@ object Sample {
 @Config
 object Specimen {
     @JvmField
-    var arm: Int = 115
+    var arm: Int = 117
 
     @JvmField
     var lift1: Double = 1325.0

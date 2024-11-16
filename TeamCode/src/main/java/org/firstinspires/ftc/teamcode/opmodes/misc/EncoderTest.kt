@@ -17,7 +17,7 @@ class EncoderTest() : CommandOpMode() {
 
     override fun initialize() {
 //        drive.leftOdom.reset()
-        drive.rightOdom.reset()
+        drive.centerOdom.reset()
         drive.rightOdom.reset()
     }
 
