@@ -13,12 +13,14 @@ import kotlin.math.min
 import kotlin.math.sin
 
 @Config
-class Lift(hardwareMap: HardwareMap, val starting: Int = 0, var armAngle: () -> Double = { 90.0 }) : SubsystemBase() {
+class Lift(hardwareMap: HardwareMap, val starting: Int = 0, var armAngle: () -> Double = { 90.0 }) :
+    SubsystemBase() {
     val lift: DcMotorEx by lazy {
         hardwareMap["slides"] as DcMotorEx
     }
 
     var isOverride = false
+    var bypass = false
 
     fun resetEncoders() {
         lift.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -32,7 +34,11 @@ class Lift(hardwareMap: HardwareMap, val starting: Int = 0, var armAngle: () -> 
         get() = lift.currentPosition + starting
     var target: Double = 50.0
         set(value) {
-            field = value.coerceAtLeast(10.0)
+            if (bypass) { // heelo
+                field = value
+            } else {
+                field = value.coerceAtLeast(10.0)
+            }
         }
 
     fun ticksToInches(ticks: Double): Double {
@@ -63,7 +69,7 @@ class Lift(hardwareMap: HardwareMap, val starting: Int = 0, var armAngle: () -> 
     }
 
     fun run() {
-        if (isOverride) {
+        if (isOverride && !bypass) {
             if (lift.currentPosition < 10) {
                 // DONT DEFORM STRING
                 lift.power = 0.0
@@ -105,7 +111,7 @@ class Lift(hardwareMap: HardwareMap, val starting: Int = 0, var armAngle: () -> 
         var base: Double = 30.0;
 
         @JvmField
-        var maxP: Double = 0.8
+        var maxP: Double = 0.8 // hendry wuz here
 
         @JvmField
         var useExtensionLimit = false // enable after tuned

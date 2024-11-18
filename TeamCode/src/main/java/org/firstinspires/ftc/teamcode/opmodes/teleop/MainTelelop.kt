@@ -137,7 +137,7 @@ class MainTelelop : CommandOpMode() {
     val submersibleScore by lazy {
         SubmersibleGroup(
             drive,
-            arm,
+            arm, // ooga booga
             lift,
             intake,
             visionPortal.cameraSize,
@@ -197,11 +197,32 @@ class MainTelelop : CommandOpMode() {
         InstantCommand({
             arm.resetEncoders()
             lift.resetEncoders()
+            lift.bypass = false
         })
     }
     val resetRestToggle by lazy {
         RisingEdge(gp2, cross) {
             schedule(resetRest)
+        }
+    }
+    val armOff by lazy {
+        InstantCommand({
+            arm.off()
+        })
+    }
+    val armOffToggle by lazy {
+        RisingEdge(gp2, GamepadKeys.Button.X) {
+            schedule(armOff)
+        }
+    }
+    val liftBypass by lazy {
+        InstantCommand({
+            lift.bypass = true
+        })
+    }
+    val liftBypassTrigger by lazy {
+        RisingEdge(gp2, GamepadKeys.Button.Y) {
+            schedule(liftBypass)
         }
     }
     val parkServo: Servo by lazy {
@@ -234,6 +255,8 @@ class MainTelelop : CommandOpMode() {
         intakeToggleTrigger2
         resetImuToggle
         resetRestToggle
+        armOffToggle
+        liftBypassTrigger
 
         gp1.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand({ slowDriveMode = true })

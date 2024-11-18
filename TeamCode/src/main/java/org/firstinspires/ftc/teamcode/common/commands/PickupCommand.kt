@@ -146,7 +146,7 @@ open class PickupCommand(
         var squid: Boolean = true
 
         @JvmField
-        var clipPower: Double = -0.5
+        var clipPower: Double = -0.2
 
         @JvmField
         var clipDelay: Long = 250
@@ -164,7 +164,7 @@ open class PickupCommand(
         var clipOffsetX: Double = 0.0
 
         @JvmField
-        var clipOffsetY: Double = 0.0
+        var clipOffsetY: Double = -0.3
 
         @JvmField
         var sampleOffsetX: Double = 0.0
@@ -191,7 +191,10 @@ fun PickupGroup(
 ): CommandGroupBase {
     return SequentialCommandGroup(
         ParallelCommandGroup(
-            LiftCommand(lift, Lift.base + if (isClip) PickupCommand.clipOffset else PickupCommand.sampleOffset),
+            LiftCommand(
+                lift,
+                Lift.base + if (isClip) PickupCommand.clipOffset else PickupCommand.sampleOffset
+            ),
             ArmCommand(arm, PickupCommand.visionArm).withTimeout(PickupCommand.armUpDuration),
             InstantCommand(intake::open, intake),
         ),

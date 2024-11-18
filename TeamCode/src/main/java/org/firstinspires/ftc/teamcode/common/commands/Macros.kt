@@ -52,7 +52,7 @@ class RelativeDrive(val drive: Drive, val power: Double) : CommandBase() {
 @Config
 object Sample {
     @JvmField
-    var arm: Int = 115
+    var arm: Int = 113
 
     @JvmField
     var lift: Double = 1550.0
@@ -64,7 +64,7 @@ object Sample {
 @Config
 object Specimen {
     @JvmField
-    var arm: Int = 117
+    var arm: Int = 113
 
     @JvmField
     var lift1: Double = 1325.0
