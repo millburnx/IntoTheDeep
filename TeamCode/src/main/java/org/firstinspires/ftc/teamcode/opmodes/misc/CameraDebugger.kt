@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusCo
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.PtzControl
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBalanceControl
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.FasterSampleDetection
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleColor
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
@@ -19,17 +20,37 @@ import java.util.concurrent.TimeUnit
 @TeleOp(name = "Camera Debugger", group = "Misc")
 class CameraDebugger : CommandOpMode() {
     val samplePipeline: SamplePipeline by lazy { SamplePipeline() }
-    val visionPortal: VisionPortal by lazy { VisionPortal(hardwareMap, "camera1", listOf(samplePipeline)) }
+    val fasterPipeline: FasterSampleDetection by lazy { FasterSampleDetection(telemetry) }
+    val visionPortal: VisionPortal by lazy {
+        VisionPortal(
+            hardwareMap,
+            "camera1",
+            listOf(samplePipeline, fasterPipeline)
+        )
+    }
     val tel: Telemetry = FtcDashboard.getInstance().telemetry
 
     override fun initialize() {
         visionPortal
-        FtcDashboard.getInstance().startCameraStream(samplePipeline, 0.0)
     }
+
+    var lastExposure = exposureTime
+    var lastGain = gain
+
+    var lastSample = enableSample
+    var lastFaster = enableFaster
 
     override fun run() {
         super.run()
-        visionPortal.visionPortal.setProcessorEnabled(samplePipeline, enableSpecimens)
+        visionPortal.visionPortal.setProcessorEnabled(samplePipeline, enableSample)
+        if (enableSample && !lastSample) {
+            FtcDashboard.getInstance().startCameraStream(samplePipeline, 0.0)
+        } else if (!enableSample && lastSample || enableFaster && !lastFaster) {
+            FtcDashboard.getInstance().startCameraStream(fasterPipeline, 0.0)
+        }
+
+        lastSample = enableSample
+        lastFaster = enableFaster
 
         val exposure = visionPortal.visionPortal.getCameraControl(ExposureControl::class.java)
         val gain = visionPortal.visionPortal.getCameraControl(GainControl::class.java)
@@ -37,8 +58,15 @@ class CameraDebugger : CommandOpMode() {
         val focus = visionPortal.visionPortal.getCameraControl(FocusControl::class.java)
         val panTilt = visionPortal.visionPortal.getCameraControl(PtzControl::class.java)
 
-        tel.addData("Exposure Set", exposure.setExposure(exposureTime, TimeUnit.MILLISECONDS))
-        tel.addData("Exposure Set", gain.setGain(CameraDebugger.gain))
+        exposure.mode = ExposureControl.Mode.Manual
+        if (lastExposure != exposureTime) {
+            tel.addData("Exposure Set", exposure.setExposure(exposureTime, TimeUnit.MILLISECONDS))
+            lastExposure = exposureTime
+        }
+        if (lastGain != Companion.gain) {
+            tel.addData("Gain Set", gain.setGain(Companion.gain))
+            lastGain = Companion.gain
+        }
 
         tel.addData("Exposure Support", exposure.isExposureSupported)
         for (exposureMode in ExposureControl.Mode.entries) {
@@ -50,12 +78,9 @@ class CameraDebugger : CommandOpMode() {
             tel.addData("Focus $focusMode", focus.isModeSupported(focusMode))
         }
 
-        if (enableSpecimens) {
+        if (enableSample) {
             val samples = samplePipeline.detections.get()
 
-//            samples.forEachIndexed { i, sample ->
-//                tel.addData("sample $i", sample.toString())
-//            }
             tel.addData("TOTAL SAMPLES: ", "${samples.size}")
             tel.addData("RED SAMPLES: ", "{${samples.filter { sample -> sample.color == SampleColor.RED }.size}}")
             tel.addData("YELLOW SAMPLES: ", "{${samples.filter { sample -> sample.color == SampleColor.YELLOW }.size}}")
@@ -67,12 +92,15 @@ class CameraDebugger : CommandOpMode() {
 
     companion object {
         @JvmField
-        var enableSpecimens: Boolean = false
+        var enableSample: Boolean = false
 
         @JvmField
-        var exposureTime: Long = 100
+        var enableFaster: Boolean = false
 
         @JvmField
-        var gain: Int = 0
+        var exposureTime: Long = 10
+
+        @JvmField
+        var gain: Int = 255
     }
 }
