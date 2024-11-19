@@ -14,14 +14,14 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
-import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.FasterSampleDetection
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 
 //@Disabled
 @Config
 @TeleOp(name = "CameraPickup", group = "Tuning")
 class CameraPickup : CommandOpMode() {
-    val samplePipeline: SamplePipeline by lazy { SamplePipeline() }
+    val samplePipeline: FasterSampleDetection by lazy { FasterSampleDetection(telemetry) }
     val visionPortal: VisionPortal by lazy {
         VisionPortal(
             hardwareMap,

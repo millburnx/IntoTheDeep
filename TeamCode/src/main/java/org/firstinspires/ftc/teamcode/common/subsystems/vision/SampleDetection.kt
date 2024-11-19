@@ -210,15 +210,21 @@ data class BoundingBox(val center: Vec2d, val size: Vec2d) {
         get() = size.x * size.y
 }
 
-interface Detection {
+interface IDetection {
     val pos: Vec2d
     val angle: Double
     val boundingBox: BoundingBox
 }
+
+data class Detection(
+    override val pos: Vec2d,
+    override val angle: Double,
+    override val boundingBox: BoundingBox
+) : IDetection
 
 data class SampleDetection(
     override val pos: Vec2d,
     override val angle: Double,
     val color: SampleColor,
     override val boundingBox: BoundingBox
-) : Detection
+) : IDetection

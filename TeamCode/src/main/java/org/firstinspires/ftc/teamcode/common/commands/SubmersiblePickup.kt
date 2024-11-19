@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.IDetection
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleColor
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleDetection
 import kotlin.math.abs
@@ -22,7 +23,7 @@ open class SubmersiblePickup(
     val drive: Drive,
     val lift: Lift,
     val cameraSize: Vec2d,
-    val getSamples: () -> List<SampleDetection>,
+    val getSamples: () -> List<IDetection>,
     val offset: Vec2d = Vec2d(0.0, 0.0),
     val telemetry: Telemetry? = null
 ) : CommandBase() {
@@ -49,21 +50,23 @@ open class SubmersiblePickup(
 
         val samplesFiltered =
             samples.filter {
-                if (abs(it.angle) > angleThreshold) return@filter false
-                if (targetColor == null) return@filter true
-                return@filter it.color == targetColor!!
+                true
+//                if (abs(it.angle) > angleThreshold) return@filter false
+//                if (targetColor == null) return@filter true
+//                return true
+//                return@filter it.color == targetColor!!
             }
         val targetSample = samplesFiltered.maxByOrNull { sample -> sample.boundingBox.area }
 
         telemetry?.addData("samples", samples.size)
         telemetry?.addData("samplesFiltered", samplesFiltered.size)
 
-        this.targetSample = targetSample
+//        this.targetSample = targetSample
 
         if (targetSample != null) {
             lift.isOverride = true
 
-            this.targetColor = targetSample.color
+//            this.targetColor = targetSample.color
 
             val cameraCenter = (cameraSize / 2).flip()
             val targetCenter = cameraCenter * (offset + 1)
@@ -87,7 +90,7 @@ open class SubmersiblePickup(
             lift.setPower(0.0)
         }
 
-        lastSample = targetSample
+//        lastSample = targetSample
 
         telemetry?.update()
     }
@@ -201,7 +204,7 @@ fun SummersibleEnter(
     lift: Lift,
     intake: Intake,
     cameraSize: Vec2d,
-    samples: () -> List<SampleDetection>,
+    samples: () -> List<IDetection>,
     tel: Telemetry
 ): CommandGroupBase {
     return SequentialCommandGroup(
@@ -217,7 +220,7 @@ fun SubmersibleGroup(
     lift: Lift,
     intake: Intake,
     cameraSize: Vec2d,
-    samples: () -> List<SampleDetection>,
+    samples: () -> List<IDetection>,
     tel: Telemetry
 ): CommandGroupBase {
     return SequentialCommandGroup(

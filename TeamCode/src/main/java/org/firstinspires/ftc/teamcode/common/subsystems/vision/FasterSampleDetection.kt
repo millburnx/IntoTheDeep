@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.common.subsystems.vision
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import com.acmerobotics.dashboard.config.Config
+import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.function.Consumer
 import org.firstinspires.ftc.robotcore.external.function.Continuation
@@ -18,8 +19,8 @@ import org.opencv.core.MatOfPoint2f
 import org.opencv.core.RotatedRect
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
-import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.collections.mutableListOf
 import kotlin.math.min
 
 @Config
@@ -44,20 +45,36 @@ class FasterSampleDetection(val telemetry: Telemetry?) : VisionProcessor, Camera
         var blueUpper: Double = 255.0
 
         @JvmField
-        var areaMin: Double = 8000.0
+        var areaMin: Double = 15_000.0
 
         @JvmField
-        var areaMax: Double = 12000.0
+        var areaMax: Double = 2_000.0
 
         @JvmField
-        var ratioMin: Double = 0.4
+        var ratioMin: Double = 0.375
 
         @JvmField
-        var ratioMax: Double = 0.6
+        var ratioMax: Double = 0.7
     }
+
+    val detections: AtomicReference<List<IDetection>> = AtomicReference(emptyList())
 
     override fun init(width: Int, height: Int, calibration: CameraCalibration?) {
     }
+
+    val ycrcbMat = Mat()
+
+    val redThres = Mat()
+    val yellowThres = Mat()
+    val blueThres = Mat()
+
+    val merged = Mat()
+    val hierarchy = Mat()
+
+    val channels: MutableList<Mat> = mutableListOf<Mat>()
+    val contours: MutableList<MatOfPoint> = mutableListOf<MatOfPoint>()
+
+    val masked = Mat()
 
     override fun processFrame(frame: Mat, captureTimeNanos: Long): Any? {
         if (!CameraDebugger.enableFaster) {
@@ -67,19 +84,8 @@ class FasterSampleDetection(val telemetry: Telemetry?) : VisionProcessor, Camera
             return null
         }
 
-        val ycrcbMat = Mat()
-        val channels: MutableList<Mat?> = ArrayList<Mat?>()
-
-        val redThres = Mat()
-        val yellowThres = Mat()
-        val blueThres = Mat()
-
-        val merged = Mat()
-
-        val contours: MutableList<MatOfPoint> = mutableListOf<MatOfPoint>()
-        val hierarchy: Mat = Mat()
-
-        val masked = Mat()
+        channels.clear()
+        contours.clear()
 
         Imgproc.cvtColor(frame, ycrcbMat, Imgproc.COLOR_RGB2YCrCb)
         Core.split(ycrcbMat, channels)
@@ -125,6 +131,19 @@ class FasterSampleDetection(val telemetry: Telemetry?) : VisionProcessor, Camera
             return@map null
         }.filterNotNull()
 
+        detections.set(finalData.map { data ->
+            val center = Vec2d(data.second.center.x, data.second.center.y)
+            Detection(
+                center,
+                correctCVAngle(data.second),
+                BoundingBox(
+                    center,
+                    Vec2d(data.second.size.width, data.second.size.height)
+                )
+            )
+        })
+
+        masked.setTo(Scalar.all(0.0))
         Core.bitwise_and(frame, frame, masked, merged)
         Imgproc.drawContours(masked, finalData.map { it.first }, -1, Scalar(255.0, 0.0, 255.0), 2)
         for (detection in finalData) {

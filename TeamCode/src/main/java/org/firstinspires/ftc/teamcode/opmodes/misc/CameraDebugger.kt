@@ -38,7 +38,7 @@ class CameraDebugger : CommandOpMode() {
     var lastGain = gain
 
     var lastSample = enableSample
-    var lastFaster = enableFaster
+    var lastFaster = !enableFaster
 
     override fun run() {
         super.run()
@@ -95,7 +95,7 @@ class CameraDebugger : CommandOpMode() {
         var enableSample: Boolean = false
 
         @JvmField
-        var enableFaster: Boolean = false
+        var enableFaster: Boolean = true
 
         @JvmField
         var exposureTime: Long = 10

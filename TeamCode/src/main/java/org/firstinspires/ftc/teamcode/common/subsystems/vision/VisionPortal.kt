@@ -10,7 +10,7 @@ import org.firstinspires.ftc.vision.VisionProcessor
 
 
 class VisionPortal(hwMap: HardwareMap, camera: String, processors: List<VisionProcessor>) : SubsystemBase() {
-    val cameraSize = Vec2d(640, 480)
+    val cameraSize = Vec2d(640, 480) / 2
 
     val builder = VisionPortal.Builder()
         .setCamera(hwMap.get(WebcamName::class.java, camera))

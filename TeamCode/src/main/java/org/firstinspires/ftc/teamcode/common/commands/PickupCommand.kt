@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
-import org.firstinspires.ftc.teamcode.common.subsystems.vision.Detection
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.IDetection
 import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kd
 import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraPickup.Companion.kdRot
@@ -32,7 +32,7 @@ import kotlin.math.sqrt
 open class PickupCommand(
     val drive: Drive,
     val cameraSize: Vec2d,
-    val getSamples: () -> List<Detection>,
+    val getSamples: () -> List<IDetection>,
     val isClip: Boolean = false,
     val offset: Vec2d = Vec2d(0.0, 0.0),
 ) :
@@ -42,7 +42,7 @@ open class PickupCommand(
     val rPID: APIDController by lazy { APIDController(kpRot, kiRot, kdRot) }
 
     // power instead of error cuz steady state error, so we don't get stuck
-    var targetSample: Detection? = null
+    var targetSample: IDetection? = null
 
     init {
         addRequirements(drive)
@@ -186,7 +186,7 @@ fun PickupGroup(
     lift: Lift,
     intake: Intake,
     cameraSize: Vec2d,
-    samples: () -> List<Detection>,
+    samples: () -> List<IDetection>,
     isClip: Boolean = false
 ): CommandGroupBase {
     return SequentialCommandGroup(
