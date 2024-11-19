@@ -45,10 +45,10 @@ class FasterSampleDetection(val telemetry: Telemetry?) : VisionProcessor, Camera
         var blueUpper: Double = 255.0
 
         @JvmField
-        var areaMin: Double = 15_000.0
+        var areaMin: Double = 1_000.0
 
         @JvmField
-        var areaMax: Double = 2_000.0
+        var areaMax: Double = 15_000.0
 
         @JvmField
         var ratioMin: Double = 0.375

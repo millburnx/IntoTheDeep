@@ -67,7 +67,7 @@ class CameraPickup : CommandOpMode() {
 
     companion object {
         @JvmField
-        var kp: Double = -0.0001
+        var kp: Double = -0.0002
 
         @JvmField
         var ki: Double = 0.0
@@ -76,7 +76,7 @@ class CameraPickup : CommandOpMode() {
         var kd: Double = 0.0
 
         @JvmField
-        var kpRot: Double = -0.01
+        var kpRot: Double = -0.02
 
         @JvmField
         var kiRot: Double = 0.0
@@ -106,7 +106,7 @@ class CameraPickup : CommandOpMode() {
         var maxSpeed = 0.3
 
         @JvmField
-        var maxRotation = 0.1
+        var maxRotation = 0.15
 
         @JvmField
         var clawOpen: Boolean = true

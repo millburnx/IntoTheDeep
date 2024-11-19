@@ -110,7 +110,7 @@ open class PickupCommand(
 
     companion object {
         @JvmField
-        var tol = 20
+        var tol = 10
 
         @JvmField
         var tolClip = 10
@@ -140,7 +140,7 @@ open class PickupCommand(
         var samplePostOffset = 0
 
         @JvmField
-        var closeDelay: Long = 250
+        var closeDelay: Long = 500
 
         @JvmField
         var squid: Boolean = true
@@ -149,13 +149,13 @@ open class PickupCommand(
         var clipPower: Double = -0.2
 
         @JvmField
-        var clipDelay: Long = 250
+        var clipDelay: Long = 125
 
         @JvmField
         var clipLower: Double = Arm.kG / 3
 
         @JvmField
-        var lowerDuration: Long = 250
+        var lowerDuration: Long = 500
 
         @JvmField
         var armUpDuration: Long = 500
@@ -164,13 +164,13 @@ open class PickupCommand(
         var clipOffsetX: Double = 0.0
 
         @JvmField
-        var clipOffsetY: Double = -0.3
+        var clipOffsetY: Double = -0.2
 
         @JvmField
         var sampleOffsetX: Double = 0.0
 
         @JvmField
-        var sampleOffsetY: Double = -0.4
+        var sampleOffsetY: Double = -0.5
 
         @JvmField
         var postClose: Long = 200
