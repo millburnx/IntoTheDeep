@@ -16,6 +16,7 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.RotatedRect
+import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicReference
@@ -75,7 +76,10 @@ class FasterSampleDetection(val telemetry: Telemetry?) : VisionProcessor, Camera
 
         val merged = Mat()
 
-        val contours: MutableList<MatOfPoint> = ArrayList<MatOfPoint>()
+        val contours: MutableList<MatOfPoint> = mutableListOf<MatOfPoint>()
+        val hierarchy: Mat = Mat()
+
+        val masked = Mat()
 
         Imgproc.cvtColor(frame, ycrcbMat, Imgproc.COLOR_RGB2YCrCb)
         Core.split(ycrcbMat, channels)
@@ -109,36 +113,35 @@ class FasterSampleDetection(val telemetry: Telemetry?) : VisionProcessor, Camera
         Core.bitwise_or(redThres, yellowThres, merged)
         Core.bitwise_or(merged, blueThres, merged)
 
-        Imgproc.findContours(merged, contours, Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
+        Imgproc.findContours(merged, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
 
-        val filteredContours: MutableList<MatOfPoint?> = ArrayList<MatOfPoint?>()
-        val rotatedRects: MutableList<RotatedRect> = ArrayList<RotatedRect>()
-        for (contour in contours) {
+        val finalData: List<Pair<MatOfPoint, RotatedRect>> = contours.map { contour ->
             val rect = Imgproc.minAreaRect(MatOfPoint2f(*contour.toArray()))
             val area = rect.size.width * rect.size.height
             val ratio = min(rect.size.height / rect.size.width, rect.size.width / rect.size.height)
             if (area > areaMin && area < areaMax && ratio > ratioMin && ratio < ratioMax) {
-                filteredContours.add(contour)
-                rotatedRects.add(rect)
+                return@map Pair(contour, rect)
             }
-        }
-//
-        val masked = Mat()
+            return@map null
+        }.filterNotNull()
+
         Core.bitwise_and(frame, frame, masked, merged)
-//        Imgproc.drawContours(masked, filteredContours, -1, Scalar(255.0, 0.0, 255.0), 2)
-//        for (rect in rotatedRects) {
-//            val area = rect.size.width * rect.size.height
-//            val ratio = min(rect.size.height / rect.size.width, rect.size.width / rect.size.height)
-//            Imgproc.putText(
-//                masked,
-//                String.format("%.2f | %.2f | %.2f", ratio, area, correctCVAngle(rect)),
-//                rect.center,
-//                Imgproc.FONT_HERSHEY_PLAIN,
-//                1.0,
-//                Scalar(0.0, 0.0, 255.0)
-//            )
-//        }
-        val contoursBitmap = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565)
+        Imgproc.drawContours(masked, finalData.map { it.first }, -1, Scalar(255.0, 0.0, 255.0), 2)
+        for (detection in finalData) {
+            val rect = detection.second
+            val area = rect.size.width * rect.size.height
+            val ratio = min(rect.size.height / rect.size.width, rect.size.width / rect.size.height)
+            Imgproc.putText(
+                masked,
+                String.format("%.2f | %.2f | %.2f", ratio, area, correctCVAngle(rect)),
+                rect.center,
+                Imgproc.FONT_HERSHEY_PLAIN,
+                1.0,
+                Scalar(0.0, 0.0, 255.0)
+            )
+        }
+
+        val contoursBitmap = Bitmap.createBitmap(masked.width(), masked.height(), Bitmap.Config.RGB_565)
         Utils.matToBitmap(masked, contoursBitmap)
         lastFrame.set(contoursBitmap)
 
