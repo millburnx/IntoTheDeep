@@ -6,6 +6,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.RunCommand
+import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -157,6 +159,12 @@ class MainTelelop : CommandOpMode() {
             schedule(returnToBase)
         }
     }
+    val returnToBase2 by lazy { ReturnToBase(arm, lift) }
+    val returnToBase2Trigger by lazy {
+        RisingEdge(gp2, GamepadKeys.Button.LEFT_BUMPER) {
+            schedule(returnToBase2)
+        }
+    }
 
     val intakeToggle by lazy {
         InstantCommand({
@@ -178,7 +186,19 @@ class MainTelelop : CommandOpMode() {
         })
     }
     val intakeToggleTrigger2 by lazy {
-        RisingEdge(gp2, GamepadKeys.Button.LEFT_BUMPER) {
+        RisingEdge(gp2, GamepadKeys.Button.DPAD_LEFT) {
+            schedule(intakeToggle2)
+        }
+    }
+    val submersible by lazy {
+        SequentialCommandGroup(
+            intakeToggle2,
+            WaitCommand(closeDelay),
+            returnToBase2
+        )
+    }
+    val submersibleTrigger by lazy {
+        RisingEdge(gp2, GamepadKeys.Button.DPAD_RIGHT) {
             schedule(intakeToggle2)
         }
     }
@@ -251,6 +271,7 @@ class MainTelelop : CommandOpMode() {
         submersibleEnterTrigger
         submersibleScoreTrigger
         returnToBaseTrigger
+        returnToBase2Trigger
         intakeToggleTrigger
         intakeToggleTrigger2
         resetImuToggle
@@ -352,6 +373,9 @@ class MainTelelop : CommandOpMode() {
     }
 
     companion object {
+        @JvmField
+        var closeDelay: Long = 200
+
         @JvmField
         var fieldCentric: Boolean = true
 

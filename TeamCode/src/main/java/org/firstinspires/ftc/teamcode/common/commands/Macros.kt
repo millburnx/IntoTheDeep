@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.common.commands
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.command.CommandGroupBase
+import com.arcrobotics.ftclib.command.ConditionalCommand
+import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
+import org.firstinspires.ftc.teamcode.common.subsystems.Arm.Companion.armOnDelay
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
@@ -24,6 +27,14 @@ fun SampleScore(arm: Arm, lift: Lift, intake: Intake) = SequentialCommandGroup(
 
 fun ReturnToBase(arm: Arm, lift: Lift): CommandGroupBase {
     return SequentialCommandGroup(
+        ConditionalCommand(SequentialCommandGroup(
+            InstantCommand(arm::on),
+            InstantCommand({
+                arm.on()
+                arm.target = Arm.base.toDouble()
+            }),
+            WaitCommand(armOnDelay)
+        ), InstantCommand({}), { !arm.isOn }),
         LiftCommand(lift, Lift.base),
         ArmCommand(arm, Arm.base),
     )

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.common.utils.LimitedDurationQueue
 import kotlin.math.abs
 import kotlin.math.cos
 
@@ -16,16 +17,25 @@ class Arm(
     hardwareMap: HardwareMap,
     val telemetry: Telemetry,
     val liftPosition: () -> Int,
-    val startingOffset: Double = starting_ticks
+    val startingOffset: Double = starting_ticks,
 ) : SubsystemBase() {
 
     val leftRotate: DcMotorEx by lazy {
         hardwareMap["leftRotate"] as DcMotorEx
     }
 
+    val previousArmPosition = LimitedDurationQueue<Double>(lifespan, satThreshold)
+
     var isOverride = false
 
     var isOn = false
+        set(value) {
+            if (!field && value) {
+                previousArmPosition.clear()
+                currentMaxPid = maxPid
+            }
+            field = value
+        }
 
     val rightRotate: DcMotorEx by lazy {
         hardwareMap["rightRotate"] as DcMotorEx
@@ -34,6 +44,9 @@ class Arm(
     val controller: PIDController = PIDController(p, i, d)
     var target: Double = 0.0
         set(value) {
+            if (value != field) {
+                currentMaxPid = maxPid
+            }
             field = value.coerceAtMost(max)
         }
 
@@ -42,6 +55,8 @@ class Arm(
 
     val angle: Double
         get() = position / ticks_in_degree
+
+    var currentMaxPid = maxPid
 
     init {
         resetEncoders()
@@ -61,6 +76,22 @@ class Arm(
 
     override fun periodic() {
         run(telemetry)
+        previousArmPosition.lifespan = lifespan
+        previousArmPosition.threshold = satThreshold
+        previousArmPosition.add(position)
+        val error = target - position
+        val change = getChange()
+        if (change != null) {
+            currentMaxPid += abs(error / change.coerceAtLeast(0.0001) * increaseRate)
+            println("$change, $error, ${error / change.coerceAtLeast(0.0001) * increaseRate}, $currentMaxPid")
+        }
+    }
+
+    fun getChange(): Double? {
+        if (!previousArmPosition.isSaturated()) return null
+        val first = previousArmPosition.values.first()
+        val last = previousArmPosition.values.last()
+        return first - last
     }
 
     fun setPower(power: Double) {
@@ -105,7 +136,7 @@ class Arm(
 
 
         val pid = controller.calculate(position, target) * modifier
-        val maxPossiblePower = (1 - abs(ff)).coerceIn(0.0, maxPid + maxPid * slidePMulti)
+        val maxPossiblePower = (1 - abs(ff)).coerceIn(0.0, currentMaxPid + currentMaxPid * slidePMulti)
         val clampedPid = pid.coerceIn(-(maxPossiblePower), maxPossiblePower)
 
         val power = ff + clampedPid
@@ -116,6 +147,10 @@ class Arm(
         telemetry.addData("arm pid", clampedPid)
         telemetry.addData("arm ff", ff)
         telemetry.addData("arm error", target - position)
+        telemetry.addData("max pid", currentMaxPid)
+        telemetry.addData("arm size", previousArmPosition.values.size)
+        telemetry.addData("arm first", previousArmPosition.values.firstOrNull())
+        telemetry.addData("arm last", previousArmPosition.values.lastOrNull())
     }
 
     fun off() {
@@ -127,6 +162,15 @@ class Arm(
     }
 
     companion object {
+        @JvmField
+        var lifespan: Double = 200.0
+
+        @JvmField
+        var satThreshold: Double = 70.0
+
+        @JvmField
+        var armOnDelay: Long = 50
+
         @JvmField
         var p: Double = 0.015
 
@@ -182,9 +226,12 @@ class Arm(
         var threshold: Int = 10
 
         @JvmField
-        var maxPid: Double = 0.225
+        var maxPid: Double = 0.1
 
         @JvmField
         var max: Double = 160.0
+
+        @JvmField
+        var increaseRate: Double = 1e-7
     }
 }

@@ -146,7 +146,7 @@ open class PickupCommand(
         var squid: Boolean = true
 
         @JvmField
-        var clipPower: Double = -0.175
+        var clipPower: Double = -0.25
 
         @JvmField
         var clipDelay: Long = 125
@@ -164,13 +164,13 @@ open class PickupCommand(
         var clipOffsetX: Double = 0.0
 
         @JvmField
-        var clipOffsetY: Double = 0.25
+        var clipOffsetY: Double = 0.125
 
         @JvmField
         var sampleOffsetX: Double = 0.0
 
         @JvmField
-        var sampleOffsetY: Double = -0.5
+        var sampleOffsetY: Double = -0.25
 
         @JvmField
         var postClose: Long = 200
