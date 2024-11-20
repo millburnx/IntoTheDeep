@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.common.subsystems.vision
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import com.arcrobotics.ftclib.command.SubsystemBase
 import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.robotcore.external.function.Consumer
 import org.firstinspires.ftc.robotcore.external.function.Continuation
@@ -20,11 +19,8 @@ import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.math.min
 import kotlin.math.round
-
-class SampleDetector : SubsystemBase() {
-
-}
 
 class SamplePipeline : VisionProcessor, CameraStreamSource {
     val lastFrame: AtomicReference<Bitmap> =
@@ -34,21 +30,25 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
 
     override fun init(width: Int, height: Int, calibration: CameraCalibration?) {}
 
+    val ycrcb = Mat()
+    val channels = mutableListOf<Mat>()
+
+    val rThreshold = Mat()
+    val yThreshold = Mat()
+    val bThreshold = Mat()
+
     override fun processFrame(
         frame: Mat,
         captureTimeNanos: Long
     ): Any? {
-        val ycrcb = Mat()
         Imgproc.cvtColor(frame, ycrcb, Imgproc.COLOR_RGB2YCrCb)
 
-        val crChannel = Mat()
-        val cbChannel = Mat()
-        Core.extractChannel(ycrcb, crChannel, 1)
-        Core.extractChannel(ycrcb, cbChannel, 2)
+        channels.clear()
+        Core.split(ycrcb, channels)
 
-        val rThreshold = Mat()
-        val yThreshold = Mat()
-        val bThreshold = Mat()
+        val crChannel = channels[1]
+        val cbChannel = channels[2]
+
         Imgproc.threshold(crChannel, rThreshold, 190.0, 255.0, Imgproc.THRESH_BINARY)
         Imgproc.threshold(cbChannel, yThreshold, 90.0, 255.0, Imgproc.THRESH_BINARY_INV)
         Imgproc.threshold(cbChannel, bThreshold, 150.0, 255.0, Imgproc.THRESH_BINARY)
@@ -83,7 +83,7 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
             Scalar(0.0, 0.0, 255.0),
             Scalar(0.0, 255.0, 255.0)
         )
-        val contoursBitmap = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565)
+        val contoursBitmap = Bitmap.createBitmap(contoursImg.width(), contoursImg.height(), Bitmap.Config.RGB_565)
         Utils.matToBitmap(contoursImg, contoursBitmap)
         lastFrame.set(contoursBitmap)
 
@@ -133,7 +133,16 @@ class SamplePipeline : VisionProcessor, CameraStreamSource {
             return false
         }
         val boundingRect = Imgproc.boundingRect(contour)
-        return !(boundingRect.width < 20 || boundingRect.height < 20)
+//        return !(boundingRect.width < 20 || boundingRect.height < 20)
+        if (boundingRect.width < 20 || boundingRect.height < 20) {
+            return false
+        }
+        val area = boundingRect.width * boundingRect.height
+        if (area < FasterSampleDetection.areaMin || area > FasterSampleDetection.areaMax) {
+            return false
+        }
+        val ratio = min(boundingRect.height / boundingRect.width, boundingRect.width / boundingRect.height)
+        return !(ratio < FasterSampleDetection.ratioMin || ratio > FasterSampleDetection.ratioMax)
     }
 
     fun drawContours(
