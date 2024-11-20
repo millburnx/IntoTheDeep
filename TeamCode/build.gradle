@@ -38,6 +38,10 @@ repositories {
         url = 'https://maven.brott.dev/'
     }
     maven { url 'https://jitpack.io' }
+    maven { url "https://repo.dairy.foundation/snapshots" }
+    maven {
+        url "https://repo.dairy.foundation/releases"
+    }
 }
 
 dependencies {
@@ -55,4 +59,9 @@ dependencies {
     implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
 
     implementation project(':PathPlanner')
+
+    implementation "dev.frozenmilk.sinister.sloth:DashFix:0.0.0";
+    implementation "dev.frozenmilk:Sinister:2.0.1"
 }
+
+apply plugin: 'dev.frozenmilk.sinister.sloth.Load'

@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 
 @Config
+//@Disabled
 @TeleOp(name = "Direct Motor")
 class DirectMotor : CommandOpMode() {
     val multiTelem: MultipleTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)

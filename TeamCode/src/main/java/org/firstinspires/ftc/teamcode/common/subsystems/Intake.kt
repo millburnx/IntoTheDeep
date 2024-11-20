@@ -38,12 +38,12 @@ class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
 
     companion object {
         @JvmField
-        var fullOpenPosition: Double = 0.9
+        var fullOpenPosition: Double = 0.65
 
         @JvmField
-        var openPosition: Double = 0.8
+        var openPosition: Double = 0.5
 
         @JvmField
-        var closedPosition: Double = 0.6
+        var closedPosition: Double = 0.3
     }
 }

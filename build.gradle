@@ -11,11 +11,16 @@ buildscript {
     repositories {
         mavenCentral()
         google()
+        maven {
+            url "https://repo.dairy.foundation/snapshots"
+        }
     }
     dependencies {
         // Note for FTC Teams: Do not modify this yourself.
         classpath 'com.android.tools.build:gradle:8.5.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "dev.frozenmilk.sinister.sloth:Load:0.0.1"
+
     }
 }
 
