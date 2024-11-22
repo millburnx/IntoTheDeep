@@ -8,7 +8,6 @@ import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
-import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.controller.PIDController
 import com.millburnx.utils.Path
 import com.millburnx.utils.Vec2d
@@ -19,13 +18,12 @@ import org.firstinspires.ftc.teamcode.common.commands.PickupGroup
 import org.firstinspires.ftc.teamcode.common.commands.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.commands.ReturnToBase
-import org.firstinspires.ftc.teamcode.common.commands.SampleScore
 import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.Lift
-import org.firstinspires.ftc.teamcode.common.subsystems.vision.SamplePipeline
+import org.firstinspires.ftc.teamcode.common.subsystems.vision.FasterSampleDetection
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
@@ -37,13 +35,10 @@ object BlueAutonConfig {
     var startX = -60.0
 
     @JvmField
-    var startY = 12.0
+    var startY = -12.0
 
     @JvmField
     var startH = 0.0
-
-    @JvmField
-    var timeout: Long = 1000
 
     @JvmField
     var specimenPower: Double = 0.25
@@ -52,16 +47,10 @@ object BlueAutonConfig {
     var specimenDuration: Long = 1000
 
     @JvmField
-    var samplePower: Double = 0.29
+    var pickupX: Double = -52.0
 
     @JvmField
-    var sampleDuration: Long = 625
-
-    @JvmField
-    var parkPower: Double = -0.375
-
-    @JvmField
-    var parkDuration: Long = 1000
+    var pickupY: Double = -40.0
 }
 
 @Autonomous(name = "Full Auton")
@@ -120,7 +109,7 @@ class BlueAuton : CommandOpMode() {
     val pidH = APIDController(AutonConfig.pidH_kP, AutonConfig.pidH_kI, AutonConfig.pidH_kD)
 
 
-    val samplePipeline: SamplePipeline by lazy { SamplePipeline() }
+    val samplePipeline: FasterSampleDetection by lazy { FasterSampleDetection(telemetry) }
     val visionPortal: VisionPortal by lazy {
         VisionPortal(
             hardwareMap,
@@ -166,131 +155,39 @@ class BlueAuton : CommandOpMode() {
         //start at (-60, 12)
         lift.armAngle = arm::angle
         intake.close()
+        visionPortal
+        FtcDashboard.getInstance().startCameraStream(samplePipeline, 0.0)
+
         val commands: MutableList<Command> = mutableListOf()
 
-        commands.add(ReturnToBase(arm, lift))
-        commands.add(pidSegment(Vec2d(-45, 10), 0.0, threshold = AutonConfig.threshold * 2))
-        commands.add(WaitCommand(250))
-        commands.add(SpecimenScore(arm, lift, intake))
-        commands.add(WaitCommand(250))
-        commands.add(
+        val score = SequentialCommandGroup(
+            pidSegment(Vec2d(-45, -10), 0.0),
+            SpecimenScore(arm, lift, intake),
             RelativeDrive(
                 drive,
                 BlueAutonConfig.specimenPower
-            ).withTimeout(BlueAutonConfig.specimenDuration)
-        )
-        commands.add(InstantCommand(intake::open, intake))
-        commands.add(WaitCommand(250)) // spec 1 done
-
-        commands.add(
+            ).withTimeout(BlueAutonConfig.specimenDuration),
+            InstantCommand(intake::open),
             ParallelCommandGroup(
-                ReturnToBase(arm, lift),
-                SequentialCommandGroup(
-                    pidSegment(Vec2d(-40, 10), 0.0),
-                    pidSegment(
-                        Vec2d(-36, 48),
-                        0.0,
-                        0.75,
-                        0.75,
-                        threshold = AutonConfig.threshold * 4
-                    ).withTimeout(3000)
-                )
+                pidSegment(Vec2d(-45, -10), 0.0),
+                ReturnToBase(arm, lift)
             )
         )
-        commands.add(
-            PickupGroup(
-                drive,
-                arm,
-                lift,
-                intake,
-                visionPortal.cameraSize,
-                samplePipeline.detections::get
-            )
-        )
-        commands.add(
+        val pickup = SequentialCommandGroup(
             pidSegment(
-                Vec2d(-46, 48),
-                135.0,
-                0.75,
-                0.75,
-                threshold = AutonConfig.threshold * 3
-            ).withTimeout(2000)
+                Vec2d(BlueAutonConfig.pickupX, BlueAutonConfig.pickupY),
+                -90.0,
+            ),
+            PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, samplePipeline.detections::get, true),
+            ReturnToBase(arm, lift)
         )
-        commands.add(
-            SampleScore(arm, lift, intake)
-        )
-        commands.add(WaitCommand(250))
-        commands.add(
-            RelativeDrive(
-                drive,
-                BlueAutonConfig.samplePower
-            ).withTimeout(BlueAutonConfig.sampleDuration)
-        )
-        commands.add(WaitCommand(250))
-        commands.add(InstantCommand(intake::open))
-        commands.add(WaitCommand(BlueAutonConfig.timeout))
-        // owo
-//        commands.add(pidSegment(Vec2d(-44, 47), 135.0).withTimeout(1000))
-//        commands.add(ReturnToBase(arm, lift))
-//        commands.add(pidSegment(Vec2d(-32, 60), 0.0).withTimeout(1000))
-//        commands.add(WaitCommand(BlueAutonConfig.timeout))
-//        commands.add(
-//            PickupGroup(
-//                drive,
-//                arm,
-//                lift,
-//                intake,
-//                visionPortal.cameraSize,
-//                samplePipeline.detections::get
-//            )
-//        )
-//        commands.add(WaitCommand(250))
-//        commands.add(
-//            pidSegment(
-//                Vec2d(-46, 51),
-//                135.0,
-//                0.75,
-//                0.75,
-//                threshold = AutonConfig.threshold * 3
-//            ).withTimeout(2000)
-//        )
-//        commands.add(WaitCommand(250))
-//        commands.add(
-//            SampleScore(arm, lift, intake)
-//        )
-//        commands.add(WaitCommand(250))
-//        commands.add(
-//            RelativeDrive(
-//                drive,
-//                BlueAutonConfig.samplePower
-//            ).withTimeout(BlueAutonConfig.sampleDuration)
-//        )
-//        commands.add(InstantCommand(intake::open))
-//        commands.add(WaitCommand(250))
-        // ***
-        commands.add(WaitCommand(250))
-        commands.add(
-            RelativeDrive(
-                drive,
-                -BlueAutonConfig.samplePower
-            ).withTimeout(BlueAutonConfig.sampleDuration)
-        )
-        commands.add(pidSegment(Vec2d(-44, 47), 135.0).withTimeout(1000))
-        commands.add(WaitCommand(BlueAutonConfig.timeout))
+
         commands.add(ReturnToBase(arm, lift))
-        commands.add(WaitCommand(BlueAutonConfig.timeout))
-        commands.add(pidSegment(Vec2d(-9, 40), 90.0).withTimeout(2000))
-        commands.add(WaitCommand(BlueAutonConfig.timeout))
-        commands.add(
-            RelativeDrive(
-                drive,
-                BlueAutonConfig.parkPower
-            ).withTimeout(BlueAutonConfig.parkDuration)
-        )
-        commands.add(WaitCommand(BlueAutonConfig.timeout))
-        commands.add(InstantCommand({ parkServo.position = 0.6 }))
-
-
+        commands.add(score)
+        commands.add(pickup)
+        commands.add(score)
+        commands.add(pickup)
+        commands.add(score)
         schedule(
             SequentialCommandGroup(*commands.toTypedArray())
         )

@@ -20,6 +20,8 @@ class DirectMotor : CommandOpMode() {
     val arm: Arm by lazy { Arm(hardwareMap, multiTelem, lift::position) }
 
     override fun initialize() {
+        arm.isOverride = true
+        lift.isOverride = true
     }
 
     override fun run() {

@@ -12,13 +12,13 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Servo
+import org.firstinspires.ftc.teamcode.common.commands.ArmCommand
 import org.firstinspires.ftc.teamcode.common.commands.DriveRobotCommand
+import org.firstinspires.ftc.teamcode.common.commands.LiftCommand
 import org.firstinspires.ftc.teamcode.common.commands.PickupGroup
 import org.firstinspires.ftc.teamcode.common.commands.ReturnToBase
 import org.firstinspires.ftc.teamcode.common.commands.SampleScore
 import org.firstinspires.ftc.teamcode.common.commands.SpecimenScore
-import org.firstinspires.ftc.teamcode.common.commands.SubmersibleGroup
-import org.firstinspires.ftc.teamcode.common.commands.SummersibleEnter
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.Intake
@@ -120,39 +120,6 @@ class MainTelelop : CommandOpMode() {
             schedule(specimenScore1)
         }
     }
-    val submersibleEnter by lazy {
-        SummersibleEnter(
-            drive,
-            arm,
-            lift,
-            intake,
-            visionPortal.cameraSize,
-            samplePipeline.detections::get,
-            telem
-        )
-    }
-    val submersibleEnterTrigger by lazy {
-        RisingEdge(gp1, GamepadKeys.Button.DPAD_UP) {
-            schedule(submersibleEnter)
-        }
-    }
-    val submersibleScore by lazy {
-        SubmersibleGroup(
-            drive,
-            arm, // ooga booga
-            lift,
-            intake,
-            visionPortal.cameraSize,
-            samplePipeline.detections::get,
-            telem
-        )
-    }
-    val submersibleScoreTrigger by lazy {
-        RisingEdge(gp1, GamepadKeys.Button.DPAD_DOWN) {
-            schedule(submersibleScore)
-        }
-    }
-
     val returnToBase by lazy { ReturnToBase(arm, lift) }
     val returnToBaseTrigger by lazy {
         RisingEdge(gp1, GamepadKeys.Button.LEFT_BUMPER) {
@@ -190,16 +157,28 @@ class MainTelelop : CommandOpMode() {
             schedule(intakeToggle2)
         }
     }
-    val submersible by lazy {
+    val submersibleEnter by lazy {
+        SequentialCommandGroup(
+            ArmCommand(arm, Arm.submersible),
+            LiftCommand(lift, Lift.submersible),
+            InstantCommand(intake::open)
+        )
+    }
+    val submersibleEnterTrigger by lazy {
+        RisingEdge(gp2, GamepadKeys.Button.RIGHT_BUMPER) {
+            schedule(submersibleEnter)
+        }
+    }
+    val submersibleExit by lazy {
         SequentialCommandGroup(
             intakeToggle2,
             WaitCommand(closeDelay),
             returnToBase2
         )
     }
-    val submersibleTrigger by lazy {
+    val submersibleExitTrigger by lazy {
         RisingEdge(gp2, GamepadKeys.Button.DPAD_RIGHT) {
-            schedule(intakeToggle2)
+            schedule(submersibleExit)
         }
     }
     val resetImu by lazy {
@@ -231,8 +210,18 @@ class MainTelelop : CommandOpMode() {
         })
     }
     val armOffToggle by lazy {
-        RisingEdge(gp2, GamepadKeys.Button.X) {
+        RisingEdge(gp1, GamepadKeys.Button.DPAD_RIGHT) {
             schedule(armOff)
+        }
+    }
+    val armOff2 by lazy {
+        InstantCommand({
+            arm.off()
+        })
+    }
+    val armOffToggle2 by lazy {
+        RisingEdge(gp2, GamepadKeys.Button.X) {
+            schedule(armOff2)
         }
     }
     val liftBypass by lazy {
@@ -268,8 +257,6 @@ class MainTelelop : CommandOpMode() {
         specimenPickupTrigger
         sampleScoreTrigger
         specimenScoreTrigger
-        submersibleEnterTrigger
-        submersibleScoreTrigger
         returnToBaseTrigger
         returnToBase2Trigger
         intakeToggleTrigger
@@ -277,19 +264,31 @@ class MainTelelop : CommandOpMode() {
         resetImuToggle
         resetRestToggle
         armOffToggle
+        armOffToggle2
         liftBypassTrigger
+        submersibleEnterTrigger
+        submersibleExitTrigger
 
         gp1.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
             InstantCommand({ slowDriveMode = true })
         ).whenReleased(
             InstantCommand({ slowDriveMode = false })
         )
-        gp2.gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
-            InstantCommand({ slowMechMode = true })
-        ).whenReleased(
-            InstantCommand({ slowMechMode = false })
-        )
 
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+            .whileHeld(
+                InstantCommand(
+                    { arm.on(); arm.target += if (slowMechMode) slowManualArm else manualArm },
+                    arm
+                )
+            )
+        gp1.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+            .whileHeld(
+                InstantCommand(
+                    { arm.on(); arm.target -= if (slowMechMode) slowManualArm else manualArm },
+                    arm
+                )
+            )
         gp2.gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
             .whileHeld(
                 InstantCommand(

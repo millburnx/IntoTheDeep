@@ -193,7 +193,7 @@ class Arm(
         var kTF: Double = 0.0
 
         @JvmField
-        var base: Int = 30
+        var base: Int = 45
 
         @JvmField
         var ticks_in_degree: Double = 160.0 / 90.0
@@ -233,5 +233,8 @@ class Arm(
 
         @JvmField
         var increaseRate: Double = 1e-7
+
+        @JvmField
+        var submersible: Int = 30
     }
 }

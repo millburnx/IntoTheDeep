@@ -6,10 +6,15 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.commands.ReturnToBase
+import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import org.firstinspires.ftc.teamcode.common.subsystems.Drive
+import org.firstinspires.ftc.teamcode.common.subsystems.Lift
 import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonConfig
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTelelop.Companion.startingArm
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTelelop.Companion.startingLift
 
 @Config
 @TeleOp(name = "DriveTuner", group = "Tuning")
@@ -20,6 +25,13 @@ class DrivePIDTuner : CommandOpMode() {
         Drive(hardwareMap, Telemetry(), FtcDashboard.getInstance())
     }
 
+    val arm: Arm by lazy {
+        Arm(hardwareMap, telemetry, lift.lift::getCurrentPosition, startingArm)
+    }
+    val lift: Lift by lazy {
+        Lift(hardwareMap, startingLift)
+    }
+
     val pidX = PIDController(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
     val pidY = PIDController(AutonConfig.pidT_kP, AutonConfig.pidT_kI, AutonConfig.pidT_kD)
     val pidH = APIDController(AutonConfig.pidH_kP, AutonConfig.pidH_kI, AutonConfig.pidH_kD)
@@ -28,6 +40,7 @@ class DrivePIDTuner : CommandOpMode() {
         pidX.reset()
         pidY.reset()
         pidH.reset()
+        schedule(ReturnToBase(arm, lift))
     }
 
     override fun run() {

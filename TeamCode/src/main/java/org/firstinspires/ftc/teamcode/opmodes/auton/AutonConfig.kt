@@ -20,22 +20,22 @@ object AutonConfig {
     var endingHeading = 180.0
 
     @JvmField
-    var pidT_kP = 0.1
+    var pidT_kP = 0.099
 
     @JvmField
-    var pidT_kI = 0.0
+    var pidT_kI = 0.198
 
     @JvmField
-    var pidT_kD = 0.005
+    var pidT_kD = 0.0198
 
     @JvmField
-    var pidH_kP = 0.025
+    var pidH_kP = 0.03
 
     @JvmField
-    var pidH_kI = 0.0
+    var pidH_kI = 0.06
 
     @JvmField
-    var pidH_kD = 0.0
+    var pidH_kD = 0.00001
 
     @JvmField
     var minRange = 12.0
