@@ -111,7 +111,7 @@ class Lift(hardwareMap: HardwareMap, val starting: Int = 0, var armAngle: () -> 
         var base: Double = 30.0;
 
         @JvmField
-        var maxP: Double = 0.9 // hendry wuz here
+        var maxP: Double = 0.95 // hendry wuz here
 
         @JvmField
         var useExtensionLimit = false // enable after tuned

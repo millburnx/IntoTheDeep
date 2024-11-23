@@ -44,6 +44,6 @@ class Intake(hardwareMap: HardwareMap) : SubsystemBase() {
         var openPosition: Double = 0.5
 
         @JvmField
-        var closedPosition: Double = 0.3
+        var closedPosition: Double = 0.275
     }
 }

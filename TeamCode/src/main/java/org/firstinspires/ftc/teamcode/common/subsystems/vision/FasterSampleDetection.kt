@@ -54,7 +54,7 @@ class FasterSampleDetection(val telemetry: Telemetry?) : VisionProcessor, Camera
         var ratioMin: Double = 0.375
 
         @JvmField
-        var ratioMax: Double = 0.7
+        var ratioMax: Double = 0.9
     }
 
     val detections: AtomicReference<List<IDetection>> = AtomicReference(emptyList())
@@ -156,7 +156,7 @@ class FasterSampleDetection(val telemetry: Telemetry?) : VisionProcessor, Camera
                 rect.center,
                 Imgproc.FONT_HERSHEY_PLAIN,
                 1.0,
-                Scalar(0.0, 0.0, 255.0)
+                Scalar(0.0, 255.0, 0.0)
             )
         }
 

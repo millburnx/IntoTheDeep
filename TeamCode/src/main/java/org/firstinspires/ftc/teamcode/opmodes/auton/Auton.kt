@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import java.io.File
 
 @Config
-object BlueAutonConfig {
+object AutonConfig2 {
     @JvmField
     var startX = -60.0
 
@@ -41,16 +41,19 @@ object BlueAutonConfig {
     var startH = 0.0
 
     @JvmField
-    var specimenPower: Double = 0.25
+    var specimenPower: Double = 0.3
 
     @JvmField
-    var specimenDuration: Long = 1000
+    var specimenDuration: Long = 1250
 
     @JvmField
     var pickupX: Double = -52.0
 
     @JvmField
     var pickupY: Double = -40.0
+
+    @JvmField
+    var offsetMulti: Double = 1.0
 }
 
 @Autonomous(name = "Full Auton")
@@ -60,8 +63,8 @@ class BlueAuton : CommandOpMode() {
             hardwareMap,
             tel,
             dash,
-            Vec2d(BlueAutonConfig.startX, BlueAutonConfig.startY),
-            BlueAutonConfig.startH,
+            Vec2d(AutonConfig2.startX, AutonConfig2.startY),
+            AutonConfig2.startH,
             zeroBreak = true
         )
     }
@@ -160,34 +163,58 @@ class BlueAuton : CommandOpMode() {
 
         val commands: MutableList<Command> = mutableListOf()
 
-        val score = SequentialCommandGroup(
-            pidSegment(Vec2d(-45, -10), 0.0),
-            SpecimenScore(arm, lift, intake),
-            RelativeDrive(
-                drive,
-                BlueAutonConfig.specimenPower
-            ).withTimeout(BlueAutonConfig.specimenDuration),
-            InstantCommand(intake::open),
-            ParallelCommandGroup(
-                pidSegment(Vec2d(-45, -10), 0.0),
-                ReturnToBase(arm, lift)
+        val score = fun(offset: Int): SequentialCommandGroup =
+            SequentialCommandGroup(
+                ParallelCommandGroup(
+                    pidSegment(Vec2d(-45, -10 + offset * AutonConfig2.offsetMulti), 0.0),
+                    SpecimenScore(arm, lift, intake),
+                ),
+                RelativeDrive(
+                    drive,
+                    AutonConfig2.specimenPower
+                ).withTimeout(AutonConfig2.specimenDuration),
+                InstantCommand(intake::open),
+                ParallelCommandGroup(
+                    pidSegment(Vec2d(-45, -10 + offset * AutonConfig2.offsetMulti), 0.0),
+                    ReturnToBase(arm, lift)
+                )
             )
-        )
         val pickup = SequentialCommandGroup(
             pidSegment(
-                Vec2d(BlueAutonConfig.pickupX, BlueAutonConfig.pickupY),
+                Vec2d(AutonConfig2.pickupX, AutonConfig2.pickupY),
                 -90.0,
+                threshold = AutonConfig.threshold * 2
             ),
             PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, samplePipeline.detections::get, true),
-            ReturnToBase(arm, lift)
+        )
+        val pushFirst = SequentialCommandGroup(
+            pidSegment(
+                Vec2d(-52, -38),
+                0.0,
+                threshold = AutonConfig.threshold * 2
+            ),
+            pidSegment(
+                Vec2d(-12, -38),
+                0.0,
+                threshold = AutonConfig.threshold * 2
+            ),
+            pidSegment(
+                Vec2d(-12, -48),
+                0.0,
+                threshold = AutonConfig.threshold * 2
+            ),
+            pidSegment(
+                Vec2d(-52, -40),
+                0.0,
+                threshold = AutonConfig.threshold * 2
+            ),
         )
 
         commands.add(ReturnToBase(arm, lift))
-        commands.add(score)
+        commands.add(score(0))
+        commands.add(pushFirst)
         commands.add(pickup)
-        commands.add(score)
-        commands.add(pickup)
-        commands.add(score)
+        commands.add(score(1))
         schedule(
             SequentialCommandGroup(*commands.toTypedArray())
         )

@@ -4,7 +4,13 @@ import com.arcrobotics.ftclib.command.CommandBase
 import org.firstinspires.ftc.teamcode.common.subsystems.Arm
 import kotlin.math.abs
 
-class ArmCommand(val arm: Arm, val target: Int, val threshold: Int = Arm.threshold) : CommandBase() {
+class ArmCommand(val arm: Arm, val targetCmd: () -> Int, val threshold: Int = Arm.threshold) : CommandBase() {
+    val target by lazy {
+        targetCmd()
+    }
+
+    constructor(arm: Arm, targetValue: Int) : this(arm, { targetValue })
+
     init {
         addRequirements(arm)
     }

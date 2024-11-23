@@ -75,10 +75,10 @@ object Sample {
 @Config
 object Specimen {
     @JvmField
-    var arm: Int = 113
+    var arm: Int = 110
 
     @JvmField
-    var lift1: Double = 1325.0
+    var lift1: Double = 1275.0
 
     @JvmField
     var delay: Long = 1000

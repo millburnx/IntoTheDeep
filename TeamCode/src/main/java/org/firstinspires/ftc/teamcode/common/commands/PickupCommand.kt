@@ -134,7 +134,7 @@ open class PickupCommand(
         var sampleOffset = 0
 
         @JvmField
-        var clipPostOffset = 100
+        var clipPostOffset = 50
 
         @JvmField
         var samplePostOffset = 0
@@ -193,9 +193,9 @@ fun PickupGroup(
         ParallelCommandGroup(
             LiftCommand(
                 lift,
-                Lift.base + if (isClip) PickupCommand.clipOffset else PickupCommand.sampleOffset
+                { Lift.base + if (isClip) PickupCommand.clipOffset else PickupCommand.sampleOffset }
             ),
-            ArmCommand(arm, PickupCommand.visionArm).withTimeout(PickupCommand.armUpDuration),
+            ArmCommand(arm, { PickupCommand.visionArm }).withTimeout(PickupCommand.armUpDuration),
             InstantCommand(intake::open, intake),
         ),
         PickupCommand(
@@ -208,9 +208,9 @@ fun PickupGroup(
                 PickupCommand.clipOffsetY
             ) else Vec2d(PickupCommand.sampleOffsetX, PickupCommand.sampleOffsetY)
         ).withTimeout(PickupCommand.duration),
-        if (isClip) LiftCommand(lift, Lift.base + PickupCommand.clipPostOffset) else LiftCommand(
+        if (isClip) LiftCommand(lift, { Lift.base + PickupCommand.clipPostOffset }) else LiftCommand(
             lift,
-            Lift.base + PickupCommand.samplePostOffset
+            { Lift.base + PickupCommand.samplePostOffset }
         ),
         SequentialCommandGroup(InstantCommand({
             arm.isOverride = true; arm.setPower(PickupCommand.clipLower)
@@ -227,6 +227,6 @@ fun PickupGroup(
         if (isClip) InstantCommand({
             arm.isOverride = false; arm.setPower(0.0)
         }) else InstantCommand({}),
-        ArmCommand(arm, PickupCommand.visionArm),
+        ArmCommand(arm, { PickupCommand.visionArm }),
     )
 }
