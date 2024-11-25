@@ -41,10 +41,10 @@ object AutonConfig2 {
     var startH = 0.0
 
     @JvmField
-    var specimenPower: Double = 0.3
+    var specimenPower: Double = 0.4
 
     @JvmField
-    var specimenDuration: Long = 1250
+    var specimenDuration: Long = 1000
 
     @JvmField
     var pickupX: Double = -52.0
@@ -166,8 +166,8 @@ class BlueAuton : CommandOpMode() {
         val score = fun(offset: Int): SequentialCommandGroup =
             SequentialCommandGroup(
                 ParallelCommandGroup(
-                    pidSegment(Vec2d(-45, -10 + offset * AutonConfig2.offsetMulti), 0.0),
-                    SpecimenScore(arm, lift, intake),
+                    pidSegment(Vec2d(-44, -10 + offset * AutonConfig2.offsetMulti), 0.0),
+                    SpecimenScore(arm, lift, intake)
                 ),
                 RelativeDrive(
                     drive,
@@ -209,10 +209,18 @@ class BlueAuton : CommandOpMode() {
                 threshold = AutonConfig.threshold * 2
             ),
         )
+        val exitHuman = SequentialCommandGroup(
+            pidSegment(
+                Vec2d(-49, -36),
+                45.0,
+                threshold = AutonConfig.threshold * 2
+            ),
+        )
 
         commands.add(ReturnToBase(arm, lift))
         commands.add(score(0))
         commands.add(pushFirst)
+        commands.add(exitHuman)
         commands.add(pickup)
         commands.add(score(1))
         schedule(
