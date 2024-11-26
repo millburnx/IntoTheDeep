@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.controller.PIDController
 import com.millburnx.utils.Path
 import com.millburnx.utils.Vec2d
@@ -47,13 +48,19 @@ object AutonConfig2 {
     var specimenDuration: Long = 1000
 
     @JvmField
-    var pickupX: Double = -52.0
+    var pickupX: Double = -54.0
 
     @JvmField
     var pickupY: Double = -40.0
 
     @JvmField
     var offsetMulti: Double = 1.0
+
+    @JvmField
+    var humanDuration: Long = 3000
+
+    @JvmField
+    var humanOffset: Double = 8.0
 }
 
 @Autonomous(name = "Full Auton")
@@ -189,32 +196,38 @@ class BlueAuton : CommandOpMode() {
         )
         val pushFirst = SequentialCommandGroup(
             pidSegment(
-                Vec2d(-52, -38),
+                Vec2d(-52, -36),
                 0.0,
                 threshold = AutonConfig.threshold * 2
             ),
             pidSegment(
-                Vec2d(-12, -38),
+                Vec2d(-12, -36),
                 0.0,
                 threshold = AutonConfig.threshold * 2
             ),
             pidSegment(
-                Vec2d(-12, -48),
+                Vec2d(-12, -46),
                 0.0,
                 threshold = AutonConfig.threshold * 2
             ),
             pidSegment(
-                Vec2d(-52, -40),
+                Vec2d(-52, -48),
                 0.0,
                 threshold = AutonConfig.threshold * 2
             ),
         )
         val exitHuman = SequentialCommandGroup(
             pidSegment(
-                Vec2d(-49, -36),
+                Vec2d(-46, -32),
                 45.0,
                 threshold = AutonConfig.threshold * 2
             ),
+            pidSegment(
+                Vec2d(AutonConfig2.pickupX, AutonConfig2.pickupY + AutonConfig2.humanOffset),
+                -90.0,
+                threshold = AutonConfig.threshold * 2
+            ),
+            WaitCommand(AutonConfig2.humanDuration),
         )
 
         commands.add(ReturnToBase(arm, lift))
