@@ -182,7 +182,7 @@ class BlueAuton : CommandOpMode() {
                 ).withTimeout(AutonConfig2.specimenDuration),
                 InstantCommand(intake::open),
                 ParallelCommandGroup(
-                    pidSegment(Vec2d(-45, -10 + offset * AutonConfig2.offsetMulti), 0.0),
+                    pidSegment(Vec2d(-44, -10 + offset * AutonConfig2.offsetMulti), 0.0),
                     ReturnToBase(arm, lift)
                 )
             )
