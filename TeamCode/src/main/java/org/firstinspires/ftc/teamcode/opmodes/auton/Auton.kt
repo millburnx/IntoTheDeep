@@ -46,19 +46,19 @@ object AutonConfig2 {
     var specimenPower: Double = 0.4
 
     @JvmField
-    var specimenDuration: Long = 875
+    var specimenDuration: Long = 1250
 
     @JvmField
-    var pickupX: Double = -55.0
+    var pickupX: Double = -64.0
 
     @JvmField
-    var pickupY: Double = -44.0
+    var pickupY: Double = -48.0
 
     @JvmField
     var offsetMulti: Double = 1.0
 
     @JvmField
-    var humanDuration: Long = 2000
+    var humanDuration: Long = 0
 
     @JvmField
     var humanOffset: Double = 12.0
@@ -178,7 +178,7 @@ class BlueAuton : CommandOpMode() {
         val score = fun(offset: Int): SequentialCommandGroup =
             SequentialCommandGroup(
                 ParallelCommandGroup(
-                    pidSegment(Vec2d(-46, -10 + offset * AutonConfig2.offsetMulti), 0.0),
+                    pidSegment(Vec2d(-42 - (12 * offset), -8 + offset * AutonConfig2.offsetMulti), 0.0),
                     SpecimenScore(arm, lift, intake)
                 ),
                 RelativeDrive(
@@ -207,34 +207,34 @@ class BlueAuton : CommandOpMode() {
                 threshold = AutonConfig.threshold * 2
             ),
             pidSegment(
-                Vec2d(-52, -45),
+                Vec2d(AutonConfig2.pickupX, -45),
                 0.0,
                 threshold = AutonConfig.threshold * 2
             ),
         )
         val push2 = SequentialCommandGroup(
             pidSegment(
-                Vec2d(-12, -38),
+                Vec2d(-18, -38),
                 0.0,
                 threshold = AutonConfig.threshold * 4
             ),
             pidSegment(
-                Vec2d(-12, -53),
+                Vec2d(-18, -53),
                 0.0,
                 threshold = AutonConfig.threshold * 2
             ),
             pidSegment(
-                Vec2d(-56, -56),
+                Vec2d(AutonConfig2.pickupX, -56),
+                0.0,
+                threshold = AutonConfig.threshold * 2
+            ),
+            pidSegment(
+                Vec2d(-50, -56),
                 0.0,
                 threshold = AutonConfig.threshold * 4
             ),
             pidSegment(
-                Vec2d(-40, -56),
-                0.0,
-                threshold = AutonConfig.threshold * 4
-            ),
-            pidSegment(
-                Vec2d(-40, AutonConfig2.pickupY),
+                Vec2d(-50, AutonConfig2.pickupY),
                 -180.0,
                 threshold = AutonConfig.threshold * 4
             ),
