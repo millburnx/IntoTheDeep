@@ -48,19 +48,19 @@ object AutonConfig2 {
     var specimenDuration: Long = 1000
 
     @JvmField
-    var pickupX: Double = -54.0
+    var pickupX: Double = -54.5
 
     @JvmField
-    var pickupY: Double = -40.0
+    var pickupY: Double = -58.0
 
     @JvmField
-    var offsetMulti: Double = 1.0
+    var offsetMulti: Double = 2.0
 
     @JvmField
-    var humanDuration: Long = 3000
+    var humanDuration: Long = 1000
 
     @JvmField
-    var humanOffset: Double = 8.0
+    var humanOffset: Double = 12.0
 }
 
 @Autonomous(name = "Full Auton")
@@ -173,7 +173,7 @@ class BlueAuton : CommandOpMode() {
         val score = fun(offset: Int): SequentialCommandGroup =
             SequentialCommandGroup(
                 ParallelCommandGroup(
-                    pidSegment(Vec2d(-44, -10 + offset * AutonConfig2.offsetMulti), 0.0),
+                    pidSegment(Vec2d(-44 - (offset * 8), -10 + offset * AutonConfig2.offsetMulti), 0.0),
                     SpecimenScore(arm, lift, intake)
                 ),
                 RelativeDrive(
@@ -182,15 +182,16 @@ class BlueAuton : CommandOpMode() {
                 ).withTimeout(AutonConfig2.specimenDuration),
                 InstantCommand(intake::open),
                 ParallelCommandGroup(
-                    pidSegment(Vec2d(-44, -10 + offset * AutonConfig2.offsetMulti), 0.0),
+                    pidSegment(Vec2d(-44 - (offset * 8), -10 + offset * AutonConfig2.offsetMulti), 0.0),
                     ReturnToBase(arm, lift)
                 )
             )
         val pickup = SequentialCommandGroup(
             pidSegment(
                 Vec2d(AutonConfig2.pickupX, AutonConfig2.pickupY),
-                -90.0,
-                threshold = AutonConfig.threshold * 2
+                180.0,
+                threshold = AutonConfig.threshold * 5,
+                thresholdHeading = AutonConfig.headingTolerance * 6
             ),
             PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, samplePipeline.detections::get, true),
         )
@@ -201,31 +202,35 @@ class BlueAuton : CommandOpMode() {
                 threshold = AutonConfig.threshold * 2
             ),
             pidSegment(
-                Vec2d(-12, -36),
+                Vec2d(-16, -36),
+                0.0,
+                threshold = AutonConfig.threshold * 2,
+                multiF = 0.9
+            ),
+            pidSegment(
+                Vec2d(-16, -46),
                 0.0,
                 threshold = AutonConfig.threshold * 2
             ),
             pidSegment(
-                Vec2d(-12, -46),
+                Vec2d(-62, -48),
                 0.0,
-                threshold = AutonConfig.threshold * 2
-            ),
-            pidSegment(
-                Vec2d(-52, -48),
-                0.0,
-                threshold = AutonConfig.threshold * 2
+                threshold = AutonConfig.threshold * 2,
+                multiF = 0.9
             ),
         )
         val exitHuman = SequentialCommandGroup(
             pidSegment(
-                Vec2d(-46, -32),
-                45.0,
-                threshold = AutonConfig.threshold * 2
+                Vec2d(-46, -48),
+                0.0,
+                threshold = AutonConfig.threshold * 4,
+                multiF = 0.9
             ),
             pidSegment(
-                Vec2d(AutonConfig2.pickupX, AutonConfig2.pickupY + AutonConfig2.humanOffset),
-                -90.0,
-                threshold = AutonConfig.threshold * 2
+                Vec2d(AutonConfig2.pickupX + AutonConfig2.humanOffset, AutonConfig2.pickupY),
+                180.0,
+                threshold = AutonConfig.threshold * 5,
+                thresholdHeading = AutonConfig.headingTolerance * 4
             ),
             WaitCommand(AutonConfig2.humanDuration),
         )
@@ -236,6 +241,13 @@ class BlueAuton : CommandOpMode() {
         commands.add(exitHuman)
         commands.add(pickup)
         commands.add(score(1))
+        commands.add(
+            pidSegment(
+                Vec2d(-60, -56),
+                90.0,
+                threshold = AutonConfig.threshold * 4
+            )
+        )
         schedule(
             SequentialCommandGroup(*commands.toTypedArray())
         )
