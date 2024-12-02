@@ -55,9 +55,9 @@ class Drive(
         SampleMecanumDrive(hardwareMap)
     }
 
-    //    val leftOdom: Motor.Encoder by lazy {
-//        leftRear.encoder
-//    }
+    val leftOdom: Motor.Encoder by lazy {
+        leftRear.encoder
+    }
     val centerOdom: Motor.Encoder by lazy {
         leftFront.encoder
     }
@@ -93,15 +93,15 @@ class Drive(
         )
         imu.resetYaw()
 
-//        leftOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
+        leftOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
         centerOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
         rightOdom.setDistancePerPulse(DISTANCE_PER_PULSE)
 
-//        leftOdom.setDirection(Motor.Direction.REVERSE)
+        leftOdom.setDirection(Motor.Direction.REVERSE)
         centerOdom.setDirection(Motor.Direction.FORWARD)
         rightOdom.setDirection(Motor.Direction.FORWARD)
 
-//        leftOdom.reset()
+        leftOdom.reset()
         centerOdom.reset()
         rightOdom.reset()
 

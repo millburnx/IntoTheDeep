@@ -28,6 +28,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.vision.FasterSampleDetec
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.VisionPortal
 import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Telemetry
+import org.firstinspires.ftc.teamcode.opmodes.tuning.PurePursuitTest
 import java.io.File
 
 @Config
@@ -45,7 +46,7 @@ object AutonConfig2 {
     var specimenPower: Double = 0.4
 
     @JvmField
-    var specimenDuration: Long = 1000
+    var specimenDuration: Long = 1250
 
     @JvmField
     var pickupX: Double = -54.5
@@ -95,8 +96,12 @@ class BlueAuton : CommandOpMode() {
     val rootDir = Environment.getExternalStorageDirectory()
 
     fun loadSegment(index: Int): Path {
-        return pathMap.getOrPut(index) {
-            val path = "${rootDir}/Paths/${AutonConfig.pathName}${index}.tsv"
+        return loadPath("${AutonConfig.pathName}${index}")
+    }
+
+    fun loadPath(name: String): Path {
+        return PurePursuitTest.Companion.pathMap.getOrPut(name) {
+            val path = "${rootDir}/Paths/${name}.tsv"
             val segment: Path = try {
                 val loaded = Vec2d.loadList(File(path))
                 println(loaded)
@@ -195,9 +200,10 @@ class BlueAuton : CommandOpMode() {
             ),
             PickupGroup(drive, arm, lift, intake, visionPortal.cameraSize, samplePipeline.detections::get, true),
         )
-        val pushFirst = SequentialCommandGroup(
+        val push1 = SequentialCommandGroup(
+            purePursuitSegment(loadPath("push1")),
             pidSegment(
-                Vec2d(-52, -36),
+                Vec2d(-12, -45),
                 0.0,
                 threshold = AutonConfig.threshold * 2
             ),
@@ -207,10 +213,12 @@ class BlueAuton : CommandOpMode() {
                 threshold = AutonConfig.threshold * 2,
                 multiF = 0.9
             ),
+        )
+        val push2 = SequentialCommandGroup(
             pidSegment(
                 Vec2d(-16, -46),
                 0.0,
-                threshold = AutonConfig.threshold * 2
+                threshold = AutonConfig.threshold * 4
             ),
             pidSegment(
                 Vec2d(-62, -48),
@@ -218,8 +226,6 @@ class BlueAuton : CommandOpMode() {
                 threshold = AutonConfig.threshold * 2,
                 multiF = 0.9
             ),
-        )
-        val exitHuman = SequentialCommandGroup(
             pidSegment(
                 Vec2d(-46, -48),
                 0.0,
@@ -237,8 +243,8 @@ class BlueAuton : CommandOpMode() {
 
         commands.add(ReturnToBase(arm, lift))
         commands.add(score(0))
-        commands.add(pushFirst)
-        commands.add(exitHuman)
+        commands.add(push1)
+        commands.add(push2)
         commands.add(pickup)
         commands.add(score(1))
         commands.add(

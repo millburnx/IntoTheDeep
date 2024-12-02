@@ -5,19 +5,13 @@ import com.acmerobotics.dashboard.config.Config
 @Config
 object AutonConfig {
     @JvmField
-    var multiF = 0.75
+    var multiF = 1.0
 
     @JvmField
     var multiH = 0.75
 
     @JvmField
     var pathName = "blue"
-
-    @JvmField
-    var useEndingHeading = true
-
-    @JvmField
-    var endingHeading = 180.0
 
     @JvmField
     var pidT_kP = 0.099
@@ -38,10 +32,10 @@ object AutonConfig {
     var pidH_kD = 0.00001
 
     @JvmField
-    var minRange = 12.0
+    var minRange = 16.0
 
     @JvmField
-    var maxRange = 16.0
+    var maxRange = 20.0
 
     @JvmField
     var threshold = 1.0
@@ -50,11 +44,5 @@ object AutonConfig {
     var headingTolerance = 3.0
 
     @JvmField
-    var segments: Int = 1
-
-    @JvmField
     var timeout: Long = 5000
-
-    @JvmField
-    var barPower: Double = 0.3
 }

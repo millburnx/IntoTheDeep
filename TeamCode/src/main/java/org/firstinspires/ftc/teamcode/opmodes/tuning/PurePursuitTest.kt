@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.tuning
 
 import android.os.Environment
 import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
@@ -20,14 +21,15 @@ import org.firstinspires.ftc.teamcode.common.utils.Telemetry
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonConfig
 import java.io.File
 
+@Config
 @Autonomous(name = "Pure Pursuit")
 class PurePursuitTest : CommandOpMode() {
     companion object {
         @JvmField
-        var startX = 0.0
+        var startX = -60.0
 
         @JvmField
-        var startY = 0.0
+        var startY = -12.0
 
         @JvmField
         var startH = 0.0

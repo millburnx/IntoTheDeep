@@ -26,7 +26,7 @@ class PurePursuitCommand(
     val pidX: PIDController = PIDController(0.0, 0.0, 0.0),
     val pidY: PIDController = PIDController(0.0, 0.0, 0.0),
     val pidH: APIDController = APIDController(0.0, 0.0, 0.0),
-    val lookahead: ClosedFloatingPointRange<Double> = 8.0..16.0,
+    val lookahead: ClosedFloatingPointRange<Double> = AutonConfig.minRange..AutonConfig.maxRange,
     val headingIndependent: Boolean = false,
 ) : CommandBase() {
     companion object {
