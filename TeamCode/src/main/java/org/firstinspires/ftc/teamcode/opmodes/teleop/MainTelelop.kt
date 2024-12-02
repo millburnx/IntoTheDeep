@@ -184,7 +184,7 @@ class MainTelelop : CommandOpMode() {
     val resetImu by lazy {
         InstantCommand({
             drive.imu.resetYaw()
-            drive.startingH = 0.0
+//            drive.startingH = 0.0
         })
     }
     val resetImuToggle by lazy {

@@ -51,7 +51,7 @@ object AutonConfig2 {
     var pickupX: Double = -54.5
 
     @JvmField
-    var pickupY: Double = -58.0
+    var pickupY: Double = -57.0
 
     @JvmField
     var offsetMulti: Double = 2.0
@@ -243,7 +243,7 @@ class BlueAuton : CommandOpMode() {
         commands.add(score(1))
         commands.add(
             pidSegment(
-                Vec2d(-60, -56),
+                Vec2d(-63, -56),
                 90.0,
                 threshold = AutonConfig.threshold * 4
             )
