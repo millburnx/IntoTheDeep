@@ -1,47 +1,32 @@
 package org.firstinspires.ftc.teamcode.common.subsystems
 
-import com.qualcomm.robotcore.hardware.DcMotor.RunMode
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior
+import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.hardware.DcMotorEx
-import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import kotlin.math.abs
+import org.firstinspires.ftc.teamcode.common.utils.init
+import kotlin.math.absoluteValue
 import kotlin.math.max
 
 class Drive(robot: Robot) : Subsystem() {
-    val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).also {
-        it.direction = Direction.FORWARD
-    }
-    val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).also {
-        it.direction = Direction.FORWARD
-    }
-    val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).also {
-        it.direction = Direction.FORWARD
-    }
-    val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).also {
-        it.direction = Direction.FORWARD
-    }
-    val motors = listOf<DcMotorEx>(frontLeft, frontRight, backLeft, backRight).also {
-        it.forEach {
-            it.zeroPowerBehavior = ZeroPowerBehavior.FLOAT
-            it.mode = RunMode.STOP_AND_RESET_ENCODER
-            it.mode = RunMode.RUN_WITHOUT_ENCODER
-        }
-    }
+    val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).also { it.init() }
+    val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).also { it.init() }
+    val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).also { it.init() }
+    val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).also { it.init() }
+    val motors = listOf<DcMotorEx>(frontLeft, frontRight, backLeft, backRight)
 
-    fun robotCentric(forward: Double, strafe: Double, rotate: Double) {
-        val denominator = max(
-            abs(forward) + abs(strafe) + abs(rotate), 1.0
-        )
-        val frontLeftPower = (forward + strafe + rotate) / denominator
-        val frontRightPower = (forward - strafe - rotate) / denominator
-        val backLeftPower = (forward - strafe + rotate) / denominator
-        val backRightPower = (forward + strafe - rotate) / denominator
+    fun robotCentric(forward: Double, strafe: Double, rotate: Double) = fieldCentric(forward, strafe, rotate, 0.0)
+    
+    fun fieldCentric(x: Double, y: Double, rotate: Double, heading: Double) {
+        val relativeVector = Vec2d(x, y).rotate(-heading) * Vec2d(1.0, 1.1)
 
-        frontLeft.power = frontLeftPower
-        frontRight.power = frontRightPower
-        backLeft.power = backLeftPower
-        backRight.power = backRightPower
+        val forward = relativeVector.x
+        val strafe = relativeVector.y
+
+        val denominator = max(forward.absoluteValue + strafe.absoluteValue + rotate.absoluteValue, 1.0)
+        frontLeft.power = (forward + strafe + rotate) / denominator
+        frontRight.power = (forward - strafe + rotate) / denominator
+        backLeft.power = (forward - strafe - rotate) / denominator
+        backRight.power = (forward + strafe - rotate) / denominator
     }
 }
