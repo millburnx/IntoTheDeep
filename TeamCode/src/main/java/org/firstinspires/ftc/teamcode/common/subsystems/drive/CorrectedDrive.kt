@@ -1,12 +1,25 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
+import com.acmerobotics.dashboard.config.Config
 import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.toCorrectedVec2d
 import kotlin.math.pow
 
+@Config
 class CorrectedDrive(robot: Robot) : Drive(robot) {
+
+    companion object {
+        @JvmStatic
+        var centripetalWeight: Double = 0.1
+    }
+
     val positionBuffer = RingBuffer<Vec2d>(3)
+
+    override fun fieldCentric(x: Double, y: Double, rotate: Double, heading: Double) {
+        val centripetalCorrection = getCentripetalCorrection()
+        super.fieldCentric(x + centripetalCorrection.x, y + centripetalCorrection.y, rotate, heading)
+    }
 
     // https://en.wikipedia.org/wiki/Circumcircle#Circumcenter_coordinates
     fun getCircumcenter(): Vec2d {
@@ -24,7 +37,7 @@ class CorrectedDrive(robot: Robot) : Drive(robot) {
 
     fun getCentripetalCorrection(
         currentVelocity: Vec2d = odometry.poseVelocity?.toCorrectedVec2d() ?: Vec2d(0),
-        weighting: Double = 1.0
+        weighting: Double = centripetalWeight
     ): Vec2d {
         if (!positionBuffer.isFull) return Vec2d(0)
         val current = positionBuffer.get(2)!!
