@@ -52,6 +52,14 @@ data class Vec2d(val x: Double, val y: Double) {
         return sqrt(xDiff * xDiff + yDiff * yDiff)
     }
 
+    fun normalize(): Double {
+        return sqrt(this.dot(this))
+    }
+
+    fun dot(other: Vec2d): Double {
+        return x * other.x + y * other.y
+    }
+
     /**
      * Returns the angle to another point
      */
