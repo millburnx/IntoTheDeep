@@ -10,7 +10,7 @@ import kotlin.math.pow
 class CorrectedDrive(robot: Robot) : Drive(robot) {
 
     companion object {
-        @JvmStatic
+        @JvmField
         var centripetalWeight: Double = 0.1
     }
 
