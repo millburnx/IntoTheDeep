@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo
 @TeleOp(name = "Servo Tuner")
 @Config
 class ServoTuner : CommandOpMode() {
-    val servo by lazy { hardwareMap["servo"] as Servo }
+    val servo by lazy { hardwareMap[name] as Servo }
     val multiTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun run() {
@@ -24,5 +24,9 @@ class ServoTuner : CommandOpMode() {
     companion object {
         @JvmField
         var position: Double = 0.0
+
+        // idk how to do port based without weird calcified stuff, i'll look into it later
+        @JvmField
+        var name: String = "servo"
     }
 }
