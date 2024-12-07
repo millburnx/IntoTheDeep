@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.rr.drive.SampleMecanumDrive
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
-open class Drive(robot: Robot) : Subsystem() {
+open class Drive(val robot: Robot) : Subsystem() {
     val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).also { it.init() }
     val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).also { it.init() }
     val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).also { it.init() }
