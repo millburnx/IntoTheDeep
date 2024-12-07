@@ -25,7 +25,7 @@ class ServoTuner : CommandOpMode() {
         @JvmField
         var position: Double = 0.0
 
-        // idk how to do port based without weird calcified stuff, i'll look into it later
+        // IDK how to do port based without weird calcified stuff, I'll look into it later
         @JvmField
         var name: String = "servo"
     }
