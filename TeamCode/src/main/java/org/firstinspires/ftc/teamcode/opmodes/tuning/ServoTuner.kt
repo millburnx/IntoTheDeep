@@ -24,7 +24,5 @@ class ServoTuner : CommandOpMode() {
     companion object {
         @JvmField
         var position: Double = 0.0
-
-        // .575(extended) | 0.975(base) for linkage
     }
 }
