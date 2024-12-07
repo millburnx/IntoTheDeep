@@ -6,6 +6,8 @@ import com.qualcomm.hardware.lynx.LynxModule.BulkCachingMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.Intake
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Outtake
 import org.firstinspires.ftc.teamcode.common.utils.DeltaTime
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
@@ -13,9 +15,11 @@ class Robot(val opMode: OpMode) : SubsystemBase() {
     val hardware: HardwareMap by lazy { opMode.hardwareMap }
     val hubs by lazy { hardware.getAll<LynxModule?>(LynxModule::class.java) }
     val drive by lazy { Drive(this) }
+    val intake: Intake = Intake(this)
+    val outtake: Outtake = Outtake(this)
     val additionalSubsystems: List<Subsystem> = listOf()
     val subsystems: List<Subsystem> = listOf(
-        drive, *additionalSubsystems.toTypedArray()
+        drive, intake, outtake, *additionalSubsystems.toTypedArray()
     )
     val deltaTime = DeltaTime()
 
