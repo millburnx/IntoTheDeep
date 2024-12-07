@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.common
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.lynx.LynxModule.BulkCachingMode
@@ -11,14 +13,16 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Outtake
 import org.firstinspires.ftc.teamcode.common.utils.DeltaTime
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class Robot(val opMode: OpMode) : SubsystemBase() {
+open class Robot(val opMode: OpMode) : SubsystemBase() {
+    val telemetry = MultipleTelemetry(opMode.telemetry, FtcDashboard.getInstance().telemetry)
+
     val hardware: HardwareMap by lazy { opMode.hardwareMap }
     val hubs by lazy { hardware.getAll<LynxModule?>(LynxModule::class.java) }
     val drive by lazy { Drive(this) }
     val intake: Intake = Intake(this)
     val outtake: Outtake = Outtake(this)
     val additionalSubsystems: List<Subsystem> = listOf()
-    val subsystems: List<Subsystem> = listOf(
+    open val subsystems: List<Subsystem> = listOf(
         drive, intake, outtake, *additionalSubsystems.toTypedArray()
     )
     val deltaTime = DeltaTime()
