@@ -13,16 +13,16 @@ class Linkage(val robot: Robot) : Subsystem() {
     val rightServo: Servo = robot.hardware["linkageRight"] as Servo
 
     override fun periodic() {
-        val position = Utils.lerp(basePosition, extendedPosition, target)
+        val position = Utils.lerp(starting, starting + range, target)
         leftServo.position = position
-        rightServo.position = position
+        rightServo.position = 1.0 - position
     }
 
     companion object {
         @JvmField
-        var basePosition = 0.975
+        var starting = 0.165
 
         @JvmField
-        var extendedPosition = 0.575
+        var range = 0.5 - 0.165
     }
 }

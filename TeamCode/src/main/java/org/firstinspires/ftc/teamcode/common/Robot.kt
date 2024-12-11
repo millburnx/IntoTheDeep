@@ -19,15 +19,15 @@ open class Robot(val opMode: OpMode) : SubsystemBase() {
     val hardware: HardwareMap by lazy { opMode.hardwareMap }
     val hubs by lazy { hardware.getAll<LynxModule?>(LynxModule::class.java) }
     val drive by lazy { Drive(this) }
-    val intake: Intake = Intake(this)
-    val outtake: Outtake = Outtake(this)
+    val intake: Intake by lazy { Intake(this) }
+    val outtake: Outtake by lazy { Outtake(this) }
     val additionalSubsystems: List<Subsystem> = listOf()
     open val subsystems: List<Subsystem> = listOf(
         drive, intake, outtake, *additionalSubsystems.toTypedArray()
     )
     val deltaTime = DeltaTime()
 
-    fun init() {
+    open fun init() {
         hubs.forEach { it.bulkCachingMode = BulkCachingMode.AUTO }
         subsystems.forEach {
             it.init() // triggers lazy loader
