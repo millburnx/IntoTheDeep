@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.hardware.Servo.Direction
 
 @TeleOp(name = "Servo Tuner")
 @Config
@@ -15,8 +16,10 @@ class ServoTuner : CommandOpMode() {
     val multiTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun run() {
+        servo.direction = if (reverse) Direction.REVERSE else Direction.FORWARD
+        servo2.direction = if (reverse2) Direction.REVERSE else Direction.FORWARD
         servo.position = position
-        servo2.position = 1.0 - position
+        servo2.position = position
         multiTelemetry.update()
     }
 
@@ -32,6 +35,12 @@ class ServoTuner : CommandOpMode() {
         var name: String = "servo"
 
         @JvmField
+        var reverse: Boolean = false
+
+        @JvmField
         var name2: String = "servo2"
+
+        @JvmField
+        var reverse2: Boolean = false
     }
 }
