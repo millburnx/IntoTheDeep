@@ -19,7 +19,7 @@ fun DcMotorEx.reset() {
     mode = RunMode.RUN_WITHOUT_ENCODER
 }
 
-fun Servo.init(isForward: Boolean) {
+fun Servo.init(isForward: Boolean = true) {
     direction = if (isForward) Servo.Direction.FORWARD else Servo.Direction.REVERSE
 }
 

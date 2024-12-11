@@ -9,7 +9,7 @@ import kotlin.math.abs
 
 class Slides(val robot: Robot) : Subsystem() {
     val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init() }
-    val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init() }
+    val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init(false) }
     val pid = PIDController(kP, kI, kD)
     var target: Double = 0.0
         set(value) {

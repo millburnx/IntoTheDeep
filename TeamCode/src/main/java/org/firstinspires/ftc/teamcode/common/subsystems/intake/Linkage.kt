@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.common.utils.init
 class Linkage(val robot: Robot) : Subsystem() {
     var target: Double = 0.0 // 0 to 1
     var leftServo: Servo = (robot.hardware["linkageLeft"] as Servo).apply { init() }
-    val rightServo: Servo = (robot.hardware["linkageRight"] as Servo).apply { init(true) }
+    val rightServo: Servo = (robot.hardware["linkageRight"] as Servo).apply { init(false) }
 
     override fun periodic() {
         val position = Utils.lerp(base, full, target)
