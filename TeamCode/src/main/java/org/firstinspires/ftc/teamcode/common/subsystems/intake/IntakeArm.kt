@@ -1,17 +1,17 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.qualcomm.robotcore.hardware.Servo
-import com.qualcomm.robotcore.hardware.Servo.Direction
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class IntakeArmPosition {
     BASE, EXTENDED, FLOOR
 }
 
 class IntakeArm(val robot: Robot) : Subsystem() {
-    var leftServo: Servo = robot.hardware["intakeArmLeft"] as Servo
-    var rightServo: Servo = (robot.hardware["intakeArmRight"] as Servo).apply { direction = Direction.REVERSE }
+    var leftServo: Servo = (robot.hardware["intakeArmLeft"] as Servo).apply { init() }
+    var rightServo: Servo = (robot.hardware["intakeArmRight"] as Servo).apply { init(true) }
     var state: IntakeArmPosition = IntakeArmPosition.BASE
 
     override fun periodic() {

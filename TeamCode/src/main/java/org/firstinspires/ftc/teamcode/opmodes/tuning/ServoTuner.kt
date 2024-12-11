@@ -7,12 +7,13 @@ import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.hardware.Servo.Direction
+import org.firstinspires.ftc.teamcode.common.utils.init
 
 @TeleOp(name = "Servo Tuner")
 @Config
 class ServoTuner : CommandOpMode() {
-    val servo by lazy { hardwareMap[name] as Servo }
-    val servo2 by lazy { hardwareMap[name2] as Servo }
+    val servo by lazy { (hardwareMap[name] as Servo).apply { init(reverse) } }
+    val servo2 by lazy { (hardwareMap[name2] as Servo).apply { init(reverse2) } }
     val multiTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun run() {
