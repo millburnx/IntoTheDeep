@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 class IntakeArmOnly(opmode: OpMode) : Robot(opmode) {
-    val intakeArm: IntakeArm = IntakeArm(this)
+    val intakeArm: IntakeArm by lazy { IntakeArm(this) }
     override val subsystems: List<Subsystem> = listOf(intakeArm)
 }
 

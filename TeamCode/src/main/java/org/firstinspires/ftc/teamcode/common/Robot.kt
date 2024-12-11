@@ -23,11 +23,11 @@ open class Robot(val opMode: OpMode) : SubsystemBase() {
     val outtake: Outtake by lazy { Outtake(this) }
     val additionalSubsystems: List<Subsystem> = listOf()
     open val subsystems: List<Subsystem> = listOf(
-        drive, intake, outtake, *additionalSubsystems.toTypedArray()
-    )
+        drive, intake, outtake
+    ) + additionalSubsystems
     val deltaTime = DeltaTime()
 
-    open fun init() {
+    fun init() {
         hubs.forEach { it.bulkCachingMode = BulkCachingMode.AUTO }
         subsystems.forEach {
             it.init() // triggers lazy loader
