@@ -1,4 +1,4 @@
-package com.millburnx.util.geometry.basic.vector2d
+package com.millburnx.util.geometry.basic.vector
 
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
@@ -43,7 +43,7 @@ public data class Vec2f(override val x: Float, override val y: Float) : Vec2<Flo
         Vec2f(x * cos(angle.toFloat()) - y * sin(angle.toFloat()), x * sin(angle.toFloat()) + y * cos(angle.toFloat()))
 
     override fun perpendicular(): Vec2f = Vec2f(-y, x)
-    override fun toDouble(): Vec2<Double, *> = com.millburnx.util.geometry.basic.vector2d.Vec2d(x, y)
+    override fun toDouble(): Vec2<Double, *> = com.millburnx.util.geometry.basic.vector.Vec2d(x, y)
     override fun toFloat(): Vec2<Float, *> = Vec2f(x, y)
 
     override fun toInt(): Vec2<Int, *> {

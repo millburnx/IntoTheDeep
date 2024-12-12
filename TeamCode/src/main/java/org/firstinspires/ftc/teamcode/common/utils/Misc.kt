@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.utils
 
-import com.millburnx.util.geometry.basic.vector2d.Vec2d
+import com.millburnx.util.geometry.basic.vector.Vec2d
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior
 import com.qualcomm.robotcore.hardware.DcMotorEx

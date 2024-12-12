@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
 import com.acmerobotics.dashboard.config.Config
-import com.millburnx.util.geometry.basic.vector2d.Vec2d
+import com.millburnx.util.geometry.basic.vector.Vec2d
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem

@@ -1,4 +1,4 @@
-package com.millburnx.util.geometry.basic.vector2d
+package com.millburnx.util.geometry.basic.vector
 
 import java.io.Serializable
 

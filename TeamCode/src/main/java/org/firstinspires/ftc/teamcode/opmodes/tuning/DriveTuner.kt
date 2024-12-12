@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.tuning
 
 import com.arcrobotics.ftclib.command.CommandOpMode
-import com.millburnx.util.geometry.basic.vector2d.Vec2d
+import com.millburnx.util.geometry.basic.vector.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive.Companion.strafeMultiplier
