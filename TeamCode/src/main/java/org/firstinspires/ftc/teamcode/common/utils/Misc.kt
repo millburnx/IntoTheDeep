@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.utils
 
-import com.millburnx.utils.Vec2d
+import com.millburnx.util.geometry.basic.vector2d.Vec2d
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -25,3 +25,9 @@ fun Servo.init(isForward: Boolean = true) {
 
 fun RRVec2d.toVec2d(): Vec2d = Vec2d(x, y)
 fun RRVec2d.toCorrectedVec2d(): Vec2d = Vec2d.fromRR(this.toVec2d())
+
+object Utils {
+    fun lerp(a: Double, b: Double, t: Double): Double {
+        return a + (b - a) * t
+    }
+}

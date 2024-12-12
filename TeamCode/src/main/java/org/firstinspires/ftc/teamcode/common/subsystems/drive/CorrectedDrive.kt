@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
 import com.acmerobotics.dashboard.config.Config
-import com.millburnx.utils.Vec2d
+import com.millburnx.util.geometry.basic.vector2d.Vec2d
+import com.millburnx.util.geometry.basic.vector2d.times
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.toCorrectedVec2d
-import kotlin.math.pow
 
 @Config
 class CorrectedDrive(robot: Robot) : Drive(robot) {
