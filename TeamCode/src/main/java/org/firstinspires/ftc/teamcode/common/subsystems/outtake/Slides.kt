@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
+import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
@@ -7,6 +8,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 import kotlin.math.abs
 
+@Config
 class Slides(val robot: Robot) : Subsystem() {
     val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init() }
     val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init(false) }

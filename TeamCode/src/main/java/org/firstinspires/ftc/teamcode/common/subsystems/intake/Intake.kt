@@ -5,7 +5,11 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 class Intake(val robot: Robot) : Subsystem() {
     val linkage: Linkage = Linkage(robot)
-    val subsystems: List<Subsystem> = listOf(linkage)
+    val arm: IntakeArm = IntakeArm(robot)
+    val diffy: Diffy = Diffy(robot)
+
+    //    val claw: IntakeClaw = IntakeClaw(robot)
+    val subsystems: List<Subsystem> = listOf(linkage, arm, diffy)
 
     override fun init() {
         subsystems.forEach { it.init() }

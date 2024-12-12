@@ -13,9 +13,9 @@ import kotlin.math.max
 @Config
 open class Drive(val robot: Robot) : Subsystem() {
     val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).apply { init() }
-    val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init() }
+    val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init(false) }
     val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).apply { init() }
-    val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init() }
+    val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init(false) }
     val motors = listOf<DcMotorEx>(frontLeft, frontRight, backLeft, backRight)
     val odometry = SampleMecanumDrive(robot.hardware).localizer
 
@@ -29,8 +29,8 @@ open class Drive(val robot: Robot) : Subsystem() {
 
         val denominator = max(forward.absoluteValue + strafe.absoluteValue + rotate.absoluteValue, 1.0)
         frontLeft.power = (forward + strafe + rotate) / denominator
-        frontRight.power = (forward - strafe + rotate) / denominator
-        backLeft.power = (forward - strafe - rotate) / denominator
+        backLeft.power = (forward - strafe + rotate) / denominator
+        frontRight.power = (forward - strafe - rotate) / denominator
         backRight.power = (forward + strafe - rotate) / denominator
     }
 

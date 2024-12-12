@@ -14,17 +14,19 @@ import org.firstinspires.ftc.teamcode.common.utils.DeltaTime
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 open class Robot(val opMode: OpMode) : SubsystemBase() {
-    val telemetry = MultipleTelemetry(opMode.telemetry, FtcDashboard.getInstance().telemetry)
+    val telemetry by lazy { MultipleTelemetry(opMode.telemetry, FtcDashboard.getInstance().telemetry) }
 
     val hardware: HardwareMap by lazy { opMode.hardwareMap }
     val hubs by lazy { hardware.getAll<LynxModule?>(LynxModule::class.java) }
-    val drive by lazy { Drive(this) }
-    val intake: Intake by lazy { Intake(this) }
-    val outtake: Outtake by lazy { Outtake(this) }
+    open val drive by lazy { Drive(this) }
+    open val intake: Intake by lazy { Intake(this) }
+    open val outtake: Outtake by lazy { Outtake(this) }
     val additionalSubsystems: List<Subsystem> = listOf()
-    open val subsystems: List<Subsystem> = listOf(
-        drive, intake, outtake
-    ) + additionalSubsystems
+    open val subsystems: List<Subsystem> by lazy {
+        listOf(
+            drive, intake, outtake
+        ) + additionalSubsystems
+    }
     val deltaTime = DeltaTime()
 
     fun init() {
