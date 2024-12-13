@@ -16,7 +16,7 @@ class IntakeArmOnly(opmode: OpMode) : Robot(opmode) {
 @TeleOp(name = "Intake Arm Tuner")
 @Config
 class IntakeArmTuner : OpMode() {
-    override val robot = IntakeArmOnly(this)
+    override val robot by lazy { IntakeArmOnly(this) }
 
     override fun exec() {
         robot.intakeArm.state = IntakeArmPosition.entries.toTypedArray()[state]

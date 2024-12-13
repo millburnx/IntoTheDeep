@@ -15,7 +15,7 @@ class SlidesOnly(opmode: OpMode) : Robot(opmode) {
 @TeleOp(name = "Slides Tuner")
 @Config
 class SlidesTuner : OpMode() {
-    override val robot = SlidesOnly(this)
+    override val robot by lazy { SlidesOnly(this) }
 
     override fun exec() {
         robot.slides.target = target

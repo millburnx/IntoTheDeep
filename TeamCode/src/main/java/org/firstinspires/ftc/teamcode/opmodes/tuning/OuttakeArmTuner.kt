@@ -16,7 +16,7 @@ class OuttakeArmOnly(opmode: OpMode) : Robot(opmode) {
 @TeleOp(name = "Outtake Arm Tuner")
 @Config
 class OuttakeArmTuner : OpMode() {
-    override val robot = OuttakeArmOnly(this)
+    override val robot by lazy { OuttakeArmOnly(this) }
 
     override fun exec() {
         robot.intakeArm.state = OuttakeArmPosition.entries.toTypedArray()[state]

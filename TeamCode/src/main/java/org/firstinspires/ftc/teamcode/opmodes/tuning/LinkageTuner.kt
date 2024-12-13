@@ -15,7 +15,7 @@ class LinkageOnly(opmode: OpMode) : Robot(opmode) {
 @TeleOp(name = "Linkage Tuner")
 @Config
 class LinkageTuner : OpMode() {
-    override val robot = LinkageOnly(this)
+    override val robot by lazy { LinkageOnly(this) }
 
     override fun exec() {
         robot.linkage.target = target

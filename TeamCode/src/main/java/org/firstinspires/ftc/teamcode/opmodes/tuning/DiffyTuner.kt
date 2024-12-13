@@ -15,7 +15,7 @@ class DiffyOnly(opmode: OpMode) : Robot(opmode) {
 @TeleOp(name = "Diffy Tuner")
 @Config
 class DiffyTuner : OpMode() {
-    override val robot = DiffyOnly(this)
+    override val robot by lazy { DiffyOnly(this) }
 
     override fun exec() {
         robot.diffy.pitch = pitch

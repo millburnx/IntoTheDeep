@@ -4,7 +4,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode
 import org.firstinspires.ftc.teamcode.common.Robot
 
 abstract class OpMode : CommandOpMode() {
-    open val robot = Robot(this)
+    open val robot by lazy { Robot(this) }
 
     override fun initialize() {
         robot.init()
