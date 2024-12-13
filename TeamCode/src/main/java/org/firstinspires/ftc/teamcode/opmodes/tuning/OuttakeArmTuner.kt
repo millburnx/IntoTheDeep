@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 class OuttakeArmOnly(opmode: OpMode) : Robot(opmode) {
     val intakeArm: OuttakeArm by lazy { OuttakeArm(this) }
-    override val subsystems: List<Subsystem> = listOf(intakeArm)
+    override val subsystems: List<Subsystem> by lazy { listOf(intakeArm) }
 }
 
 @TeleOp(name = "Outtake Arm Tuner")

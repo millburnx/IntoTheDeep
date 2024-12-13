@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 class SlidesOnly(opmode: OpMode) : Robot(opmode) {
     val slides: Slides by lazy { Slides(this) }
-    override val subsystems: List<Subsystem> = listOf(slides)
+    override val subsystems: List<Subsystem> by lazy { listOf(slides) }
 }
 
 @TeleOp(name = "Slides Tuner")
@@ -19,6 +19,9 @@ class SlidesTuner : OpMode() {
 
     override fun exec() {
         robot.slides.target = target
+
+        robot.telemetry.addData("lift pos", robot.slides.leftLift.currentPosition)
+        robot.telemetry.update()
     }
 
     companion object {

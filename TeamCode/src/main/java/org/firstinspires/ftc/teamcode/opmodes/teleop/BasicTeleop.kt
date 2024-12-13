@@ -1,20 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop
 
+import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.Robot
-import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
-import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class DriveOnly(opMode: OpMode) : Robot(opMode) {
-    override val drive: Drive by lazy { Drive(this) }
-    override val subsystems: List<Subsystem> by lazy { listOf(drive) }
-}
-
+@Config
 @TeleOp(name = "Basic Teleop")
 class BasicTeleop : OpMode() {
-    override val robot: Robot = DriveOnly(this)
-
     override fun exec() {
         robot.drive.robotCentric(
             gamepad1.left_stick_y.toDouble(),
@@ -24,7 +17,7 @@ class BasicTeleop : OpMode() {
 
         // Outtake
         // Slides
-//        robot.outtake.slides.target += gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
+        robot.outtake.slides.target += (gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()) * slideSpeed
         // Arm
 //        if (gamepad1.x) {
 //            robot.outtake.arm.state = OuttakeArmPosition.BASE
@@ -36,11 +29,19 @@ class BasicTeleop : OpMode() {
 
 //        // Intake
 //        // Slides
-//        if (gamepad1.right_bumper) {
-//            robot.intake.linkage.target = 1.0
-//        } else if (gamepad1.left_bumper) {
-//            robot.intake.linkage.target = 0.0
-//        }
+        if (gamepad1.right_bumper) {
+            robot.intake.linkage.target = 1.0
+        } else if (gamepad1.left_bumper) {
+            robot.intake.linkage.target = 0.0
+        }
+
+        if (gamepad1.dpad_up) {
+            robot.outtake.slides.target = Slides.max
+            robot.intake.linkage.target = 1.0
+        } else if (gamepad1.dpad_down) {
+            robot.outtake.slides.target = Slides.min
+            robot.intake.linkage.target = 0.0
+        }
 //        // Arm
 //        if (gamepad1.dpad_up) {
 //            robot.intake.arm.state = IntakeArmPosition.BASE
@@ -61,9 +62,14 @@ class BasicTeleop : OpMode() {
 //            // roll right
 //        }
 //
-//        robot.telemetry.addLine("Slides Target: ${robot.outtake.slides.target}")
-//        robot.telemetry.addLine("Slides Position: ${robot.outtake.slides.leftLift.currentPosition}")
-//        robot.telemetry.addLine("Linkage Target: ${robot.intake.linkage.target}")
-//        robot.telemetry.addLine("Linkage Position: ${robot.intake.linkage.leftServo.position}")
+        robot.telemetry.addLine("Slides Target: ${robot.outtake.slides.target}")
+        robot.telemetry.addLine("Slides Position: ${robot.outtake.slides.leftLift.currentPosition}")
+        robot.telemetry.addLine("Linkage Target: ${robot.intake.linkage.target}")
+        robot.telemetry.addLine("Linkage Position: ${robot.intake.linkage.leftServo.position}")
+    }
+
+    companion object {
+        @JvmField
+        var slideSpeed: Double = 100.0
     }
 }

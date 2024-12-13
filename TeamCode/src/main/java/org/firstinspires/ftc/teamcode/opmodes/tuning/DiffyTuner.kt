@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 class DiffyOnly(opmode: OpMode) : Robot(opmode) {
     val diffy: Diffy by lazy { Diffy(this) }
-    override val subsystems: List<Subsystem> = listOf(diffy)
+    override val subsystems: List<Subsystem> by lazy { listOf(diffy) }
 }
 
 @TeleOp(name = "Diffy Tuner")

@@ -11,7 +11,7 @@ import kotlin.math.abs
 @Config
 class Slides(val robot: Robot) : Subsystem() {
     val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init() }
-    val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init(false) }
+    val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init() }
     val pid = PIDController(kP, kI, kD)
     var target: Double = 0.0
         set(value) {
@@ -34,15 +34,14 @@ class Slides(val robot: Robot) : Subsystem() {
 
         leftLift.power = power
         rightLift.power = power
-
     }
 
     companion object {
         @JvmField
-        var kP: Double = 0.03
+        var kP: Double = 0.0045
 
         @JvmField
-        var kI: Double = 0.0
+        var kI: Double = 0.15
 
         @JvmField
         var kD: Double = 0.0

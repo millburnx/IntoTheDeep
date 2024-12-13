@@ -18,6 +18,7 @@ class MotorTuner : CommandOpMode() {
     override fun run() {
         motor.direction = if (reverse) Direction.REVERSE else Direction.FORWARD
         motor.power = power
+        multiTelemetry.addData("motor", motor.currentPosition)
         multiTelemetry.update()
     }
 
