@@ -13,6 +13,8 @@ class Slides(val robot: Robot) : Subsystem() {
     val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init() }
     val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init() }
     val pid = PIDController(kP, kI, kD)
+    val position
+        get() = leftLift.currentPosition.toDouble()
     var target: Double = 0.0
         set(value) {
             field = value.coerceIn(min, max)
@@ -20,8 +22,8 @@ class Slides(val robot: Robot) : Subsystem() {
 
     override fun periodic() {
         pid.setPID(kP, kI, kD)
-        val power = pid.calculate(leftLift.currentPosition.toDouble(), target) + kF
-        val error = target - leftLift.currentPosition
+        val power = pid.calculate(position, target) + kF
+        val error = target - position
 
         // disable motors if lift is at base and target is also base
         // I think to ignore this for resetting lift, you can set the target to below base (good anyway in case of drifting upwards)

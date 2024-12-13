@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 import org.firstinspires.ftc.teamcode.rr.drive.SampleMecanumDrive
@@ -18,6 +19,11 @@ open class Drive(val robot: Robot) : Subsystem() {
     val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init(false) }
     val motors = listOf<DcMotorEx>(frontLeft, frontRight, backLeft, backRight)
     val odometry = SampleMecanumDrive(robot.hardware).localizer
+    val pose: Pose2d
+        get() {
+            val pose = odometry.poseEstimate
+            return Pose2d(pose.x, pose.y, pose.heading)
+        }
 
     fun robotCentric(forward: Double, strafe: Double, rotate: Double) = fieldCentric(forward, strafe, rotate, 0.0)
 
