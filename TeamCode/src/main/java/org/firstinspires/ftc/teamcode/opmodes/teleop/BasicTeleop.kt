@@ -9,52 +9,33 @@ import org.firstinspires.ftc.teamcode.common.utils.OpMode
 @Config
 @TeleOp(name = "Basic Teleop")
 class BasicTeleop : OpMode() {
-
-    val linkageRetractTrigger by lazy {
-        EdgeDetector(
-            { gamepad1.left_bumper },
-            { robot.intake.linkage.target = 0.0 },
-        )
-    }
-    val linkageExtensionTrigger by lazy {
-        EdgeDetector(
-            { gamepad1.right_bumper },
-            { robot.intake.linkage.target = 1.0 },
-        )
-    }
-
-    val fullRetract by lazy {
-        EdgeDetector(
-            { gamepad1.dpad_down },
-            {
+    val triggers by lazy {
+        object {
+            val linkageRetractTrigger = EdgeDetector({ gamepad1.left_bumper }) {
+                robot.intake.linkage.target = 0.0
+            }
+            val linkageExtensionTrigger = EdgeDetector({ gamepad1.right_bumper }) {
+                robot.intake.linkage.target = 1.0
+            }
+            val fullRetract = EdgeDetector({ gamepad1.dpad_down }) {
                 robot.outtake.slides.target = Slides.min
                 robot.intake.linkage.target = 0.0
-            },
-        )
-    }
-    val fullExtend by lazy {
-        EdgeDetector(
-            { gamepad1.dpad_up },
-            {
+            }
+            val fullExtend = EdgeDetector({ gamepad1.dpad_up }) {
                 robot.outtake.slides.target = Slides.max
                 robot.intake.linkage.target = 1.0
-            },
-        )
+            }
+        }
     }
 
     override fun initialize() {
         super.initialize()
-        linkageRetractTrigger
-        linkageExtensionTrigger
-        fullRetract
-        fullExtend
+        triggers // lazy loads all the triggers w/o having to make each lazy loaded
     }
 
     override fun exec() {
         robot.drive.robotCentric(
-            gamepad1.left_stick_y.toDouble(),
-            -gamepad1.left_stick_x.toDouble(),
-            -gamepad1.right_stick_x.toDouble()
+            gamepad1.left_stick_y.toDouble(), -gamepad1.left_stick_x.toDouble(), -gamepad1.right_stick_x.toDouble()
         )
 
         // Outtake
