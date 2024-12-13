@@ -21,7 +21,6 @@ class SlidesTuner : OpMode() {
         robot.slides.target = target
 
         robot.telemetry.addData("lift pos", robot.slides.leftLift.currentPosition)
-        robot.telemetry.update()
     }
 
     companion object {

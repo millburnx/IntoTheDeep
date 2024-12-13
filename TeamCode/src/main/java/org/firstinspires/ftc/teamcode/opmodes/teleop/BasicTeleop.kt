@@ -62,11 +62,12 @@ class BasicTeleop : OpMode() {
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
         robot.outtake.slides.target += slidePower * slideSpeed
 
-        robot.telemetry.addLine("Slides Target: ${robot.outtake.slides.target}")
-        robot.telemetry.addLine("Slides Position: ${robot.outtake.slides.leftLift.currentPosition}")
-        robot.telemetry.addLine("Linkage Target: ${robot.intake.linkage.target}")
-        robot.telemetry.addLine("Linkage Position: ${robot.intake.linkage.leftServo.position}")
-        robot.telemetry.update()
+        robot.telemetry.addData("Slides Target: ", robot.outtake.slides.target)
+        robot.telemetry.addData("Slides Position: ", robot.outtake.slides.leftLift.currentPosition)
+        robot.telemetry.addData("Linkage Target: ", robot.intake.linkage.target)
+        robot.telemetry.addData("Linkage Position:", robot.intake.linkage.leftServo.position)
+        robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
+        robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
     }
 
     companion object {

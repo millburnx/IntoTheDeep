@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.common.commands.drive
+package org.firstinspires.ftc.teamcode.common.commands.outtake
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
