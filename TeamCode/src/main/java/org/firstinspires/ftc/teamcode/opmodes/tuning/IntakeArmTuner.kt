@@ -19,7 +19,13 @@ class IntakeArmTuner : OpMode() {
     override val robot by lazy { IntakeArmOnly(this) }
 
     override fun exec() {
-        robot.intakeArm.state = IntakeArmPosition.entries.toTypedArray()[state]
+        if (state == 0) {
+            robot.intakeArm.state = IntakeArmPosition.BASE
+        } else if (state == 1) {
+            robot.intakeArm.state = IntakeArmPosition.EXTENDED
+        } else if (state == 2) {
+            robot.intakeArm.state = IntakeArmPosition.FLOOR
+        }
     }
 
     companion object {

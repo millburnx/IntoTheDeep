@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop
 
 import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 
@@ -17,13 +17,22 @@ class BasicTeleop : OpMode() {
             val linkageExtensionTrigger = EdgeDetector({ gamepad1.right_bumper }) {
                 robot.intake.linkage.target = 1.0
             }
-            val fullRetract = EdgeDetector({ gamepad1.dpad_down }) {
-                robot.outtake.slides.target = Slides.min
-                robot.intake.linkage.target = 0.0
+            val armFloor = EdgeDetector({ gamepad1.dpad_down }) {
+                robot.intake.arm.state = IntakeArmPosition.FLOOR
             }
-            val fullExtend = EdgeDetector({ gamepad1.dpad_up }) {
-                robot.outtake.slides.target = Slides.max
+            val armUp = EdgeDetector({ gamepad1.dpad_left }) {
+                robot.intake.arm.state = IntakeArmPosition.EXTENDED
+            }
+            val armBase = EdgeDetector({ gamepad1.dpad_right }) {
+                robot.intake.arm.state = IntakeArmPosition.BASE
+            }
+            val intakeRetract = EdgeDetector({ gamepad1.cross }) {
+                robot.intake.linkage.target = 0.0
+                robot.intake.arm.state = IntakeArmPosition.BASE
+            }
+            val intakeExtend = EdgeDetector({ gamepad1.triangle }) {
                 robot.intake.linkage.target = 1.0
+                robot.intake.arm.state = IntakeArmPosition.EXTENDED
             }
         }
     }
