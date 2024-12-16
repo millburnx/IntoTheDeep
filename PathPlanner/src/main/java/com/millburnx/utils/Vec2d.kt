@@ -11,7 +11,7 @@ import kotlin.math.sqrt
 /**
  * Represents a 2D vector/point
  */
-data class Vec2d(val x: Double, val y: Double) {
+data class Vec2d(val x: Double = 0.0, val y: Double = x) {
     constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
 
     constructor(v: Double) : this(v, v)

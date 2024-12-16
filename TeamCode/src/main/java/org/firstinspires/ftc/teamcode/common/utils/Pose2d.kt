@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.common.utils
 
 import com.millburnx.utils.Vec2d
+import kotlin.math.absoluteValue
 
-data class Pose2d(val position: Vec2d, val heading: Double) {
-    constructor(x: Double, y: Double, degrees: Double) : this(Vec2d(x, y), Math.toRadians(degrees))
+data class Pose2d(val position: Vec2d = Vec2d(), val heading: Double = 0.0) {
+    constructor(x: Double, y: Double, heading: Double) : this(Vec2d(x, y), heading)
+    constructor(position: Double, heading: Double) : this(Vec2d(position), heading)
 
     val x: Double
         get() = position.x
@@ -28,6 +30,7 @@ data class Pose2d(val position: Vec2d, val heading: Double) {
 
     operator fun unaryMinus(): Pose2d = Pose2d(-position, -heading)
     fun flipPos(): Pose2d = Pose2d(-position, heading)
+    fun abs(): Pose2d = Pose2d(position.abs(), heading.absoluteValue)
     operator fun plus(other: Pose2d): Pose2d = Pose2d(position + other.position, heading + other.heading)
     operator fun plus(other: Vec2d): Pose2d = Pose2d(position + other, heading)
     operator fun minus(other: Pose2d): Pose2d = Pose2d(position - other.position, heading - other.heading)

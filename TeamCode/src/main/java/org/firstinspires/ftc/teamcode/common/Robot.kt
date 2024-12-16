@@ -21,7 +21,7 @@ open class Robot(val opMode: OpMode) : SubsystemBase() {
     open val drive by lazy { Drive(this) }
     open val intake: Intake by lazy { Intake(this) }
     open val outtake: Outtake by lazy { Outtake(this) }
-    val additionalSubsystems: List<Subsystem> = listOf()
+    open val additionalSubsystems: List<Subsystem> = listOf()
     open val subsystems: List<Subsystem> by lazy {
         listOf(
             drive, intake, outtake
