@@ -16,6 +16,9 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 open class Robot(val opMode: OpMode) : SubsystemBase() {
     val telemetry by lazy { MultipleTelemetry(opMode.telemetry, FtcDashboard.getInstance().telemetry) }
 
+    val gp1 = opMode.gamepad1
+    val gp2 = opMode.gamepad2
+
     val hardware: HardwareMap by lazy { opMode.hardwareMap }
     val hubs by lazy { hardware.getAll<LynxModule?>(LynxModule::class.java) }
     open val drive by lazy { Drive(this) }

@@ -1,38 +1,70 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.ParallelCommandGroup
+import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
+import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import kotlin.math.absoluteValue
 
 @Config
 @TeleOp(name = "Basic Teleop")
 class BasicTeleop : OpMode() {
     val triggers by lazy {
         object {
-            val linkageRetractTrigger = EdgeDetector({ gamepad1.left_bumper }) {
-                robot.intake.linkage.target = 0.0
-            }
-            val linkageExtensionTrigger = EdgeDetector({ gamepad1.right_bumper }) {
-                robot.intake.linkage.target = 1.0
-            }
-            val armFloor = EdgeDetector({ gamepad1.dpad_down }) {
-                robot.intake.arm.state = IntakeArmPosition.FLOOR
-            }
-            val armUp = EdgeDetector({ gamepad1.dpad_left }) {
-                robot.intake.arm.state = IntakeArmPosition.EXTENDED
-            }
-            val armBase = EdgeDetector({ gamepad1.dpad_right }) {
-                robot.intake.arm.state = IntakeArmPosition.BASE
-            }
-            val intakeRetract = EdgeDetector({ gamepad1.cross }) {
+            val retractIntake = Pair({
                 robot.intake.linkage.target = 0.0
                 robot.intake.arm.state = IntakeArmPosition.BASE
-            }
-            val intakeExtend = EdgeDetector({ gamepad1.triangle }) {
+            }, listOf(robot.intake.linkage, robot.intake.arm))
+            val extendIntake = Pair({
                 robot.intake.linkage.target = 1.0
                 robot.intake.arm.state = IntakeArmPosition.EXTENDED
+            }, listOf<Subsystem>())
+            val retractSlides = Pair({
+                robot.outtake.slides.target = 0.0
+            }, listOf(robot.outtake.slides))
+            val specimenSlides = Pair({
+                robot.outtake.slides.target = Slides.highRung
+            }, listOf(robot.outtake.slides))
+            val sampleSlides = Pair({
+                robot.outtake.slides.target = Slides.highBasket
+            }, listOf(robot.outtake.slides))
+
+            val intakeRetract = EdgeDetector({ gamepad1.dpad_right }) {
+                schedule(instCmd(retractIntake))
+            }
+            val intakeExtend = EdgeDetector({ gamepad1.dpad_left }) {
+                schedule(ParallelCommandGroup(instCmd(extendIntake), instCmd(retractSlides)))
+            }
+            val intakePickup = EdgeDetector({ gamepad1.dpad_down }) {
+                schedule(
+                    SequentialCommandGroup(
+                        InstantCommand({
+                            robot.intake.arm.state = IntakeArmPosition.FLOOR
+                        }),
+                        WaitCommand(500),
+                        instCmd(retractIntake)
+                    )
+                )
+            }
+            val liftRetract = EdgeDetector({ gamepad1.cross }) {
+                schedule(instCmd(retractSlides))
+            }
+            val liftSpecimen = EdgeDetector({ gamepad1.square }) {
+                schedule(ParallelCommandGroup(instCmd(specimenSlides), instCmd(retractIntake)))
+            }
+            val liftBasket = EdgeDetector({ gamepad1.triangle }) {
+                schedule(ParallelCommandGroup(instCmd(sampleSlides), instCmd(retractIntake)))
+            }
+
+            fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {
+                return InstantCommand(cmd.first, *cmd.second.toTypedArray())
             }
         }
     }
@@ -50,7 +82,13 @@ class BasicTeleop : OpMode() {
         // Outtake
         // Slides
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        robot.outtake.slides.target += slidePower * slideSpeed
+//        robot.outtake.slides.target += slidePower * slideSpeed
+        if (slidePower.absoluteValue > slideThreshold) {
+            robot.outtake.slides.isManual = true
+            robot.outtake.slides.manualPower = slidePower
+        } else {
+            robot.outtake.slides.isManual = false
+        }
 
         robot.telemetry.addData("Slides Target: ", robot.outtake.slides.target)
         robot.telemetry.addData("Slides Position: ", robot.outtake.slides.leftLift.currentPosition)
@@ -63,5 +101,8 @@ class BasicTeleop : OpMode() {
     companion object {
         @JvmField
         var slideSpeed: Double = 100.0
+
+        @JvmStatic
+        var slideThreshold: Double = 0.1
     }
 }

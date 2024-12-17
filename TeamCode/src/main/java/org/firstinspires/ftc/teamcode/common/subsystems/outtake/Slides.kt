@@ -20,7 +20,23 @@ class Slides(val robot: Robot) : Subsystem() {
             field = value.coerceIn(min, max)
         }
 
+    var isManual = false
+        set(value) {
+            if (field && !value) {
+                target = position
+            }
+            field = value
+        }
+
+    var manualPower = 0.0
+
     override fun periodic() {
+        if (isManual) {
+            leftLift.power = manualPower
+            rightLift.power = manualPower
+            return
+        }
+
         pid.setPID(kP, kI, kD)
         val power = pid.calculate(position, target) + kF
         val error = target - position
@@ -55,6 +71,12 @@ class Slides(val robot: Robot) : Subsystem() {
         var min: Double = 0.0
 
         @JvmField
-        var max: Double = 2500.0
+        var max: Double = 2200.0
+
+        @JvmField
+        var highRung: Double = 1300.0
+
+        @JvmField
+        var highBasket: Double = max
     }
 }
