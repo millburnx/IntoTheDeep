@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
@@ -21,10 +22,14 @@ class BasicTeleop : OpMode() {
             val retractIntake = Pair({
                 robot.intake.linkage.target = 0.0
                 robot.intake.arm.state = IntakeArmPosition.BASE
+                robot.intake.diffy.pitch = Diffy.transferPitch
+                robot.intake.diffy.roll = Diffy.transferRoll
             }, listOf(robot.intake.linkage, robot.intake.arm))
             val extendIntake = Pair({
                 robot.intake.linkage.target = 1.0
                 robot.intake.arm.state = IntakeArmPosition.EXTENDED
+                robot.intake.diffy.pitch = Diffy.hoverPitch
+                robot.intake.diffy.roll = Diffy.hoverRoll
             }, listOf<Subsystem>())
             val retractSlides = Pair({
                 robot.outtake.slides.target = 0.0
@@ -47,8 +52,12 @@ class BasicTeleop : OpMode() {
                     SequentialCommandGroup(
                         InstantCommand({
                             robot.intake.arm.state = IntakeArmPosition.FLOOR
+                            robot.intake.diffy.pitch = Diffy.pickupPitch
+//                            robot.intake.diffy.roll = Diffy.pickupRoll
                         }),
-                        WaitCommand(500),
+                        WaitCommand(250),
+                        // claw close
+                        WaitCommand(250),
                         instCmd(retractIntake)
                     )
                 )
@@ -61,6 +70,13 @@ class BasicTeleop : OpMode() {
             }
             val liftBasket = EdgeDetector({ gamepad1.triangle }) {
                 schedule(ParallelCommandGroup(instCmd(sampleSlides), instCmd(retractIntake)))
+            }
+
+            val rotateDiffy45 = EdgeDetector({ gamepad1.left_bumper }) {
+                schedule(InstantCommand({ robot.intake.diffy.roll = Diffy.roll45 }, robot.intake.diffy))
+            }
+            val rotateDiffy90 = EdgeDetector({ gamepad1.right_bumper }) {
+                schedule(InstantCommand({ robot.intake.diffy.roll = Diffy.roll90 }, robot.intake.diffy))
             }
 
             fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {

@@ -14,6 +14,7 @@ class Linkage(val robot: Robot) : Subsystem() {
     val rightServo: Servo = (robot.hardware["linkageRight"] as Servo).apply { init(false) }
 
     override fun periodic() {
+        if (!enabled) return
         val position = Utils.lerp(base, full, target)
         leftServo.position = position
         rightServo.position = position
@@ -25,5 +26,8 @@ class Linkage(val robot: Robot) : Subsystem() {
 
         @JvmField
         var full = 0.3
+
+        @JvmField
+        var enabled: Boolean = true
     }
 }
