@@ -26,6 +26,7 @@ class BasicAuton : OpMode() {
 
     override fun initialize() {
         super.initialize()
+        robot.drive.pose = Pose2d(startingX, startingY, startingHeading)
         val commands = mutableListOf<Command>()
         commands.add(PIDCommand(robot, Pose2d(-36.0, 24.0, 90.0)))
         commands.add(
@@ -46,5 +47,16 @@ class BasicAuton : OpMode() {
 
     override fun exec() {
         TODO("Not yet implemented")
+    }
+
+    companion object {
+        @JvmField
+        var startingX = 0.0
+
+        @JvmField
+        var startingY = 0.0
+
+        @JvmField
+        var startingHeading = 0.0
     }
 }

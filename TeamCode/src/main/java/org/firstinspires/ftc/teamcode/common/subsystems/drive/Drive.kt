@@ -19,10 +19,12 @@ open class Drive(val robot: Robot) : Subsystem() {
     val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init(false) }
     val motors = listOf<DcMotorEx>(frontLeft, frontRight, backLeft, backRight)
     val odometry = SampleMecanumDrive(robot.hardware).localizer
-    val pose: Pose2d
+    var pose: Pose2d
         get() {
-            val pose = odometry.poseEstimate
-            return Pose2d(pose.x, pose.y, pose.heading)
+            return Pose2d.fromRR(odometry.poseEstimate)
+        }
+        set(value) {
+            odometry.poseEstimate = value.toRR()
         }
 
     fun robotCentric(forward: Double, strafe: Double, rotate: Double) = fieldCentric(forward, strafe, rotate, 0.0)

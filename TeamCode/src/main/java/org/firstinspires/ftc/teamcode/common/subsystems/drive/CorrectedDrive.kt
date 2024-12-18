@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.common.subsystems.drive
 import com.acmerobotics.dashboard.config.Config
 import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.teamcode.common.Robot
-import org.firstinspires.ftc.teamcode.common.utils.toCorrectedVec2d
+import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import kotlin.math.pow
 
 @Config
@@ -36,7 +36,7 @@ class CorrectedDrive(robot: Robot) : Drive(robot) {
     }
 
     fun getCentripetalCorrection(
-        currentVelocity: Vec2d = odometry.poseVelocity?.toCorrectedVec2d() ?: Vec2d(0),
+        currentVelocity: Pose2d = if (odometry.poseVelocity == null) Pose2d() else Pose2d.fromRR(odometry.poseVelocity!!),
         weighting: Double = centripetalWeight
     ): Vec2d {
         if (!positionBuffer.isFull) return Vec2d(0)
@@ -45,7 +45,7 @@ class CorrectedDrive(robot: Robot) : Drive(robot) {
 
         val centralVector = circumcenter - current
         val centripetalVector = centralVector / centralVector.dot(centralVector)
-        val power = weighting * centripetalVector.normalize() * currentVelocity.normalize().pow(2)
+        val power = weighting * centripetalVector.normalize() * currentVelocity.position.normalize().pow(2)
 
         return centripetalVector / centripetalVector.normalize() * power
     }
