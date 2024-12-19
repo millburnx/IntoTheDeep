@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.common.utils.init
 class IntakeClaw(val robot: Robot) : Subsystem() {
     val clawServo: Servo = (robot.hardware["intakeClaw"] as Servo).apply { init() }
 
-    val isOpen = true
+    var isOpen = true
 
     override fun periodic() {
         clawServo.position = if (isOpen) open else closed

@@ -7,9 +7,8 @@ class Intake(val robot: Robot) : Subsystem() {
     val linkage: Linkage = Linkage(robot)
     val arm: IntakeArm = IntakeArm(robot)
     val diffy: Diffy = Diffy(robot)
-
-    //    val claw: IntakeClaw = IntakeClaw(robot)
-    val subsystems: List<Subsystem> = listOf(linkage, arm, diffy)
+    val claw: IntakeClaw = IntakeClaw(robot)
+    val subsystems: List<Subsystem> = listOf(linkage, arm, diffy, claw)
 
     override fun init() {
         subsystems.forEach { it.init() }

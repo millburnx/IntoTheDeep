@@ -40,12 +40,24 @@ class BasicTeleop : OpMode() {
             val sampleSlides = Pair({
                 robot.outtake.slides.target = Slides.highBasket
             }, listOf(robot.outtake.slides))
+            val openClaw = Pair({
+                robot.intake.claw.isOpen = true
+            }, listOf(robot.intake.claw))
+            val closeClaw = Pair({
+                robot.intake.claw.isOpen = false
+            }, listOf(robot.intake.claw))
 
             val intakeRetract = EdgeDetector({ gamepad1.dpad_right }) {
                 schedule(instCmd(retractIntake))
             }
             val intakeExtend = EdgeDetector({ gamepad1.dpad_left }) {
-                schedule(ParallelCommandGroup(instCmd(extendIntake), instCmd(retractSlides)))
+                schedule(
+                    SequentialCommandGroup(
+                        ParallelCommandGroup(instCmd(extendIntake), instCmd(retractSlides)),
+                        WaitCommand(intakeExtendDelay),
+                        instCmd(openClaw)
+                    )
+                )
             }
             val intakePickup = EdgeDetector({ gamepad1.dpad_down }) {
                 schedule(
@@ -55,9 +67,9 @@ class BasicTeleop : OpMode() {
                             robot.intake.diffy.pitch = Diffy.pickupPitch
 //                            robot.intake.diffy.roll = Diffy.pickupRoll
                         }),
-                        WaitCommand(250),
-                        // claw close
-                        WaitCommand(250),
+                        WaitCommand(pickupArmDelay),
+                        instCmd(closeClaw),
+                        WaitCommand(pickupClawDelay),
                         instCmd(retractIntake)
                     )
                 )
@@ -118,7 +130,16 @@ class BasicTeleop : OpMode() {
         @JvmField
         var slideSpeed: Double = 100.0
 
-        @JvmStatic
+        @JvmField
         var slideThreshold: Double = 0.1
+
+        @JvmField
+        var intakeExtendDelay: Long = 1500
+
+        @JvmField
+        var pickupArmDelay: Long = 250
+
+        @JvmField
+        var pickupClawDelay: Long = 250
     }
 }

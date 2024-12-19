@@ -3,23 +3,23 @@ package org.firstinspires.ftc.teamcode.opmodes.tuning
 import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.Robot
-import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArm
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWrist
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class OuttakeArmOnly(opmode: OpMode) : Robot(opmode) {
-    val outtakeArm: OuttakeArm by lazy { OuttakeArm(this) }
-    override val subsystems: List<Subsystem> by lazy { listOf(outtakeArm) }
+class OuttakeWristOnly(opmode: OpMode) : Robot(opmode) {
+    val outtakeWrist: OuttakeWrist by lazy { OuttakeWrist(this) }
+    override val subsystems: List<Subsystem> by lazy { listOf(outtakeWrist) }
 }
 
-@TeleOp(name = "Outtake Arm Tuner")
+@TeleOp(name = "Outtake Wrist Tuner")
 @Config
-class OuttakeArmTuner : OpMode() {
-    override val robot by lazy { OuttakeArmOnly(this) }
+class OuttakeWristTuner : OpMode() {
+    override val robot by lazy { OuttakeWristOnly(this) }
 
     override fun exec() {
-        robot.outtakeArm.state = OuttakeWristPosition.entries.toTypedArray()[state]
+        robot.outtakeWrist.state = OuttakeWristPosition.entries.toTypedArray()[state]
     }
 
     companion object {

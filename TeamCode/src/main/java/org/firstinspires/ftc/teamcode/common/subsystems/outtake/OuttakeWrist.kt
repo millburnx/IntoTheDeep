@@ -6,14 +6,13 @@ import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
-enum class OuttakeArmPosition {
+enum class OuttakeWristPosition {
     BASE, OUT, BASKET
 }
 
 @Config
-class OuttakeArm(val robot: Robot) : Subsystem() {
-    var leftServo: Servo = (robot.hardware["outtakeArmLeft"] as Servo).apply { init() }
-    var rightServo: Servo = (robot.hardware["outtakeArmRight"] as Servo).apply { init(false) }
+class OuttakeWrist(val robot: Robot) : Subsystem() {
+    var servo: Servo = (robot.hardware["outtakeWrist"] as Servo).apply { init() }
     var state: OuttakeWristPosition = OuttakeWristPosition.BASE
 
     override fun periodic() {
@@ -22,8 +21,7 @@ class OuttakeArm(val robot: Robot) : Subsystem() {
             OuttakeWristPosition.OUT -> extendedPosition
             OuttakeWristPosition.BASKET -> basketPosition
         }
-        leftServo.position = target
-        rightServo.position = target
+        servo.position = target
     }
 
     companion object {
