@@ -14,12 +14,12 @@ class TelemetryManager(val robot: Robot) {
     val addData = currentPacket::put
 
     fun pre() {
+        currentPacket = TelemetryPacket()
         drawRobot(currentPacket)
     }
 
     fun post() {
         dashboard.sendTelemetryPacket(currentPacket)
-        currentPacket = TelemetryPacket()
     }
 
     fun drawRobot(packet: TelemetryPacket) {

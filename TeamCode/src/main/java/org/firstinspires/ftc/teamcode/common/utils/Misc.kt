@@ -4,7 +4,9 @@ import com.qualcomm.robotcore.hardware.DcMotor.RunMode
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.hardware.ServoImplEx
 
 fun DcMotorEx.init(isForward: Boolean = true, isBrake: Boolean = false) {
     direction = if (isForward) DcMotorSimple.Direction.FORWARD else DcMotorSimple.Direction.REVERSE
@@ -19,4 +21,9 @@ fun DcMotorEx.reset() {
 
 fun Servo.init(isForward: Boolean = true) {
     direction = if (isForward) Servo.Direction.FORWARD else Servo.Direction.REVERSE
+}
+
+fun ServoImplEx.init(isForward: Boolean = true) {
+    direction = if (isForward) Servo.Direction.FORWARD else Servo.Direction.REVERSE
+    pwmRange = PwmControl.PwmRange(500.0, 2500.0)
 }

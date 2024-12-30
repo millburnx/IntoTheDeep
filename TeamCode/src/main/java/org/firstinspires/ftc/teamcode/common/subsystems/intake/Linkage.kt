@@ -22,10 +22,10 @@ class Linkage(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var base = 0.0
+        var base = 0.25
 
         @JvmField
-        var full = 0.3
+        var full = 0.6
 
         @JvmField
         var enabled: Boolean = true

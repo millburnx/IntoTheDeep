@@ -8,6 +8,8 @@ import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
@@ -74,14 +76,31 @@ class BasicTeleop : OpMode() {
                     )
                 )
             }
-            val liftRetract = EdgeDetector({ gamepad1.cross }) {
-                schedule(instCmd(retractSlides))
+
+            //            val liftRetract = EdgeDetector({ gamepad1.cross }) {
+//                schedule(instCmd(retractSlides))
+//            }
+//            val liftSpecimen = EdgeDetector({ gamepad1.square }) {
+//                schedule(ParallelCommandGroup(instCmd(specimenSlides), instCmd(retractIntake)))
+//            }
+//            val liftBasket = EdgeDetector({ gamepad1.triangle }) {
+//                schedule(ParallelCommandGroup(instCmd(sampleSlides), instCmd(retractIntake)))
+//            }
+            val armBasket = EdgeDetector({ gamepad1.triangle }) {
+                schedule(
+                    InstantCommand({
+                        robot.outtake.arm.state = OuttakeArmPosition.BASKET
+                        robot.outtake.wrist.state = OuttakeWristPosition.BASKET
+                    }, robot.outtake.arm, robot.outtake.wrist)
+                )
             }
-            val liftSpecimen = EdgeDetector({ gamepad1.square }) {
-                schedule(ParallelCommandGroup(instCmd(specimenSlides), instCmd(retractIntake)))
-            }
-            val liftBasket = EdgeDetector({ gamepad1.triangle }) {
-                schedule(ParallelCommandGroup(instCmd(sampleSlides), instCmd(retractIntake)))
+            val armTransfer = EdgeDetector({ gamepad1.square }) {
+                schedule(
+                    InstantCommand({
+                        robot.outtake.arm.state = OuttakeArmPosition.BASE
+                        robot.outtake.wrist.state = OuttakeWristPosition.BASE
+                    }, robot.outtake.arm, robot.outtake.wrist)
+                )
             }
 
             val rotateDiffy45 = EdgeDetector({ gamepad1.left_bumper }) {
@@ -104,7 +123,9 @@ class BasicTeleop : OpMode() {
 
     override fun exec() {
         robot.drive.robotCentric(
-            gamepad1.left_stick_y.toDouble(), -gamepad1.left_stick_x.toDouble(), -gamepad1.right_stick_x.toDouble()
+            gamepad1.left_stick_y.toDouble(),
+            -gamepad1.left_stick_x.toDouble(),
+            -gamepad1.right_stick_x.toDouble()
         )
 
         // Outtake
@@ -134,7 +155,7 @@ class BasicTeleop : OpMode() {
         var slideThreshold: Double = 0.1
 
         @JvmField
-        var intakeExtendDelay: Long = 1500
+        var intakeExtendDelay: Long = 750
 
         @JvmField
         var pickupArmDelay: Long = 250

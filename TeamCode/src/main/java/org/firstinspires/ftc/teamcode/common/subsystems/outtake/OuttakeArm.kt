@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
-import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
@@ -12,15 +12,15 @@ enum class OuttakeArmPosition {
 
 @Config
 class OuttakeArm(val robot: Robot) : Subsystem() {
-    var leftServo: Servo = (robot.hardware["outtakeArmLeft"] as Servo).apply { init() }
-    var rightServo: Servo = (robot.hardware["outtakeArmRight"] as Servo).apply { init(false) }
-    var state: OuttakeWristPosition = OuttakeWristPosition.BASE
+    var leftServo: ServoImplEx = (robot.hardware["outtakeArmLeft"] as ServoImplEx).apply { init() }
+    var rightServo: ServoImplEx = (robot.hardware["outtakeArmRight"] as ServoImplEx).apply { init(false) }
+    var state: OuttakeArmPosition = OuttakeArmPosition.BASE
 
     override fun periodic() {
         val target = when (state) {
-            OuttakeWristPosition.BASE -> basePosition
-            OuttakeWristPosition.OUT -> extendedPosition
-            OuttakeWristPosition.BASKET -> basketPosition
+            OuttakeArmPosition.BASE -> basePosition
+            OuttakeArmPosition.OUT -> extendedPosition
+            OuttakeArmPosition.BASKET -> basketPosition
         }
         leftServo.position = target
         rightServo.position = target
@@ -28,12 +28,12 @@ class OuttakeArm(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var basePosition = 0.1
+        var basePosition = 0.575
 
         @JvmField
-        var extendedPosition = 0.4
+        var extendedPosition = 1.0
 
         @JvmField
-        var basketPosition = 0.7
+        var basketPosition = 0.6
     }
 }
