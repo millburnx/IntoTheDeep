@@ -140,6 +140,7 @@ class BasicTeleop : OpMode() {
         robot.telemetry.addData("Linkage Target: ", robot.intake.linkage.target)
         robot.telemetry.addData("Linkage Position:", robot.intake.linkage.leftServo.position)
         robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
+        robot.telemetry.addData("Outtake Claw Open:", robot.outtake.claw.isOpen)
         robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
     }
 
