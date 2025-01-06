@@ -13,7 +13,8 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.TelemetryManager
 
 open class Robot(val opMode: OpMode) : SubsystemBase() {
-    val telemetry by lazy { TelemetryManager(this) }
+    val telemetryManager by lazy { TelemetryManager(this) }
+    val telemetry by lazy { telemetryManager.telemetry }
     val gp1 = opMode.gamepad1
     val gp2 = opMode.gamepad2
 

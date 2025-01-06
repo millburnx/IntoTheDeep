@@ -76,16 +76,6 @@ class BasicTeleop : OpMode() {
                     )
                 )
             }
-
-            //            val liftRetract = EdgeDetector({ gamepad1.cross }) {
-//                schedule(instCmd(retractSlides))
-//            }
-//            val liftSpecimen = EdgeDetector({ gamepad1.square }) {
-//                schedule(ParallelCommandGroup(instCmd(specimenSlides), instCmd(retractIntake)))
-//            }
-//            val liftBasket = EdgeDetector({ gamepad1.triangle }) {
-//                schedule(ParallelCommandGroup(instCmd(sampleSlides), instCmd(retractIntake)))
-//            }
             val armBasket = EdgeDetector({ gamepad1.triangle }) {
                 schedule(
                     InstantCommand({

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.utils
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.millburnx.dashboard.TelemetryPacket
 import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.teamcode.common.Robot
@@ -10,8 +11,7 @@ import org.firstinspires.ftc.teamcode.common.Robot
 class TelemetryManager(val robot: Robot) {
     val dashboard = FtcDashboard.getInstance()
     var currentPacket: TelemetryPacket = TelemetryPacket()
-
-    val addData = currentPacket::put
+    val telemetry = MultipleTelemetry(dashboard.telemetry, robot.opMode.telemetry)
 
     fun pre() {
         currentPacket = TelemetryPacket()
@@ -19,6 +19,7 @@ class TelemetryManager(val robot: Robot) {
     }
 
     fun post() {
+        telemetry.update()
         dashboard.sendTelemetryPacket(currentPacket)
     }
 

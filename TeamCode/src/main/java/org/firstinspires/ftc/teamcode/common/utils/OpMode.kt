@@ -11,10 +11,10 @@ abstract class OpMode : CommandOpMode() {
     }
 
     override fun run() {
-        robot.telemetry.pre()
+        robot.telemetryManager.pre()
         super.run()
         this.exec()
-        robot.telemetry.post()
+        robot.telemetryManager.post()
     }
 
     abstract fun exec()
