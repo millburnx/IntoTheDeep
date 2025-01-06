@@ -67,7 +67,6 @@ class BasicTeleop : OpMode() {
                         InstantCommand({
                             robot.intake.arm.state = IntakeArmPosition.FLOOR
                             robot.intake.diffy.pitch = Diffy.pickupPitch
-//                            robot.intake.diffy.roll = Diffy.pickupRoll
                         }),
                         WaitCommand(pickupArmDelay),
                         instCmd(closeClaw),
@@ -90,6 +89,13 @@ class BasicTeleop : OpMode() {
                         robot.outtake.arm.state = OuttakeArmPosition.BASE
                         robot.outtake.wrist.state = OuttakeWristPosition.BASE
                     }, robot.outtake.arm, robot.outtake.wrist)
+                )
+            }
+            val clawOuttake = EdgeDetector({ gamepad1.dpad_up }) {
+                schedule(
+                    InstantCommand({
+                        robot.outtake.claw.isOpen = !robot.outtake.claw.isOpen
+                    }, robot.outtake.claw)
                 )
             }
 
