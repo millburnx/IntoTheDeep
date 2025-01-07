@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.InstantCommand
-import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -10,7 +9,6 @@ import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
-import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
@@ -21,97 +19,73 @@ import kotlin.math.absoluteValue
 class BasicTeleop : OpMode() {
     val triggers by lazy {
         object {
-            val retractIntake = Pair({
-                robot.intake.linkage.target = 0.0
-                robot.intake.arm.state = IntakeArmPosition.BASE
-                robot.intake.diffy.pitch = Diffy.transferPitch
-                robot.intake.diffy.roll = Diffy.transferRoll
-            }, listOf(robot.intake.linkage, robot.intake.arm))
-            val extendIntake = Pair({
-                robot.intake.linkage.target = 1.0
-                robot.intake.arm.state = IntakeArmPosition.EXTENDED
-                robot.intake.diffy.pitch = Diffy.hoverPitch
-                robot.intake.diffy.roll = Diffy.hoverRoll
-            }, listOf<Subsystem>())
-            val retractSlides = Pair({
-                robot.outtake.slides.target = 0.0
-            }, listOf(robot.outtake.slides))
-            val specimenSlides = Pair({
-                robot.outtake.slides.target = Slides.highRung
-            }, listOf(robot.outtake.slides))
-            val sampleSlides = Pair({
-                robot.outtake.slides.target = Slides.highBasket
-            }, listOf(robot.outtake.slides))
-            val openClaw = Pair({
-                robot.intake.claw.isOpen = true
-            }, listOf(robot.intake.claw))
-            val closeClaw = Pair({
-                robot.intake.claw.isOpen = false
-            }, listOf(robot.intake.claw))
-
-            val intakeRetract = EdgeDetector({ gamepad1.dpad_right }) {
-                schedule(instCmd(retractIntake))
-            }
-            val intakeExtend = EdgeDetector({ gamepad1.dpad_left }) {
-                schedule(
-                    SequentialCommandGroup(
-                        ParallelCommandGroup(instCmd(extendIntake), instCmd(retractSlides)),
-                        WaitCommand(intakeExtendDelay),
-                        instCmd(openClaw)
-                    )
-                )
-            }
-            val intakePickup = EdgeDetector({ gamepad1.dpad_down }) {
-                schedule(
-                    SequentialCommandGroup(
-                        InstantCommand({
-                            robot.intake.arm.state = IntakeArmPosition.FLOOR
-                            robot.intake.diffy.pitch = Diffy.pickupPitch
-                        }),
-                        WaitCommand(pickupArmDelay),
-                        instCmd(closeClaw),
-                        WaitCommand(pickupClawDelay),
-                        instCmd(retractIntake)
-                    )
-                )
-            }
-            val armBasket = EdgeDetector({ gamepad1.triangle }) {
-                schedule(
+            val linkagePickup = EdgeDetector(
+                gamepad1::right_bumper,
+                this@BasicTeleop,
+                InstantCommand({
+                    robot.intake.linkage.target = 1.0
+                    robot.intake.arm.state = IntakeArmPosition.EXTENDED
+                    robot.intake.diffy.pitch = Diffy.hoverPitch
+                    robot.intake.diffy.roll = Diffy.hoverRoll
+                    robot.intake.claw.isOpen = true
+                }, robot.intake),
+                SequentialCommandGroup(
                     InstantCommand({
-                        robot.outtake.arm.state = OuttakeArmPosition.BASKET
-                        robot.outtake.wrist.state = OuttakeWristPosition.BASKET
-                    }, robot.outtake.arm, robot.outtake.wrist)
+                        robot.intake.arm.state = IntakeArmPosition.FLOOR
+                        robot.intake.diffy.pitch = Diffy.pickupPitch
+                    }, robot.intake),
+                    WaitCommand(pickupArmDelay),
+                    InstantCommand({
+                        robot.intake.claw.isOpen = false
+                    }, robot.intake),
+                    WaitCommand(pickupClawDelay),
+                    InstantCommand({
+                        robot.intake.linkage.target = 0.0
+                        robot.intake.arm.state = IntakeArmPosition.BASE
+                        robot.intake.diffy.pitch = Diffy.transferPitch
+                        robot.intake.diffy.roll = Diffy.transferRoll
+                    }, robot.intake)
                 )
-            }
-            val armTransfer = EdgeDetector({ gamepad1.square }) {
-                schedule(
+            )
+
+            val diffyRotate = EdgeDetector(
+                gamepad1::left_bumper,
+                this@BasicTeleop,
+                InstantCommand({
+                    if (robot.intake.diffy.roll == Diffy.hoverRoll) {
+                        robot.intake.diffy.roll = Diffy.roll45
+                    } else if (robot.intake.diffy.roll == Diffy.roll45) {
+                        robot.intake.diffy.roll = Diffy.roll90
+                    } else {
+                        robot.intake.diffy.roll = Diffy.hoverRoll
+                    }
+                }, robot.intake.diffy)
+            )
+
+            val transfer = EdgeDetector(
+                gamepad1::square,
+                this@BasicTeleop,
+                SequentialCommandGroup(
                     InstantCommand({
                         robot.outtake.arm.state = OuttakeArmPosition.BASE
                         robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                    }, robot.outtake.arm, robot.outtake.wrist)
-                )
-            }
-            val clawOuttake = EdgeDetector({ gamepad1.dpad_up }) {
-                schedule(
+                        robot.outtake.claw.isOpen = true
+                    }, robot.outtake),
+                    WaitCommand(transferDuration),
                     InstantCommand({
-                        robot.outtake.claw.isOpen = !robot.outtake.claw.isOpen
-                    }, robot.outtake.claw)
-                )
-            }
-            val clawIntake = EdgeDetector({ gamepad1.circle }) {
-                schedule(
+                        robot.outtake.claw.isOpen = false
+                    }, robot.outtake),
+                    WaitCommand(transferClawDelay),
                     InstantCommand({
-                        robot.intake.claw.isOpen = !robot.intake.claw.isOpen
-                    }, robot.intake.claw)
-                )
-            }
-
-            val rotateDiffy45 = EdgeDetector({ gamepad1.left_bumper }) {
-                schedule(InstantCommand({ robot.intake.diffy.roll = Diffy.roll45 }, robot.intake.diffy))
-            }
-            val rotateDiffy90 = EdgeDetector({ gamepad1.right_bumper }) {
-                schedule(InstantCommand({ robot.intake.diffy.roll = Diffy.roll90 }, robot.intake.diffy))
-            }
+                        robot.intake.claw.isOpen = true
+                    }, robot.intake.claw),
+                    WaitCommand(transferPostDelay),
+                    InstantCommand({
+                        robot.outtake.arm.state = OuttakeArmPosition.BASKET
+                        robot.outtake.wrist.state = OuttakeWristPosition.BASKET
+                    }, robot.outtake)
+                ),
+            )
 
             fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {
                 return InstantCommand(cmd.first, *cmd.second.toTypedArray())
@@ -131,10 +105,8 @@ class BasicTeleop : OpMode() {
             -gamepad1.right_stick_x.toDouble()
         )
 
-        // Outtake
         // Slides
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-//        robot.outtake.slides.target += slidePower * slideSpeed
         if (slidePower.absoluteValue > slideThreshold) {
             robot.outtake.slides.isManual = true
             robot.outtake.slides.manualPower = slidePower
@@ -154,18 +126,21 @@ class BasicTeleop : OpMode() {
 
     companion object {
         @JvmField
-        var slideSpeed: Double = 100.0
-
-        @JvmField
         var slideThreshold: Double = 0.1
-
-        @JvmField
-        var intakeExtendDelay: Long = 750
 
         @JvmField
         var pickupArmDelay: Long = 250
 
         @JvmField
         var pickupClawDelay: Long = 250
+
+        @JvmField
+        var transferClawDelay: Long = 250
+
+        @JvmField
+        var transferDuration: Long = 750
+
+        @JvmField
+        var transferPostDelay: Long = 250
     }
 }
