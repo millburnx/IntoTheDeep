@@ -51,7 +51,7 @@ class BasicTeleop : OpMode() {
             val diffyRotate = EdgeDetector(
                 gamepad1::left_bumper,
             ) {
-                // safety check
+                // prevent rotating while not picking up
                 if (robot.intake.arm.state == IntakeArmPosition.BASE) return@EdgeDetector
                 schedule(
                     InstantCommand({
@@ -69,7 +69,7 @@ class BasicTeleop : OpMode() {
             val transfer = EdgeDetector(
                 gamepad1::square,
             ) {
-                // safety checks
+                // prevent running transfer when intake is not retracted (swap for a limit switch later or smt)
                 if (robot.intake.linkage.target != 0.0) return@EdgeDetector
                 schedule(
                     SequentialCommandGroup(
@@ -92,6 +92,18 @@ class BasicTeleop : OpMode() {
                             robot.outtake.wrist.state = OuttakeWristPosition.BASKET
                         }, robot.outtake)
                     )
+                )
+            }
+
+            val outtakeClaw = EdgeDetector(
+                gamepad1::triangle,
+            ) {
+                // prevent dropping in bot
+                if (robot.outtake.arm.state == OuttakeArmPosition.BASE) return@EdgeDetector
+                schedule(
+                    InstantCommand({
+                        robot.outtake.claw.isOpen = true
+                    }, robot.outtake.claw)
                 )
             }
 
