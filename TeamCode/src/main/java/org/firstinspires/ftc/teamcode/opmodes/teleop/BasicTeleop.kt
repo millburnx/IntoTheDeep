@@ -50,42 +50,50 @@ class BasicTeleop : OpMode() {
 
             val diffyRotate = EdgeDetector(
                 gamepad1::left_bumper,
-                this@BasicTeleop,
-                InstantCommand({
-                    if (robot.intake.diffy.roll == Diffy.hoverRoll) {
-                        robot.intake.diffy.roll = Diffy.roll45
-                    } else if (robot.intake.diffy.roll == Diffy.roll45) {
-                        robot.intake.diffy.roll = Diffy.roll90
-                    } else {
-                        robot.intake.diffy.roll = Diffy.hoverRoll
-                    }
-                }, robot.intake.diffy)
-            )
+            ) {
+                // safety check
+                if (robot.intake.arm.state == IntakeArmPosition.BASE) return@EdgeDetector
+                schedule(
+                    InstantCommand({
+                        if (robot.intake.diffy.roll == Diffy.hoverRoll) {
+                            robot.intake.diffy.roll = Diffy.roll45
+                        } else if (robot.intake.diffy.roll == Diffy.roll45) {
+                            robot.intake.diffy.roll = Diffy.roll90
+                        } else {
+                            robot.intake.diffy.roll = Diffy.hoverRoll
+                        }
+                    }, robot.intake.diffy)
+                )
+            }
 
             val transfer = EdgeDetector(
                 gamepad1::square,
-                this@BasicTeleop,
-                SequentialCommandGroup(
-                    InstantCommand({
-                        robot.outtake.arm.state = OuttakeArmPosition.BASE
-                        robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                        robot.outtake.claw.isOpen = true
-                    }, robot.outtake),
-                    WaitCommand(transferDuration),
-                    InstantCommand({
-                        robot.outtake.claw.isOpen = false
-                    }, robot.outtake),
-                    WaitCommand(transferClawDelay),
-                    InstantCommand({
-                        robot.intake.claw.isOpen = true
-                    }, robot.intake.claw),
-                    WaitCommand(transferPostDelay),
-                    InstantCommand({
-                        robot.outtake.arm.state = OuttakeArmPosition.BASKET
-                        robot.outtake.wrist.state = OuttakeWristPosition.BASKET
-                    }, robot.outtake)
-                ),
-            )
+            ) {
+                // safety checks
+                if (robot.intake.linkage.target != 0.0) return@EdgeDetector
+                schedule(
+                    SequentialCommandGroup(
+                        InstantCommand({
+                            robot.outtake.arm.state = OuttakeArmPosition.BASE
+                            robot.outtake.wrist.state = OuttakeWristPosition.BASE
+                            robot.outtake.claw.isOpen = true
+                        }, robot.outtake),
+                        WaitCommand(transferDuration),
+                        InstantCommand({
+                            robot.outtake.claw.isOpen = false
+                        }, robot.outtake),
+                        WaitCommand(transferClawDelay),
+                        InstantCommand({
+                            robot.intake.claw.isOpen = true
+                        }, robot.intake.claw),
+                        WaitCommand(transferPostDelay),
+                        InstantCommand({
+                            robot.outtake.arm.state = OuttakeArmPosition.BASKET
+                            robot.outtake.wrist.state = OuttakeWristPosition.BASKET
+                        }, robot.outtake)
+                    )
+                )
+            }
 
             fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {
                 return InstantCommand(cmd.first, *cmd.second.toTypedArray())
