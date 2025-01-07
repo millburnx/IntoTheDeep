@@ -19,7 +19,13 @@ class OuttakeWristTuner : OpMode() {
     override val robot by lazy { OuttakeWristOnly(this) }
 
     override fun exec() {
-        robot.outtakeWrist.state = OuttakeWristPosition.entries.toTypedArray()[state]
+        if (state == 0) {
+            robot.outtakeWrist.state = OuttakeWristPosition.BASE
+        } else if (state == 1) {
+            robot.outtakeWrist.state = OuttakeWristPosition.BASKET
+        } else if (state == 2) {
+            robot.outtakeWrist.state = OuttakeWristPosition.OUT
+        }
     }
 
     companion object {

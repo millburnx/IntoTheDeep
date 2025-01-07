@@ -14,7 +14,7 @@ class Slides(val robot: Robot) : Subsystem() {
     val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init() }
     val pid = PIDController(kP, kI, kD)
     val position
-        get() = leftLift.currentPosition.toDouble()
+        get() = rightLift.currentPosition.toDouble()
     var target: Double = 0.0
         set(value) {
             field = value.coerceIn(min, max)
@@ -56,7 +56,7 @@ class Slides(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var kP: Double = 0.0045
+        var kP: Double = 0.01
 
         @JvmField
         var kI: Double = 0.15

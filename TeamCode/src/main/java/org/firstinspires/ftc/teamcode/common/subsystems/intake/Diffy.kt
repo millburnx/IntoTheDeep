@@ -26,7 +26,7 @@ class Diffy(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var transferPitch = 1.0
+        var transferPitch = 0.79
 
         @JvmField
         var transferRoll = 1.0

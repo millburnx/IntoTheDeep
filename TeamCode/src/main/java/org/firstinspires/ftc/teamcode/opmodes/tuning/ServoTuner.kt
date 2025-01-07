@@ -33,8 +33,14 @@ class ServoTuner : CommandOpMode() {
         }
         servo.direction = if (reverse) Direction.REVERSE else Direction.FORWARD
         servo2.direction = if (reverse2) Direction.REVERSE else Direction.FORWARD
-        servo.position = servoLimiter.current
-        servo2.position = servoLimiter.current
+        if (maxSpeed == -1.0) {
+            servo.position = position
+            servo2.position = position
+        } else {
+            servo.position = servoLimiter.current
+            servo2.position = servoLimiter.current
+        }
+        multiTelemetry.addData("position", servoLimiter.current)
         multiTelemetry.update()
     }
 
@@ -42,14 +48,14 @@ class ServoTuner : CommandOpMode() {
 
     companion object {
         @JvmField
-        var maxSpeed: Double = Double.POSITIVE_INFINITY // per second
+        var maxSpeed: Double = Double.MAX_VALUE // per second
 
         @JvmField
         var position: Double = 0.0
 
         // IDK how to do port based without weird calcified stuff, I'll look into it later
         @JvmField
-        var name: String = "servo"
+        var name: String = "intakeClaw"
 
         @JvmField
         var reverse: Boolean = false
@@ -58,7 +64,7 @@ class ServoTuner : CommandOpMode() {
         var axon: Boolean = true
 
         @JvmField
-        var name2: String = "servo2"
+        var name2: String = "servo"
 
         @JvmField
         var reverse2: Boolean = true

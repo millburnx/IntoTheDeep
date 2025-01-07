@@ -98,6 +98,13 @@ class BasicTeleop : OpMode() {
                     }, robot.outtake.claw)
                 )
             }
+            val clawIntake = EdgeDetector({ gamepad1.circle }) {
+                schedule(
+                    InstantCommand({
+                        robot.intake.claw.isOpen = !robot.intake.claw.isOpen
+                    }, robot.intake.claw)
+                )
+            }
 
             val rotateDiffy45 = EdgeDetector({ gamepad1.left_bumper }) {
                 schedule(InstantCommand({ robot.intake.diffy.roll = Diffy.roll45 }, robot.intake.diffy))
@@ -140,6 +147,7 @@ class BasicTeleop : OpMode() {
         robot.telemetry.addData("Linkage Target: ", robot.intake.linkage.target)
         robot.telemetry.addData("Linkage Position:", robot.intake.linkage.leftServo.position)
         robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
+        robot.telemetry.addData("Intake Claw Open:", robot.intake.claw.isOpen)
         robot.telemetry.addData("Outtake Claw Open:", robot.outtake.claw.isOpen)
         robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
     }
