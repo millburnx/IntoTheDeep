@@ -15,10 +15,9 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosi
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
+import org.firstinspires.ftc.teamcode.common.utils.ServoLimiter
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import kotlin.math.abs
 import kotlin.math.absoluteValue
-import kotlin.math.roundToLong
 
 @Config
 @TeleOp(name = "Basic Teleop")
@@ -29,51 +28,22 @@ class BasicTeleop : OpMode() {
                 gamepad1::right_bumper,
                 this@BasicTeleop,
                 ParallelCommandGroup(
-                    InstantCommand({
-                        robot.intake.linkage.target = 1.0
-                        robot.intake.arm.state = IntakeArmPosition.EXTENDED
-                        robot.intake.diffy.pitch = Diffy.hoverPitch
-                        robot.intake.diffy.roll = Diffy.hoverRoll
-                        robot.intake.claw.isOpen = true
-                    }, robot.intake),
-                    ParallelCommandGroup(
-                        SlidesCommand(robot.outtake.slides, Slides.min),
-                        InstantCommand({
-                            robot.outtake.arm.state = OuttakeArmPosition.BASE
-                            robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                        }, robot.outtake)
-                    )
+                    robot.intake.extend(),
+                    robot.intake.open(),
+                    robot.outtake.base(),
                 ),
                 SequentialCommandGroup(
-                    InstantCommand({
-                        robot.intake.arm.state = IntakeArmPosition.FLOOR
-                        robot.intake.diffy.pitch = Diffy.pickupPitch
-                    }, robot.intake),
-                    WaitCommand(intakePickupArmDelay),
-                    InstantCommand({
-                        robot.intake.claw.isOpen = false
-                    }, robot.intake),
-                    WaitCommand(intakePickupClawDelay),
-                    InstantCommand({
-                        robot.intake.linkage.target = 0.0
-                        robot.intake.arm.state = IntakeArmPosition.BASE
-                        robot.intake.diffy.pitch = Diffy.transferPitch
-                        robot.intake.diffy.roll = Diffy.transferRoll
-                        robot.outtake.claw.isOpen = true
-                    }, robot.intake),
-                    WaitCommand(intakeDuration),
-                    InstantCommand({
-                        robot.outtake.arm.state = OuttakeArmPosition.BASE
-                        robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                    }, robot.outtake),
-                    WaitCommand(transferDuration),
-                    InstantCommand({
-                        robot.outtake.claw.isOpen = false
-                    }, robot.outtake),
+                    robot.intake.grab(),
+                    robot.intake.retract(),
+                    ParallelCommandGroup(
+                        robot.outtake.open(),
+                        robot.outtake.base(),
+                        WaitCommand(intakeDuration),
+                    ),
+                    WaitCommand(preTransferClawDelay),
+                    robot.outtake.close(),
                     WaitCommand(transferClawDelay),
-                    InstantCommand({
-                        robot.intake.claw.isOpen = true
-                    }, robot.intake.claw),
+                    robot.intake.open(),
                 )
             )
 
@@ -106,7 +76,7 @@ class BasicTeleop : OpMode() {
                                 robot.outtake.wrist.state = OuttakeWristPosition.BASKET
                             }, robot.outtake),
                             WaitCommand(
-                                estimateDuration(
+                                ServoLimiter.estimateDuration(
                                     OuttakeArm.basePosition,
                                     OuttakeArm.basketPosition,
                                     OuttakeArm.maxSpeed
@@ -192,11 +162,6 @@ class BasicTeleop : OpMode() {
                 )
             )
 
-            fun estimateDuration(starting: Double, ending: Double, speed: Double): Long {
-                val diff = abs(starting - ending)
-                return (diff / speed * 1000).roundToLong()
-            }
-
             fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {
                 return InstantCommand(cmd.first, *cmd.second.toTypedArray())
             }
@@ -245,10 +210,10 @@ class BasicTeleop : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var transferClawDelay: Long = 250
+        var preTransferClawDelay: Long = 250
 
         @JvmField
-        var transferDuration: Long = 0
+        var transferClawDelay: Long = 250
 
         @JvmField
         var outtakePickupClawDelay: Long = 250

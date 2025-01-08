@@ -12,6 +12,14 @@ class OuttakeClaw(val robot: Robot) : Subsystem() {
 
     var isOpen = true
 
+    fun open() {
+        isOpen = true
+    }
+
+    fun close() {
+        isOpen = false
+    }
+
     override fun periodic() {
         clawServo.position = if (isOpen) open else closed
     }

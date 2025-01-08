@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
+import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.ParallelCommandGroup
+import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitUntilCommand
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 class Outtake(val robot: Robot) : Subsystem() {
@@ -12,5 +17,28 @@ class Outtake(val robot: Robot) : Subsystem() {
 
     override fun init() {
         subsystems.forEach { it.init() }
+    }
+
+    fun base() = BaseCommand(this)
+
+    fun open() = InstantCommand(claw::open, claw)
+    fun close() = InstantCommand(claw::close, claw)
+}
+
+class BaseCommand(outtake: Outtake) : SequentialCommandGroup() {
+    init {
+        addCommands(
+            ParallelCommandGroup(
+                SlidesCommand(outtake.slides, Slides.min),
+                ParallelCommandGroup(
+                    InstantCommand({
+                        outtake.arm.state = OuttakeArmPosition.BASE
+                        outtake.wrist.state = OuttakeWristPosition.BASE
+                    }, outtake.arm, outtake.wrist),
+                    WaitUntilCommand({ outtake.arm.servoLimiter.current == OuttakeArm.basePosition })
+                )
+            )
+        )
+        addRequirements(outtake.slides, outtake.arm, outtake.wrist)
     }
 }
