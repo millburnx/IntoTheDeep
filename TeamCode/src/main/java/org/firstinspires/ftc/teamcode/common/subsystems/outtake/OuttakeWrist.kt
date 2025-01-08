@@ -27,7 +27,7 @@ class OuttakeWrist(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var basePosition = 0.8375
+        var basePosition = 0.875
 
         @JvmField
         var specimenPosition = 0.5

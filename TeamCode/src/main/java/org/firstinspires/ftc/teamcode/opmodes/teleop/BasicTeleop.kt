@@ -59,12 +59,12 @@ class BasicTeleop : OpMode() {
                         robot.intake.arm.state = IntakeArmPosition.BASE
                         robot.intake.diffy.pitch = Diffy.transferPitch
                         robot.intake.diffy.roll = Diffy.transferRoll
+                        robot.outtake.claw.isOpen = true
                     }, robot.intake),
                     WaitCommand(intakeDuration),
                     InstantCommand({
                         robot.outtake.arm.state = OuttakeArmPosition.BASE
                         robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                        robot.outtake.claw.isOpen = true
                     }, robot.outtake),
                     WaitCommand(transferDuration),
                     InstantCommand({
@@ -248,12 +248,12 @@ class BasicTeleop : OpMode() {
         var transferClawDelay: Long = 250
 
         @JvmField
-        var transferDuration: Long = 1500
+        var transferDuration: Long = 0
 
         @JvmField
         var outtakePickupClawDelay: Long = 250
 
         @JvmField
-        var intakeDuration: Long = 1500
+        var intakeDuration: Long = 750
     }
 }
