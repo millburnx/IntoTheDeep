@@ -34,6 +34,6 @@ class IntakeArm(val robot: Robot) : Subsystem() {
         var extendedPosition = 0.675
 
         @JvmField
-        var floorPosition = 0.6875
+        var floorPosition = 0.7
     }
 }

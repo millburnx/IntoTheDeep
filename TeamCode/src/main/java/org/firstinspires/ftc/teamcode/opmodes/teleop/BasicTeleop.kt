@@ -36,7 +36,13 @@ class BasicTeleop : OpMode() {
                         robot.intake.diffy.roll = Diffy.hoverRoll
                         robot.intake.claw.isOpen = true
                     }, robot.intake),
-                    SlidesCommand(robot.outtake.slides, Slides.min)
+                    ParallelCommandGroup(
+                        SlidesCommand(robot.outtake.slides, Slides.min),
+                        InstantCommand({
+                            robot.outtake.arm.state = OuttakeArmPosition.BASE
+                            robot.outtake.wrist.state = OuttakeWristPosition.BASE
+                        }, robot.outtake)
+                    )
                 ),
                 SequentialCommandGroup(
                     InstantCommand({
@@ -56,17 +62,18 @@ class BasicTeleop : OpMode() {
                     }, robot.intake),
                     WaitCommand(intakeDuration),
                     InstantCommand({
+                        robot.outtake.arm.state = OuttakeArmPosition.BASE
+                        robot.outtake.wrist.state = OuttakeWristPosition.BASE
+                        robot.outtake.claw.isOpen = true
+                    }, robot.outtake),
+                    WaitCommand(transferDuration),
+                    InstantCommand({
                         robot.outtake.claw.isOpen = false
                     }, robot.outtake),
                     WaitCommand(transferClawDelay),
                     InstantCommand({
                         robot.intake.claw.isOpen = true
                     }, robot.intake.claw),
-                    InstantCommand({
-                        robot.outtake.arm.state = OuttakeArmPosition.BASE
-                        robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                        robot.outtake.claw.isOpen = true
-                    }, robot.outtake),
                 )
             )
 
@@ -157,7 +164,13 @@ class BasicTeleop : OpMode() {
             val base = EdgeDetector(
                 gamepad1::dpad_down,
                 this@BasicTeleop,
-                SlidesCommand(robot.outtake.slides, Slides.min)
+                ParallelCommandGroup(
+                    SlidesCommand(robot.outtake.slides, Slides.min),
+                    InstantCommand({
+                        robot.outtake.arm.state = OuttakeArmPosition.BASE
+                        robot.outtake.wrist.state = OuttakeWristPosition.BASE
+                    }, robot.outtake)
+                )
             )
             val sampleScore = EdgeDetector(
                 gamepad1::dpad_up,
@@ -236,9 +249,6 @@ class BasicTeleop : OpMode() {
 
         @JvmField
         var transferDuration: Long = 1500
-
-        @JvmField
-        var transferPostDelay: Long = 250
 
         @JvmField
         var outtakePickupClawDelay: Long = 250
