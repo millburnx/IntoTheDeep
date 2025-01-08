@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -27,13 +28,16 @@ class BasicTeleop : OpMode() {
             val linkagePickup = EdgeDetector(
                 gamepad1::right_bumper,
                 this@BasicTeleop,
-                InstantCommand({
-                    robot.intake.linkage.target = 1.0
-                    robot.intake.arm.state = IntakeArmPosition.EXTENDED
-                    robot.intake.diffy.pitch = Diffy.hoverPitch
-                    robot.intake.diffy.roll = Diffy.hoverRoll
-                    robot.intake.claw.isOpen = true
-                }, robot.intake),
+                ParallelCommandGroup(
+                    InstantCommand({
+                        robot.intake.linkage.target = 1.0
+                        robot.intake.arm.state = IntakeArmPosition.EXTENDED
+                        robot.intake.diffy.pitch = Diffy.hoverPitch
+                        robot.intake.diffy.roll = Diffy.hoverRoll
+                        robot.intake.claw.isOpen = true
+                    }, robot.intake),
+                    SlidesCommand(robot.outtake.slides, Slides.min)
+                ),
                 SequentialCommandGroup(
                     InstantCommand({
                         robot.intake.arm.state = IntakeArmPosition.FLOOR
@@ -163,7 +167,15 @@ class BasicTeleop : OpMode() {
                         robot.outtake.arm.state = OuttakeArmPosition.BASKET
                         robot.outtake.wrist.state = OuttakeWristPosition.BASKET
                     }, robot.outtake),
-                    SlidesCommand(robot.outtake.slides, Slides.highBasket)
+                    ParallelCommandGroup(
+                        InstantCommand({
+                            robot.intake.linkage.target = 0.0
+                            robot.intake.arm.state = IntakeArmPosition.BASE
+                            robot.intake.diffy.pitch = Diffy.transferPitch
+                            robot.intake.diffy.roll = Diffy.transferRoll
+                        }, robot.intake),
+                        SlidesCommand(robot.outtake.slides, Slides.highBasket)
+                    )
                 )
             )
 
