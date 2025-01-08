@@ -28,7 +28,7 @@ class IntakeArm(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var basePosition = 0.46
+        var basePosition = 0.445
 
         @JvmField
         var extendedPosition = 0.675

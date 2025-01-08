@@ -15,7 +15,7 @@ class Slides(val robot: Robot) : Subsystem() {
     val pid = PIDController(kP, kI, kD)
     val position
         get() = rightLift.currentPosition.toDouble()
-    var target: Double = 0.0
+    var target: Double = min
         set(value) {
             field = value.coerceIn(min, max)
         }
@@ -68,7 +68,7 @@ class Slides(val robot: Robot) : Subsystem() {
         var kF: Double = 0.01
 
         @JvmField
-        var min: Double = 0.0
+        var min: Double = 75.0
 
         @JvmField
         var max: Double = 2200.0
@@ -77,6 +77,6 @@ class Slides(val robot: Robot) : Subsystem() {
         var highRung: Double = 1300.0
 
         @JvmField
-        var highBasket: Double = max
+        var highBasket: Double = 1950.0
     }
 }

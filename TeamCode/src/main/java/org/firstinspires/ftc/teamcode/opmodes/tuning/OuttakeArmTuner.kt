@@ -19,7 +19,15 @@ class OuttakeArmTuner : OpMode() {
     override val robot by lazy { OuttakeArmOnly(this) }
 
     override fun exec() {
-        robot.outtakeArm.state = OuttakeArmPosition.entries.toTypedArray()[state]
+        if (state == 0) {
+            robot.outtakeArm.state = OuttakeArmPosition.BASE
+        } else if (state == 1) {
+            robot.outtakeArm.state = OuttakeArmPosition.SPECIMEN
+        } else if (state == 2) {
+            robot.outtakeArm.state = OuttakeArmPosition.BASKET
+        } else if (state == 3) {
+            robot.outtakeArm.state = OuttakeArmPosition.OUT
+        }
     }
 
     companion object {

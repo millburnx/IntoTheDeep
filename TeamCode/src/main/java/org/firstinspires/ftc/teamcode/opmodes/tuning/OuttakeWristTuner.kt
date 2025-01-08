@@ -22,8 +22,10 @@ class OuttakeWristTuner : OpMode() {
         if (state == 0) {
             robot.outtakeWrist.state = OuttakeWristPosition.BASE
         } else if (state == 1) {
-            robot.outtakeWrist.state = OuttakeWristPosition.BASKET
+            robot.outtakeWrist.state = OuttakeWristPosition.SPECIMEN
         } else if (state == 2) {
+            robot.outtakeWrist.state = OuttakeWristPosition.BASKET
+        } else if (state == 3) {
             robot.outtakeWrist.state = OuttakeWristPosition.OUT
         }
     }

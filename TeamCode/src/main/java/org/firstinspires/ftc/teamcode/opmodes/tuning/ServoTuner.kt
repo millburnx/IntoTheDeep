@@ -18,10 +18,11 @@ class ServoTuner : CommandOpMode() {
     val servo by lazy { (hardwareMap[name] as ServoImplEx).apply { init(reverse) } }
     val servo2 by lazy { (hardwareMap[name2] as ServoImplEx).apply { init(reverse2) } }
     val deltaTime = DeltaTime()
-    val servoLimiter = ServoLimiter(maxSpeed, deltaTime::deltaTime, position)
+    val servoLimiter = ServoLimiter(maxSpeed, { deltaTime.deltaTime }, position)
     val multiTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
     override fun run() {
+        super.run()
         servoLimiter.maxSpeed = maxSpeed
         servoLimiter.update(position)
         if (axon) {

@@ -5,14 +5,19 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArm
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import kotlin.math.abs
 import kotlin.math.absoluteValue
+import kotlin.math.roundToLong
 
 @Config
 @TeleOp(name = "Basic Teleop")
@@ -34,17 +39,30 @@ class BasicTeleop : OpMode() {
                         robot.intake.arm.state = IntakeArmPosition.FLOOR
                         robot.intake.diffy.pitch = Diffy.pickupPitch
                     }, robot.intake),
-                    WaitCommand(pickupArmDelay),
+                    WaitCommand(intakePickupArmDelay),
                     InstantCommand({
                         robot.intake.claw.isOpen = false
                     }, robot.intake),
-                    WaitCommand(pickupClawDelay),
+                    WaitCommand(intakePickupClawDelay),
                     InstantCommand({
                         robot.intake.linkage.target = 0.0
                         robot.intake.arm.state = IntakeArmPosition.BASE
                         robot.intake.diffy.pitch = Diffy.transferPitch
                         robot.intake.diffy.roll = Diffy.transferRoll
-                    }, robot.intake)
+                    }, robot.intake),
+                    WaitCommand(intakeDuration),
+                    InstantCommand({
+                        robot.outtake.claw.isOpen = false
+                    }, robot.outtake),
+                    WaitCommand(transferClawDelay),
+                    InstantCommand({
+                        robot.intake.claw.isOpen = true
+                    }, robot.intake.claw),
+                    InstantCommand({
+                        robot.outtake.arm.state = OuttakeArmPosition.BASE
+                        robot.outtake.wrist.state = OuttakeWristPosition.BASE
+                        robot.outtake.claw.isOpen = true
+                    }, robot.outtake),
                 )
             )
 
@@ -66,34 +84,51 @@ class BasicTeleop : OpMode() {
                 )
             }
 
-            val transfer = EdgeDetector(
-                gamepad1::square,
-            ) {
-                // prevent running transfer when intake is not retracted (swap for a limit switch later or smt)
-                if (robot.intake.linkage.target != 0.0) return@EdgeDetector
-                schedule(
-                    SequentialCommandGroup(
-                        InstantCommand({
-                            robot.outtake.arm.state = OuttakeArmPosition.BASE
-                            robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                            robot.outtake.claw.isOpen = true
-                        }, robot.outtake),
-                        WaitCommand(transferDuration),
-                        InstantCommand({
-                            robot.outtake.claw.isOpen = false
-                        }, robot.outtake),
-                        WaitCommand(transferClawDelay),
-                        InstantCommand({
-                            robot.intake.claw.isOpen = true
-                        }, robot.intake.claw),
-                        WaitCommand(transferPostDelay),
-                        InstantCommand({
-                            robot.outtake.arm.state = OuttakeArmPosition.BASKET
-                            robot.outtake.wrist.state = OuttakeWristPosition.BASKET
-                        }, robot.outtake)
+            val specimenPickup = EdgeDetector(
+                gamepad1::circle,
+                {
+                    val atBase = robot.outtake.arm.state == OuttakeArmPosition.BASE
+                    val baseToBasket = if (atBase) {
+                        SequentialCommandGroup(
+                            InstantCommand({
+                                robot.outtake.arm.state = OuttakeArmPosition.BASKET
+                                robot.outtake.wrist.state = OuttakeWristPosition.BASKET
+                            }, robot.outtake),
+                            WaitCommand(
+                                estimateDuration(
+                                    OuttakeArm.basePosition,
+                                    OuttakeArm.basketPosition,
+                                    OuttakeArm.maxSpeed
+                                )
+                            )
+                        )
+                    } else {
+                        InstantCommand({})
+                    }
+                    schedule(
+                        SequentialCommandGroup(
+                            InstantCommand({ robot.outtake.claw.isOpen = true }, robot.outtake),
+                            baseToBasket,
+                            InstantCommand({
+                                robot.outtake.arm.state = OuttakeArmPosition.OUT
+                                robot.outtake.wrist.state = OuttakeWristPosition.OUT
+                            }, robot.outtake),
+                        )
                     )
-                )
-            }
+                },
+                {
+                    schedule(
+                        SequentialCommandGroup(
+                            InstantCommand({ robot.outtake.claw.isOpen = false }, robot.outtake),
+                            WaitCommand(outtakePickupClawDelay),
+                            InstantCommand({
+                                robot.outtake.arm.state = OuttakeArmPosition.BASKET
+                                robot.outtake.wrist.state = OuttakeWristPosition.BASKET
+                            }, robot.outtake)
+                        )
+                    )
+                }
+            )
 
             val outtakeClaw = EdgeDetector(
                 gamepad1::triangle,
@@ -105,6 +140,36 @@ class BasicTeleop : OpMode() {
                         robot.outtake.claw.isOpen = true
                     }, robot.outtake.claw)
                 )
+            }
+
+            val specimenScore = EdgeDetector(
+                gamepad1::dpad_left,
+                this@BasicTeleop,
+                InstantCommand({
+                    robot.outtake.arm.state = OuttakeArmPosition.SPECIMEN
+                    robot.outtake.wrist.state = OuttakeWristPosition.SPECIMEN
+                }, robot.outtake)
+            )
+            val base = EdgeDetector(
+                gamepad1::dpad_down,
+                this@BasicTeleop,
+                SlidesCommand(robot.outtake.slides, Slides.min)
+            )
+            val sampleScore = EdgeDetector(
+                gamepad1::dpad_up,
+                this@BasicTeleop,
+                SequentialCommandGroup(
+                    InstantCommand({
+                        robot.outtake.arm.state = OuttakeArmPosition.BASKET
+                        robot.outtake.wrist.state = OuttakeWristPosition.BASKET
+                    }, robot.outtake),
+                    SlidesCommand(robot.outtake.slides, Slides.highBasket)
+                )
+            )
+
+            fun estimateDuration(starting: Double, ending: Double, speed: Double): Long {
+                val diff = abs(starting - ending)
+                return (diff / speed * 1000).roundToLong()
             }
 
             fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {
@@ -149,18 +214,24 @@ class BasicTeleop : OpMode() {
         var slideThreshold: Double = 0.1
 
         @JvmField
-        var pickupArmDelay: Long = 250
+        var intakePickupArmDelay: Long = 250
 
         @JvmField
-        var pickupClawDelay: Long = 250
+        var intakePickupClawDelay: Long = 250
 
         @JvmField
         var transferClawDelay: Long = 250
 
         @JvmField
-        var transferDuration: Long = 750
+        var transferDuration: Long = 1500
 
         @JvmField
         var transferPostDelay: Long = 250
+
+        @JvmField
+        var outtakePickupClawDelay: Long = 250
+
+        @JvmField
+        var intakeDuration: Long = 1500
     }
 }
