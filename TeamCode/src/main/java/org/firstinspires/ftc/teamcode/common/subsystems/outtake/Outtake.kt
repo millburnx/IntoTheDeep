@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
-import com.arcrobotics.ftclib.command.WaitUntilCommand
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
@@ -35,7 +34,6 @@ class BaseCommand(outtake: Outtake) : SequentialCommandGroup() {
                         outtake.arm.state = OuttakeArmPosition.BASE
                         outtake.wrist.state = OuttakeWristPosition.BASE
                     }, outtake.arm, outtake.wrist),
-                    WaitUntilCommand({ outtake.arm.servoLimiter.current == OuttakeArm.basePosition })
                 )
             )
         )

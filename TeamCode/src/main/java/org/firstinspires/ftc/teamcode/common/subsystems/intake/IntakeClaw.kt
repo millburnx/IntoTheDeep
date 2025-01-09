@@ -26,9 +26,9 @@ class IntakeClaw(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var open: Double = 0.3375
+        var open: Double = 0.32
 
         @JvmField
-        var closed: Double = 0.625
+        var closed: Double = 0.65
     }
 }

@@ -56,7 +56,7 @@ class Slides(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var kP: Double = 0.01
+        var kP: Double = 0.005
 
         @JvmField
         var kI: Double = 0.15
@@ -68,13 +68,16 @@ class Slides(val robot: Robot) : Subsystem() {
         var kF: Double = 0.01
 
         @JvmField
-        var min: Double = 75.0
+        var min: Double = 0.0
 
         @JvmField
         var max: Double = 2200.0
 
         @JvmField
         var highRung: Double = 1300.0
+
+        @JvmField
+        var lowBasket: Double = 700.0
 
         @JvmField
         var highBasket: Double = 1950.0

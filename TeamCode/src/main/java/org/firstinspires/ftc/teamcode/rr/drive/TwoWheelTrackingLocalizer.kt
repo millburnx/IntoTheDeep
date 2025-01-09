@@ -38,19 +38,24 @@ class TwoWheelTrackingLocalizer(hardwareMap: HardwareMap, var drive: SampleMecan
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis
     // Perpendicular is perpendicular to the forward axis
-    var parallelEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "frontRight")).apply {
+    var parallelEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "para")).apply {
         direction = Encoder.Direction.FORWARD
     }
-    var perpendicularEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "frontLeft")).apply {
+    var perpendicularEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "perp")).apply {
         direction = Encoder.Direction.FORWARD
     }
 
     override fun getHeading(): Double {
-        return drive.rawExternalHeading
+        return -drive.rawExternalHeading
     }
 
     override fun getHeadingVelocity(): Double? {
-        return drive.getExternalHeadingVelocity()
+//        return drive.getExternalHeadingVelocity()
+        val velo = drive.getExternalHeadingVelocity()
+        if (velo == null) {
+            return null
+        }
+        return -velo
     }
 
     override fun getWheelPositions(): List<Double> {
@@ -68,18 +73,32 @@ class TwoWheelTrackingLocalizer(hardwareMap: HardwareMap, var drive: SampleMecan
     }
 
     companion object {
+        @JvmField
         var TICKS_PER_REV: Double = 8192.0
+
+        @JvmField
         var WHEEL_RADIUS: Double = 35 / 25.4 // in
+
+        @JvmField
         var GEAR_RATIO: Double = 1.0 // output (wheel) speed / input (encoder) speed
 
+        @JvmField
         var PARALLEL_X: Double = 2.5 // X is the up and down direction
-        var PARALLEL_Y: Double = 6.5 // Y is the strafe direction
 
-        var PERPENDICULAR_X: Double = 1.875
+        @JvmField
+        var PARALLEL_Y: Double = 6.0 // Y is the strafe direction
+
+        @JvmField
+        var PERPENDICULAR_X: Double = .5
+
+        @JvmField
         var PERPENDICULAR_Y: Double = 0.375
 
-        var X_MULTIPLIER: Double = 100.0 / 197.0 // Multiplier in the X direction
-        var Y_MULTIPLIER: Double = 100.0 / 195.0 // Multiplier in the Y direction
+        @JvmField
+        var X_MULTIPLIER: Double = 0.49 // Multiplier in the X direction
+
+        @JvmField
+        var Y_MULTIPLIER: Double = 0.49 // Multiplier in the Y direction
 
         fun encoderTicksToInches(ticks: Double): Double {
             return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV
