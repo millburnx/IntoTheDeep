@@ -111,7 +111,6 @@ class BasicTeleop : OpMode() {
             val outtakeClaw = EdgeDetector(gamepad1::triangle, {
                 // prevent dropping in bot
                 if (robot.outtake.arm.state == OuttakeArmPosition.BASE) return@EdgeDetector
-
                 if (robot.outtake.claw.isOpen) {
                     // stop slides and close claw (miss protection)
                     schedule(
@@ -129,6 +128,7 @@ class BasicTeleop : OpMode() {
                 }
             }, {
                 // go to base
+                if (!robot.outtake.claw.isOpen) return@EdgeDetector
                 schedule(
                     SequentialCommandGroup(
                         ParallelCommandGroup(
