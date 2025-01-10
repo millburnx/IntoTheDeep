@@ -31,7 +31,7 @@ open class Drive(val robot: Robot) : Subsystem() {
     override fun init() {
         super.init()
         (robot.hardware["para"] as DcMotorEx).reset()
-        (robot.hardware["perp"] as DcMotorEx).reset()
+        (robot.hardware["frontLeft"] as DcMotorEx).reset()
     }
 
     override fun periodic() {

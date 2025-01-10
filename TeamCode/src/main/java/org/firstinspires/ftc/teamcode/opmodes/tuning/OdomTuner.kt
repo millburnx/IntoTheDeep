@@ -19,7 +19,7 @@ class OdomTuner : OpMode() {
     override val robot by lazy { OdomOnly(this) }
 
     val para: DcMotorEx by lazy { robot.hardware["para"] as DcMotorEx }
-    val perp: DcMotorEx by lazy { robot.hardware["perp"] as DcMotorEx }
+    val perp: DcMotorEx by lazy { robot.hardware["frontLeft"] as DcMotorEx }
 
     override fun exec() {
         robot.drive.robotCentric(

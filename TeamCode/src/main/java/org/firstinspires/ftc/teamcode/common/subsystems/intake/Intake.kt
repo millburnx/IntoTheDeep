@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakeDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakePickupArmDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakePickupClawDelay
 
@@ -46,10 +47,14 @@ class RetractCommand(intake: Intake) : SequentialCommandGroup() {
         addCommands(
             InstantCommand({
                 intake.linkage.target = 0.0
-                intake.arm.state = IntakeArmPosition.BASE
+                intake.arm.state = IntakeArmPosition.EXTENDED
                 intake.diffy.pitch = Diffy.transferPitch
                 intake.diffy.roll = Diffy.transferRoll
             }, intake.linkage, intake.arm, intake.diffy),
+            WaitCommand(intakeDuration),
+            InstantCommand({
+                intake.arm.state = IntakeArmPosition.BASE
+            }, intake.arm),
         )
         addRequirements(intake.linkage, intake.arm, intake.diffy)
     }

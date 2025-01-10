@@ -89,7 +89,7 @@ class TwoWheelTrackingLocalizer(hardwareMap: HardwareMap, var drive: SampleMecan
         var PARALLEL_Y: Double = 6.0 // Y is the strafe direction
 
         @JvmField
-        var PERPENDICULAR_X: Double = .5
+        var PERPENDICULAR_X: Double = -0.875
 
         @JvmField
         var PERPENDICULAR_Y: Double = 0.375

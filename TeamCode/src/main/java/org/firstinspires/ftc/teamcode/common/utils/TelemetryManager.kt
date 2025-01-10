@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.common.utils
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
-import com.millburnx.dashboard.TelemetryPacket
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.teamcode.common.Robot
 
@@ -19,12 +19,12 @@ class TelemetryManager(val robot: Robot) {
     }
 
     fun post() {
-        telemetry.update()
         dashboard.sendTelemetryPacket(currentPacket)
+        telemetry.update()
     }
 
     fun drawRobot(packet: TelemetryPacket) {
-        packet.put("Pose", robot.drive.pose.toString())
+        telemetry.addData("Pose", robot.drive.pose.toString())
         val canvas = packet.fieldOverlay()
         canvas.setStrokeWidth(robotStroke)
         canvas.setStroke(robotColor)
@@ -40,7 +40,7 @@ class TelemetryManager(val robot: Robot) {
         var robotSize = 14.0
 
         @JvmField
-        var robotColor = "#3F51B5"
+        var robotColor = "#ffffff"
 
         @JvmField
         var robotStroke = 1

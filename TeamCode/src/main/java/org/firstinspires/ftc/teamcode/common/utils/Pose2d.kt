@@ -33,7 +33,7 @@ data class Pose2d(val position: Vec2d = Vec2d(), val heading: Double = 0.0) {
     }
 
     fun toRR(): com.acmerobotics.roadrunner.geometry.Pose2d {
-        return com.acmerobotics.roadrunner.geometry.Pose2d(position.x, position.y, heading)
+        return com.acmerobotics.roadrunner.geometry.Pose2d(position.y, -position.x, heading)
     }
 
     operator fun unaryMinus(): Pose2d = Pose2d(-position, -heading)

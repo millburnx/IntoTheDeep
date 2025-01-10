@@ -35,11 +35,10 @@ class BasicTeleop : OpMode() {
                 ),
                 SequentialCommandGroup(
                     robot.intake.grab(),
-                    robot.intake.retract(),
                     ParallelCommandGroup(
+                        robot.intake.retract(),
                         robot.outtake.open(),
                         robot.outtake.base(),
-                        WaitCommand(intakeDuration),
                     ),
                     WaitCommand(preTransferClawDelay),
                     robot.outtake.close(),
@@ -120,6 +119,7 @@ class BasicTeleop : OpMode() {
                         )
                     )
                 } else {
+                    robot.outtake.claw.open()
                     schedule(
                         SequentialCommandGroup(
                             InstantCommand(robot.outtake.claw::open, robot.outtake.claw),
@@ -237,6 +237,8 @@ class BasicTeleop : OpMode() {
         } else {
             robot.outtake.slides.isManual = false
         }
+
+//        robot.telemetryManager.send()
 
         robot.telemetry.addData("Slides Target: ", robot.outtake.slides.target)
         robot.telemetry.addData("Slides Position: ", robot.outtake.slides.leftLift.currentPosition)
