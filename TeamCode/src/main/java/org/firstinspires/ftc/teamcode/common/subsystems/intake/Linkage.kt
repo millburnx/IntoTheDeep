@@ -13,6 +13,10 @@ class Linkage(val robot: Robot) : Subsystem() {
     var leftServo: Servo = (robot.hardware["linkageLeft"] as Servo).apply { init() }
     val rightServo: Servo = (robot.hardware["linkageRight"] as Servo).apply { init(false) }
 
+    override fun init() {
+        periodic()
+    }
+    
     override fun periodic() {
         if (!enabled) return
         val position = Utils.lerp(base, full, target)

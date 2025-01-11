@@ -19,6 +19,10 @@ class IntakeClaw(val robot: Robot) : Subsystem() {
     fun close() {
         isOpen = false
     }
+    
+    override fun init() {
+        periodic()
+    }
 
     override fun periodic() {
         clawServo.position = if (isOpen) open else closed

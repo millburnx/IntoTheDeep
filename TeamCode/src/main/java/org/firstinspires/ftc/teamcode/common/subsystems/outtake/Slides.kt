@@ -74,7 +74,7 @@ class Slides(val robot: Robot) : Subsystem() {
         var max: Double = 2200.0
 
         @JvmField
-        var highRung: Double = 1300.0
+        var highRung: Double = 1200.0
 
         @JvmField
         var lowBasket: Double = 700.0

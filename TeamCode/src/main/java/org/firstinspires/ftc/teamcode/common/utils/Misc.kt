@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.hardware.ServoImplEx
+import kotlin.math.floor
 
 fun DcMotorEx.init(isForward: Boolean = true, isBrake: Boolean = false) {
     direction = if (isForward) DcMotorSimple.Direction.FORWARD else DcMotorSimple.Direction.REVERSE
@@ -26,4 +27,13 @@ fun Servo.init(isForward: Boolean = true) {
 fun ServoImplEx.init(isForward: Boolean = true) {
     direction = if (isForward) Servo.Direction.FORWARD else Servo.Direction.REVERSE
     pwmRange = PwmControl.PwmRange(500.0, 2500.0)
+}
+
+fun normalizeRadians(radians: Double): Double {
+    val temp = (radians + Math.PI) / (2.0 * Math.PI)
+    return (temp - floor(temp) - 0.5) * 2.0
+}
+
+fun normalizeDegrees(angle: Double): Double {
+    return Math.toDegrees(normalizeRadians(Math.toRadians(angle)))
 }

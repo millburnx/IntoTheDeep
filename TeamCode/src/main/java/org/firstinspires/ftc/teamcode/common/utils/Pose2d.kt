@@ -28,12 +28,20 @@ data class Pose2d(val position: Vec2d = Vec2d(), val heading: Double = 0.0) {
         }
 
         fun fromRR(pose: com.acmerobotics.roadrunner.geometry.Pose2d): Pose2d {
-            return Pose2d(pose.x, pose.y, pose.heading)
+            return Pose2d(pose.x, pose.y, Math.toDegrees(pose.heading))
+        }
+
+        fun fromRR(pose: Pose2d): Pose2d {
+            return Pose2d(pose.x, pose.y, Math.toDegrees(pose.heading))
         }
     }
 
     fun toRR(): com.acmerobotics.roadrunner.geometry.Pose2d {
-        return com.acmerobotics.roadrunner.geometry.Pose2d(position.y, -position.x, heading)
+        return com.acmerobotics.roadrunner.geometry.Pose2d(position.y, -position.x, Math.toRadians(heading))
+    }
+
+    fun toRawRR(): com.acmerobotics.roadrunner.geometry.Pose2d {
+        return com.acmerobotics.roadrunner.geometry.Pose2d(position.x, position.y, Math.toRadians(heading))
     }
 
     operator fun unaryMinus(): Pose2d = Pose2d(-position, -heading)

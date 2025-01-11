@@ -31,7 +31,7 @@ class DrivePIDCommand(
         val y = pidY.calculate(drive.pose.y, target.y)
         val h = pidH.calculate(drive.pose.heading, target.heading)
 
-        drive.fieldCentric(x, y, h, drive.pose.heading)
+        drive.fieldCentric(-x, y, h, drive.pose.heading)
     }
 
     override fun isFinished(): Boolean {
@@ -45,27 +45,29 @@ class DrivePIDCommand(
 
     companion object {
         @JvmField
-        var kP: Double = 0.0
+        var kP: Double = 0.125
 
         @JvmField
-        var kI: Double = 0.0
+        var kI: Double = 0.225
 
         @JvmField
-        var kD: Double = 0.0
+        var kD: Double = 0.0198
 
         @JvmField
-        var kPHeading: Double = 0.0
+//        var kPHeading: Double = 0.1
+        var kPHeading: Double = 0.075
 
         @JvmField
-        var kIHeading: Double = 0.0
+//        var kIHeading: Double = 0.225
+        var kIHeading: Double = 0.1875
 
         @JvmField
-        var kDHeading: Double = 0.0
+        var kDHeading: Double = 0.00001
 
         @JvmField
-        var tolerance: Double = 1.0
+        var tolerance: Double = 2.0
 
         @JvmField
-        var headingTolerance: Double = 1.0
+        var headingTolerance: Double = 10.0
     }
 }

@@ -10,13 +10,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
-import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArm
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
-import org.firstinspires.ftc.teamcode.common.utils.ServoLimiter
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import kotlin.math.absoluteValue
 
@@ -37,6 +35,26 @@ class BasicTeleop : OpMode() {
                     robot.intake.grab(),
                     ParallelCommandGroup(
                         robot.intake.retract(),
+                        robot.outtake.open(),
+                        robot.outtake.base(),
+                    ),
+                    robot.outtake.close(),
+                    WaitCommand(transferClawDelay),
+                    robot.intake.open(),
+                )
+            )
+            val barSideLinkagePickup = EdgeDetector(
+                gamepad1::square,
+                this@BasicTeleop,
+                ParallelCommandGroup(
+                    robot.intake.extend(),
+                    robot.intake.open(),
+                    robot.outtake.base(),
+                ),
+                SequentialCommandGroup(
+                    robot.intake.grab(),
+                    ParallelCommandGroup(
+                        robot.intake.barSideRetract(),
                         robot.outtake.open(),
                         robot.outtake.base(),
                     ),
@@ -67,27 +85,16 @@ class BasicTeleop : OpMode() {
 
             val specimenPickup = EdgeDetector(gamepad1::circle, {
                 val atBase = robot.outtake.arm.state == OuttakeArmPosition.BASE
-                val baseToBasket = if (atBase) {
-                    SequentialCommandGroup(
-                        InstantCommand({
-                            robot.outtake.arm.state = OuttakeArmPosition.BASKET
-                            robot.outtake.wrist.state = OuttakeWristPosition.BASKET
-                        }, robot.outtake),
-                        WaitCommand(
-                            ServoLimiter.estimateDuration(
-                                OuttakeArm.basePosition,
-                                OuttakeArm.basketPosition,
-                                OuttakeArm.maxSpeed
-                            )
-                        )
-                    )
-                } else {
-                    InstantCommand({})
-                }
+
                 schedule(
                     SequentialCommandGroup(
                         InstantCommand({ robot.outtake.claw.isOpen = true }, robot.outtake),
-                        baseToBasket,
+                        InstantCommand({
+                            robot.intake.arm.state = IntakeArmPosition.SPECIMEN
+                            robot.intake.diffy.roll = Diffy.specimenRoll
+                            robot.intake.diffy.pitch = Diffy.specimenPitch
+                        }, robot.intake),
+                        WaitCommand(specimenDelay),
                         InstantCommand({
                             robot.outtake.arm.state = OuttakeArmPosition.OUT
                             robot.outtake.wrist.state = OuttakeWristPosition.OUT
@@ -102,6 +109,9 @@ class BasicTeleop : OpMode() {
                         InstantCommand({
                             robot.outtake.arm.state = OuttakeArmPosition.BASKET
                             robot.outtake.wrist.state = OuttakeWristPosition.BASKET
+                            robot.intake.arm.state = IntakeArmPosition.BASE
+                            robot.intake.diffy.roll = Diffy.transferRoll
+                            robot.intake.diffy.pitch = Diffy.transferPitch
                         }, robot.outtake)
                     )
                 )
@@ -198,6 +208,15 @@ class BasicTeleop : OpMode() {
                 )
             }
 
+            val humanDrop = EdgeDetector(
+                gamepad1::dpad_down,
+                this@BasicTeleop,
+                InstantCommand({
+                    robot.outtake.arm.state = OuttakeArmPosition.HUMAN
+                    robot.outtake.wrist.state = OuttakeWristPosition.HUMAN
+                })
+            )
+
             fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {
                 return InstantCommand(cmd.first, *cmd.second.toTypedArray())
             }
@@ -262,7 +281,7 @@ class BasicTeleop : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var preTransferClawDelay: Long = 250
+        var preTransferClawDelay: Long = 500
 
         @JvmField
         var transferClawDelay: Long = 200
@@ -278,5 +297,14 @@ class BasicTeleop : OpMode() {
 
         @JvmField
         var outtakeDropArmDelay: Long = 250
+
+        @JvmField
+        var specimenDelay: Long = 500
+
+        @JvmField
+        var specScoreDelay: Long = 1000
+
+        @JvmField
+        var sweepDuration: Long = 1500
     }
 }

@@ -25,7 +25,7 @@ open class Drive(val robot: Robot) : Subsystem() {
             return Pose2d.fromRR(odometry.poseEstimate)
         }
         set(value) {
-            odometry.poseEstimate = value.toRR()
+            odometry.poseEstimate = value.toRawRR()
         }
 
     override fun init() {

@@ -16,6 +16,10 @@ class Diffy(val robot: Robot) : Subsystem() {
     var pitch: Double = transferPitch // up and down, -1 to 1
     var roll: Double = transferRoll // rotate, -1 to 1
 
+    override fun init() {
+        periodic()
+    }
+
     override fun periodic() {
         val pitchPosition = 0.5 + pitch / 4 // convert to 0.25 to 0.75
         val leftPosition = pitchPosition - roll / 4 // 0 to 1
@@ -30,6 +34,18 @@ class Diffy(val robot: Robot) : Subsystem() {
 
         @JvmField
         var transferRoll = 1.0
+
+        @JvmField
+        var sweepPitch = 0.66
+
+        @JvmField
+        var sweepRoll = 1.0
+
+        @JvmField
+        var specimenPitch = 0.25
+
+        @JvmField
+        var specimenRoll = 1.0
 
         @JvmField
         var hoverPitch = -0.9

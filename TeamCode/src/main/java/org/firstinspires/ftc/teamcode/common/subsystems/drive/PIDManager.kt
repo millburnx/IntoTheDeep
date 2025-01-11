@@ -11,8 +11,10 @@ import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Comp
 import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kIHeading
 import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kP
 import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kPHeading
+import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
 
 class PIDManager(val robot: Robot) : Subsystem() {
@@ -23,7 +25,7 @@ class PIDManager(val robot: Robot) : Subsystem() {
 
     val pidX by lazy { PIDController(kP, kI, kD) }
     val pidY by lazy { PIDController(kP, kI, kD) }
-    val pidH by lazy { PIDController(kPHeading, kIHeading, kDHeading) }
+    val pidH by lazy { APIDController(kPHeading, kIHeading, kDHeading) }
 
     override fun periodic() {
         if (!isOn) return
@@ -35,7 +37,10 @@ class PIDManager(val robot: Robot) : Subsystem() {
         val y = pidY.calculate(drive.pose.y, target.y)
         val h = pidH.calculate(drive.pose.heading, target.heading)
 
-        drive.fieldCentric(x, y, h, drive.pose.heading)
+        drive.fieldCentric(
+            -x, y, h,
+            -Math.toRadians(drive.pose.heading)
+        )
     }
 
     fun atTarget(): Boolean {
@@ -43,7 +48,8 @@ class PIDManager(val robot: Robot) : Subsystem() {
         val diff = (target - drive.pose).abs()
         val atX = diff.x < tolerance.x
         val atY = diff.y < tolerance.y
-        val atH = diff.heading < tolerance.heading
+        val atH = normalizeDegrees(diff.heading) < tolerance.heading
+        println("atX: $atX, atY: $atY, atH: $atH $diff ${drive.pose} $target")
         return atX && atY && atH
     }
 }

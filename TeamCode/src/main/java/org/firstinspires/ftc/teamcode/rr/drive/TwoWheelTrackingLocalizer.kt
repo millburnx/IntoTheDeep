@@ -41,7 +41,7 @@ class TwoWheelTrackingLocalizer(hardwareMap: HardwareMap, var drive: SampleMecan
     var parallelEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "para")).apply {
         direction = Encoder.Direction.FORWARD
     }
-    var perpendicularEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "perp")).apply {
+    var perpendicularEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "frontLeft")).apply {
         direction = Encoder.Direction.FORWARD
     }
 

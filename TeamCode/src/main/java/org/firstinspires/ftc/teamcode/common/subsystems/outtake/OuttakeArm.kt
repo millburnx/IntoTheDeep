@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class OuttakeArmPosition {
-    BASE, SPECIMEN, BASKET, OUT
+    BASE, SPECIMEN, BASKET, OUT, HUMAN
 }
 
 @Config
@@ -18,12 +18,17 @@ class OuttakeArm(val robot: Robot) : Subsystem() {
     val servoLimiter = ServoLimiter(maxSpeed, robot.deltaTime::deltaTime, basePosition)
     var state: OuttakeArmPosition = OuttakeArmPosition.BASE
 
+    override fun init() {
+        periodic()
+    }
+
     override fun periodic() {
         val target = when (state) {
             OuttakeArmPosition.BASE -> basePosition
             OuttakeArmPosition.SPECIMEN -> specimenPosition
             OuttakeArmPosition.BASKET -> basketPosition
             OuttakeArmPosition.OUT -> extendedPosition
+            OuttakeArmPosition.HUMAN -> humanPosition
         }
         servoLimiter.maxSpeed = maxSpeed
         servoLimiter.update(target)
@@ -33,18 +38,21 @@ class OuttakeArm(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var basePosition = 0.62
-
-        @JvmField
-        var specimenPosition = 0.5
+        var basePosition = 0.64
 
         @JvmField
         var basketPosition = 0.5
 
         @JvmField
-        var extendedPosition = 0.25
+        var specimenPosition = basketPosition
 
         @JvmField
-        var maxSpeed = 0.3
+        var extendedPosition = 0.75
+
+        @JvmField
+        var humanPosition = 0.25
+
+        @JvmField
+        var maxSpeed = -1.0
     }
 }

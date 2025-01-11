@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class OuttakeWristPosition {
-    BASE, SPECIMEN, BASKET, OUT
+    BASE, SPECIMEN, BASKET, OUT, HUMAN
 }
 
 @Config
@@ -15,27 +15,35 @@ class OuttakeWrist(val robot: Robot) : Subsystem() {
     var servo: Servo = (robot.hardware["outtakeWrist"] as Servo).apply { init() }
     var state: OuttakeWristPosition = OuttakeWristPosition.BASE
 
+    override fun init() {
+        periodic()
+    }
+
     override fun periodic() {
         val target = when (state) {
             OuttakeWristPosition.BASE -> basePosition
             OuttakeWristPosition.SPECIMEN -> specimenPosition
             OuttakeWristPosition.BASKET -> basketPosition
             OuttakeWristPosition.OUT -> extendedPosition
+            OuttakeWristPosition.HUMAN -> humanPosition
         }
         servo.position = target
     }
 
     companion object {
         @JvmField
-        var basePosition = 0.875
-
-        @JvmField
-        var specimenPosition = 0.5
+        var basePosition = 0.8
 
         @JvmField
         var basketPosition = 0.4
 
         @JvmField
-        var extendedPosition = 0.625
+        var specimenPosition = basketPosition
+        
+        @JvmField
+        var extendedPosition = 0.475
+
+        @JvmField
+        var humanPosition = 0.5
     }
 }
