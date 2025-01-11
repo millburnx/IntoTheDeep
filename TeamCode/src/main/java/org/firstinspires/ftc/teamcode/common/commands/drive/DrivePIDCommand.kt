@@ -55,17 +55,17 @@ class DrivePIDCommand(
 
         @JvmField
 //        var kPHeading: Double = 0.1
-        var kPHeading: Double = 0.075
+        var kPHeading: Double = 0.05
 
         @JvmField
 //        var kIHeading: Double = 0.225
-        var kIHeading: Double = 0.1875
+        var kIHeading: Double = 0.1
 
         @JvmField
         var kDHeading: Double = 0.00001
 
         @JvmField
-        var tolerance: Double = 2.0
+        var tolerance: Double = 1.5
 
         @JvmField
         var headingTolerance: Double = 10.0

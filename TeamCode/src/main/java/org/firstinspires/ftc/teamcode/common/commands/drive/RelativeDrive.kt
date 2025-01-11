@@ -15,7 +15,7 @@ class RelativeDrive(val drive: Drive, val pidManager: PIDManager, val power: Pos
     }
 
     override fun execute() {
-        drive.robotCentric(power.x, power.y, power.heading)
+        drive.robotCentric(-power.x, power.y, power.heading)
     }
 
     override fun end(interrupted: Boolean) {

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
 
 class PIDManager(val robot: Robot) : Subsystem() {
-    var isOn = true
+    var isOn = false
     var target = Pose2d()
     var tolerance = Pose2d(DrivePIDCommand.tolerance, headingTolerance)
     val drive: Drive = robot.drive

@@ -302,7 +302,7 @@ class BasicTeleop : OpMode() {
         var specimenDelay: Long = 500
 
         @JvmField
-        var specScoreDelay: Long = 1000
+        var specScoreDelay: Long = 500
 
         @JvmField
         var sweepDuration: Long = 1500
