@@ -41,6 +41,7 @@ class SpecimenAuton : OpMode() {
         super.initialize()
         robot.drive.pose = Pose2d(startingX, startingY, startingHeading)
         val commands = mutableListOf<Command>()
+        robot.outtake.arm.periodic()
         robot.outtake.claw.close()
         robot.outtake.claw.periodic()
         robot.intake.arm.state = IntakeArmPosition.SPECIMEN
@@ -48,6 +49,7 @@ class SpecimenAuton : OpMode() {
         robot.intake.diffy.roll = Diffy.specimenRoll
         robot.intake.diffy.pitch = Diffy.specimenPitch
         robot.intake.diffy.periodic()
+        robot.intake.claw.periodic()
         val push1 = loadPoints("push1")
 
         val scoreSpecimen = {

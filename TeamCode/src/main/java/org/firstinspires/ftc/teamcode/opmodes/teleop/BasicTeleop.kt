@@ -217,6 +217,14 @@ class BasicTeleop : OpMode() {
                 })
             )
 
+            val imuReset = EdgeDetector(
+                gamepad2::b,
+                this@BasicTeleop,
+                InstantCommand({
+                    robot.imu.resetYaw()
+                })
+            )
+
             fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {
                 return InstantCommand(cmd.first, *cmd.second.toTypedArray())
             }
