@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.common.utils.reset
 import kotlin.math.absoluteValue
 
 @Config
@@ -222,7 +223,21 @@ class BasicTeleop : OpMode() {
                 this@BasicTeleop,
                 InstantCommand({
                     robot.imu.resetYaw()
+                    gamepad2.rumble(250)
                 })
+            )
+
+            val liftReset = EdgeDetector(
+                gamepad2::dpad_down,
+                {
+                    gamepad2.rumble(250)
+                },
+                {
+                    robot.outtake.slides.isManual = false
+                    robot.outtake.slides.leftLift.reset()
+                    robot.outtake.slides.rightLift.reset()
+                    gamepad2.rumble(250)
+                }
             )
 
             fun instCmd(cmd: Pair<() -> Unit, List<Subsystem>>): InstantCommand {
@@ -254,7 +269,10 @@ class BasicTeleop : OpMode() {
 
         // Slides
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        if (slidePower.absoluteValue > slideThreshold) {
+        if (gamepad2.dpad_down) {
+            robot.outtake.slides.isManual = true
+            robot.outtake.slides.manualPower = -1.0
+        } else if (slidePower.absoluteValue > slideThreshold) {
             robot.outtake.slides.isManual = true
             if (!robot.intake.claw.isOpen) {
                 robot.outtake.slides.manualPower = slidePower.clamp(-1.0, 0)

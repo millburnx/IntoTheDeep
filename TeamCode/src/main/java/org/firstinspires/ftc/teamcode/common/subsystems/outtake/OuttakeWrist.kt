@@ -35,7 +35,7 @@ class OuttakeWrist(val robot: Robot) : Subsystem() {
         var basePosition = 0.75
 
         @JvmField
-        var basketPosition = 0.375
+        var basketPosition = 0.34
 
         @JvmField
         var specimenPosition = basketPosition
