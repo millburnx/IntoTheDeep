@@ -183,7 +183,7 @@ class SampleAuton : OpMode() {
         var basketX = -49.0
 
         @JvmField
-        var basketY = 52.0
+        var basketY = 50.0
 
         @JvmField
         var basketDuration: Long = 1000

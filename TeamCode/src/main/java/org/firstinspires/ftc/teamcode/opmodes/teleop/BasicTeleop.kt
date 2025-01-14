@@ -218,21 +218,33 @@ class BasicTeleop : OpMode() {
                 })
             )
 
-            val imuReset = EdgeDetector(
-                gamepad2::b,
-                this@BasicTeleop,
-                InstantCommand({
-                    robot.imu.resetYaw()
-                    gamepad2.rumble(250)
-                })
-            )
+//            val imuReset = EdgeDetector(
+//                gamepad2::b,
+//                this@BasicTeleop,
+//                InstantCommand({
+//                    robot.imu.resetYaw()
+//                    gamepad2.rumble(250)
+//                })
+//            )
+//
+//            val liftReset = EdgeDetector(
+//                gamepad2::dpad_down,
+//                {
+//                    gamepad2.rumble(250)
+//                },
+//                {
+//                    robot.outtake.slides.isManual = false
+//                    robot.outtake.slides.leftLift.reset()
+//                    robot.outtake.slides.rightLift.reset()
+//                    gamepad2.rumble(250)
+//                }
+//            )
 
-            val liftReset = EdgeDetector(
-                gamepad2::dpad_down,
-                {
-                    gamepad2.rumble(250)
-                },
-                {
+            val reset = EdgeDetector(
+                gamepad1::cross, {
+                    robot.imu.resetYaw()
+                    gamepad1.rumble(250)
+                }, {
                     robot.outtake.slides.isManual = false
                     robot.outtake.slides.leftLift.reset()
                     robot.outtake.slides.rightLift.reset()
@@ -247,7 +259,8 @@ class BasicTeleop : OpMode() {
     }
 
     override fun initialize() {
-        super.initialize()
+//        super.initialize()
+//        schedule(InstantCommand({ super.initialize() }))
         triggers // lazy loads all the triggers w/o having to make each lazy loaded
     }
 
@@ -269,7 +282,7 @@ class BasicTeleop : OpMode() {
 
         // Slides
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        if (gamepad2.dpad_down) {
+        if (gamepad1.cross) {
             robot.outtake.slides.isManual = true
             robot.outtake.slides.manualPower = -1.0
         } else if (slidePower.absoluteValue > slideThreshold) {
@@ -328,7 +341,7 @@ class BasicTeleop : OpMode() {
         var specimenDelay: Long = 500
 
         @JvmField
-        var specScoreDelay: Long = 500
+        var specScoreDelay: Long = 625
 
         @JvmField
         var sweepDuration: Long = 1500

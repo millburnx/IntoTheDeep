@@ -85,6 +85,7 @@ class SpecimenAuton : OpMode() {
                 SequentialCommandGroup(
                     robot.outtake.close(),
                     WaitCommand(outtakePickupClawDelay),
+                    SlidesCommand(robot.outtake.slides, Slides.wall),
                     ParallelCommandGroup(
                         InstantCommand({
                             robot.outtake.arm.state = OuttakeArmPosition.BASKET
