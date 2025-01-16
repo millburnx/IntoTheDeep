@@ -29,6 +29,11 @@ import java.io.File
 class AutonRobot(opMode: OpMode) : Robot(opMode) {
     val pidManager = PIDManager(this)
     override val additionalSubsystems = listOf(pidManager)
+
+    override fun init() {
+        imu.resetYaw()
+        super.init()
+    }
 }
 
 @Autonomous(name = "Specimen Auton", preselectTeleOp = "Basic Teleop")

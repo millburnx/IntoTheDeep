@@ -26,7 +26,7 @@ open class Robot(val opMode: OpMode) : SubsystemBase() {
                 )
             )
         )
-        a.resetYaw()
+//        a.resetYaw()
         a
     }
     val gp1 = opMode.gamepad1
@@ -45,7 +45,7 @@ open class Robot(val opMode: OpMode) : SubsystemBase() {
     }
     val deltaTime = DeltaTime()
 
-    fun init() {
+    open fun init() {
         hubs.forEach { it.bulkCachingMode = BulkCachingMode.AUTO }
         subsystems.forEach {
             it.init() // triggers lazy loader

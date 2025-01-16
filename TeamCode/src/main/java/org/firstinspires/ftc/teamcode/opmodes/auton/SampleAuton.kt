@@ -30,6 +30,7 @@ class SampleAuton : OpMode() {
 
     override fun initialize() {
         super.initialize()
+
         robot.drive.pose = Pose2d(startingX, startingY, startingHeading)
         val commands = mutableListOf<Command>()
         robot.outtake.arm.periodic()

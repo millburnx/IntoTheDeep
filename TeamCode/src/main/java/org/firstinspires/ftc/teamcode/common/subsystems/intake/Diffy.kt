@@ -48,13 +48,13 @@ class Diffy(val robot: Robot) : Subsystem() {
         var specimenRoll = 1.0
 
         @JvmField
-        var hoverPitch = -0.9
+        var hoverPitch = -0.6
 
         @JvmField
         var hoverRoll = -1.0
 
         @JvmField
-        var pickupPitch = -0.9
+        var pickupPitch = -0.6
 
 //        @JvmField
 //        var pickupRoll = -0.025
