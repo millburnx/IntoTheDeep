@@ -2,12 +2,7 @@ package com.millburnx.purepursuit
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.millburnx.utils.Bezier
-import com.millburnx.utils.BezierIntersection
-import com.millburnx.utils.Circle
-import com.millburnx.utils.Intersection
-import com.millburnx.utils.Utils
-import com.millburnx.utils.Vec2d
+import com.millburnx.utils.*
 import kotlin.math.abs
 
 class PurePursuit(
@@ -22,18 +17,20 @@ class PurePursuit(
     var currentLookahead = lookahead.start
     var isFinished = false
 
-    fun getIntersections(lookahead: Circle, segments: List<Bezier>): List<BezierIntersection> {
-        return segments.flatMap { it.intersections(lookahead) }
-    }
+    fun getIntersections(
+        lookahead: Circle,
+        segments: List<Bezier>,
+    ): List<BezierIntersection> = segments.flatMap { it.intersections(lookahead) }
 
     fun getTarget(
         intersections: List<BezierIntersection>,
         pos: Vec2d,
-        heading: Double
+        heading: Double,
     ): BezierIntersection {
-        val closest = intersections.minByOrNull {
-            abs(getAngleDiff((pos to heading), it.point))
-        }
+        val closest =
+            intersections.minByOrNull {
+                abs(getAngleDiff((pos to heading), it.point))
+            }
         return closest ?: lastIntersection
     }
 
@@ -42,7 +39,11 @@ class PurePursuit(
         this.lastSegment = beziers.indexOf(lastIntersection.line)
     }
 
-    fun calc(pos: Vec2d, heading: Double, dt: Double): PurePursuitData {
+    fun calc(
+        pos: Vec2d,
+        heading: Double,
+        dt: Double,
+    ): PurePursuitData {
         val distanceToLast = pos.distanceTo(lastPoint)
         if (distanceToLast < threshold) {
             isFinished = true
@@ -55,7 +56,7 @@ class PurePursuit(
                 beziers,
                 listOf(),
                 listOf(lastIntersection),
-                currentLookahead
+                currentLookahead,
             )
         }
         if (distanceToLast <= currentLookahead) {
@@ -66,7 +67,7 @@ class PurePursuit(
                 beziers,
                 listOf(Bezier.fromLine(pos, lastPoint)),
                 listOf(lastIntersection),
-                currentLookahead
+                currentLookahead,
             )
         }
         val lookaheadCircle = Circle(pos, currentLookahead)
@@ -88,18 +89,26 @@ class PurePursuit(
             beziers,
             remainingPath,
             intersections,
-            currentLookahead
+            currentLookahead,
         )
     }
 
     companion object {
-        fun getAngleDiff(a: Pair<Vec2d, Double>, b: Vec2d): Double {
+        fun getAngleDiff(
+            a: Pair<Vec2d, Double>,
+            b: Vec2d,
+        ): Double {
             val (aPoint, aAngle) = a
             val diff = Utils.normalizeAngle(aPoint.angleTo(b))
             return Utils.normalizeAngle(diff - aAngle)
         }
 
-        fun render(data: PurePursuitData, packet: TelemetryPacket, pose: Vec2d, addTelemetry: Boolean = true) {
+        fun render(
+            data: PurePursuitData,
+            packet: TelemetryPacket,
+            pose: Vec2d,
+            addTelemetry: Boolean = true,
+        ) {
             val (target, isEnding, isDone, path, remainingPath, intersections, lookahead) = data
             if (addTelemetry) {
                 packet.put("pure_pursuit/is_done", isDone)
@@ -110,26 +119,28 @@ class PurePursuit(
                 packet.put("pure_pursuit/intersections", intersections)
             }
             val canvas = packet.fieldOverlay()
-            val colors = listOf(
-                Utils.Colors.red,
-                Utils.Colors.blue,
-                Utils.Colors.green,
-                Utils.Colors.yellow
-            )
+            val colors =
+                listOf(
+                    Utils.Colors.red,
+                    Utils.Colors.blue,
+                    Utils.Colors.green,
+                    Utils.Colors.yellow,
+                )
             renderPath(canvas, path, colors)
             val rrPose = pose.toRR()
             canvas.strokeCircle(rrPose.x, rrPose.y, lookahead)
             renderIntersections(canvas, intersections, target, colors)
         }
 
-        fun renderPath(canvas: Canvas, path: List<Bezier>, colors: List<String>) {
-            var color = 0
-            for (bezier in path) {
+        fun renderPath(
+            canvas: Canvas,
+            path: List<Bezier>,
+            colors: List<String>,
+        ) {
+            for ((color, bezier) in path.withIndex()) {
                 val currentColor = colors[color % colors.size]
-                val colorString = currentColor
-                canvas.setStroke(colorString)
+                canvas.setStroke(currentColor)
                 bezier.draw(canvas)
-                color++
             }
         }
 
@@ -137,20 +148,19 @@ class PurePursuit(
             canvas: Canvas,
             intersections: List<Intersection<Bezier>>,
             target: Vec2d,
-            colors: List<String>
+            colors: List<String>,
         ) {
-            var color = 0
-            for (intersection in intersections) {
-                val currentColor = if (intersection.point == target) {
-                    colors[color % colors.size]
-                } else {
-                    "#ffffff"
-                }
-                val colorString = currentColor
+            for ((color, intersection) in intersections.withIndex()) {
+                val currentColor =
+                    if (intersection.point == target) {
+                        colors[color % colors.size]
+                    } else {
+                        "#ffffff"
+                    }
                 val rrPose = intersection.point.toRR()
-                canvas.setFill(colorString)
+                canvas
+                    .setFill(currentColor)
                     .fillCircle(rrPose.x, rrPose.y, 1.0)
-                color++
             }
         }
     }
@@ -163,5 +173,5 @@ data class PurePursuitData(
     val path: List<Bezier>,
     val remainingPath: List<Bezier>,
     val intersections: List<Intersection<Bezier>>,
-    val lookahead: Double
+    val lookahead: Double,
 )

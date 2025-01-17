@@ -5,6 +5,7 @@ import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.lynx.LynxModule.BulkCachingMode
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.IMU
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
@@ -14,7 +15,9 @@ import org.firstinspires.ftc.teamcode.common.utils.DeltaTime
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.TelemetryManager
 
-open class Robot(val opMode: OpMode) : SubsystemBase() {
+open class Robot(
+    val opMode: OpMode,
+) : SubsystemBase() {
     val telemetryManager by lazy { TelemetryManager(this) }
     val telemetry by lazy { telemetryManager.telemetry }
     val imu: IMU by lazy {
@@ -22,25 +25,28 @@ open class Robot(val opMode: OpMode) : SubsystemBase() {
         a.initialize(
             IMU.Parameters(
                 RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.UP
-                )
-            )
+                    RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                    RevHubOrientationOnRobot.UsbFacingDirection.UP,
+                ),
+            ),
         )
 //        a.resetYaw()
         a
     }
-    val gp1 = opMode.gamepad1
-    val gp2 = opMode.gamepad2
+    val gp1: Gamepad = opMode.gamepad1
+    val gp2: Gamepad = opMode.gamepad2
 
     val hardware: HardwareMap by lazy { opMode.hardwareMap }
-    val hubs by lazy { hardware.getAll<LynxModule?>(LynxModule::class.java) }
+    val hubs: MutableList<LynxModule> by lazy { hardware.getAll(LynxModule::class.java) }
     open val drive by lazy { Drive(this) }
     open val intake: Intake by lazy { Intake(this) }
     open val outtake: Outtake by lazy { Outtake(this) }
     open val additionalSubsystems: List<Subsystem> = listOf()
     open val subsystems: List<Subsystem> by lazy {
         listOf(
-            drive, intake, outtake
+            drive,
+            intake,
+            outtake,
         ) + additionalSubsystems
     }
     val deltaTime = DeltaTime()

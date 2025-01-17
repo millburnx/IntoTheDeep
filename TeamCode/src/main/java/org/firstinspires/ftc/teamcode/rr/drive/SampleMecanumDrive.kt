@@ -17,19 +17,22 @@ import org.firstinspires.ftc.teamcode.rr.drive.DriveConstants.kV
  * Simple mecanum drive hardware implementation for REV hardware.
  */
 @Config
-class SampleMecanumDrive(hardwareMap: HardwareMap) :
-    MecanumDrive(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, 1.0) {
-    private val imu: IMU = hardwareMap.get<IMU>(IMU::class.java, "imu")
+class SampleMecanumDrive(
+    hardwareMap: HardwareMap,
+) : MecanumDrive(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, 1.0) {
+    private val imu: IMU = hardwareMap.get(IMU::class.java, "imu")
 
     public override val rawExternalHeading: Double
         get() = -imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
 
     init {
-        val parameters = IMU.Parameters(
-            RevHubOrientationOnRobot(
-                DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR
+        val parameters =
+            IMU.Parameters(
+                RevHubOrientationOnRobot(
+                    DriveConstants.LOGO_FACING_DIR,
+                    DriveConstants.USB_FACING_DIR,
+                ),
             )
-        )
         imu.initialize(parameters)
 
         localizer = TwoWheelTrackingLocalizer(hardwareMap, this)
@@ -44,15 +47,16 @@ class SampleMecanumDrive(hardwareMap: HardwareMap) :
         updatePoseEstimate()
     }
 
-    override fun getExternalHeadingVelocity(): Double? {
-        return -imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate.toDouble()
-    }
+    override fun getExternalHeadingVelocity(): Double = -imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate.toDouble()
 
-    override fun setMotorPowers(v: Double, v1: Double, v2: Double, v3: Double) {
+    override fun setMotorPowers(
+        v: Double,
+        v1: Double,
+        v2: Double,
+        v3: Double,
+    ) {
         // Unused
     }
 
-    override fun getWheelPositions(): List<Double> {
-        return emptyList()
-    }
+    override fun getWheelPositions(): List<Double> = emptyList()
 }

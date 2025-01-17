@@ -11,7 +11,10 @@ import kotlin.math.sqrt
 /**
  * Represents a 2D vector/point
  */
-data class Vec2d(val x: Double = 0.0, val y: Double = x) {
+data class Vec2d(
+    val x: Double = 0.0,
+    val y: Double = x,
+) {
     constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
 
     constructor(v: Double) : this(v, v)
@@ -22,23 +25,35 @@ data class Vec2d(val x: Double = 0.0, val y: Double = x) {
     constructor(size: Dimension) : this(size.width, size.height)
 
     operator fun plus(other: Vec2d) = Vec2d(x + other.x, y + other.y)
+
     operator fun plus(other: Double) = Vec2d(x + other, y + other)
+
     operator fun plus(other: Float) = this + other.toDouble()
+
     operator fun plus(other: Int) = this + other.toDouble()
 
     operator fun minus(other: Vec2d) = Vec2d(x - other.x, y - other.y)
+
     operator fun minus(other: Double) = Vec2d(x - other, y - other)
+
     operator fun minus(other: Float) = this - other.toDouble()
+
     operator fun minus(other: Int) = this - other.toDouble()
 
     operator fun times(other: Vec2d) = Vec2d(x * other.x, y * other.y)
+
     operator fun times(other: Double) = Vec2d(x * other, y * other)
+
     operator fun times(other: Float) = this * other.toDouble()
+
     operator fun times(other: Int) = this * other.toDouble()
 
     operator fun div(other: Vec2d) = Vec2d(x / other.x, y / other.y)
+
     operator fun div(other: Double) = Vec2d(x / other, y / other)
+
     operator fun div(other: Float) = this / other.toDouble()
+
     operator fun div(other: Int) = this / other.toDouble()
 
     operator fun unaryMinus() = Vec2d(-x, -y)
@@ -52,24 +67,16 @@ data class Vec2d(val x: Double = 0.0, val y: Double = x) {
         return sqrt(xDiff * xDiff + yDiff * yDiff)
     }
 
-    fun normalize(): Double {
-        return sqrt(this.dot(this))
-    }
+    fun normalize(): Double = sqrt(this.dot(this))
 
-    fun dot(other: Vec2d): Double {
-        return x * other.x + y * other.y
-    }
+    fun dot(other: Vec2d): Double = x * other.x + y * other.y
 
     /**
      * Returns the angle to another point
      */
-    fun angleTo(other: Vec2d): Double {
-        return atan2(other.y - y, other.x - x)
-    }
+    fun angleTo(other: Vec2d): Double = atan2(other.y - y, other.x - x)
 
-    override fun toString(): String {
-        return "Point($x, $y)"
-    }
+    override fun toString(): String = "Point($x, $y)"
 
     /**
      * Rotates the vector by an angle
@@ -83,8 +90,15 @@ data class Vec2d(val x: Double = 0.0, val y: Double = x) {
     /**
      * Linearly interpolates between two vectors/points
      */
-    fun lerp(other: Vec2d, t: Double) = this + (other - this) * t
-    fun lerp(other: Vec2d, t: Float) = this.lerp(other, t.toDouble())
+    fun lerp(
+        other: Vec2d,
+        t: Double,
+    ) = this + (other - this) * t
+
+    fun lerp(
+        other: Vec2d,
+        t: Float,
+    ) = this.lerp(other, t.toDouble())
 
     /**
      * Returns a copy of the vector with the absolute value of each component
@@ -95,45 +109,45 @@ data class Vec2d(val x: Double = 0.0, val y: Double = x) {
 
     fun sign() = Vec2d(sign(x), sign(y))
 
-    fun coerceIn(min: Vec2d, max: Vec2d) = Vec2d(x.coerceIn(min.x, max.x), y.coerceIn(min.y, max.y))
-    fun coerceIn(min: Double, max: Double) = coerceIn(Vec2d(min), Vec2d(max))
+    fun coerceIn(
+        min: Vec2d,
+        max: Vec2d,
+    ) = Vec2d(x.coerceIn(min.x, max.x), y.coerceIn(min.y, max.y))
+
+    fun coerceIn(
+        min: Double,
+        max: Double,
+    ) = coerceIn(Vec2d(min), Vec2d(max))
 
     /**
      * Converts the point to a java.awt point
      */
-    fun awt(): java.awt.Point {
-        return java.awt.Point(x.toInt(), y.toInt())
-    }
+    fun awt(): java.awt.Point = java.awt.Point(x.toInt(), y.toInt())
 
     /**
      * Converts the point to a java.awt inset
      */
-    fun insets(): java.awt.Insets {
-        return java.awt.Insets(y.toInt(), x.toInt(), y.toInt(), x.toInt())
-    }
+    fun insets(): java.awt.Insets = java.awt.Insets(y.toInt(), x.toInt(), y.toInt(), x.toInt())
 
     fun flip() = Vec2d(y, x)
 
     /**
      * Converts the point to a java.awt dimension
      */
-    fun dimension(): Dimension {
-        return Dimension(x.toInt(), y.toInt())
-    }
+    fun dimension(): Dimension = Dimension(x.toInt(), y.toInt())
 
-    fun toRR(): Vec2d {
-        return Vec2d(y, -x);
-    }
+    fun toRR(): Vec2d = Vec2d(y, -x)
 
     companion object {
-        fun fromRR(point: Vec2d): Vec2d {
-            return Vec2d(-point.y, point.x)
-        }
+        fun fromRR(point: Vec2d): Vec2d = Vec2d(-point.y, point.x)
 
         /**
          * Saves a list of points to a tsv file
          */
-        fun saveList(points: List<Vec2d>, file: java.io.File) {
+        fun saveList(
+            points: List<Vec2d>,
+            file: java.io.File,
+        ) {
             val data = points.map { listOf(it.x.toString(), it.y.toString()) }
             TSV.bufferedWrite(file, data)
         }
@@ -157,4 +171,7 @@ data class Vec2d(val x: Double = 0.0, val y: Double = x) {
     }
 }
 
-data class Path(val points: List<Vec2d>, val endHeading: Double? = null)
+data class Path(
+    val points: List<Vec2d>,
+    val endHeading: Double? = null,
+)

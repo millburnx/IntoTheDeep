@@ -29,48 +29,46 @@ import org.firstinspires.ftc.teamcode.rr.util.Encoder
  *
  */
 @Config
-class TwoWheelTrackingLocalizer(hardwareMap: HardwareMap, var drive: SampleMecanumDrive) : TwoTrackingWheelLocalizer(
-    listOf<Pose2d>(
-        Pose2d(PARALLEL_X, PARALLEL_Y, 0.0),
-        Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(90.0))
-    )
-) {
+class TwoWheelTrackingLocalizer(
+    hardwareMap: HardwareMap,
+    var drive: SampleMecanumDrive,
+) : TwoTrackingWheelLocalizer(
+        listOf(
+            Pose2d(PARALLEL_X, PARALLEL_Y, 0.0),
+            Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(90.0)),
+        ),
+    ) {
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis
     // Perpendicular is perpendicular to the forward axis
-    var parallelEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "para")).apply {
-        direction = Encoder.Direction.FORWARD
-    }
-    var perpendicularEncoder: Encoder = Encoder(hardwareMap.get<DcMotorEx?>(DcMotorEx::class.java, "frontLeft")).apply {
-        direction = Encoder.Direction.FORWARD
-    }
+    var parallelEncoder: Encoder =
+        Encoder(hardwareMap.get(DcMotorEx::class.java, "para")).apply {
+            direction = Encoder.Direction.FORWARD
+        }
+    var perpendicularEncoder: Encoder =
+        Encoder(hardwareMap.get(DcMotorEx::class.java, "frontLeft")).apply {
+            direction = Encoder.Direction.FORWARD
+        }
 
-    override fun getHeading(): Double {
-        return -drive.rawExternalHeading
-    }
+    override fun getHeading(): Double = -drive.rawExternalHeading
 
-    override fun getHeadingVelocity(): Double? {
+    override fun getHeadingVelocity(): Double {
 //        return drive.getExternalHeadingVelocity()
         val velo = drive.getExternalHeadingVelocity()
-        if (velo == null) {
-            return null
-        }
         return -velo
     }
 
-    override fun getWheelPositions(): List<Double> {
-        return listOf<Double>(
+    override fun getWheelPositions(): List<Double> =
+        listOf(
             encoderTicksToInches(parallelEncoder.getCurrentPosition().toDouble()) * X_MULTIPLIER,
-            encoderTicksToInches(perpendicularEncoder.getCurrentPosition().toDouble()) * Y_MULTIPLIER
+            encoderTicksToInches(perpendicularEncoder.getCurrentPosition().toDouble()) * Y_MULTIPLIER,
         )
-    }
 
-    override fun getWheelVelocities(): List<Double> {
-        return listOf<Double>(
+    override fun getWheelVelocities(): List<Double> =
+        listOf(
             encoderTicksToInches(parallelEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
-            encoderTicksToInches(perpendicularEncoder.getCorrectedVelocity()) * Y_MULTIPLIER
+            encoderTicksToInches(perpendicularEncoder.getCorrectedVelocity()) * Y_MULTIPLIER,
         )
-    }
 
     companion object {
         @JvmField
@@ -100,8 +98,6 @@ class TwoWheelTrackingLocalizer(hardwareMap: HardwareMap, var drive: SampleMecan
         @JvmField
         var Y_MULTIPLIER: Double = 0.49 // Multiplier in the Y direction
 
-        fun encoderTicksToInches(ticks: Double): Double {
-            return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV
-        }
+        fun encoderTicksToInches(ticks: Double): Double = WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV
     }
 }

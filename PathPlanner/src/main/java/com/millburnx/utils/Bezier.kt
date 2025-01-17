@@ -5,13 +5,24 @@ import java.awt.Color
 import java.awt.Graphics2D
 import kotlin.math.pow
 
-data class boundingData(val min: Vec2d, val max: Vec2d, val xRoots: List<Double>, val yRoots: List<Double>)
+data class boundingData(
+    val min: Vec2d,
+    val max: Vec2d,
+    val xRoots: List<Double>,
+    val yRoots: List<Double>,
+)
 
-data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
+data class Bezier(
+    val p0: Vec2d,
+    val p1: Vec2d,
+    val p2: Vec2d,
+    val p3: Vec2d,
+) {
     companion object {
-        fun fromLine(p0: Vec2d, p1: Vec2d): Bezier {
-            return Bezier(p0, p0.lerp(p1, 1.0 / 3), p1.lerp(p0, 1.0 / 3), p1)
-        }
+        fun fromLine(
+            p0: Vec2d,
+            p1: Vec2d,
+        ): Bezier = Bezier(p0, p0.lerp(p1, 1.0 / 3), p1.lerp(p0, 1.0 / 3), p1)
 
         /**
          * Generates a cubic bezier from a catmull-rom spline,
@@ -22,7 +33,13 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
          * @param alpha knot parameter, 0.0 for a normal uniform cubic bezier,
          * @see <a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Centripetal Catmull-Rom spline - Wikipedia</a>
          */
-        fun fromCatmullRom(p0: Vec2d, p1: Vec2d, p2: Vec2d, p3: Vec2d, alpha: Double = 0.0): Bezier {
+        fun fromCatmullRom(
+            p0: Vec2d,
+            p1: Vec2d,
+            p2: Vec2d,
+            p3: Vec2d,
+            alpha: Double = 0.0,
+        ): Bezier {
             val t0 = 0
             val t1 = p0.distanceTo(p1).pow(alpha) + t0
             val t2 = p1.distanceTo(p2).pow(alpha) + t1
@@ -91,7 +108,7 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
 
     /**
      * Get a list of intersections between the Bézier curve and a circle
-     * @param samples the number of segments to split the Bézier curve into; curve resolution; higher is more accurate but slower
+     * @param iterations the number of segments to split the Bézier curve into; curve resolution; higher is more accurate but slower
      */
     fun intersections(
         circle: Circle,
@@ -99,12 +116,12 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         iterations: Int = 4,
         parent: Bezier = this,
         start: Double = 0.0,
-        end: Double = 1.0
+        end: Double = 1.0,
     ): List<BezierIntersection> {
         if (iterations == 0) {
             // slow line intersection check
             val intersections = mutableListOf<BezierIntersection>()
-            var lastPoint = 0.0;
+            var lastPoint = 0.0
             for (i in 1..10) {
                 val t = i.toDouble() / 10
                 val segment = LineSegment(at(lastPoint), at(t))
@@ -121,7 +138,7 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
             bounding.min.toRR().x,
             bounding.min.toRR().y,
             bounding.max.toRR().x - bounding.min.toRR().x,
-            bounding.max.toRR().y - bounding.min.toRR().y
+            bounding.max.toRR().y - bounding.min.toRR().y,
         )
         val circleBounding = circle.bounding()
         val intersects = Utils.boundingIntersection(bounding.min to bounding.max, circleBounding)
@@ -131,7 +148,7 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         val (left, right) = this.split()
         // recursive binary almost
         return left.intersections(circle, canvas, iterations - 1, parent, start, center) +
-                right.intersections(circle, canvas, iterations - 1, parent, center, end)
+            right.intersections(circle, canvas, iterations - 1, parent, center, end)
     }
 
     fun split(t: Double = 0.5): Pair<Bezier, Bezier> {
@@ -155,10 +172,10 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         val tx = Utils.quadraticFormula(a.x, b.x, c.x)
         val ty = Utils.quadraticFormula(a.y, b.y, c.y)
         val xRoots =
-            listOf(tx?.first, tx?.second).filterNotNull()
+            listOfNotNull(tx?.first, tx?.second)
                 .filter { it in 0.0..1.0 }
         val yRoots =
-            listOf(ty?.first, ty?.second).filterNotNull()
+            listOfNotNull(ty?.first, ty?.second)
                 .filter { it in 0.0..1.0 }
 
         val possible = listOf(p0, p3) + xRoots.map { at(it) } + yRoots.map { at(it) }
@@ -171,14 +188,17 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
             Vec2d(minX, minY),
             Vec2d(maxX, maxY),
             xRoots,
-            yRoots
+            yRoots,
         )
     }
 
     /**
      * Draw the Bézier curve on an FTC Dashboard canvas
      */
-    fun draw(canvas: Canvas, samples: Int = 100) {
+    fun draw(
+        canvas: Canvas,
+        samples: Int = 100,
+    ) {
         var lastPoint = p0.toRR()
         for (i in 1..samples) {
             val t = i.toDouble() / samples
@@ -188,7 +208,12 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
         }
     }
 
-    fun g2dDraw(g2d: Graphics2D, ppi: Double, scale: Double, color: Color) {
+    fun g2dDraw(
+        g2d: Graphics2D,
+        ppi: Double,
+        scale: Double,
+        color: Color,
+    ) {
         g2d.color = color
         val samples = 100
         for (i in 1..samples) {
@@ -199,7 +224,7 @@ data class Bezier(val p0: Vec2d, val p1: Vec2d, val p2: Vec2d, val p3: Vec2d) {
                 (lastPoint.x * ppi).toInt(),
                 (lastPoint.y * ppi).toInt(),
                 (point.x * ppi).toInt(),
-                (point.y * ppi).toInt()
+                (point.y * ppi).toInt(),
             )
         }
     }

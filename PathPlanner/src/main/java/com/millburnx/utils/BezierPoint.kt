@@ -11,14 +11,17 @@ class BezierPoint(
     var nextHandle: Vec2d? = null,
     var modified: Boolean = false,
     var mirrored: Boolean = true,
-    var split: Boolean = false
+    var split: Boolean = false,
 ) {
     companion object {
-        const val pointSize = 2.0
-        const val outlineWidth = 0.2
-        const val handleWidth = 0.2
+        const val POINT_SIZE = 2.0
+        const val OUTLINE_WIDTH = 0.2
+        const val HANDLE_WIDTH = 0.2
 
-        fun saveToTSV(file: File, points: List<BezierPoint>) {
+        fun saveToTSV(
+            file: File,
+            points: List<BezierPoint>,
+        ) {
             val points = points.map { listOf(it.prevHandle, it.anchor, it.nextHandle) }.flatten().filterNotNull()
             Vec2d.saveList(points, file)
         }
@@ -26,7 +29,7 @@ class BezierPoint(
         fun loadFromTSV(file: File): List<BezierPoint> {
             val pathPoints = Vec2d.loadList(file).points
             val newPath: MutableList<BezierPoint> = mutableListOf()
-            for (i in 0..<pathPoints.size step 3) {
+            for (i in pathPoints.indices step 3) {
                 val anchor = pathPoints[i]
                 val prevHandle = pathPoints.getOrNull(i - 1)
                 val nextHandle = pathPoints.getOrNull(i + 1)
@@ -46,14 +49,15 @@ class BezierPoint(
             points: List<BezierPoint>,
             clickPoint: Vec2d,
             filter: List<PointType>,
-            thresholds: Pair<Double, Double>
+            thresholds: Pair<Double, Double>,
         ): Pair<BezierPoint, PointType>? {
             for (bezierPoint in points) {
                 for (type in filter) {
-                    val threshold = when (type) {
-                        PointType.ANCHOR -> thresholds.first
-                        else -> thresholds.second
-                    } + pointSize / 2 + outlineWidth
+                    val threshold =
+                        when (type) {
+                            PointType.ANCHOR -> thresholds.first
+                            else -> thresholds.second
+                        } + POINT_SIZE / 2 + OUTLINE_WIDTH
                     val point = bezierPoint.getType(type) ?: continue
                     if (point.distanceTo(clickPoint) < threshold) {
                         return Pair(bezierPoint, type)
@@ -67,26 +71,28 @@ class BezierPoint(
     enum class PointType {
         ANCHOR,
         PREV_HANDLE,
-        NEXT_HANDLE;
+        NEXT_HANDLE,
+        ;
 
-        fun opposite(): PointType {
-            return when (this) {
+        fun opposite(): PointType =
+            when (this) {
                 ANCHOR -> ANCHOR
                 PREV_HANDLE -> NEXT_HANDLE
                 NEXT_HANDLE -> PREV_HANDLE
             }
-        }
     }
 
-    fun getType(pointType: PointType): Vec2d? {
-        return when (pointType) {
+    fun getType(pointType: PointType): Vec2d? =
+        when (pointType) {
             PointType.ANCHOR -> anchor
             PointType.PREV_HANDLE -> prevHandle
             PointType.NEXT_HANDLE -> nextHandle
         }
-    }
 
-    fun setType(pointType: PointType, value: Vec2d?) {
+    fun setType(
+        pointType: PointType,
+        value: Vec2d?,
+    ) {
         when (pointType) {
             PointType.ANCHOR -> anchor = value!!
             PointType.PREV_HANDLE -> prevHandle = value
@@ -94,7 +100,10 @@ class BezierPoint(
         }
     }
 
-    fun updateType(pointType: PointType, value: Vec2d) {
+    fun updateType(
+        pointType: PointType,
+        value: Vec2d,
+    ) {
         if (pointType == PointType.ANCHOR) {
             val diff = value - anchor
             prevHandle = prevHandle?.plus(diff)
@@ -104,7 +113,10 @@ class BezierPoint(
         updateHandles(pointType, value)
     }
 
-    fun updateHandles(type: PointType, newPoint: Vec2d) {
+    fun updateHandles(
+        type: PointType,
+        newPoint: Vec2d,
+    ) {
         if (type == PointType.ANCHOR) {
             throw IllegalArgumentException("Do not call updateHandle with an anchor point, use updateType instead")
         }
@@ -132,18 +144,25 @@ class BezierPoint(
         return
     }
 
-    fun draw(g2d: Graphics2D, ppi: Double, scale: Double, prevColor: Color, nextColor: Color) {
+    fun draw(
+        g2d: Graphics2D,
+        ppi: Double,
+        scale: Double,
+        prevColor: Color,
+        nextColor: Color,
+    ) {
         // draw the previous handle
-        val point = pointSize * scale
-        val outlineWidth = outlineWidth * scale
-        val handleWidth = handleWidth * scale
+        val point = POINT_SIZE * scale
+        val outlineWidth = OUTLINE_WIDTH * scale
+        val handleWidth = HANDLE_WIDTH * scale
         for (type in listOf(PointType.PREV_HANDLE, PointType.NEXT_HANDLE)) {
             val handle = getType(type) ?: continue
-            val color = when (type) {
-                PointType.PREV_HANDLE -> prevColor
-                PointType.NEXT_HANDLE -> nextColor
-                else -> continue
-            }
+            val color =
+                when (type) {
+                    PointType.PREV_HANDLE -> prevColor
+                    PointType.NEXT_HANDLE -> nextColor
+                    else -> continue
+                }
             g2d.color = color
             g2d.stroke = BasicStroke((handleWidth * ppi).toFloat())
             Utils.drawLine(g2d, ppi, anchor * Vec2d(1, -1), handle * Vec2d(1, -1))
@@ -162,11 +181,8 @@ class BezierPoint(
         Utils.drawPoint(g2d, ppi, anchor * Vec2d(1, -1), point, false)
     }
 
-    fun copy(): BezierPoint {
-        return BezierPoint(anchor.copy(), prevHandle?.copy(), nextHandle?.copy(), modified, mirrored, split)
-    }
+    fun copy(): BezierPoint = BezierPoint(anchor.copy(), prevHandle?.copy(), nextHandle?.copy(), modified, mirrored, split)
 
-    override fun toString(): String {
-        return "BezierPoint(anchor=$anchor, prev=$prevHandle, next=$nextHandle, mod=$modified, mir=$mirrored, split=$split)"
-    }
+    override fun toString(): String =
+        "BezierPoint(anchor=$anchor, prev=$prevHandle, next=$nextHandle, mod=$modified, mir=$mirrored, split=$split)"
 }

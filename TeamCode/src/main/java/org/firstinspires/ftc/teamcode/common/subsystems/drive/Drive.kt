@@ -13,12 +13,14 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 
 @Config
-open class Drive(val robot: Robot) : Subsystem() {
+open class Drive(
+    val robot: Robot,
+) : Subsystem() {
     val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).apply { init() }
     val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init(false) }
     val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).apply { init() }
     val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init(false) }
-    val motors = listOf<DcMotorEx>(frontLeft, frontRight, backLeft, backRight)
+    val motors = listOf(frontLeft, frontRight, backLeft, backRight)
     val odometry = SampleMecanumDrive(robot.hardware).localizer
     var pose: Pose2d
         get() {
@@ -39,9 +41,18 @@ open class Drive(val robot: Robot) : Subsystem() {
         odometry.update()
     }
 
-    fun robotCentric(forward: Double, strafe: Double, rotate: Double) = fieldCentric(forward, strafe, rotate, 0.0)
+    fun robotCentric(
+        forward: Double,
+        strafe: Double,
+        rotate: Double,
+    ) = fieldCentric(forward, strafe, rotate, 0.0)
 
-    open fun fieldCentric(x: Double, y: Double, rotate: Double, heading: Double) {
+    open fun fieldCentric(
+        x: Double,
+        y: Double,
+        rotate: Double,
+        heading: Double,
+    ) {
         val relativeVector = Vec2d(x, y).rotate(-heading) * Vec2d(1.0, strafeMultiplier)
 
         val forward = relativeVector.x

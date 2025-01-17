@@ -8,8 +8,10 @@ import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.teamcode.common.Robot
 
 @Config
-class TelemetryManager(val robot: Robot) {
-    val dashboard = FtcDashboard.getInstance()
+class TelemetryManager(
+    val robot: Robot,
+) {
+    val dashboard: FtcDashboard = FtcDashboard.getInstance()
     var currentPacket: TelemetryPacket = TelemetryPacket()
     val telemetry = MultipleTelemetry(dashboard.telemetry, robot.opMode.telemetry)
 

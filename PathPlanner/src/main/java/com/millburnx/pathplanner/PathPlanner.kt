@@ -1,28 +1,21 @@
 package com.millburnx.pathplanner
 
-import com.millburnx.utils.Bezier
-import com.millburnx.utils.BezierPoint
-import com.millburnx.utils.GridBagHelper
-import com.millburnx.utils.JCheckbox
-import com.millburnx.utils.JNumber
-import com.millburnx.utils.JPopover
-import com.millburnx.utils.Utils
-import com.millburnx.utils.Vec2d
-import java.awt.Color
-import java.awt.Font
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.GridBagLayout
+import com.millburnx.utils.*
+import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
+import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.JPanel
 import kotlin.math.round
 
-class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
+class PathPlanner(
+    var ppi: Double,
+    val scale: Double,
+) : JPanel() {
     val drawImage = true
     val drawBounding = false
-    val backgroundImage = ImageIO.read(javaClass.classLoader.getResource("bg.png"))
+    val backgroundImage: BufferedImage = ImageIO.read(javaClass.classLoader.getResource("bg.png"))
     val bezierPoints: MutableList<BezierPoint> = mutableListOf()
     val undoStack: MutableList<List<Change>> = mutableListOf()
     val redoStack: MutableList<List<Change>> = mutableListOf()
@@ -41,12 +34,14 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         foreground = Color.white
         add(buttonPanel)
 
-        addComponentListener(object : ComponentAdapter() {
-            override fun componentResized(e: ComponentEvent?) {
-                buttonPanel.updateSize()
-                repaint()
-            }
-        })
+        addComponentListener(
+            object : ComponentAdapter() {
+                override fun componentResized(e: ComponentEvent?) {
+                    buttonPanel.updateSize()
+                    repaint()
+                }
+            },
+        )
     }
 
     override fun paintComponent(g: Graphics) {
@@ -69,22 +64,23 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         }
         g2d.translate(width / 2, height / 2)
 
-        bezierPoints.zipWithNext { p1, p2 ->
-            Bezier(p1.anchor, p1.nextHandle!!, p2.prevHandle!!, p2.anchor)
-        }.forEach {
-            val bezier = it
-            if (drawBounding) {
-                drawBezierBounding(bezier, g2d)
-                val (left, right) = bezier.split()
-                val (s1, s2) = left.split()
-                val (s3, s4) = right.split()
-                drawBezierBounding(s1, g2d)
-                drawBezierBounding(s2, g2d)
-                drawBezierBounding(s3, g2d)
-                drawBezierBounding(s4, g2d)
+        bezierPoints
+            .zipWithNext { p1, p2 ->
+                Bezier(p1.anchor, p1.nextHandle!!, p2.prevHandle!!, p2.anchor)
+            }.forEach {
+                val bezier = it
+                if (drawBounding) {
+                    drawBezierBounding(bezier, g2d)
+                    val (left, right) = bezier.split()
+                    val (s1, s2) = left.split()
+                    val (s3, s4) = right.split()
+                    drawBezierBounding(s1, g2d)
+                    drawBezierBounding(s2, g2d)
+                    drawBezierBounding(s3, g2d)
+                    drawBezierBounding(s4, g2d)
+                }
+                it.g2dDraw(g2d, ppi, scale, Color.decode(Utils.Colors.green))
             }
-            it.g2dDraw(g2d, ppi, scale, Color.decode(Utils.Colors.green))
-        }
 
         for (bezierPoint in bezierPoints) {
             bezierPoint.draw(g2d, ppi, scale, Color.decode(Utils.Colors.red), Color.decode(Utils.Colors.blue))
@@ -110,7 +106,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
                 (it.x * ppi - 5).toInt(),
                 (it.y * ppi - 5).toInt(),
                 10,
-                10
+                10,
             )
         }
         g2d.color = Color.decode(Utils.Colors.green)
@@ -119,7 +115,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
                 (it.x * ppi - 5).toInt(),
                 (it.y * ppi - 5).toInt(),
                 10,
-                10
+                10,
             )
         }
         g2d.color = Color.decode(Utils.Colors.bg4)
@@ -127,7 +123,7 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
             (min.x * ppi).toInt(),
             (min.y * ppi).toInt(),
             ((max.x - min.x) * ppi).toInt(),
-            ((max.y - min.y) * ppi).toInt()
+            ((max.y - min.y) * ppi).toInt(),
         )
     }
 
@@ -222,7 +218,10 @@ class PathPlanner(var ppi: Double, val scale: Double) : JPanel() {
         repaint()
     }
 
-    fun addPopover(position: Vec2d, target: Pair<BezierPoint, BezierPoint.PointType>) {
+    fun addPopover(
+        position: Vec2d,
+        target: Pair<BezierPoint, BezierPoint.PointType>,
+    ) {
         val bezierPoint = target.first
         val type = target.second
         val point = bezierPoint.getType(type)!!
