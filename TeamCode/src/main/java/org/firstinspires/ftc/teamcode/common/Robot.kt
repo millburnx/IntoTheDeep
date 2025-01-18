@@ -33,8 +33,8 @@ open class Robot(
 //        a.resetYaw()
         a
     }
-    val gp1: Gamepad = opMode.gamepad1
-    val gp2: Gamepad = opMode.gamepad2
+    val gp1: Gamepad by lazy { opMode.gamepad1 }
+    val gp2: Gamepad by lazy { opMode.gamepad2 }
 
     val hardware: HardwareMap by lazy { opMode.hardwareMap }
     val hubs: MutableList<LynxModule> by lazy { hardware.getAll(LynxModule::class.java) }

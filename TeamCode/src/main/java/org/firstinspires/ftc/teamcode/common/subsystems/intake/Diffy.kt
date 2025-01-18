@@ -7,7 +7,9 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 @Config
-class Diffy(val robot: Robot) : Subsystem() {
+class Diffy(
+    val robot: Robot,
+) : Subsystem() {
     val leftServo: ServoImplEx = (robot.hardware["diffyLeft"] as ServoImplEx).apply { init() }
     val rightServo: ServoImplEx = (robot.hardware["diffyRight"] as ServoImplEx).apply { init(false) }
 
@@ -48,13 +50,13 @@ class Diffy(val robot: Robot) : Subsystem() {
         var specimenRoll = 1.0
 
         @JvmField
-        var hoverPitch = -0.6
+        var hoverPitch = -0.9
 
         @JvmField
         var hoverRoll = -1.0
 
         @JvmField
-        var pickupPitch = -0.6
+        var pickupPitch = -0.9
 
 //        @JvmField
 //        var pickupRoll = -0.025

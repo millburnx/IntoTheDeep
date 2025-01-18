@@ -19,35 +19,92 @@ open class Vision(
 ) : Subsystem() {
     val cameraSize = Vec2d(640, 480)
 
-    open val processors =
+    open val processors1 =
         listOf<VisionProcessor>(
             BlankProcessor(),
         )
 
-    val visionPortal: VisionPortal =
+    open val processors2 =
+        listOf<VisionProcessor>(
+            BlankProcessor(),
+        )
+
+    val multiPortal = VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL)
+
+    val camera1: VisionPortal =
         VisionPortal
             .Builder()
             .setCamera(robot.hardware["Webcam 1"] as WebcamName)
-            .addProcessors(*processors.toTypedArray())
+            .addProcessors(*processors1.toTypedArray())
             .setCameraResolution(Size(cameraSize.x.toInt(), cameraSize.y.toInt()))
             .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
             .enableLiveView(true)
+            .setLiveViewContainerId(multiPortal[0])
+            .setAutoStopLiveView(true)
+            .build()
+
+    val camera2: VisionPortal =
+        VisionPortal
+            .Builder()
+            .setCamera(robot.hardware["Webcam 2"] as WebcamName)
+            .addProcessors(*processors2.toTypedArray())
+            .setCameraResolution(Size(cameraSize.x.toInt(), cameraSize.y.toInt()))
+            .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+            .enableLiveView(true)
+            .setLiveViewContainerId(multiPortal[1])
             .setAutoStopLiveView(true)
             .build()
 
     companion object {
         @JvmField
-        var exposureTime: Long = 10L
+        var exposureTime1: Long = 10L
 
         @JvmField
-        var gain: Int = 255
+        var gain1: Int = 255
+
+        @JvmField
+        var exposureTime2: Long = 10L
+
+        @JvmField
+        var gain2: Int = 255
     }
 
     override fun periodic() {
-        if (visionPortal.cameraState != VisionPortal.CameraState.STREAMING) return
-        val exposureController = visionPortal.getCameraControl(ExposureControl::class.java)
-        val gainController = visionPortal.getCameraControl(GainControl::class.java)
-        exposureController.setExposure(exposureTime, TimeUnit.MILLISECONDS)
-        gainController.gain = gain
+        println("vision periodic")
+        println(camera1)
+        println(camera2)
+        if (camera1.cameraState == VisionPortal.CameraState.STREAMING) {
+            println("vision setting")
+            val exposureController = camera1.getCameraControl(ExposureControl::class.java)
+            val gainController = camera1.getCameraControl(GainControl::class.java)
+            exposureController.setExposure(exposureTime1, TimeUnit.MILLISECONDS)
+            gainController.gain = gain1
+        }
+        if (camera2.cameraState == VisionPortal.CameraState.STREAMING) {
+            println("vision setting")
+            val exposureController = camera2.getCameraControl(ExposureControl::class.java)
+            val gainController = camera2.getCameraControl(GainControl::class.java)
+            exposureController.setExposure(exposureTime2, TimeUnit.MILLISECONDS)
+            gainController.gain = gain2
+        }
     }
+}
+
+class SampleVision(
+    robot: Robot,
+) : Vision(robot) {
+//    val sampleDetector1 = SampleDetector()
+//    val sampleDetector2 = SampleDetector()
+
+//    override val processors1 =
+//        listOf<VisionProcessor>(
+// //            sampleDetector1,
+//            BlankProcessor(),
+//        )
+//
+//    override val processors2 =
+//        listOf(
+// //            sampleDetector2,
+//            BlankProcessor(),
+//        )
 }

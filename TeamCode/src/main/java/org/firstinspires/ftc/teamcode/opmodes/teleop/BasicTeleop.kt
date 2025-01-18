@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
@@ -17,11 +18,14 @@ import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.reset
+import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraRobot
 import kotlin.math.absoluteValue
 
 @Config
 @TeleOp(name = "Basic Teleop")
 class BasicTeleop : OpMode() {
+    override val robot: Robot by lazy { CameraRobot(this) }
+
     val triggers by lazy {
         object {
             val linkagePickup =
