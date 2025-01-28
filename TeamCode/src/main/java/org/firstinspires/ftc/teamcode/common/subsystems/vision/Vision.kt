@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.Exposur
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.processors.BlankProcessor
+import org.firstinspires.ftc.teamcode.common.processors.SampleDetector
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.vision.VisionPortal
 import org.firstinspires.ftc.vision.VisionProcessor
@@ -31,7 +32,7 @@ open class Vision(
 
     val multiPortal = VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL)
 
-    val camera1: VisionPortal =
+    val camera1: VisionPortal by lazy {
         VisionPortal
             .Builder()
             .setCamera(robot.hardware["Webcam 1"] as WebcamName)
@@ -42,8 +43,9 @@ open class Vision(
             .setLiveViewContainerId(multiPortal[0])
             .setAutoStopLiveView(true)
             .build()
+    }
 
-    val camera2: VisionPortal =
+    val camera2: VisionPortal by lazy {
         VisionPortal
             .Builder()
             .setCamera(robot.hardware["Webcam 2"] as WebcamName)
@@ -54,6 +56,12 @@ open class Vision(
             .setLiveViewContainerId(multiPortal[1])
             .setAutoStopLiveView(true)
             .build()
+    }
+
+    override fun init() {
+        camera1
+        camera2
+    }
 
     companion object {
         @JvmField
@@ -93,18 +101,18 @@ open class Vision(
 class SampleVision(
     robot: Robot,
 ) : Vision(robot) {
-//    val sampleDetector1 = SampleDetector()
-//    val sampleDetector2 = SampleDetector()
+    val sampleDetector1 = SampleDetector()
+    val sampleDetector2 = SampleDetector()
 
-//    override val processors1 =
-//        listOf<VisionProcessor>(
-// //            sampleDetector1,
+    override val processors1 =
+        listOf<VisionProcessor>(
+            sampleDetector1,
 //            BlankProcessor(),
-//        )
-//
-//    override val processors2 =
-//        listOf(
-// //            sampleDetector2,
+        )
+
+    override val processors2 =
+        listOf(
+            sampleDetector2,
 //            BlankProcessor(),
-//        )
+        )
 }

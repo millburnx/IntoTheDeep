@@ -7,11 +7,17 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class IntakeArmPosition {
-    BASE, EXTENDED, FLOOR, SPECIMEN, SWEEP
+    BASE,
+    EXTENDED,
+    FLOOR,
+    SPECIMEN,
+    SWEEP,
 }
 
 @Config
-class IntakeArm(val robot: Robot) : Subsystem() {
+class IntakeArm(
+    val robot: Robot,
+) : Subsystem() {
     var leftServo: Servo = (robot.hardware["intakeArmLeft"] as Servo).apply { init() }
     var rightServo: Servo = (robot.hardware["intakeArmRight"] as Servo).apply { init(false) }
     var state: IntakeArmPosition = IntakeArmPosition.BASE
@@ -21,13 +27,14 @@ class IntakeArm(val robot: Robot) : Subsystem() {
     }
 
     override fun periodic() {
-        val target = when (state) {
-            IntakeArmPosition.BASE -> basePosition
-            IntakeArmPosition.EXTENDED -> extendedPosition
-            IntakeArmPosition.FLOOR -> floorPosition
-            IntakeArmPosition.SPECIMEN -> specimenPosition
-            IntakeArmPosition.SWEEP -> sweepPosition
-        }
+        val target =
+            when (state) {
+                IntakeArmPosition.BASE -> basePosition
+                IntakeArmPosition.EXTENDED -> extendedPosition
+                IntakeArmPosition.FLOOR -> floorPosition
+                IntakeArmPosition.SPECIMEN -> specimenPosition
+                IntakeArmPosition.SWEEP -> sweepPosition
+            }
         leftServo.position = target
         rightServo.position = target
     }
@@ -37,10 +44,10 @@ class IntakeArm(val robot: Robot) : Subsystem() {
         var basePosition = 0.45
 
         @JvmField
-        var extendedPosition = 0.65
+        var extendedPosition = 0.525
 
         @JvmField
-        var floorPosition = 0.72
+        var floorPosition = 0.735
 
         @JvmField
         var specimenPosition = 0.23

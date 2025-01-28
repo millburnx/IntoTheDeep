@@ -56,7 +56,7 @@ class Diffy(
         var hoverRoll = -1.0
 
         @JvmField
-        var pickupPitch = -0.9
+        var pickupPitch = -0.4
 
 //        @JvmField
 //        var pickupRoll = -0.025
