@@ -17,6 +17,8 @@ class TelemetryManager(
 
     fun pre() {
         currentPacket = TelemetryPacket()
+        telemetry.addData("delta", robot.deltaTime.deltaTime)
+        telemetry.addData("hertz", 1.0 / robot.deltaTime.deltaTime)
         drawRobot(currentPacket)
     }
 
@@ -32,7 +34,7 @@ class TelemetryManager(
         canvas.setStroke(robotColor)
         val pose = robot.drive.pose
         canvas.strokeCircle(pose.toRR().x, pose.toRR().y, robotSize / 2)
-        val lookVector = Vec2d(robotSize / 2, 0.0).rotate(pose.heading)
+        val lookVector = Vec2d(robotSize / 2, 0.0).rotate(Math.toRadians(pose.heading))
         val lookPoint = pose + lookVector
         canvas.strokeLine(pose.toRR().x, pose.toRR().y, lookPoint.toRR().x, lookPoint.toRR().y)
     }

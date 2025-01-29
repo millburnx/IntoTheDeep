@@ -8,7 +8,9 @@ import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class OdomOnly(opmode: OpMode) : Robot(opmode) {
+class OdomOnly(
+    opmode: OpMode,
+) : Robot(opmode) {
     override val drive: Drive by lazy { Drive(this) }
     override val subsystems: List<Subsystem> by lazy { listOf(drive) }
 }
@@ -25,7 +27,7 @@ class OdomTuner : OpMode() {
         robot.drive.robotCentric(
             gamepad1.left_stick_y.toDouble(),
             -gamepad1.left_stick_x.toDouble(),
-            -gamepad1.right_stick_x.toDouble()
+            -gamepad1.right_stick_x.toDouble(),
         )
 
         val pose = robot.drive.pose
@@ -33,6 +35,6 @@ class OdomTuner : OpMode() {
         robot.telemetry.addData("perp: ", perp.currentPosition)
         robot.telemetry.addData("x: ", pose.x)
         robot.telemetry.addData("y: ", pose.y)
-        robot.telemetry.addData("h: ", Math.toDegrees(pose.heading))
+        robot.telemetry.addData("h: ", pose.heading)
     }
 }

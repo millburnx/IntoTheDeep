@@ -25,6 +25,9 @@ class SampleDetector :
 
     companion object {
         @JvmField
+        var enabled: Boolean = true
+
+        @JvmField
         var redLower: Double = 199.0
 
         @JvmField
@@ -43,10 +46,10 @@ class SampleDetector :
         var blueUpper: Double = 255.0
 
         @JvmField
-        var areaMin: Double = 1_000.0
+        var areaMin: Double = 2_000.0
 
         @JvmField
-        var areaMax: Double = 15_000.0
+        var areaMax: Double = 20_000.0
 
         @JvmField
         var ratioMin: Double = 0.375
@@ -93,6 +96,7 @@ class SampleDetector :
         baseFrame: Mat,
         captureTimeNanos: Long,
     ): Any? {
+        if (!enabled) return null
         frame.setTo(Scalar.all(0.0))
         Imgproc.resize(baseFrame, frame, Size(baseFrame.width() * scale, baseFrame.height() * scale))
 

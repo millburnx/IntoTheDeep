@@ -77,7 +77,7 @@ open class Vision(
         var gain2: Int = 255
     }
 
-    override fun periodic() {
+    fun update() {
         println("vision periodic")
         println(camera1)
         println(camera2)
@@ -85,6 +85,7 @@ open class Vision(
             println("vision setting")
             val exposureController = camera1.getCameraControl(ExposureControl::class.java)
             val gainController = camera1.getCameraControl(GainControl::class.java)
+            exposureController.mode = ExposureControl.Mode.Manual
             exposureController.setExposure(exposureTime1, TimeUnit.MILLISECONDS)
             gainController.gain = gain1
         }
@@ -102,7 +103,7 @@ class SampleVision(
     robot: Robot,
 ) : Vision(robot) {
     val sampleDetector1 = SampleDetector()
-    val sampleDetector2 = SampleDetector()
+//    val sampleDetector2 = SampleDetector()
 
     override val processors1 =
         listOf<VisionProcessor>(
@@ -112,7 +113,7 @@ class SampleVision(
 
     override val processors2 =
         listOf(
-            sampleDetector2,
-//            BlankProcessor(),
+//            sampleDetector2,
+            BlankProcessor(),
         )
 }
