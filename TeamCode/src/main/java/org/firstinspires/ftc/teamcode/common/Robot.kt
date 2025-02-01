@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.common
 
-import com.arcrobotics.ftclib.command.SubsystemBase
+import com.millburnx.jsoncommands.Parser
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.lynx.LynxModule.BulkCachingMode
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
@@ -17,12 +17,17 @@ import org.firstinspires.ftc.teamcode.common.utils.TelemetryManager
 
 open class Robot(
     val opMode: OpMode,
-) : SubsystemBase() {
+) : Subsystem() {
+    val jsonParser by lazy {
+        val classes = getJSONSubsystems().map { it::class }
+        Parser(classes)
+    }
+
     val telemetryManager by lazy { TelemetryManager(this) }
     val telemetry by lazy { telemetryManager.telemetry }
     val imu: IMU by lazy {
-        val a = hardware["imu"] as IMU
-        a.initialize(
+        val imu = hardware["imu"] as IMU
+        imu.initialize(
             IMU.Parameters(
                 RevHubOrientationOnRobot(
                     RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
@@ -30,8 +35,8 @@ open class Robot(
                 ),
             ),
         )
-//        a.resetYaw()
-        a
+//        imu.resetYaw()
+        imu
     }
     val gp1: Gamepad by lazy { opMode.gamepad1 }
     val gp2: Gamepad by lazy { opMode.gamepad2 }
@@ -42,7 +47,7 @@ open class Robot(
     open val intake: Intake by lazy { Intake(this) }
     open val outtake: Outtake by lazy { Outtake(this) }
     open val additionalSubsystems: List<Subsystem> = listOf()
-    open val subsystems: List<Subsystem> by lazy {
+    override val subsystems: List<Subsystem> by lazy {
         listOf(
             drive,
             intake,
@@ -51,10 +56,8 @@ open class Robot(
     }
     val deltaTime = DeltaTime()
 
-    open fun init() {
+    override fun init() {
         hubs.forEach { it.bulkCachingMode = BulkCachingMode.AUTO }
-        subsystems.forEach {
-            it.init() // triggers lazy loader
-        }
+        super.init()
     }
 }

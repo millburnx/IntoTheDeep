@@ -7,8 +7,9 @@ import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import kotlin.math.pow
 
 @Config
-class CorrectedDrive(robot: Robot) : Drive(robot) {
-
+class CorrectedDrive(
+    robot: Robot,
+) : Drive(robot) {
     companion object {
         @JvmField
         var centripetalWeight: Double = 0.1
@@ -16,7 +17,12 @@ class CorrectedDrive(robot: Robot) : Drive(robot) {
 
     val positionBuffer = RingBuffer<Vec2d>(3)
 
-    override fun fieldCentric(x: Double, y: Double, rotate: Double, heading: Double) {
+    override fun fieldCentric(
+        x: Double,
+        y: Double,
+        rotate: Double,
+        heading: Double,
+    ) {
         val centripetalCorrection = getCentripetalCorrection()
         super.fieldCentric(x + centripetalCorrection.x, y + centripetalCorrection.y, rotate, heading)
     }
@@ -37,7 +43,7 @@ class CorrectedDrive(robot: Robot) : Drive(robot) {
 
     fun getCentripetalCorrection(
         currentVelocity: Pose2d = if (odometry.poseVelocity == null) Pose2d() else Pose2d.fromRR(odometry.poseVelocity!!),
-        weighting: Double = centripetalWeight
+        weighting: Double = centripetalWeight,
     ): Vec2d {
         if (!positionBuffer.isFull) return Vec2d(0)
         val current = positionBuffer.get(2)!!
@@ -51,7 +57,9 @@ class CorrectedDrive(robot: Robot) : Drive(robot) {
     }
 }
 
-class RingBuffer<T>(val size: Int) {
+class RingBuffer<T>(
+    val size: Int,
+) {
     private val buffer: MutableList<T> = mutableListOf()
 
     val values: List<T>
@@ -67,7 +75,5 @@ class RingBuffer<T>(val size: Int) {
         buffer.add(value)
     }
 
-    fun get(index: Int): T? {
-        return buffer.getOrNull(index)
-    }
+    fun get(index: Int): T? = buffer.getOrNull(index)
 }

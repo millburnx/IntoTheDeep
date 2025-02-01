@@ -21,7 +21,7 @@ class Outtake(
     val arm: OuttakeArm = OuttakeArm(robot)
     val wrist: OuttakeWrist = OuttakeWrist(robot)
     val claw: OuttakeClaw = OuttakeClaw(robot)
-    val subsystems: List<Subsystem> = listOf(slides, arm, wrist, claw)
+    override val subsystems: List<Subsystem> = listOf(slides, arm, wrist, claw)
 
     override fun init() {
         subsystems.forEach { it.init() }
