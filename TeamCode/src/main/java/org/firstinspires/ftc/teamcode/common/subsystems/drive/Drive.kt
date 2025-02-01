@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
@@ -16,6 +17,12 @@ import kotlin.math.max
 open class Drive(
     val robot: Robot,
 ) : Subsystem() {
+    inner class JSONSubsystem : com.millburnx.jsoncommands.Subsystem {
+        override val type = "Subsystem/Drive"
+
+        override fun generate(): SubsystemBase = this@Drive
+    }
+
     val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).apply { init() }
     val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init(false) }
     val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).apply { init() }

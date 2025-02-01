@@ -13,20 +13,8 @@ public interface BaseObject {
     public fun generate(): Any
 }
 
-public class Subsystem : BaseObject {
-    override val type: String = "Subsystem"
-
-    override fun generate(): SubsystemBase {
-        // needs the robot lol
-        return object : SubsystemBase() {}
-        // oh wait, we could do a non reflection based method by just having the subsystem in the type field
-        // i just need to change it so it takes an object instead of the class for the serializer
-        // and then just takes class from the object
-    }
-
-    public var id: String = ""
-
-    override fun toString(): String = "Subsystem(id=$id)"
+public interface Subsystem : BaseObject {
+    override fun generate(): SubsystemBase
 }
 
 public interface Command : BaseObject {

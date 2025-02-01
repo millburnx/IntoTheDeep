@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
@@ -10,7 +11,15 @@ import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intak
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakePickupClawDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.sweepDuration
 
-class Intake(val robot: Robot) : Subsystem() {
+class Intake(
+    val robot: Robot,
+) : Subsystem() {
+    inner class JSONSubsystem : com.millburnx.jsoncommands.Subsystem {
+        override val type = "Subsystem/Intake"
+
+        override fun generate(): SubsystemBase = this@Intake
+    }
+
     val linkage: Linkage = Linkage(robot)
     val arm: IntakeArm = IntakeArm(robot)
     val diffy: Diffy = Diffy(robot)
@@ -22,16 +31,23 @@ class Intake(val robot: Robot) : Subsystem() {
     }
 
     fun extend() = ExtendCommand(this)
+
     fun sweepExtend() = SweepExtendCommand(this)
+
     fun retract() = RetractCommand(this)
+
     fun barSideRetract() = BarSideRetractCommand(this)
+
     fun grab() = GrabCommand(this)
 
     fun open() = InstantCommand(claw::open, claw)
+
     fun close() = InstantCommand(claw::close, claw)
 }
 
-class ExtendCommand(intake: Intake) : SequentialCommandGroup() {
+class ExtendCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({
@@ -45,7 +61,9 @@ class ExtendCommand(intake: Intake) : SequentialCommandGroup() {
     }
 }
 
-class SweepExtendCommand(intake: Intake) : SequentialCommandGroup() {
+class SweepExtendCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({
@@ -54,13 +72,15 @@ class SweepExtendCommand(intake: Intake) : SequentialCommandGroup() {
                 intake.diffy.pitch = Diffy.sweepPitch
                 intake.diffy.roll = Diffy.sweepRoll
             }, intake.linkage, intake.arm, intake.diffy),
-            WaitCommand(sweepDuration)
+            WaitCommand(sweepDuration),
         )
         addRequirements(intake.linkage, intake.arm, intake.diffy)
     }
 }
 
-class RetractCommand(intake: Intake) : SequentialCommandGroup() {
+class RetractCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({
@@ -75,7 +95,9 @@ class RetractCommand(intake: Intake) : SequentialCommandGroup() {
     }
 }
 
-class BarSideRetractCommand(intake: Intake) : SequentialCommandGroup() {
+class BarSideRetractCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({
@@ -93,7 +115,9 @@ class BarSideRetractCommand(intake: Intake) : SequentialCommandGroup() {
     }
 }
 
-class GrabCommand(intake: Intake) : SequentialCommandGroup() {
+class GrabCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({

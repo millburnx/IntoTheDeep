@@ -1,13 +1,22 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 @Config
-class IntakeClaw(val robot: Robot) : Subsystem() {
+class IntakeClaw(
+    val robot: Robot,
+) : Subsystem() {
+    inner class JSONSubsystem : com.millburnx.jsoncommands.Subsystem {
+        override val type = "Subsystem/Intake/Claw"
+
+        override fun generate(): SubsystemBase = this@IntakeClaw
+    }
+
     val clawServo: ServoImplEx = (robot.hardware["intakeClaw"] as ServoImplEx).apply { init() }
 
     var isOpen = true
@@ -19,7 +28,7 @@ class IntakeClaw(val robot: Robot) : Subsystem() {
     fun close() {
         isOpen = false
     }
-    
+
     override fun init() {
         periodic()
     }

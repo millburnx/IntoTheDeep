@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
 import com.arcrobotics.ftclib.command.CommandBase
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand
@@ -17,7 +18,15 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
 
-class PIDManager(val robot: Robot) : Subsystem() {
+class PIDManager(
+    val robot: Robot,
+) : Subsystem() {
+    inner class JSONSubsystem : com.millburnx.jsoncommands.Subsystem {
+        override val type = "Subsystem/PIDManager"
+
+        override fun generate(): SubsystemBase = this@PIDManager
+    }
+
     var isOn = false
     var target = Pose2d()
     var tolerance = Pose2d(DrivePIDCommand.tolerance, headingTolerance)
@@ -38,8 +47,10 @@ class PIDManager(val robot: Robot) : Subsystem() {
         val h = pidH.calculate(drive.pose.heading, target.heading)
 
         drive.fieldCentric(
-            -x, y, h,
-            -Math.toRadians(drive.pose.heading)
+            -x,
+            y,
+            h,
+            -Math.toRadians(drive.pose.heading),
         )
     }
 
@@ -57,7 +68,7 @@ class PIDManager(val robot: Robot) : Subsystem() {
 class PIDCommand(
     val robot: AutonRobot,
     val target: Pose2d,
-    val tolerance: Pose2d = Pose2d(DrivePIDCommand.tolerance, headingTolerance)
+    val tolerance: Pose2d = Pose2d(DrivePIDCommand.tolerance, headingTolerance),
 ) : CommandBase() {
     init {
         addRequirements(robot.drive, robot.pidManager)
@@ -69,7 +80,5 @@ class PIDCommand(
         robot.pidManager.tolerance = tolerance
     }
 
-    override fun isFinished(): Boolean {
-        return robot.pidManager.atTarget()
-    }
+    override fun isFinished(): Boolean = robot.pidManager.atTarget()
 }

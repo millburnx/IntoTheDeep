@@ -1,17 +1,30 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class OuttakeWristPosition {
-    BASE, SPECIMEN, BASKET, OUT, HUMAN
+    BASE,
+    SPECIMEN,
+    BASKET,
+    OUT,
+    HUMAN,
 }
 
 @Config
-class OuttakeWrist(val robot: Robot) : Subsystem() {
+class OuttakeWrist(
+    val robot: Robot,
+) : Subsystem() {
+    inner class JSONSubsystem : com.millburnx.jsoncommands.Subsystem {
+        override val type = "Subsystem/Outtake/Wrist"
+
+        override fun generate(): SubsystemBase = this@OuttakeWrist
+    }
+
     var servo: Servo = (robot.hardware["outtakeWrist"] as Servo).apply { init() }
     var state: OuttakeWristPosition = OuttakeWristPosition.BASE
 
@@ -20,13 +33,14 @@ class OuttakeWrist(val robot: Robot) : Subsystem() {
     }
 
     override fun periodic() {
-        val target = when (state) {
-            OuttakeWristPosition.BASE -> basePosition
-            OuttakeWristPosition.SPECIMEN -> specimenPosition
-            OuttakeWristPosition.BASKET -> basketPosition
-            OuttakeWristPosition.OUT -> extendedPosition
-            OuttakeWristPosition.HUMAN -> humanPosition
-        }
+        val target =
+            when (state) {
+                OuttakeWristPosition.BASE -> basePosition
+                OuttakeWristPosition.SPECIMEN -> specimenPosition
+                OuttakeWristPosition.BASKET -> basketPosition
+                OuttakeWristPosition.OUT -> extendedPosition
+                OuttakeWristPosition.HUMAN -> humanPosition
+            }
         servo.position = target
     }
 

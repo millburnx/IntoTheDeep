@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
@@ -9,7 +10,15 @@ import org.firstinspires.ftc.teamcode.common.utils.init
 import kotlin.math.abs
 
 @Config
-class Slides(val robot: Robot) : Subsystem() {
+class Slides(
+    val robot: Robot,
+) : Subsystem() {
+    inner class JSONSubsystem : com.millburnx.jsoncommands.Subsystem {
+        override val type = "Subsystem/Outtake/Slides"
+
+        override fun generate(): SubsystemBase = this@Slides
+    }
+
     val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init() }
     val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init() }
     val pid = PIDController(kP, kI, kD)
