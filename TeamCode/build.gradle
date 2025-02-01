@@ -71,6 +71,7 @@ dependencies {
     implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
 
     implementation project(':PathPlanner')
+    implementation project(':JSONCommands')
 
 //    implementation "dev.frozenmilk.sinister:Sloth:0.0.1"
 //    implementation "dev.frozenmilk.sinister.sloth:Load:0.0.2"
