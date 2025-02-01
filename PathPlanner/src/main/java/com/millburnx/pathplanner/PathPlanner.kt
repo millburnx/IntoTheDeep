@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package com.millburnx.pathplanner
 
 import com.millburnx.utils.*

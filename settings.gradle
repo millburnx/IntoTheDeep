@@ -9,3 +9,5 @@ plugins {
 include ':FtcRobotController'
 include ':TeamCode'
 include ':PathPlanner'
+include 'JSONCommands'
+
