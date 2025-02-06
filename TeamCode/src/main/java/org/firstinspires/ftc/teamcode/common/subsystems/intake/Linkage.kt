@@ -8,7 +8,9 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 @Config
-class Linkage(val robot: Robot) : Subsystem() {
+class Linkage(
+    val robot: Robot,
+) : Subsystem() {
     var target: Double = 0.0 // 0 to 1
     var leftServo: Servo = (robot.hardware["linkageLeft"] as Servo).apply { init() }
     val rightServo: Servo = (robot.hardware["linkageRight"] as Servo).apply { init(false) }
@@ -16,7 +18,7 @@ class Linkage(val robot: Robot) : Subsystem() {
     override fun init() {
         periodic()
     }
-    
+
     override fun periodic() {
         if (!enabled) return
         val position = Utils.lerp(base, full, target)
@@ -26,10 +28,10 @@ class Linkage(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var base = 0.35
+        var base = 0.05
 
         @JvmField
-        var full = 0.65
+        var full = 0.3
 
         @JvmField
         var enabled: Boolean = true

@@ -7,7 +7,9 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 @Config
-class OuttakeClaw(val robot: Robot) : Subsystem() {
+class OuttakeClaw(
+    val robot: Robot,
+) : Subsystem() {
     val clawServo: ServoImplEx = (robot.hardware["outtakeClaw"] as ServoImplEx).apply { init() }
 
     var isOpen = true
@@ -19,7 +21,7 @@ class OuttakeClaw(val robot: Robot) : Subsystem() {
     fun close() {
         isOpen = false
     }
-    
+
     override fun init() {
         periodic()
     }
@@ -30,9 +32,9 @@ class OuttakeClaw(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var open: Double = 0.4
+        var open: Double = 0.5
 
         @JvmField
-        var closed: Double = 0.05
+        var closed: Double = 0.5
     }
 }

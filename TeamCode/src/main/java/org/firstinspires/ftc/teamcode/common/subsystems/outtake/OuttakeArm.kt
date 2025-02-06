@@ -8,11 +8,17 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class OuttakeArmPosition {
-    BASE, SPECIMEN, BASKET, OUT, HUMAN
+    BASE,
+    SPECIMEN,
+    BASKET,
+    OUT,
+    HUMAN,
 }
 
 @Config
-class OuttakeArm(val robot: Robot) : Subsystem() {
+class OuttakeArm(
+    val robot: Robot,
+) : Subsystem() {
     var leftServo: ServoImplEx = (robot.hardware["outtakeArmLeft"] as ServoImplEx).apply { init() }
     var rightServo: ServoImplEx = (robot.hardware["outtakeArmRight"] as ServoImplEx).apply { init(false) }
     val servoLimiter = ServoLimiter(maxSpeed, robot.deltaTime::deltaTime, basePosition)
@@ -23,13 +29,14 @@ class OuttakeArm(val robot: Robot) : Subsystem() {
     }
 
     override fun periodic() {
-        val target = when (state) {
-            OuttakeArmPosition.BASE -> basePosition
-            OuttakeArmPosition.SPECIMEN -> specimenPosition
-            OuttakeArmPosition.BASKET -> basketPosition
-            OuttakeArmPosition.OUT -> extendedPosition
-            OuttakeArmPosition.HUMAN -> humanPosition
-        }
+        val target =
+            when (state) {
+                OuttakeArmPosition.BASE -> basePosition
+                OuttakeArmPosition.SPECIMEN -> specimenPosition
+                OuttakeArmPosition.BASKET -> basketPosition
+                OuttakeArmPosition.OUT -> extendedPosition
+                OuttakeArmPosition.HUMAN -> humanPosition
+            }
         servoLimiter.maxSpeed = maxSpeed
         servoLimiter.update(target)
         leftServo.position = servoLimiter.current
@@ -38,19 +45,19 @@ class OuttakeArm(val robot: Robot) : Subsystem() {
 
     companion object {
         @JvmField
-        var basePosition = 0.62
+        var basePosition = 0.5
 
         @JvmField
         var basketPosition = 0.5
 
         @JvmField
-        var specimenPosition = 0.519
+        var specimenPosition = 0.5
 
         @JvmField
-        var extendedPosition = 0.75
+        var extendedPosition = 0.5
 
         @JvmField
-        var humanPosition = 0.25
+        var humanPosition = 0.5
 
         @JvmField
         var maxSpeed = -1.0

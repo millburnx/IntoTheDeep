@@ -7,11 +7,17 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class OuttakeWristPosition {
-    BASE, SPECIMEN, BASKET, OUT, HUMAN
+    BASE,
+    SPECIMEN,
+    BASKET,
+    OUT,
+    HUMAN,
 }
 
 @Config
-class OuttakeWrist(val robot: Robot) : Subsystem() {
+class OuttakeWrist(
+    val robot: Robot,
+) : Subsystem() {
     var servo: Servo = (robot.hardware["outtakeWrist"] as Servo).apply { init() }
     var state: OuttakeWristPosition = OuttakeWristPosition.BASE
 
@@ -20,28 +26,29 @@ class OuttakeWrist(val robot: Robot) : Subsystem() {
     }
 
     override fun periodic() {
-        val target = when (state) {
-            OuttakeWristPosition.BASE -> basePosition
-            OuttakeWristPosition.SPECIMEN -> specimenPosition
-            OuttakeWristPosition.BASKET -> basketPosition
-            OuttakeWristPosition.OUT -> extendedPosition
-            OuttakeWristPosition.HUMAN -> humanPosition
-        }
+        val target =
+            when (state) {
+                OuttakeWristPosition.BASE -> basePosition
+                OuttakeWristPosition.SPECIMEN -> specimenPosition
+                OuttakeWristPosition.BASKET -> basketPosition
+                OuttakeWristPosition.OUT -> extendedPosition
+                OuttakeWristPosition.HUMAN -> humanPosition
+            }
         servo.position = target
     }
 
     companion object {
         @JvmField
-        var basePosition = 0.75
+        var basePosition = 0.5
 
         @JvmField
-        var basketPosition = 0.34
+        var basketPosition = 0.5
 
         @JvmField
         var specimenPosition = basketPosition
 
         @JvmField
-        var extendedPosition = 0.475
+        var extendedPosition = 0.5
 
         @JvmField
         var humanPosition = 0.5

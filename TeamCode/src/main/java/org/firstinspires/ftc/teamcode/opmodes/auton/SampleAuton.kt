@@ -60,7 +60,7 @@ class SampleAuton : OpMode() {
                     robot.outtake.arm.state = OuttakeArmPosition.BASKET
                     robot.outtake.wrist.state = OuttakeWristPosition.BASKET
                 }, robot.outtake),
-                SlidesCommand(robot.outtake.slides, Slides.highBasket)
+                SlidesCommand(robot.outtake.slides, Slides.highBasket),
             )
         }
 
@@ -73,7 +73,7 @@ class SampleAuton : OpMode() {
                     }, robot.outtake.arm, robot.outtake.wrist),
                     WaitCommand(outtakeDropArmDelay),
                 ),
-                SlidesCommand(robot.outtake.slides, Slides.min)
+                SlidesCommand(robot.outtake.slides, Slides.min),
             )
         }
 
@@ -89,8 +89,8 @@ class SampleAuton : OpMode() {
                         }, robot.outtake.arm, robot.outtake.wrist),
                         WaitCommand(outtakeDropArmDelay),
                     ),
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0))
-                )
+                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
+                ),
             )
         }
 
@@ -98,7 +98,7 @@ class SampleAuton : OpMode() {
             SequentialCommandGroup(
                 ParallelCommandGroup(
                     up(),
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0))
+                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
                 ),
                 RelativeDrive(robot.drive, robot.pidManager, Pose2d(-0.3, 0.0, 0.0)).withTimeout(basketDuration),
                 drop(),
@@ -111,7 +111,7 @@ class SampleAuton : OpMode() {
                 grab(),
                 ParallelCommandGroup(
                     up(),
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0))
+                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
                 ),
                 RelativeDrive(robot.drive, robot.pidManager, Pose2d(-0.3, 0.0, 0.0)).withTimeout(basketDuration),
                 drop(),
@@ -124,13 +124,13 @@ class SampleAuton : OpMode() {
                 grab(),
                 ParallelCommandGroup(
                     up(),
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0))
+                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
                 ),
                 RelativeDrive(robot.drive, robot.pidManager, Pose2d(-0.3, 0.0, 0.0)).withTimeout(basketDuration),
                 drop(),
                 ParallelCommandGroup(
                     down(),
-                    PIDCommand(robot, Pose2d(sample3X, sample3Y, sample3H), tolerance = Pose2d(1.0, 1.0, 7.5))
+                    PIDCommand(robot, Pose2d(sample3X, sample3Y, sample3H), tolerance = Pose2d(1.0, 1.0, 7.5)),
                 ),
                 robot.intake.extend(),
                 InstantCommand({ robot.intake.diffy.roll = Diffy.roll45 }),
@@ -138,12 +138,12 @@ class SampleAuton : OpMode() {
                 grab(),
                 ParallelCommandGroup(
                     up(),
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0))
+                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
                 ),
                 RelativeDrive(robot.drive, robot.pidManager, Pose2d(-0.3, 0.0, 0.0)).withTimeout(basketDuration),
                 drop(),
                 down(),
-            )
+            ),
         )
 
         schedule(SequentialCommandGroup(*commands.toTypedArray()))
@@ -199,9 +199,7 @@ class SampleAuton : OpMode() {
         return points
     }
 
-    fun pointToPath(points: List<Pose2d>): List<PIDCommand> {
-        return points.map { PIDCommand(robot, it) }
-    }
+    fun pointToPath(points: List<Pose2d>): List<PIDCommand> = points.map { PIDCommand(robot, it) }
 
     override fun exec() {
     }

@@ -36,11 +36,6 @@ open class Drive(
         (robot.hardware["frontLeft"] as DcMotorEx).reset()
     }
 
-    override fun periodic() {
-        super.periodic()
-        odometry.update()
-    }
-
     fun robotCentric(
         forward: Double,
         strafe: Double,
