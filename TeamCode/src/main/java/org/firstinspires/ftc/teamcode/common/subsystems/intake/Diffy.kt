@@ -13,7 +13,7 @@ class Diffy(
     val leftServo: ServoImplEx = (robot.hardware["diffyLeft"] as ServoImplEx).apply { init() }
     val rightServo: ServoImplEx = (robot.hardware["diffyRight"] as ServoImplEx).apply { init(false) }
 
-    // each only has an effect range of +/- 0.25 aka 0-0.5 or half
+    // each only has an effective range of +/- 0.25 aka 0-0.5 or half
     // as you need to ensure that pitch + roll never exceeds the bounds of 0 to 1
     var pitch: Double = transferPitch // up and down, -1 to 1
     var roll: Double = transferRoll // rotate, -1 to 1
