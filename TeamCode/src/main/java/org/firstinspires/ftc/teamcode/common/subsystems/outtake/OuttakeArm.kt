@@ -45,19 +45,19 @@ class OuttakeArm(
 
     companion object {
         @JvmField
-        var basePosition = 0.5
+        var basePosition = 0.77
 
         @JvmField
-        var basketPosition = 0.5
+        var basketPosition = 0.65
 
         @JvmField
         var specimenPosition = 0.5
 
         @JvmField
-        var extendedPosition = 0.5
+        var extendedPosition = 0.89
 
         @JvmField
-        var humanPosition = 0.5
+        var humanPosition = 0.65
 
         @JvmField
         var maxSpeed = -1.0

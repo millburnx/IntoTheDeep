@@ -39,10 +39,10 @@ class OuttakeWrist(
 
     companion object {
         @JvmField
-        var basePosition = 0.5
+        var basePosition = 0.15
 
         @JvmField
-        var basketPosition = 0.5
+        var basketPosition = 0.6
 
         @JvmField
         var specimenPosition = basketPosition

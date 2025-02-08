@@ -9,10 +9,8 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.millburnx.utils.TSV
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDCommand
-import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
@@ -97,52 +95,53 @@ class SampleAuton : OpMode() {
         commands.add(
             SequentialCommandGroup(
                 ParallelCommandGroup(
-                    up(),
                     PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
+                    up(),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(-0.3, 0.0, 0.0)).withTimeout(basketDuration),
+                WaitCommand(basketDuration),
                 drop(),
                 ParallelCommandGroup(
                     down(),
-                    PIDCommand(robot, Pose2d(sample1X, sample1Y, 0.0), tolerance = Pose2d(1.0, 1.0, 7.5)),
+                    PIDCommand(robot, Pose2d(sample1X, sample1Y, 0.0)),
+                    WaitCommand(pidStablize),
+                    robot.intake.extend(),
                 ),
-                robot.intake.extend(),
-                WaitCommand(2000),
+                WaitCommand(grabDuration),
                 grab(),
                 ParallelCommandGroup(
-                    up(),
                     PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
+                    up(),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(-0.3, 0.0, 0.0)).withTimeout(basketDuration),
+                WaitCommand(basketDuration),
                 drop(),
                 ParallelCommandGroup(
                     down(),
-                    PIDCommand(robot, Pose2d(sample2X, sample2Y, 0.0), tolerance = Pose2d(1.0, 1.0, 7.5)),
+                    PIDCommand(robot, Pose2d(sample2X, sample2Y, 0.0)),
+                    WaitCommand(pidStablize),
+                    robot.intake.extend(),
                 ),
-                robot.intake.extend(),
-                WaitCommand(2000),
+                WaitCommand(grabDuration),
                 grab(),
                 ParallelCommandGroup(
-                    up(),
                     PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
+                    up(),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(-0.3, 0.0, 0.0)).withTimeout(basketDuration),
+                WaitCommand(basketDuration),
                 drop(),
                 ParallelCommandGroup(
                     down(),
-                    PIDCommand(robot, Pose2d(sample3X, sample3Y, sample3H), tolerance = Pose2d(1.0, 1.0, 7.5)),
+                    PIDCommand(robot, Pose2d(sample3X, sample3Y, sample3H)),
+                    WaitCommand(pidStablize),
+                    robot.intake.extend(),
                 ),
-                robot.intake.extend(),
-                InstantCommand({ robot.intake.diffy.roll = Diffy.roll45 }),
-                WaitCommand(2000),
+                WaitCommand(grabDuration),
                 grab(),
                 ParallelCommandGroup(
-                    up(),
                     PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
+                    up(),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(-0.3, 0.0, 0.0)).withTimeout(basketDuration),
+                WaitCommand(basketDuration),
                 drop(),
-                down(),
             ),
         )
 
@@ -154,40 +153,46 @@ class SampleAuton : OpMode() {
         var startingX = -60.0
 
         @JvmField
-        var startingY = 17.0
+        var startingY = 40.0
 
         @JvmField
         var startingHeading = 0.0
 
         @JvmField
-        var sample1X = -47.25
+        var sample1X = -44.0
 
         @JvmField
-        var sample1Y = 50.5
+        var sample1Y = 50.0
 
         @JvmField
-        var sample2X = -47.25
+        var sample2X = -44.0
 
         @JvmField
-        var sample2Y = 60.5
+        var sample2Y = 58.0
 
         @JvmField
-        var sample3X = -40.25
+        var sample3X = -39.5
 
         @JvmField
-        var sample3Y = 55.0
+        var sample3Y = 54.5
 
         @JvmField
         var sample3H = 45.0
 
         @JvmField
-        var basketX = -49.0
+        var basketX = -56.0
 
         @JvmField
-        var basketY = 50.0
+        var basketY = 58.0
 
         @JvmField
-        var basketDuration: Long = 1000
+        var basketDuration: Long = 750
+
+        @JvmField
+        var grabDuration: Long = 750
+
+        @JvmField
+        var pidStablize: Long = 750
     }
 
     fun loadPoints(file: String): List<Pose2d> {

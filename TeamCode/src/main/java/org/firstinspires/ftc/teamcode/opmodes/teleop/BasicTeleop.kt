@@ -82,11 +82,11 @@ class BasicTeleop : OpMode() {
                         InstantCommand({
                             when (robot.intake.diffy.roll) {
                                 Diffy.hoverRoll -> {
-                                    robot.intake.diffy.roll = Diffy.roll45
+                                    robot.intake.diffy.roll = Diffy.roll60
                                 }
 
-                                Diffy.roll45 -> {
-                                    robot.intake.diffy.roll = Diffy.roll90
+                                Diffy.roll60 -> {
+                                    robot.intake.diffy.roll = Diffy.roll120
                                 }
 
                                 else -> {
@@ -121,13 +121,16 @@ class BasicTeleop : OpMode() {
                         SequentialCommandGroup(
                             InstantCommand({ robot.outtake.claw.isOpen = false }, robot.outtake),
                             WaitCommand(outtakePickupClawDelay),
-                            InstantCommand({
-                                robot.outtake.arm.state = OuttakeArmPosition.BASKET
-                                robot.outtake.wrist.state = OuttakeWristPosition.BASKET
-                                robot.intake.arm.state = IntakeArmPosition.BASE
-                                robot.intake.diffy.roll = Diffy.transferRoll
-                                robot.intake.diffy.pitch = Diffy.transferPitch
-                            }, robot.outtake),
+                            ParallelCommandGroup(
+                                InstantCommand({
+                                    robot.outtake.arm.state = OuttakeArmPosition.SPECIMEN
+                                    robot.outtake.wrist.state = OuttakeWristPosition.SPECIMEN
+                                    robot.intake.arm.state = IntakeArmPosition.BASE
+                                    robot.intake.diffy.roll = Diffy.transferRoll
+                                    robot.intake.diffy.pitch = Diffy.transferPitch
+                                }, robot.outtake),
+                                SlidesCommand(robot.outtake.slides, Slides.highRung),
+                            ),
                         ),
                     )
                 })
@@ -169,15 +172,18 @@ class BasicTeleop : OpMode() {
                     )
                 })
 
-            val specimenScore =
-                EdgeDetector(
-                    gamepad1::dpad_left,
-                    this@BasicTeleop,
-                    InstantCommand({
-                        robot.outtake.arm.state = OuttakeArmPosition.SPECIMEN
-                        robot.outtake.wrist.state = OuttakeWristPosition.SPECIMEN
-                    }, robot.outtake),
-                )
+//            val specimenScore =
+//                EdgeDetector(
+//                    gamepad1::dpad_left,
+//                    this@BasicTeleop,
+//                    ParallelCommandGroup(
+//                        InstantCommand({
+//                            robot.outtake.arm.state = OuttakeArmPosition.SPECIMEN
+//                            robot.outtake.wrist.state = OuttakeWristPosition.SPECIMEN
+//                        }, robot.outtake),
+//                        SlidesCommand(robot.outtake.slides, Slides.highRung),
+//                    ),
+//                )
 
             val highSampleScore =
                 EdgeDetector(
@@ -354,7 +360,7 @@ class BasicTeleop : OpMode() {
         var intakeDuration: Long = 750
 
         @JvmField
-        var fieldCentric: Boolean = true
+        var fieldCentric: Boolean = false
 
         @JvmField
         var outtakeDropArmDelay: Long = 250

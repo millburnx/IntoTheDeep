@@ -42,11 +42,11 @@ class TwoWheelTrackingLocalizer(
     // Parallel wheel is parallel to the forward axis
     // Perpendicular is perpendicular to the forward axis
     var parallelEncoder: Encoder =
-        Encoder(hardwareMap.get(DcMotorEx::class.java, "para")).apply {
+        Encoder(hardwareMap.get(DcMotorEx::class.java, "frontLeft")).apply {
             direction = Encoder.Direction.FORWARD
         }
     var perpendicularEncoder: Encoder =
-        Encoder(hardwareMap.get(DcMotorEx::class.java, "frontLeft")).apply {
+        Encoder(hardwareMap.get(DcMotorEx::class.java, "backLeft")).apply {
             direction = Encoder.Direction.FORWARD
         }
 

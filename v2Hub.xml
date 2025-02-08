@@ -12,8 +12,8 @@
         <LynxModule name="Expansion Hub 3" port="2">
             <goBILDA5202SeriesMotor name="perp" port="0"/>
             <goBILDA5202SeriesMotor name="rightLift" port="1"/>
-            <goBILDA5202SeriesMotor name="backRight" port="2"/>
-            <goBILDA5202SeriesMotor name="frontRight" port="3"/>
+            <goBILDA5202SeriesMotor name="frontRight" port="2"/>
+            <goBILDA5202SeriesMotor name="backRight" port="3"/>
             <Servo name="intakeClaw" port="0"/>
             <Servo name="intakeArmRight" port="1"/>
             <Servo name="intakeArmLeft" port="2"/>
@@ -22,8 +22,8 @@
             <Servo name="linkageRight" port="5"/>
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
-            <goBILDA5202SeriesMotor name="para" port="0"/>
-            <goBILDA5202SeriesMotor name="leftLift" port="1"/>
+            <goBILDA5202SeriesMotor name="para" port="1"/>
+            <goBILDA5202SeriesMotor name="leftLift" port="0"/>
             <goBILDA5202SeriesMotor name="backLeft" port="2"/>
             <goBILDA5202SeriesMotor name="frontLeft" port="3"/>
             <Servo name="linkageLeft" port="0"/>

@@ -12,7 +12,7 @@ class DrivePIDCommand(
     val drive: Drive,
     val target: Pose2d,
     val tolerance: Double = Companion.tolerance,
-    val headingTolerance: Double = Companion.headingTolerance
+    val headingTolerance: Double = Companion.headingTolerance,
 ) : CommandBase() {
     val pidX by lazy { PIDController(kP, kI, kD) }
     val pidY by lazy { PIDController(kP, kI, kD) }
@@ -53,21 +53,21 @@ class DrivePIDCommand(
         @JvmField
         var kD: Double = 0.0198
 
+        //        var kPHeading: Double = 0.1
         @JvmField
-//        var kPHeading: Double = 0.1
         var kPHeading: Double = 0.05
 
+        //        var kIHeading: Double = 0.225
         @JvmField
-//        var kIHeading: Double = 0.225
         var kIHeading: Double = 0.1
 
         @JvmField
         var kDHeading: Double = 0.00001
 
         @JvmField
-        var tolerance: Double = 1.5
+        var tolerance: Double = .75
 
         @JvmField
-        var headingTolerance: Double = 10.0
+        var headingTolerance: Double = 7.5
     }
 }

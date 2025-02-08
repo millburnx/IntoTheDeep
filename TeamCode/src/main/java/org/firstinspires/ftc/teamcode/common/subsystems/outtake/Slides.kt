@@ -9,12 +9,14 @@ import org.firstinspires.ftc.teamcode.common.utils.init
 import kotlin.math.abs
 
 @Config
-class Slides(val robot: Robot) : Subsystem() {
+class Slides(
+    val robot: Robot,
+) : Subsystem() {
     val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init() }
     val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init() }
     val pid = PIDController(kP, kI, kD)
     val position
-        get() = rightLift.currentPosition.toDouble()
+        get() = leftLift.currentPosition.toDouble()
     var target: Double = min
         set(value) {
             field = value.coerceIn(min, max)
@@ -74,7 +76,7 @@ class Slides(val robot: Robot) : Subsystem() {
         var max: Double = 2200.0
 
         @JvmField
-        var highRung: Double = 1200.0
+        var highRung: Double = 1275.0
 
         @JvmField
         var wall: Double = 200.0
@@ -83,6 +85,6 @@ class Slides(val robot: Robot) : Subsystem() {
         var lowBasket: Double = 700.0
 
         @JvmField
-        var highBasket: Double = 1950.0
+        var highBasket: Double = 2150.0
     }
 }
