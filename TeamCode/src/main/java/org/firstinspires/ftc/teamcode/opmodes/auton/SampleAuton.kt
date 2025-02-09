@@ -142,6 +142,7 @@ class SampleAuton : OpMode() {
                 ),
                 WaitCommand(basketDuration),
                 drop(),
+                down(),
             ),
         )
 
@@ -159,22 +160,22 @@ class SampleAuton : OpMode() {
         var startingHeading = 0.0
 
         @JvmField
-        var sample1X = -44.0
+        var sample1X = -47.0
 
         @JvmField
-        var sample1Y = 50.0
+        var sample1Y = 51.5
 
         @JvmField
-        var sample2X = -44.0
+        var sample2X = -47.0
 
         @JvmField
-        var sample2Y = 58.0
+        var sample2Y = 59.5
 
         @JvmField
-        var sample3X = -39.5
+        var sample3X = -42.5
 
         @JvmField
-        var sample3Y = 54.5
+        var sample3Y = 55.5
 
         @JvmField
         var sample3H = 45.0
