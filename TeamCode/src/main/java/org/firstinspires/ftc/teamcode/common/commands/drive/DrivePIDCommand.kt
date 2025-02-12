@@ -68,6 +68,12 @@ class DrivePIDCommand(
         var tolerance: Double = .75
 
         @JvmField
-        var headingTolerance: Double = 7.5
+        var headingTolerance: Double = 4.0
+
+        @JvmField
+        var usePowerSettling: Boolean = true
+
+        @JvmField
+        var wheelThreshold: Double = 0.05
     }
 }

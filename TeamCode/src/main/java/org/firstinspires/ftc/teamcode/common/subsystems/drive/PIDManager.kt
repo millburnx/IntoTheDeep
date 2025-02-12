@@ -11,13 +11,18 @@ import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Comp
 import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kIHeading
 import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kP
 import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kPHeading
+import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.usePowerSettling
+import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.wheelThreshold
 import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
+import kotlin.math.abs
 
-class PIDManager(val robot: Robot) : Subsystem() {
+class PIDManager(
+    val robot: Robot,
+) : Subsystem() {
     var isOn = false
     var target = Pose2d()
     var tolerance = Pose2d(DrivePIDCommand.tolerance, headingTolerance)
@@ -38,8 +43,10 @@ class PIDManager(val robot: Robot) : Subsystem() {
         val h = pidH.calculate(drive.pose.heading, target.heading)
 
         drive.fieldCentric(
-            -x, y, h,
-            -Math.toRadians(drive.pose.heading)
+            -x,
+            y,
+            h,
+            -Math.toRadians(drive.pose.heading),
         )
     }
 
@@ -49,7 +56,14 @@ class PIDManager(val robot: Robot) : Subsystem() {
         val atX = diff.x < tolerance.x
         val atY = diff.y < tolerance.y
         val atH = normalizeDegrees(diff.heading) < tolerance.heading
-        println("atX: $atX, atY: $atY, atH: $atH $diff ${drive.pose} $target")
+//        println("atX: $atX, atY: $atY, atH: $atH $diff ${drive.pose} $target")
+
+        val motorThreshold = drive.motors.all { abs(it.power) < wheelThreshold }
+
+        println("$motorThreshold ${drive.motors.map { abs(it.power) }}")
+
+        if (!motorThreshold && usePowerSettling) return false
+
         return atX && atY && atH
     }
 }
@@ -57,7 +71,7 @@ class PIDManager(val robot: Robot) : Subsystem() {
 class PIDCommand(
     val robot: AutonRobot,
     val target: Pose2d,
-    val tolerance: Pose2d = Pose2d(DrivePIDCommand.tolerance, headingTolerance)
+    val tolerance: Pose2d = Pose2d(DrivePIDCommand.tolerance, headingTolerance),
 ) : CommandBase() {
     init {
         addRequirements(robot.drive, robot.pidManager)
@@ -69,7 +83,5 @@ class PIDCommand(
         robot.pidManager.tolerance = tolerance
     }
 
-    override fun isFinished(): Boolean {
-        return robot.pidManager.atTarget()
-    }
+    override fun isFinished(): Boolean = robot.pidManager.atTarget()
 }

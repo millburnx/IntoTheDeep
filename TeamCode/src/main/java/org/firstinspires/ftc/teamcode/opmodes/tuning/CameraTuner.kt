@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.Robot
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.vision.Vision
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
+import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakeDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.DiffyTuner.Companion.roll
 import kotlin.math.cos
 import kotlin.math.sin
@@ -66,10 +68,14 @@ class SampleDectectionTuner : OpMode() {
                 EdgeDetector(
                     gamepad1::right_bumper,
                     this@SampleDectectionTuner,
-                    ParallelCommandGroup(
-                        robot.intake.extend(),
-                        robot.intake.open(),
-                        robot.outtake.base(),
+                    SequentialCommandGroup(
+                        ParallelCommandGroup(
+                            robot.intake.extend(),
+                            robot.intake.open(),
+                            robot.outtake.base(),
+                        ),
+                        WaitCommand(intakeDuration),
+                        InstantCommand({ isReady = true }),
                     ),
                 )
 
@@ -78,6 +84,7 @@ class SampleDectectionTuner : OpMode() {
                     gamepad1::left_bumper,
                     this@SampleDectectionTuner,
                     SequentialCommandGroup(
+                        InstantCommand({ isReady = false }),
                         ParallelCommandGroup(
                             robot.intake.retract(),
                             robot.outtake.open(),
@@ -121,6 +128,7 @@ class SampleDectectionTuner : OpMode() {
             val reset =
                 EdgeDetector(gamepad1::circle) {
                     targetPoseInternal = null
+                    isReady = robot.intake.linkage.target == 1.0
                 }
             val setRoll =
                 EdgeDetector(gamepad1::cross) {
@@ -132,6 +140,7 @@ class SampleDectectionTuner : OpMode() {
 
     var targetAngle = 0.0
     var rotationalOffset: Vec2d = Vec2d()
+    var isReady = false
 
     override fun initialize() {
         super.initialize()
@@ -171,10 +180,39 @@ class SampleDectectionTuner : OpMode() {
         robot.telemetry.addData("targetPose", targetPose.toString())
 
         if (targetPoseInternal == null) {
-            if (centered != null) {
+            if (centered != null && isReady) {
                 targetPoseInternal = Pose2d(centered.pos.rotate(-90.0), 0.0)
                 targetPoseInternalOffset = robot.drive.pose
+
+                if (fullAuto) {
+                    if (targetAngle <= angleThres) {
+                        robot.intake.diffy.roll = targetAngle
+                    }
+                }
             }
+        }
+
+        println("${robot.pidManager.atTarget()} | $isReady")
+
+        if (fullAuto &&
+            robot.intake.linkage.target == 1.0 &&
+            robot.pidManager.atTarget() &&
+            targetPoseInternal != null &&
+            robot.intake.arm.state == IntakeArmPosition.EXTENDED &&
+            isReady
+        ) {
+            schedule(
+                SequentialCommandGroup(
+                    WaitCommand(250L),
+                    robot.intake.grab(),
+                    InstantCommand({ robot.intake.diffy.roll = Diffy.hoverRoll }),
+                    robot.intake.retract(),
+                    InstantCommand({
+                        targetPoseInternal = null
+                    }),
+                ),
+            )
+            isReady = false
         }
 
         robot.pidManager.isOn = translationEnabled
@@ -191,8 +229,8 @@ class SampleDectectionTuner : OpMode() {
 //                    robot.intake.diffy.roll = targetAngle
 //                }
                 val newAngle = -Math.toRadians(robot.intake.diffy.roll * 90)
-                rotationalOffset = Vec2d(cos(newAngle), sin(newAngle) - 1.0) * clawRadius
-                robot.pidManager.target = targetPose!! + rotationalOffset
+                rotationalOffset = Vec2d(cos(newAngle), sin(newAngle) - 1.0).rotate(-90.0) * clawRadius
+                robot.pidManager.target = targetPose!! - rotationalOffset
             } else {
                 robot.pidManager.target = targetPose!!
             }
@@ -216,10 +254,10 @@ class SampleDectectionTuner : OpMode() {
 
     companion object {
         @JvmField
-        var translationEnabled: Boolean = false
+        var translationEnabled: Boolean = true
 
         @JvmField
-        var rotationEnabled: Boolean = false
+        var rotationEnabled: Boolean = true
 
         @JvmField
         var scale: Double = 0.02
@@ -229,5 +267,8 @@ class SampleDectectionTuner : OpMode() {
 
         @JvmField
         var clawRadius: Double = 1.0
+
+        @JvmField
+        var fullAuto: Boolean = true
     }
 }

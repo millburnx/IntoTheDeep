@@ -357,7 +357,7 @@ class BasicTeleop : OpMode() {
         var outtakePickupClawDelay: Long = 250
 
         @JvmField
-        var intakeDuration: Long = 750
+        var intakeDuration: Long = 1000
 
         @JvmField
         var fieldCentric: Boolean = false
