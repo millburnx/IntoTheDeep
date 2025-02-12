@@ -32,10 +32,10 @@ class Diffy(
 
     companion object {
         @JvmField
-        var transferPitch = 0.8
+        var transferPitch = 0.9
 
         @JvmField
-        var transferRoll = 1.0
+        var transferRoll = 1.2
 
         @JvmField
         var sweepPitch = 0.66
@@ -50,13 +50,13 @@ class Diffy(
         var specimenRoll = 1.0
 
         @JvmField
-        var hoverPitch = -0.9
+        var hoverPitch = -0.8
 
         @JvmField
         var hoverRoll = -1.0
 
         @JvmField
-        var pickupPitch = -0.9
+        var pickupPitch = -0.7
 
 //        @JvmField
 //        var pickupRoll = -0.025

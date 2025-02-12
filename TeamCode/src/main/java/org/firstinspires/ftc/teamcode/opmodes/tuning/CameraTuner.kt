@@ -16,6 +16,9 @@ import org.firstinspires.ftc.teamcode.common.subsystems.vision.Vision
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
+import org.firstinspires.ftc.teamcode.opmodes.tuning.DiffyTuner.Companion.roll
+import kotlin.math.cos
+import kotlin.math.sin
 
 open class CameraRobot(
     opMode: OpMode,
@@ -49,9 +52,6 @@ open class CameraTuner : OpMode() {
     override fun exec() {
         robot.telemetry.addData("state 1", robot.camera.camera1.cameraState)
         robot.telemetry.addData("FPS 1", robot.camera.camera1.fps)
-
-        robot.telemetry.addData("state 2", robot.camera.camera2.cameraState)
-        robot.telemetry.addData("FPS 2", robot.camera.camera2.fps)
     }
 }
 
@@ -100,9 +100,7 @@ class SampleDectectionTuner : OpMode() {
                 EdgeDetector(
                     gamepad1::dpad_up,
                     this@SampleDectectionTuner,
-                    InstantCommand({
-                        robot.intake.close()
-                    }),
+                    robot.intake.close(),
                 )
 
             val stream1 =
@@ -124,8 +122,16 @@ class SampleDectectionTuner : OpMode() {
                 EdgeDetector(gamepad1::circle) {
                     targetPoseInternal = null
                 }
+            val setRoll =
+                EdgeDetector(gamepad1::cross) {
+                    if (targetAngle > angleThres) return@EdgeDetector
+                    robot.intake.diffy.roll = targetAngle
+                }
         }
     }
+
+    var targetAngle = 0.0
+    var rotationalOffset: Vec2d = Vec2d()
 
     override fun initialize() {
         super.initialize()
@@ -154,30 +160,10 @@ class SampleDectectionTuner : OpMode() {
                 .size,
         )
 
-//        robot.telemetry.addData(
-//            "samples red 2",
-//            robot.camera.sampleDetector2.redSamples
-//                .get()
-//                .size,
-//        )
-//        robot.telemetry.addData(
-//            "samples yellow 2",
-//            robot.camera.sampleDetector2.yellowSamples
-//                .get()
-//                .size,
-//        )
-//        robot.telemetry.addData(
-//            "samples blue 2",
-//            robot.camera.sampleDetector2.blueSamples
-//                .get()
-//                .size,
-//        )
-
         robot.telemetry.addData("state 1", robot.camera.camera1.cameraState)
         robot.telemetry.addData("FPS 1", robot.camera.camera1.fps)
 
-//        robot.telemetry.addData("state 2", robot.camera.camera2.cameraState)
-//        robot.telemetry.addData("FPS 2", robot.camera.camera2.fps)
+        robot.telemetry.addData("claw", robot.intake.claw.isOpen)
 
         val allSamples1 = robot.camera.sampleDetector1.allSamples
         val centered = allSamples1.minByOrNull { it.pos.distanceTo(Vec2d()) }
@@ -191,12 +177,34 @@ class SampleDectectionTuner : OpMode() {
             }
         }
 
-        robot.pidManager.isOn = enabled
+        robot.pidManager.isOn = translationEnabled
         if (!robot.pidManager.isOn) {
-            robot.drive.robotCentric(0.0, 0.0, 0.0)
+            robot.drive.robotCentric(
+                gamepad1.left_stick_y.toDouble(),
+                -gamepad1.left_stick_x.toDouble(),
+                -gamepad1.right_stick_x.toDouble(),
+            )
         }
         if (targetPose != null) {
-            robot.pidManager.target = targetPose!!
+            if (rotationEnabled) {
+//                if (targetAngle <= angleThres) {
+//                    robot.intake.diffy.roll = targetAngle
+//                }
+                val newAngle = -Math.toRadians(robot.intake.diffy.roll * 90)
+                rotationalOffset = Vec2d(cos(newAngle), sin(newAngle) - 1.0) * clawRadius
+                robot.pidManager.target = targetPose!! + rotationalOffset
+            } else {
+                robot.pidManager.target = targetPose!!
+            }
+        }
+
+        if (centered != null) {
+            roll = -centered.angle / 90.0
+            robot.telemetry.addData("roll", roll)
+            targetAngle = roll
+//            if (rotationEnabled) {
+//                robot.intake.diffy.roll = (robot.intake.diffy.roll + roll).clamp(-1.0, 1.0)
+//            }
         }
     }
 
@@ -208,9 +216,18 @@ class SampleDectectionTuner : OpMode() {
 
     companion object {
         @JvmField
-        var enabled: Boolean = false
+        var translationEnabled: Boolean = false
 
         @JvmField
-        var scale: Double = 0.0175
+        var rotationEnabled: Boolean = false
+
+        @JvmField
+        var scale: Double = 0.02
+
+        @JvmField
+        var angleThres: Double = .9
+
+        @JvmField
+        var clawRadius: Double = 1.0
     }
 }

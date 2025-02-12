@@ -12,7 +12,14 @@ import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration
 import org.firstinspires.ftc.vision.VisionProcessor
 import org.opencv.android.Utils
-import org.opencv.core.*
+import org.opencv.core.Core
+import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint
+import org.opencv.core.MatOfPoint2f
+import org.opencv.core.Point
+import org.opencv.core.RotatedRect
+import org.opencv.core.Scalar
+import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.min
@@ -49,7 +56,7 @@ class SampleDetector :
         var areaMin: Double = 2_000.0
 
         @JvmField
-        var areaMax: Double = 20_000.0
+        var areaMax: Double = 250_000.0
 
         @JvmField
         var ratioMin: Double = 0.375
@@ -59,6 +66,9 @@ class SampleDetector :
 
         @JvmField
         var scale: Double = 0.5
+
+        @JvmField
+        var centerSize: Int = 7
     }
 
     override fun init(
@@ -144,7 +154,8 @@ class SampleDetector :
         val yellowData = contoursToData(yellowContours)
         val blueData = contoursToData(blueContours)
 
-        masked.setTo(Scalar.all(0.0))
+//        masked.setTo(Scalar.all(0.0))
+        frame.copyTo(masked)
         Core.bitwise_and(frame, frame, masked, redThres)
         Core.bitwise_and(frame, frame, masked, yellowThres)
         Core.bitwise_and(frame, frame, masked, blueThres)
@@ -156,6 +167,16 @@ class SampleDetector :
         redSamples.set(dataToSamples(redData, SampleColor.RED))
         yellowSamples.set(dataToSamples(yellowData, SampleColor.YELLOW))
         blueSamples.set(dataToSamples(blueData, SampleColor.BLUE))
+
+        (redSamples.get() + yellowSamples.get() + blueSamples.get()).forEach {
+            Imgproc.circle(
+                masked,
+                Point(it.pos.x + frame.width() / 2, -it.pos.y + frame.height() / 2),
+                centerSize,
+                Scalar(255.0, 0.0, 255.0),
+                -1,
+            )
+        }
 
         val contoursBitmap = Bitmap.createBitmap(masked.width(), masked.height(), Bitmap.Config.RGB_565)
         Utils.matToBitmap(masked, contoursBitmap)

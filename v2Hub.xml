@@ -3,12 +3,12 @@
     <Webcam name="Webcam 1" serialNumber="012E8CDF"/>
     <!--    <Webcam name="Webcam 2" serialNumber="VendorProduct:vendor=0x32e4|product=0x9230|connection="/>-->
     <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
-        <ServoHub name="Servo Hub 3" port="3">
-            <Servo name="outtakeWrist" port="1"/>
-            <Servo name="outtakeArmLeft" port="2"/>
-            <Servo name="outtakeArmRight" port="3"/>
-            <Servo name="outtakeClaw" port="4"/>
-        </ServoHub>
+        <!--        <ServoHub name="Servo Hub 3" port="3">-->
+        <!--            <Servo name="outtakeWrist" port="1"/>-->
+        <!--            <Servo name="outtakeArmLeft" port="2"/>-->
+        <!--            <Servo name="outtakeArmRight" port="3"/>-->
+        <!--            <Servo name="outtakeClaw" port="4"/>-->
+        <!--        </ServoHub>-->
         <LynxModule name="Expansion Hub 3" port="2">
             <goBILDA5202SeriesMotor name="perp" port="0"/>
             <goBILDA5202SeriesMotor name="rightLift" port="1"/>
@@ -27,10 +27,10 @@
             <goBILDA5202SeriesMotor name="backLeft" port="2"/>
             <goBILDA5202SeriesMotor name="frontLeft" port="3"/>
             <Servo name="linkageLeft" port="0"/>
-            <Servo name="e" port="1"/>
-            <Servo name="d" port="2"/>
-            <Servo name="c" port="3"/>
-            <Servo name="b" port="4"/>
+            <Servo name="outtakeArmRight" port="1"/>
+            <Servo name="outtakeArmLeft" port="2"/>
+            <Servo name="outtakeClaw" port="3"/>
+            <Servo name="outtakeWrist" port="4"/>
             <Servo name="a" port="5"/>
             <LynxEmbeddedIMU name="imu" port="0" bus="0"/>
         </LynxModule>

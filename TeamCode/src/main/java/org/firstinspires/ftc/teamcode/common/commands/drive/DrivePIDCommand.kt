@@ -45,21 +45,21 @@ class DrivePIDCommand(
 
     companion object {
         @JvmField
-        var kP: Double = 0.125
+        var kP: Double = 0.25
 
         @JvmField
-        var kI: Double = 0.225
+        var kI: Double = 0.0
 
         @JvmField
-        var kD: Double = 0.0198
+        var kD: Double = 0.01
 
         //        var kPHeading: Double = 0.1
         @JvmField
-        var kPHeading: Double = 0.05
+        var kPHeading: Double = 0.075
 
         //        var kIHeading: Double = 0.225
         @JvmField
-        var kIHeading: Double = 0.1
+        var kIHeading: Double = 0.0
 
         @JvmField
         var kDHeading: Double = 0.00001

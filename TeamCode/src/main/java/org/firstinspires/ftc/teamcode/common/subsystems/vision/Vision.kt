@@ -25,11 +25,6 @@ open class Vision(
             BlankProcessor(),
         )
 
-    open val processors2 =
-        listOf<VisionProcessor>(
-            BlankProcessor(),
-        )
-
     val multiPortal = VisionPortal.makeMultiPortalView(2, VisionPortal.MultiPortalLayout.HORIZONTAL)
 
     val camera1: VisionPortal by lazy {
@@ -45,42 +40,21 @@ open class Vision(
             .build()
     }
 
-    val camera2: VisionPortal by lazy {
-        VisionPortal
-            .Builder()
-            .setCamera(robot.hardware["Webcam 2"] as WebcamName)
-            .addProcessors(*processors2.toTypedArray())
-            .setCameraResolution(Size(cameraSize.x.toInt(), cameraSize.y.toInt()))
-            .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-            .enableLiveView(true)
-            .setLiveViewContainerId(multiPortal[1])
-            .setAutoStopLiveView(true)
-            .build()
-    }
-
     override fun init() {
         camera1
-        camera2
     }
 
     companion object {
         @JvmField
-        var exposureTime1: Long = 10L
+        var exposureTime1: Long = 7L
 
         @JvmField
         var gain1: Int = 255
-
-        @JvmField
-        var exposureTime2: Long = 10L
-
-        @JvmField
-        var gain2: Int = 255
     }
 
     fun update() {
         println("vision periodic")
         println(camera1)
-        println(camera2)
         if (camera1.cameraState == VisionPortal.CameraState.STREAMING) {
             println("vision setting")
             val exposureController = camera1.getCameraControl(ExposureControl::class.java)
@@ -88,13 +62,6 @@ open class Vision(
             exposureController.mode = ExposureControl.Mode.Manual
             exposureController.setExposure(exposureTime1, TimeUnit.MILLISECONDS)
             gainController.gain = gain1
-        }
-        if (camera2.cameraState == VisionPortal.CameraState.STREAMING) {
-            println("vision setting")
-            val exposureController = camera2.getCameraControl(ExposureControl::class.java)
-            val gainController = camera2.getCameraControl(GainControl::class.java)
-            exposureController.setExposure(exposureTime2, TimeUnit.MILLISECONDS)
-            gainController.gain = gain2
         }
     }
 }
@@ -109,11 +76,5 @@ class SampleVision(
         listOf<VisionProcessor>(
             sampleDetector1,
 //            BlankProcessor(),
-        )
-
-    override val processors2 =
-        listOf(
-//            sampleDetector2,
-            BlankProcessor(),
         )
 }
