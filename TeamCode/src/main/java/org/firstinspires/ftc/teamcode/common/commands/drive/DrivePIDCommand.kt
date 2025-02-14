@@ -45,13 +45,13 @@ class DrivePIDCommand(
 
     companion object {
         @JvmField
-        var kP: Double = 0.25
+        var kP: Double = 0.15
 
         @JvmField
         var kI: Double = 0.0
 
         @JvmField
-        var kD: Double = 0.01
+        var kD: Double = 0.005
 
         //        var kPHeading: Double = 0.1
         @JvmField
@@ -74,6 +74,6 @@ class DrivePIDCommand(
         var usePowerSettling: Boolean = true
 
         @JvmField
-        var wheelThreshold: Double = 0.05
+        var wheelThreshold: Double = 0.15
     }
 }

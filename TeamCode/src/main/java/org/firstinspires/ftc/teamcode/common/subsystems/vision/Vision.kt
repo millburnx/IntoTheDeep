@@ -20,7 +20,7 @@ open class Vision(
 ) : Subsystem() {
     val cameraSize = Vec2d(640, 480)
 
-    open val processors1 =
+    open val processors =
         listOf<VisionProcessor>(
             BlankProcessor(),
         )
@@ -31,7 +31,7 @@ open class Vision(
         VisionPortal
             .Builder()
             .setCamera(robot.hardware["Webcam 1"] as WebcamName)
-            .addProcessors(*processors1.toTypedArray())
+            .addProcessors(*processors.toTypedArray())
             .setCameraResolution(Size(cameraSize.x.toInt(), cameraSize.y.toInt()))
             .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
             .enableLiveView(true)
@@ -69,12 +69,11 @@ open class Vision(
 class SampleVision(
     robot: Robot,
 ) : Vision(robot) {
-    val sampleDetector1 = SampleDetector()
-//    val sampleDetector2 = SampleDetector()
+    val sampleDetector = SampleDetector()
 
-    override val processors1 =
+    override val processors =
         listOf<VisionProcessor>(
-            sampleDetector1,
+            sampleDetector,
 //            BlankProcessor(),
         )
 }

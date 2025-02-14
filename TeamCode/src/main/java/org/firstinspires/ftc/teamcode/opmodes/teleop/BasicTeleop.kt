@@ -1,14 +1,19 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
+import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
+import com.arcrobotics.ftclib.command.WaitUntilCommand
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.Robot
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
+import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
@@ -18,13 +23,15 @@ import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.reset
-import org.firstinspires.ftc.teamcode.opmodes.tuning.CameraRobot
+import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
 
 @Config
 @TeleOp(name = "Basic Teleop")
 class BasicTeleop : OpMode() {
-    override val robot: Robot by lazy { CameraRobot(this) }
+    override val robot: SampleCameraRobot by lazy { SampleCameraRobot(this) }
+
+    var extensionTimer: ElapsedTime? = null
 
     val triggers by lazy {
         object {
@@ -32,70 +39,55 @@ class BasicTeleop : OpMode() {
                 EdgeDetector(
                     gamepad1::right_bumper,
                     this@BasicTeleop,
-                    ParallelCommandGroup(
-                        robot.intake.extend(),
-                        robot.intake.open(),
-                        robot.outtake.base(),
-                    ),
                     SequentialCommandGroup(
-                        robot.intake.grab(),
+                        InstantCommand({ robot.pidManager.isOn = false }),
                         ParallelCommandGroup(
-                            robot.intake.retract(),
-                            robot.outtake.open(),
+                            robot.intake.extend(),
+                            robot.intake.open(),
                             robot.outtake.base(),
+                            InstantCommand({
+                                extensionTimer = ElapsedTime()
+                            }),
                         ),
-                        robot.outtake.close(),
-                        WaitCommand(transferClawDelay),
-                        robot.intake.open(),
-                    ),
-                )
-            val barSideLinkagePickup =
-                EdgeDetector(
-                    gamepad1::square,
-                    this@BasicTeleop,
-                    ParallelCommandGroup(
-                        robot.intake.extend(),
-                        robot.intake.open(),
-                        robot.outtake.base(),
-                    ),
-                    SequentialCommandGroup(
-                        robot.intake.grab(),
-                        ParallelCommandGroup(
-                            robot.intake.barSideRetract(),
-                            robot.outtake.open(),
-                            robot.outtake.base(),
-                        ),
-                        WaitCommand(preTransferClawDelay),
-                        robot.outtake.close(),
-                        WaitCommand(transferClawDelay),
-                        robot.intake.open(),
-                    ),
-                )
-
-            val diffyRotate =
-                EdgeDetector(
-                    gamepad1::left_bumper,
-                ) {
-                    // prevent rotating while not picking up
-                    if (robot.intake.arm.state == IntakeArmPosition.BASE) return@EdgeDetector
-                    schedule(
-                        InstantCommand({
-                            when (robot.intake.diffy.roll) {
-                                Diffy.hoverRoll -> {
-                                    robot.intake.diffy.roll = Diffy.roll60
-                                }
-
-                                Diffy.roll60 -> {
-                                    robot.intake.diffy.roll = Diffy.roll120
-                                }
-
-                                else -> {
-                                    robot.intake.diffy.roll = Diffy.hoverRoll
-                                }
+                        WaitUntilCommand({ extensionTimer!!.milliseconds() > intakeDuration }),
+                        WaitCommand(250L),
+                        InstantCommand({ robot.autoPickup.scanning = true }),
+                        RunCommand({
+                            if (robot.autoPickup.lastTarget != null) {
+                                gamepad1.rumble(
+                                    (AutoPickup.cacheDuration - 200)
+                                        .coerceAtLeast(robot.deltaTime.deltaTime * 1000)
+                                        .toInt(),
+                                )
                             }
-                        }, robot.intake.diffy),
-                    )
-                }
+                        }, robot.intake),
+                    ),
+                    SequentialCommandGroup(
+                        InstantCommand({ robot.autoPickup.scanning = false }, robot.intake),
+                        ConditionalCommand(
+                            SequentialCommandGroup(
+                                robot.autoPickup.align().withTimeout(pickupTimeout),
+                                robot.intake.grab(),
+                                InstantCommand({ robot.pidManager.isOn = false }),
+                                ParallelCommandGroup(
+                                    robot.intake.retract(),
+                                    robot.outtake.open(),
+                                    robot.outtake.base(),
+                                ),
+                                robot.outtake.close(),
+                                WaitCommand(transferClawDelay),
+                                robot.intake.open(),
+                            ),
+                            SequentialCommandGroup(
+                                ParallelCommandGroup(
+                                    robot.intake.retract(),
+                                    robot.outtake.base(),
+                                ),
+                            ),
+                            { robot.autoPickup.lastTarget != null },
+                        ),
+                    ),
+                )
 
             val specimenPickup =
                 EdgeDetector(gamepad1::circle, {
@@ -287,12 +279,18 @@ class BasicTeleop : OpMode() {
     }
 
     override fun initialize() {
-//        super.initialize()
-//        schedule(InstantCommand({ super.initialize() }))
-        triggers // lazy loads all the triggers w/o having to make each lazy loaded
+        FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
+        triggers
     }
 
+    var hasInit = false
+
     override fun exec() {
+        if (!hasInit) {
+            super.initialize()
+            hasInit = true
+        }
+
         if (fieldCentric) {
             robot.drive.fieldCentric(
                 gamepad1.left_stick_y.toDouble(),
@@ -326,18 +324,16 @@ class BasicTeleop : OpMode() {
 
 //        robot.telemetryManager.send()
 
-        robot.telemetry.addData("Slides Target: ", robot.outtake.slides.target)
-        robot.telemetry.addData("Slides Position: ", robot.outtake.slides.leftLift.currentPosition)
-        robot.telemetry.addData("Linkage Target: ", robot.intake.linkage.target)
-        robot.telemetry.addData("Linkage Position:", robot.intake.linkage.leftServo.position)
+        robot.telemetry.addData("pid", robot.pidManager.isOn)
+        robot.telemetry.addData("pid target", robot.pidManager.target)
         robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
-        robot.telemetry.addData("Intake Claw Open:", robot.intake.claw.isOpen)
-        robot.telemetry.addData("Outtake Claw Open:", robot.outtake.claw.isOpen)
-        robot.telemetry.addData("heading:", robot.imu.robotYawPitchRollAngles.yaw)
         robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
     }
 
     companion object {
+        @JvmField
+        var isRed: Boolean = false
+
         @JvmField
         var slideThreshold: Double = 0.1
 
@@ -348,7 +344,7 @@ class BasicTeleop : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var preTransferClawDelay: Long = 500
+        var pickupTimeout: Long = 500
 
         @JvmField
         var transferClawDelay: Long = 200
@@ -360,7 +356,7 @@ class BasicTeleop : OpMode() {
         var intakeDuration: Long = 1000
 
         @JvmField
-        var fieldCentric: Boolean = false
+        var fieldCentric: Boolean = true
 
         @JvmField
         var outtakeDropArmDelay: Long = 250

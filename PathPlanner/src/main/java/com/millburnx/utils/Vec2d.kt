@@ -141,6 +141,8 @@ data class Vec2d(
     companion object {
         fun fromRR(point: Vec2d): Vec2d = Vec2d(-point.y, point.x)
 
+        fun fromAngle(radians: Double) = Vec2d(cos(radians), sin(radians))
+
         /**
          * Saves a list of points to a tsv file
          */

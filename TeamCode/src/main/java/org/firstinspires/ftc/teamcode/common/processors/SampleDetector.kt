@@ -95,9 +95,9 @@ class SampleDetector :
 
     val allSamples
         get() = redSamples.get() + yellowSamples.get() + blueSamples.get()
-    val redSamples: AtomicReference<List<IDetection>> = AtomicReference(emptyList())
-    val yellowSamples: AtomicReference<List<IDetection>> = AtomicReference(emptyList())
-    val blueSamples: AtomicReference<List<IDetection>> = AtomicReference(emptyList())
+    val redSamples: AtomicReference<List<SampleDetection>> = AtomicReference(emptyList())
+    val yellowSamples: AtomicReference<List<SampleDetection>> = AtomicReference(emptyList())
+    val blueSamples: AtomicReference<List<SampleDetection>> = AtomicReference(emptyList())
 
     val masked = Mat()
     val frame = Mat()

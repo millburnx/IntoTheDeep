@@ -9,6 +9,8 @@ import com.arcrobotics.ftclib.command.WaitCommand
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.processors.SampleColor
+import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDManager
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
@@ -18,6 +20,7 @@ import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakeDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.isRed
 import org.firstinspires.ftc.teamcode.opmodes.tuning.DiffyTuner.Companion.roll
 import kotlin.math.cos
 import kotlin.math.sin
@@ -39,7 +42,8 @@ open class SampleCameraRobot(
 ) : Robot(opMode) {
     open val camera by lazy { SampleVision(this) }
     val pidManager: PIDManager = PIDManager(this)
-    override val additionalSubsystems = listOf(camera, pidManager)
+    val autoPickup = AutoPickup(this, listOf(SampleColor.YELLOW, if (isRed) SampleColor.RED else SampleColor.BLUE))
+    override val additionalSubsystems = listOf(camera, pidManager, autoPickup)
 
     override fun init() {
         imu.resetYaw()
@@ -114,7 +118,7 @@ class SampleDectectionTuner : OpMode() {
                 EdgeDetector(
                     gamepad1::triangle,
                 ) {
-                    FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector1, 0.0)
+                    FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
                     robot.camera.update()
                 }
 
@@ -144,7 +148,7 @@ class SampleDectectionTuner : OpMode() {
 
     override fun initialize() {
         super.initialize()
-        FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector1, 0.0)
+        FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
     }
 
     override fun exec() {
@@ -152,19 +156,19 @@ class SampleDectectionTuner : OpMode() {
 
         robot.telemetry.addData(
             "samples red 1",
-            robot.camera.sampleDetector1.redSamples
+            robot.camera.sampleDetector.redSamples
                 .get()
                 .size,
         )
         robot.telemetry.addData(
             "samples yellow 1",
-            robot.camera.sampleDetector1.yellowSamples
+            robot.camera.sampleDetector.yellowSamples
                 .get()
                 .size,
         )
         robot.telemetry.addData(
             "samples blue 1",
-            robot.camera.sampleDetector1.blueSamples
+            robot.camera.sampleDetector.blueSamples
                 .get()
                 .size,
         )
@@ -174,7 +178,7 @@ class SampleDectectionTuner : OpMode() {
 
         robot.telemetry.addData("claw", robot.intake.claw.isOpen)
 
-        val allSamples1 = robot.camera.sampleDetector1.allSamples
+        val allSamples1 = robot.camera.sampleDetector.allSamples
         val centered = allSamples1.minByOrNull { it.pos.distanceTo(Vec2d()) }
         robot.telemetry.addData("centered", centered.toString())
         robot.telemetry.addData("targetPose", targetPose.toString())
