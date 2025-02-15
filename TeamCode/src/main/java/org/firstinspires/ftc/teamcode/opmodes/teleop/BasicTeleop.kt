@@ -8,7 +8,6 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
-import com.arcrobotics.ftclib.command.WaitUntilCommand
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
@@ -45,11 +44,11 @@ class BasicTeleop : OpMode() {
                             robot.intake.extend(),
                             robot.intake.open(),
                             robot.outtake.base(),
-                            InstantCommand({
-                                extensionTimer = ElapsedTime()
-                            }),
+//                            InstantCommand({
+//                                extensionTimer = ElapsedTime()
+//                            }),
                         ),
-                        WaitUntilCommand({ extensionTimer!!.milliseconds() > intakeDuration }),
+//                        WaitUntilCommand({ extensionTimer!!.milliseconds() > intakeDuration }),
                         WaitCommand(250L),
                         InstantCommand({ robot.autoPickup.scanning = true }),
                         RunCommand({
@@ -63,10 +62,10 @@ class BasicTeleop : OpMode() {
                         }, robot.intake),
                     ),
                     SequentialCommandGroup(
-                        InstantCommand({ robot.autoPickup.scanning = false }, robot.intake),
+                        InstantCommand({ robot.autoPickup.scanning = false }),
                         ConditionalCommand(
                             SequentialCommandGroup(
-                                robot.autoPickup.align().withTimeout(pickupTimeout),
+                                robot.autoPickup.align(),
                                 robot.intake.grab(),
                                 InstantCommand({ robot.pidManager.isOn = false }),
                                 ParallelCommandGroup(
@@ -78,12 +77,13 @@ class BasicTeleop : OpMode() {
                                 WaitCommand(transferClawDelay),
                                 robot.intake.open(),
                             ),
-                            SequentialCommandGroup(
-                                ParallelCommandGroup(
-                                    robot.intake.retract(),
-                                    robot.outtake.base(),
-                                ),
-                            ),
+//                            SequentialCommandGroup(
+//                                ParallelCommandGroup(
+//                                    robot.intake.retract(),
+//                                    robot.outtake.base(),
+//                                ),
+//                            ),
+                            robot.intake.retract(),
                             { robot.autoPickup.lastTarget != null },
                         ),
                     ),
@@ -344,7 +344,7 @@ class BasicTeleop : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var pickupTimeout: Long = 500
+        var pickupTimeout: Long = 750
 
         @JvmField
         var transferClawDelay: Long = 200

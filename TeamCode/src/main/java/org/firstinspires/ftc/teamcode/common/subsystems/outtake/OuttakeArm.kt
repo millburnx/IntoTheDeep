@@ -51,7 +51,7 @@ class OuttakeArm(
         var basketPosition = 0.65
 
         @JvmField
-        var specimenPosition = 0.5
+        var specimenPosition = 0.55
 
         @JvmField
         var extendedPosition = 0.89

@@ -28,10 +28,10 @@ class Linkage(
 
     companion object {
         @JvmField
-        var base = 0.39
+        var base = 0.56
 
         @JvmField
-        var full = 0.74
+        var full = 0.86
 
         @JvmField
         var enabled: Boolean = true

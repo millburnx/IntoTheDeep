@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
+import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
@@ -39,7 +40,7 @@ class AutoPickup(
             val samples = robot.camera.sampleDetector.allSamples
             val filteredSamples = samples.filter { colors.contains(it.color) }
             if (filteredSamples.isNotEmpty()) {
-                val target = samples.minBy { it.pos.distanceTo(Vec2d()) }
+                val target = filteredSamples.minBy { it.pos.distanceTo(Vec2d()) }
 
                 println(target)
 
@@ -74,7 +75,11 @@ class AutoPickup(
                     robot.intake.diffy.roll = target.second
                 }
             }),
-            WaitUntilCommand(robot.pidManager::atTarget),
+            ConditionalCommand(
+                WaitUntilCommand(robot.pidManager::atTarget),
+                InstantCommand({}),
+                { robot.pidManager.isOn },
+            ),
             WaitCommand(250L),
         )
 
