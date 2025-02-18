@@ -103,8 +103,8 @@ class BasicTeleop : OpMode() {
                             }, robot.intake),
                             WaitCommand(specimenDelay),
                             InstantCommand({
-                                robot.outtake.arm.state = OuttakeArmPosition.OUT
-                                robot.outtake.wrist.state = OuttakeWristPosition.OUT
+                                robot.outtake.arm.state = OuttakeArmPosition.PICKUP
+                                robot.outtake.wrist.state = OuttakeWristPosition.PICKUP
                             }, robot.outtake),
                         ),
                     )

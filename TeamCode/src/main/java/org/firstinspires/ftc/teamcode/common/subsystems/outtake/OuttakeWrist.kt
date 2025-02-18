@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
@@ -10,7 +11,7 @@ enum class OuttakeWristPosition {
     BASE,
     SPECIMEN,
     BASKET,
-    OUT,
+    PICKUP,
     HUMAN,
 }
 
@@ -31,11 +32,21 @@ class OuttakeWrist(
                 OuttakeWristPosition.BASE -> basePosition
                 OuttakeWristPosition.SPECIMEN -> specimenPosition
                 OuttakeWristPosition.BASKET -> basketPosition
-                OuttakeWristPosition.OUT -> extendedPosition
+                OuttakeWristPosition.PICKUP -> pickupPosition
                 OuttakeWristPosition.HUMAN -> humanPosition
             }
         servo.position = target
     }
+
+    fun base() = InstantCommand({ state = OuttakeWristPosition.BASE })
+
+    fun specimen() = InstantCommand({ state = OuttakeWristPosition.SPECIMEN })
+
+    fun basket() = InstantCommand({ state = OuttakeWristPosition.BASKET })
+
+    fun pickup() = InstantCommand({ state = OuttakeWristPosition.PICKUP })
+
+    fun human() = InstantCommand({ state = OuttakeWristPosition.HUMAN })
 
     companion object {
         @JvmField
@@ -48,7 +59,7 @@ class OuttakeWrist(
         var specimenPosition = basketPosition
 
         @JvmField
-        var extendedPosition = 0.5
+        var pickupPosition = 0.5
 
         @JvmField
         var humanPosition = 0.5

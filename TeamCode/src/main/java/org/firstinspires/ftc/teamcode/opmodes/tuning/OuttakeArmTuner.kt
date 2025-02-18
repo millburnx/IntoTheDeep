@@ -8,7 +8,9 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPositi
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class OuttakeArmOnly(opmode: OpMode) : Robot(opmode) {
+class OuttakeArmOnly(
+    opmode: OpMode,
+) : Robot(opmode) {
     val outtakeArm: OuttakeArm by lazy { OuttakeArm(this) }
     override val subsystems: List<Subsystem> by lazy { listOf(outtakeArm) }
 }
@@ -26,7 +28,7 @@ class OuttakeArmTuner : OpMode() {
         } else if (state == 2) {
             robot.outtakeArm.state = OuttakeArmPosition.BASKET
         } else if (state == 3) {
-            robot.outtakeArm.state = OuttakeArmPosition.OUT
+            robot.outtakeArm.state = OuttakeArmPosition.PICKUP
         }
     }
 

@@ -8,9 +8,10 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakeDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakePickupArmDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakePickupClawDelay
-import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.sweepDuration
 
-class Intake(val robot: Robot) : Subsystem() {
+class Intake(
+    val robot: Robot,
+) : Subsystem() {
     val linkage: Linkage = Linkage(robot)
     val arm: IntakeArm = IntakeArm(robot)
     val diffy: Diffy = Diffy(robot)
@@ -22,16 +23,21 @@ class Intake(val robot: Robot) : Subsystem() {
     }
 
     fun extend() = ExtendCommand(this)
-    fun sweepExtend() = SweepExtendCommand(this)
+
     fun retract() = RetractCommand(this)
+
     fun barSideRetract() = BarSideRetractCommand(this)
+
     fun grab() = GrabCommand(this)
 
     fun open() = InstantCommand(claw::open, claw)
+
     fun close() = InstantCommand(claw::close, claw)
 }
 
-class ExtendCommand(intake: Intake) : SequentialCommandGroup() {
+class ExtendCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({
@@ -45,22 +51,9 @@ class ExtendCommand(intake: Intake) : SequentialCommandGroup() {
     }
 }
 
-class SweepExtendCommand(intake: Intake) : SequentialCommandGroup() {
-    init {
-        addCommands(
-            InstantCommand({
-                intake.linkage.target = 1.0
-                intake.arm.state = IntakeArmPosition.SWEEP
-                intake.diffy.pitch = Diffy.sweepPitch
-                intake.diffy.roll = Diffy.sweepRoll
-            }, intake.linkage, intake.arm, intake.diffy),
-            WaitCommand(sweepDuration)
-        )
-        addRequirements(intake.linkage, intake.arm, intake.diffy)
-    }
-}
-
-class RetractCommand(intake: Intake) : SequentialCommandGroup() {
+class RetractCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({
@@ -75,7 +68,9 @@ class RetractCommand(intake: Intake) : SequentialCommandGroup() {
     }
 }
 
-class BarSideRetractCommand(intake: Intake) : SequentialCommandGroup() {
+class BarSideRetractCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({
@@ -93,7 +88,9 @@ class BarSideRetractCommand(intake: Intake) : SequentialCommandGroup() {
     }
 }
 
-class GrabCommand(intake: Intake) : SequentialCommandGroup() {
+class GrabCommand(
+    intake: Intake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             InstantCommand({

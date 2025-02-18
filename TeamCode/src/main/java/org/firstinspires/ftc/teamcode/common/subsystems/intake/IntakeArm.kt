@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
@@ -11,7 +12,6 @@ enum class IntakeArmPosition {
     EXTENDED,
     FLOOR,
     SPECIMEN,
-    SWEEP,
 }
 
 @Config
@@ -33,11 +33,18 @@ class IntakeArm(
                 IntakeArmPosition.EXTENDED -> extendedPosition
                 IntakeArmPosition.FLOOR -> floorPosition
                 IntakeArmPosition.SPECIMEN -> specimenPosition
-                IntakeArmPosition.SWEEP -> sweepPosition
             }
         leftServo.position = target
         rightServo.position = target
     }
+
+    fun base() = InstantCommand({ state = IntakeArmPosition.BASE })
+
+    fun extended() = InstantCommand({ state = IntakeArmPosition.EXTENDED })
+
+    fun floor() = InstantCommand({ state = IntakeArmPosition.FLOOR })
+
+    fun specimen() = InstantCommand({ state = IntakeArmPosition.SPECIMEN })
 
     companion object {
         @JvmField
@@ -51,8 +58,5 @@ class IntakeArm(
 
         @JvmField
         var specimenPosition = 0.23
-
-        @JvmField
-        var sweepPosition = 0.84
     }
 }

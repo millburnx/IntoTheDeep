@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.ServoLimiter
@@ -10,8 +11,9 @@ import org.firstinspires.ftc.teamcode.common.utils.init
 enum class OuttakeArmPosition {
     BASE,
     SPECIMEN,
+    SPECIMEN_SCORING,
     BASKET,
-    OUT,
+    PICKUP,
     HUMAN,
 }
 
@@ -33,8 +35,9 @@ class OuttakeArm(
             when (state) {
                 OuttakeArmPosition.BASE -> basePosition
                 OuttakeArmPosition.SPECIMEN -> specimenPosition
+                OuttakeArmPosition.SPECIMEN_SCORING -> specimenScoringPosition
                 OuttakeArmPosition.BASKET -> basketPosition
-                OuttakeArmPosition.OUT -> extendedPosition
+                OuttakeArmPosition.PICKUP -> pickupPosition
                 OuttakeArmPosition.HUMAN -> humanPosition
             }
         servoLimiter.maxSpeed = maxSpeed
@@ -42,6 +45,18 @@ class OuttakeArm(
         leftServo.position = servoLimiter.current
         rightServo.position = servoLimiter.current
     }
+
+    fun base() = InstantCommand({ state = OuttakeArmPosition.BASE })
+
+    fun specimen() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN })
+
+    fun specimenScoring() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN_SCORING })
+
+    fun basket() = InstantCommand({ state = OuttakeArmPosition.BASKET })
+
+    fun pickup() = InstantCommand({ state = OuttakeArmPosition.PICKUP })
+
+    fun human() = InstantCommand({ state = OuttakeArmPosition.HUMAN })
 
     companion object {
         @JvmField
@@ -54,7 +69,10 @@ class OuttakeArm(
         var specimenPosition = 0.55
 
         @JvmField
-        var extendedPosition = 0.89
+        var specimenScoringPosition = 0.77
+
+        @JvmField
+        var pickupPosition = 0.89
 
         @JvmField
         var humanPosition = 0.65

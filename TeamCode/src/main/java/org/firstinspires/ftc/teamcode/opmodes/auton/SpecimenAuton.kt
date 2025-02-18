@@ -26,7 +26,9 @@ import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.outta
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.specScoreDelay
 import java.io.File
 
-class AutonRobot(opMode: OpMode) : Robot(opMode) {
+class AutonRobot(
+    opMode: OpMode,
+) : Robot(opMode) {
     val pidManager = PIDManager(this)
     override val additionalSubsystems = listOf(pidManager)
 
@@ -70,8 +72,8 @@ class SpecimenAuton : OpMode() {
                 SlidesCommand(robot.outtake.slides, Slides.highRung),
                 robot.outtake.open(),
                 ParallelCommandGroup(
-                    robot.outtake.base()
-                )
+                    robot.outtake.base(),
+                ),
             )
         }
 
@@ -81,10 +83,10 @@ class SpecimenAuton : OpMode() {
                 ParallelCommandGroup(
                     WaitCommand(humanPlayer),
                     InstantCommand({
-                        robot.outtake.arm.state = OuttakeArmPosition.OUT
-                        robot.outtake.wrist.state = OuttakeWristPosition.OUT
+                        robot.outtake.arm.state = OuttakeArmPosition.PICKUP
+                        robot.outtake.wrist.state = OuttakeWristPosition.PICKUP
                     }, robot.outtake),
-                    robot.outtake.open()
+                    robot.outtake.open(),
                 ),
                 RelativeDrive(robot.drive, robot.pidManager, Pose2d(0.5, 0.0, 0.0)).withTimeout(pickupDuration),
                 SequentialCommandGroup(
@@ -97,8 +99,8 @@ class SpecimenAuton : OpMode() {
                             robot.outtake.wrist.state = OuttakeWristPosition.BASKET
                         }, robot.outtake),
                         PIDCommand(robot, Pose2d(pickupX, pickupY, 180.0)),
-                    )
-                )
+                    ),
+                ),
             )
         }
 
@@ -119,10 +121,9 @@ class SpecimenAuton : OpMode() {
                     PIDCommand(robot, Pose2d(parkX, parkY, parkH)),
                     SequentialCommandGroup(
                         WaitCommand(parkExtendDelay),
-                        robot.intake.sweepExtend()
-                    )
-                )
-            )
+                    ),
+                ),
+            ),
         )
         schedule(SequentialCommandGroup(*commands.toTypedArray()))
     }
@@ -136,9 +137,7 @@ class SpecimenAuton : OpMode() {
         return points
     }
 
-    fun pointToPath(points: List<Pose2d>): List<PIDCommand> {
-        return points.map { PIDCommand(robot, it) }
-    }
+    fun pointToPath(points: List<Pose2d>): List<PIDCommand> = points.map { PIDCommand(robot, it) }
 
     override fun exec() {
     }

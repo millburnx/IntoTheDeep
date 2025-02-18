@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
@@ -30,18 +31,35 @@ class Diffy(
         rightServo.position = rightPosition
     }
 
+    fun transfer() =
+        InstantCommand({
+            pitch = transferPitch
+            roll = transferRoll
+        })
+
+    fun specimen() =
+        InstantCommand({
+            pitch = specimenPitch
+            roll = specimenRoll
+        })
+
+    fun hover() =
+        InstantCommand({
+            pitch = hoverPitch
+            roll = hoverRoll
+        })
+
+    fun pickup() =
+        InstantCommand({
+            pitch = pickupPitch
+        })
+
     companion object {
         @JvmField
         var transferPitch = 0.8
 
         @JvmField
         var transferRoll = 1.0
-
-        @JvmField
-        var sweepPitch = 0.66
-
-        @JvmField
-        var sweepRoll = 1.0
 
         @JvmField
         var specimenPitch = 0.25

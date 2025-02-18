@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.command.WaitUntilCommand
@@ -65,26 +66,54 @@ class AutoPickup(
         }
     }
 
+    fun startScanning() = InstantCommand({ scanning = true })
+
+    fun stopScanning() = InstantCommand({ scanning = false })
+
+    fun rumble() {
+        robot.opMode.gamepad1.rumble(
+            (cacheDuration - 200)
+                .coerceAtLeast(robot.deltaTime.deltaTime * 1000)
+                .toInt(),
+        )
+    }
+
+    val rumbleForever = RunCommand(this::rumble)
+
+    fun cancelRumble() = InstantCommand({ if (rumbleForever.isScheduled) rumbleForever.cancel() })
+
     fun align(): CommandBase =
-        SequentialCommandGroup(
-            InstantCommand({
-                val target = lastTarget
-                if (target != null) {
+        ConditionalCommand(
+            SequentialCommandGroup(
+                InstantCommand({
+                    val target = lastTarget!!
                     robot.pidManager.isOn = true
                     robot.pidManager.target = target.first
                     robot.intake.diffy.roll = target.second
-                }
-            }),
-            ConditionalCommand(
+                }),
                 WaitUntilCommand(robot.pidManager::atTarget),
-                InstantCommand({}),
-                { robot.pidManager.isOn },
+                WaitCommand(pidStablizationDuration),
             ),
-            WaitCommand(250L),
+            InstantCommand({}),
+            { lastTarget != null },
         )
+
+    fun stop() =
+        InstantCommand({
+            robot.pidManager.isOn = false
+        })
 
     companion object {
         @JvmField
         var cacheDuration: Double = 500.0
+
+        @JvmField
+        var cameraStablizationDuration: Long = 250
+
+        @JvmField
+        var pidStablizationDuration: Long = 250
+
+        @JvmField
+        var alignmentTimeout: Long = 1000
     }
 }
