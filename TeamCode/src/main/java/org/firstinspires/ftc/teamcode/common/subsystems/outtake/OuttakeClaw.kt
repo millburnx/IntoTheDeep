@@ -32,9 +32,9 @@ class OuttakeClaw(
 
     companion object {
         @JvmField
-        var open: Double = 0.7
+        var open: Double = 0.65
 
         @JvmField
-        var closed: Double = 0.46
+        var closed: Double = 0.41
     }
 }

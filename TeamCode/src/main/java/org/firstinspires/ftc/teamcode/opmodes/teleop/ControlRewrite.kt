@@ -31,6 +31,18 @@ class ControlRewrite : OpMode() {
                     robot.gp1::right_bumper,
                     this@ControlRewrite,
                     SequentialCommandGroup(
+                        robot.autoPickup.stop(),
+                        ConditionalCommand(
+                            SequentialCommandGroup(
+                                ParallelCommandGroup(
+                                    robot.outtake.arm.base(),
+                                    robot.outtake.wrist.base(),
+                                ),
+                                WaitCommand(outtakeLiftingDuration),
+                            ),
+                            InstantCommand({}),
+                            { robot.intake.arm.state == IntakeArmPosition.SPECIMEN },
+                        ),
                         robot.intake.open(),
                         robot.intake.extend(),
                         WaitCommand(AutoPickup.cameraStablizationDuration),
@@ -42,22 +54,29 @@ class ControlRewrite : OpMode() {
                             robot.autoPickup.cancelRumble(),
                             robot.autoPickup.stopScanning(),
                         ),
-                        robot.autoPickup.align().withTimeout(AutoPickup.alignmentTimeout),
-                        robot.intake.grab(),
-                        robot.autoPickup.stop(),
-                        // transfer
-                        ParallelCommandGroup(
+                        ConditionalCommand(
+                            SequentialCommandGroup(
+                                robot.autoPickup.align(),
+                                // .withTimeout(AutoPickup.alignmentTimeout)
+                                robot.intake.grab(),
+                                robot.autoPickup.stop(),
+                                // transfer
+                                ParallelCommandGroup(
+                                    robot.intake.retract(),
+                                    robot.outtake.open(),
+                                    robot.outtake.base(),
+                                ),
+                                robot.outtake.close(),
+                                WaitCommand(transferClawDelay),
+                                robot.intake.open(),
+                                WaitCommand(outtakeFlipDelay),
+                                ParallelCommandGroup(
+                                    robot.outtake.arm.basket(),
+                                    robot.outtake.wrist.basket(),
+                                ),
+                            ),
                             robot.intake.retract(),
-                            robot.outtake.open(),
-                            robot.outtake.base(),
-                        ),
-                        robot.outtake.close(),
-                        WaitCommand(transferClawDelay),
-                        robot.intake.open(),
-                        WaitCommand(outtakeFlipDelay),
-                        ParallelCommandGroup(
-                            robot.outtake.arm.basket(),
-                            robot.outtake.wrist.basket(),
+                            { robot.autoPickup.lastTarget != null },
                         ),
                     ),
                 )
@@ -111,6 +130,7 @@ class ControlRewrite : OpMode() {
                     ),
                     SequentialCommandGroup(
                         robot.outtake.close(),
+                        WaitCommand(specimenCloseDuration),
                         SlidesCommand(robot.outtake.slides, Slides.wall),
                         ParallelCommandGroup(
                             robot.outtake.arm.specimen(),
@@ -170,7 +190,7 @@ class ControlRewrite : OpMode() {
                                 robot.outtake.arm.pickup(),
                                 robot.outtake.wrist.pickup(),
                             ),
-                            robot.outtake.base(),
+                            SlidesCommand(robot.outtake.slides, Slides.min),
                         ),
                         { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ),
@@ -191,19 +211,21 @@ class ControlRewrite : OpMode() {
             hasInit = true
         }
 
-        if (fieldCentric) {
-            robot.drive.fieldCentric(
-                gamepad1.left_stick_y.toDouble(),
-                -gamepad1.left_stick_x.toDouble(),
-                -gamepad1.right_stick_x.toDouble(),
-                Math.toRadians(-robot.imu.robotYawPitchRollAngles.yaw),
-            )
-        } else {
-            robot.drive.robotCentric(
-                gamepad1.left_stick_y.toDouble(),
-                -gamepad1.left_stick_x.toDouble(),
-                -gamepad1.right_stick_x.toDouble(),
-            )
+        if (!robot.pidManager.isOn) {
+            if (fieldCentric) {
+                robot.drive.fieldCentric(
+                    gamepad1.left_stick_y.toDouble(),
+                    -gamepad1.left_stick_x.toDouble(),
+                    -gamepad1.right_stick_x.toDouble(),
+                    Math.toRadians(-robot.imu.robotYawPitchRollAngles.yaw),
+                )
+            } else {
+                robot.drive.robotCentric(
+                    gamepad1.left_stick_y.toDouble(),
+                    -gamepad1.left_stick_x.toDouble(),
+                    -gamepad1.right_stick_x.toDouble(),
+                )
+            }
         }
 
         // Slides
@@ -226,6 +248,7 @@ class ControlRewrite : OpMode() {
         robot.telemetry.addData("pid target", robot.pidManager.target)
         robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
         robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
+        robot.telemetry.addData("slides", robot.outtake.slides.position)
     }
 
     companion object {
@@ -233,7 +256,7 @@ class ControlRewrite : OpMode() {
         var slideThreshold: Double = 0.1
 
         @JvmField
-        var fieldCentric: Boolean = true
+        var fieldCentric: Boolean = false
 
         // delays
 
@@ -245,5 +268,11 @@ class ControlRewrite : OpMode() {
 
         @JvmField
         var intakeLoweringDuration: Long = 750
+
+        @JvmField
+        var outtakeLiftingDuration: Long = 500
+
+        @JvmField
+        var specimenCloseDuration: Long = 500
     }
 }

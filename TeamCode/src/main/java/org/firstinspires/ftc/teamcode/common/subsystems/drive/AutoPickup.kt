@@ -71,6 +71,7 @@ class AutoPickup(
     fun stopScanning() = InstantCommand({ scanning = false })
 
     fun rumble() {
+        if (lastTarget == null) return
         robot.opMode.gamepad1.rumble(
             (cacheDuration - 200)
                 .coerceAtLeast(robot.deltaTime.deltaTime * 1000)
