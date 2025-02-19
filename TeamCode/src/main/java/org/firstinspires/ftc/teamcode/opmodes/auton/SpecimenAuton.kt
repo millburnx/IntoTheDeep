@@ -93,10 +93,10 @@ class SpecimenAuton : OpMode() {
         var sample1X = -48.0
 
         @JvmField
-        var sample1Y = -36.0
+        var sample1Y = -48.0
 
         @JvmField
-        var sample2X = -48.0
+        var sample2X = -60.0
 
         @JvmField
         var sample2Y = -42.0
