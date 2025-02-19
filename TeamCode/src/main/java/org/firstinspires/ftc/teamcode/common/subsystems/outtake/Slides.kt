@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
 import kotlin.math.abs
@@ -16,7 +20,10 @@ class Slides(
     val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init() }
     val pid = PIDController(kP, kI, kD)
     val position
-        get() = leftLift.currentPosition.toDouble()
+        get() = leftLift.currentPosition.toDouble() + encoderOffset
+
+    var encoderOffset: Double = 0.0
+
     var target: Double = min
         set(value) {
             field = value.coerceIn(min, max)
@@ -31,6 +38,28 @@ class Slides(
         }
 
     var manualPower = 0.0
+
+    fun disableManual() = InstantCommand({ isManual = true })
+
+    fun enableManual() = InstantCommand({ isManual = true })
+
+    fun manualPower(power: Double) = InstantCommand({ manualPower = power })
+
+    fun reset() =
+        SequentialCommandGroup(
+            SlidesCommand(this, min),
+            manualPower(rezeroPower),
+            enableManual(),
+            WaitCommand(rezeroDuration),
+            rezeroCmd(),
+            disableManual(),
+        )
+
+    fun rezeroCmd() = InstantCommand(this::rezero)
+
+    fun rezero() {
+        encoderOffset -= position
+    }
 
     override fun periodic() {
         if (isManual) {
@@ -86,5 +115,11 @@ class Slides(
 
         @JvmField
         var highBasket: Double = 2150.0
+
+        @JvmField
+        var rezeroPower: Double = -0.5
+
+        @JvmField
+        var rezeroDuration: Long = 250
     }
 }

@@ -191,6 +191,7 @@ class ControlRewrite : OpMode() {
                                 robot.outtake.wrist.pickup(),
                             ),
                             SlidesCommand(robot.outtake.slides, Slides.min),
+                            robot.outtake.slides.reset(),
                         ),
                         { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ),
