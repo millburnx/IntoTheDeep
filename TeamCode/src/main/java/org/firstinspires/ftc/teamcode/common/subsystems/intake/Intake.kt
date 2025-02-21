@@ -46,6 +46,7 @@ class ExtendCommand(
                 intake.diffy.pitch = Diffy.hoverPitch
                 intake.diffy.roll = Diffy.hoverRoll
             }, intake.linkage, intake.arm, intake.diffy),
+            WaitCommand(intakeDuration),
         )
         addRequirements(intake.linkage, intake.arm, intake.diffy)
     }

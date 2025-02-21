@@ -62,6 +62,6 @@ class OuttakeWrist(
         var pickupPosition = 0.5
 
         @JvmField
-        var humanPosition = 0.5
+        var humanPosition = 0.7
     }
 }

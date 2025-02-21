@@ -26,9 +26,13 @@ class OuttakeArmTuner : OpMode() {
         } else if (state == 1) {
             robot.outtakeArm.state = OuttakeArmPosition.SPECIMEN
         } else if (state == 2) {
-            robot.outtakeArm.state = OuttakeArmPosition.BASKET
+            robot.outtakeArm.state = OuttakeArmPosition.SPECIMEN_SCORING
         } else if (state == 3) {
+            robot.outtakeArm.state = OuttakeArmPosition.BASKET
+        } else if (state == 4) {
             robot.outtakeArm.state = OuttakeArmPosition.PICKUP
+        } else if (state == 5) {
+            robot.outtakeArm.state = OuttakeArmPosition.HUMAN
         }
     }
 

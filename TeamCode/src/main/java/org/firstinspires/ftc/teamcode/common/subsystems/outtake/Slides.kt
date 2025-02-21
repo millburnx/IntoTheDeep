@@ -33,26 +33,31 @@ class Slides(
         set(value) {
             if (field && !value) {
                 target = position
+                isDirect = false // interrupts
             }
             field = value
         }
 
+    var isDirect = false
+
     var manualPower = 0.0
 
-    fun disableManual() = InstantCommand({ isManual = true })
+    var directPower = 0.0
 
-    fun enableManual() = InstantCommand({ isManual = true })
+    fun disableDirect() = InstantCommand({ isDirect = true })
 
-    fun manualPower(power: Double) = InstantCommand({ manualPower = power })
+    fun enableDirect() = InstantCommand({ isDirect = true })
+
+    fun directPower(power: Double) = InstantCommand({ directPower = power })
 
     fun reset() =
         SequentialCommandGroup(
             SlidesCommand(this, min),
-            manualPower(rezeroPower),
-            enableManual(),
+            directPower(rezeroPower),
+            enableDirect(),
             WaitCommand(rezeroDuration),
             rezeroCmd(),
-            disableManual(),
+            disableDirect(),
         )
 
     fun rezeroCmd() = InstantCommand(this::rezero)
@@ -65,6 +70,11 @@ class Slides(
         if (isManual) {
             leftLift.power = manualPower
             rightLift.power = manualPower
+            return
+        }
+        if (isDirect) {
+            leftLift.power = directPower
+            rightLift.power = directPower
             return
         }
 
@@ -108,7 +118,7 @@ class Slides(
         var highRung: Double = 1275.0
 
         @JvmField
-        var wall: Double = 175.0
+        var wall: Double = 150.0
 
         @JvmField
         var lowBasket: Double = 700.0

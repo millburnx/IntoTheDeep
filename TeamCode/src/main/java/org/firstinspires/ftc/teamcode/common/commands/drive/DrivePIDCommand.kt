@@ -71,7 +71,7 @@ class DrivePIDCommand(
         var headingTolerance: Double = 4.0
 
         @JvmField
-        var usePowerSettling: Boolean = true
+        var usePowerSettling: Boolean = false
 
         @JvmField
         var wheelThreshold: Double = 0.15

@@ -250,6 +250,7 @@ class ControlRewrite : OpMode() {
         robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
         robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
         robot.telemetry.addData("slides", robot.outtake.slides.position)
+        robot.telemetry.addData("slides offset", robot.outtake.slides.encoderOffset)
     }
 
     companion object {

@@ -133,4 +133,3 @@ public class Detector(
         return Sample(null, minBounding.center, minBounding, null)
     }
 }
-g

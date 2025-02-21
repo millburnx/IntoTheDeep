@@ -75,7 +75,7 @@ class OuttakeArm(
         var pickupPosition = 0.89
 
         @JvmField
-        var humanPosition = 0.65
+        var humanPosition = 0.4
 
         @JvmField
         var maxSpeed = -1.0
