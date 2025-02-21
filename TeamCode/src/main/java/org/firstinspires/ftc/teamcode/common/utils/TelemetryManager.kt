@@ -27,12 +27,15 @@ class TelemetryManager(
         telemetry.update()
     }
 
-    fun drawRobot(packet: TelemetryPacket) {
-        telemetry.addData("Pose", robot.drive.pose.toString())
+    fun drawRobot(
+        packet: TelemetryPacket,
+        pose: Pose2d = robot.drive.pose,
+        color: String = robotColor,
+    ) {
+        telemetry.addData("Pose", pose.toString())
         val canvas = packet.fieldOverlay()
         canvas.setStrokeWidth(robotStroke)
-        canvas.setStroke(robotColor)
-        val pose = robot.drive.pose
+        canvas.setStroke(color)
         canvas.strokeCircle(pose.toRR().x, pose.toRR().y, robotSize / 2)
         val lookVector = Vec2d(robotSize / 2, 0.0).rotate(Math.toRadians(pose.heading))
         val lookPoint = pose + lookVector

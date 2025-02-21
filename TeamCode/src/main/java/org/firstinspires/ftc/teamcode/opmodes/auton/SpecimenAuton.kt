@@ -8,12 +8,15 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
+import com.millburnx.utils.Path
 import com.millburnx.utils.TSV
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
+import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDManager
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
@@ -21,15 +24,14 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.intakeLoweringDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.outtakeFlipDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.specimenCloseDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.transferClawDelay
 import java.io.File
 
 class AutonRobot(
     opMode: OpMode,
 ) : Robot(opMode) {
     val pidManager = PIDManager(this)
+    override val drive: Drive = Drive(this, breakMotors = true)
     override val additionalSubsystems = listOf(pidManager)
 
     override fun init() {
@@ -55,86 +57,12 @@ class SpecimenAuton : OpMode() {
         robot.intake.diffy.periodic()
         robot.intake.claw.periodic()
 
-        fun extend() =
-            SequentialCommandGroup(
-                robot.intake.open(),
-                robot.intake.extend(),
-            )
-
-        fun grab() =
-            SequentialCommandGroup(
-                robot.intake.grab(),
-                robot.outtake.open(),
-                robot.intake.retract(),
-            )
-
-        fun transfer() =
-            SequentialCommandGroup(
-                robot.outtake.close(),
-                WaitCommand(transferClawDelay),
-                robot.intake.open(),
-                WaitCommand(outtakeFlipDelay),
-            )
-
-        fun drop() =
-            SequentialCommandGroup(
-                ParallelCommandGroup(
-                    robot.outtake.arm.human(),
-                    robot.outtake.wrist.human(),
-                    WaitCommand(outtakeArmDuration),
-                ),
-                robot.outtake.open(),
-                ParallelCommandGroup(
-                    robot.outtake.base(),
-                    WaitCommand(outtakeArmDuration),
-                ),
-            )
-
         fun pickupSamples() =
             SequentialCommandGroup(
-                PIDCommand(robot, Pose2d(Vec2d(sample1X, sample1Y), sample1H)),
-                extend(),
-                grab(),
-                ParallelCommandGroup(
-                    SequentialCommandGroup(
-                        PIDCommand(robot, Pose2d(Vec2d(sample2X, sample2Y), sample2H)),
-                    ),
-                    SequentialCommandGroup(
-                        transfer(),
-                        ParallelCommandGroup(
-                            extend(),
-                            drop(),
-                        ),
-                    ),
-                ),
-                ParallelCommandGroup(
-                    grab(),
-                    ParallelCommandGroup(
-                        robot.outtake.base(),
-                        WaitCommand(outtakeArmDuration),
-                    ),
-                ),
-                ParallelCommandGroup(
-                    SequentialCommandGroup(
-                        PIDCommand(robot, Pose2d(Vec2d(sample3X, sample3Y), sample3H)),
-                    ),
-                    SequentialCommandGroup(
-                        transfer(),
-                        ParallelCommandGroup(
-                            extend(),
-                            drop(),
-                        ),
-                    ),
-                ),
-                ParallelCommandGroup(
-                    grab(),
-                    ParallelCommandGroup(
-                        robot.outtake.base(),
-                        WaitCommand(outtakeArmDuration),
-                    ),
-                ),
-                transfer(),
-                drop(),
+                pp(loadPath("pre1"), -180.0),
+                PIDCommand(robot, Pose2d(Vec2d(pushX, -40.0), -180.0)),
+                pp(loadPath("pre2"), -180.0),
+                PIDCommand(robot, Pose2d(Vec2d(pushX, -52.0), -180.0)),
             )
 
         fun specimenPickup() =
@@ -169,7 +97,7 @@ class SpecimenAuton : OpMode() {
                 ),
             )
 
-        fun scoreSpec() =
+        fun scoreSpec(offset: Int) =
             SequentialCommandGroup(
                 ParallelCommandGroup(
                     PIDCommand(robot, Pose2d(Vec2d(pickupX, pickupY), -180.0)),
@@ -178,7 +106,7 @@ class SpecimenAuton : OpMode() {
                 RelativeDrive(robot.drive, robot.pidManager, Pose2d(pickupPower, 0.0, 0.0)).withTimeout(pickupDuration),
                 ParallelCommandGroup(
                     specimenFlip(),
-                    PIDCommand(robot, Pose2d(Vec2d(scoreX, scoreY), -180.0)),
+                    PIDCommand(robot, Pose2d(Vec2d(scoreX, scoreY + offset * scoreOffset), -180.0)),
                 ),
                 RelativeDrive(robot.drive, robot.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(scoreDuration),
                 WaitCommand(humanDuration),
@@ -210,10 +138,9 @@ class SpecimenAuton : OpMode() {
                     robot.outtake.base(),
                 ),
                 pickupSamples(),
-                scoreSpec(),
-                scoreSpec(),
-                scoreSpec(),
-                scoreSpec(),
+                scoreSpec(1),
+                scoreSpec(2),
+                scoreSpec(3),
             ),
         )
 
@@ -231,6 +158,27 @@ class SpecimenAuton : OpMode() {
 
     fun pointToPath(points: List<Pose2d>): List<PIDCommand> = points.map { PIDCommand(robot, it) }
 
+    fun loadPath(file: String): Path {
+        val rootDir = Environment.getExternalStorageDirectory()
+        val filePath = "$rootDir/Paths/$file.tsv"
+        val path =
+            try {
+                val loaded = Vec2d.loadList(File(filePath))
+                println(loaded)
+                loaded
+            } catch (e: Error) {
+                e.printStackTrace()
+                println("$file.tsv not found")
+                Path(listOf())
+            }
+        return path
+    }
+
+    fun pp(
+        path: Path,
+        heading: Double,
+    ) = PurePursuitCommand(robot, heading, path.points)
+
     override fun exec() {
     }
 
@@ -242,7 +190,7 @@ class SpecimenAuton : OpMode() {
         var startingY = -7.0
 
         @JvmField
-        var startingHeading = 0.0
+        var startingHeading = 180.0
 
         @JvmField
         var scoreX = -36.0
@@ -251,46 +199,16 @@ class SpecimenAuton : OpMode() {
         var scoreY = 0.0
 
         @JvmField
-        var scorePower = -0.5
+        var scorePower = -1.0
 
         @JvmField
-        var scoreDuration: Long = 500
+        var scoreDuration: Long = 250
 
         @JvmField
-        var scoringDuration: Long = 750
+        var scoringDuration: Long = 500
 
         @JvmField
-        var sample1X = -46.0
-
-        @JvmField
-        var sample1Y = -46.0
-
-        @JvmField
-        var sample1H = 0.0
-
-        @JvmField
-        var sample2X = -46.0
-
-        @JvmField
-        var sample2Y = -54.0
-
-        @JvmField
-        var sample2H = 0.0
-
-        @JvmField
-        var sample3X = -44.5
-
-        @JvmField
-        var sample3Y = -54.5
-
-        @JvmField
-        var sample3H = -30.0
-
-        @JvmField
-        var outtakeArmDuration = 1000L
-
-        @JvmField
-        var waitDuration = 750L
+        var pushX = -52.0
 
         @JvmField
         var pickupX = -60.0
@@ -299,12 +217,15 @@ class SpecimenAuton : OpMode() {
         var pickupY = -36.0
 
         @JvmField
-        var pickupDuration = 500L
+        var pickupDuration = 125L
 
         @JvmField
-        var pickupPower = 0.5
+        var pickupPower = 1.0
 
         @JvmField
-        var humanDuration = 500L
+        var humanDuration = 250L
+
+        @JvmField
+        var scoreOffset = 1.0
     }
 }

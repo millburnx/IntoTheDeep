@@ -2,12 +2,17 @@ package com.millburnx.purepursuit
 
 import com.acmerobotics.dashboard.canvas.Canvas
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.millburnx.utils.*
+import com.millburnx.utils.Bezier
+import com.millburnx.utils.BezierIntersection
+import com.millburnx.utils.Circle
+import com.millburnx.utils.Intersection
+import com.millburnx.utils.Utils
+import com.millburnx.utils.Vec2d
 import kotlin.math.abs
 
 class PurePursuit(
     val path: List<Vec2d>,
-    val lookahead: ClosedFloatingPointRange<Double>,
+    val lookahead: ClosedRange<Double>,
     val threshold: Double = 1.0,
 ) {
     val beziers: List<Bezier> = Utils.pathToBeziers(path)
@@ -27,10 +32,17 @@ class PurePursuit(
         pos: Vec2d,
         heading: Double,
     ): BezierIntersection {
+        val lastIndex = beziers.indexOf(lastIntersection.line)
         val closest =
-            intersections.minByOrNull {
-                abs(getAngleDiff((pos to heading), it.point))
-            }
+            intersections
+                .filter {
+                    val segmentIndex = beziers.indexOf(it.line)
+                    if (segmentIndex < lastIndex) return@filter false
+                    if (segmentIndex > lastIndex) return@filter true
+                    return@filter it.t >= lastIntersection.t
+                }.minByOrNull {
+                    abs(getAngleDiff((pos to heading), it.point))
+                }
         return closest ?: lastIntersection
     }
 

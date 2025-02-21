@@ -15,11 +15,12 @@ import kotlin.math.max
 @Config
 open class Drive(
     val robot: Robot,
+    breakMotors: Boolean = false,
 ) : Subsystem() {
-    val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).apply { init() }
-    val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init(false) }
-    val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).apply { init() }
-    val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init(false) }
+    val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).apply { init(isBrake = breakMotors) }
+    val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init(false, isBrake = breakMotors) }
+    val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).apply { init(isBrake = breakMotors) }
+    val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init(false, isBrake = breakMotors) }
     val motors = listOf(frontLeft, frontRight, backLeft, backRight)
     val odometry = SampleMecanumDrive(robot.hardware).localizer
     var pose: Pose2d

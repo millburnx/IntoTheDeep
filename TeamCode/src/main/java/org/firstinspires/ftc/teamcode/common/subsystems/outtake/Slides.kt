@@ -16,8 +16,8 @@ import kotlin.math.abs
 class Slides(
     val robot: Robot,
 ) : Subsystem() {
-    val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init() }
-    val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init() }
+    val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init(isBrake = true) }
+    val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init(isBrake = true) }
     val pid = PIDController(kP, kI, kD)
     val position
         get() = leftLift.currentPosition.toDouble() + encoderOffset
@@ -118,7 +118,7 @@ class Slides(
         var highRung: Double = 1275.0
 
         @JvmField
-        var wall: Double = 150.0
+        var wall: Double = 162.5
 
         @JvmField
         var lowBasket: Double = 700.0

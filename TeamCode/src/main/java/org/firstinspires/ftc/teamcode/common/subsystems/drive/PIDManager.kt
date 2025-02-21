@@ -3,16 +3,10 @@ package org.firstinspires.ftc.teamcode.common.subsystems.drive
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.teamcode.common.Robot
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.headingTolerance
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kD
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kDHeading
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kI
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kIHeading
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kP
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.kPHeading
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.usePowerSettling
-import org.firstinspires.ftc.teamcode.common.commands.drive.DrivePIDCommand.Companion.wheelThreshold
+import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
+import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.headingTolerance
+import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.usePowerSettling
+import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.wheelThreshold
 import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
@@ -25,12 +19,20 @@ class PIDManager(
 ) : Subsystem() {
     var isOn = false
     var target = Pose2d()
-    var tolerance = Pose2d(DrivePIDCommand.tolerance, headingTolerance)
+    var tolerance = Pose2d(PIDSettings.tolerance, headingTolerance)
     val drive: Drive = robot.drive
 
     val pidX by lazy { PIDController(kP, kI, kD) }
     val pidY by lazy { PIDController(kP, kI, kD) }
     val pidH by lazy { APIDController(kPHeading, kIHeading, kDHeading) }
+
+    var kP = PIDSettings.kP
+    var kI = PIDSettings.kI
+    var kD = PIDSettings.kD
+
+    var kPHeading = PIDSettings.kPHeading
+    var kIHeading = PIDSettings.kIHeading
+    var kDHeading = PIDSettings.kDHeading
 
     override fun periodic() {
         if (!isOn) return
@@ -71,7 +73,7 @@ class PIDManager(
 class PIDCommand(
     val robot: AutonRobot,
     val target: Pose2d,
-    val tolerance: Pose2d = Pose2d(DrivePIDCommand.tolerance, headingTolerance),
+    val tolerance: Pose2d = Pose2d(PIDSettings.tolerance, headingTolerance),
 ) : CommandBase() {
     init {
         addRequirements(robot.drive, robot.pidManager)

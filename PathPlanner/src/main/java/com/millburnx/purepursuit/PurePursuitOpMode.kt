@@ -9,34 +9,41 @@ import java.awt.event.MouseEvent
 import kotlin.math.cos
 import kotlin.math.sin
 
-class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, updateHertz) {
+class PurePursuitOpMode(
+    ppi: Double,
+    updateHertz: Double = -1.0,
+) : OpMode(ppi, updateHertz) {
     val background = Utils.Colors.bg1
     val colors = listOf(Utils.Colors.red, Utils.Colors.blue, Utils.Colors.green, Utils.Colors.yellow)
-    val lookahead = 8.0..16.0
-    var purePursuit: PurePursuit = PurePursuit(
-        listOf(
-            Vec2d(0.0, 0.0),
-            Vec2d(48.0, 0.0),
-            Vec2d(48.0, -48.0),
-            Vec2d(0.0, -48.0),
-        ), lookahead
-    )
+    val lookahead: ClosedRange<Double> = 8.0..16.0
+    var purePursuit: PurePursuit =
+        PurePursuit(
+            listOf(
+                Vec2d(0.0, 0.0),
+                Vec2d(48.0, 0.0),
+                Vec2d(48.0, -48.0),
+                Vec2d(0.0, -48.0),
+            ),
+            lookahead,
+        )
 
     init {
-        ftcDashboard.panel.addMouseListener(object : MouseAdapter() {
-            override fun mouseClicked(e: MouseEvent) {
-                if (e.button == MouseEvent.BUTTON1) {
-                    val x = e.x / ppi - 144.0 / 2
-                    val y = e.y / ppi - 144.0 / 2
-                    robot.position = Vec2d(x, y)
-                } else if (e.button == MouseEvent.BUTTON3) {
-                    val x = e.x / ppi - 144.0 / 2
-                    val y = e.y / ppi - 144.0 / 2
-                    val angle = robot.position.angleTo(Vec2d(x, y))
-                    robot.heading = angle
+        ftcDashboard.panel.addMouseListener(
+            object : MouseAdapter() {
+                override fun mouseClicked(e: MouseEvent) {
+                    if (e.button == MouseEvent.BUTTON1) {
+                        val x = e.x / ppi - 144.0 / 2
+                        val y = e.y / ppi - 144.0 / 2
+                        robot.position = Vec2d(x, y)
+                    } else if (e.button == MouseEvent.BUTTON3) {
+                        val x = e.x / ppi - 144.0 / 2
+                        val y = e.y / ppi - 144.0 / 2
+                        val angle = robot.position.angleTo(Vec2d(x, y))
+                        robot.heading = angle
+                    }
                 }
-            }
-        })
+            },
+        )
     }
 
     override fun init() {
@@ -89,7 +96,8 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
 
     private fun renderPath(canvas: Canvas) {
 //        canvas.setFill(background).fillRect(-144.0 / 2, -144.0 / 2, 144.0, 144.0).setStroke(Utils.Colors.bg2)
-        canvas.drawImage("bg.png", 0.0, 0.0, 144.0, 144.0)
+        canvas
+            .drawImage("bg.png", 0.0, 0.0, 144.0, 144.0)
 //            .drawGrid(0.0, 0.0, 144.0, 144.0, 7, 7)
             .setStrokeWidth(2)
 
@@ -110,12 +118,21 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
             val p2 = path[i + 2].toRR()
             val p3 = path[i + 3].toRR()
 
-            canvas.setStroke(colors[color % colors.size]).strokeLine(p0.x, p0.y, p1.x, p1.y)
-                .strokeLine(p2.x, p2.y, p3.x, p3.y).setFill(background).fillCircle(p0.x, p0.y, anchorSize)
-                .fillCircle(p1.x, p1.y, handleSize).fillCircle(p2.x, p2.y, handleSize)
-                .fillCircle(p3.x, p3.y, anchorSize).setStroke("#FFFFFF").strokeCircle(p0.x, p0.y, anchorSize)
-                .strokeCircle(p3.x, p3.y, anchorSize).setStroke(colors[color % colors.size])
-                .strokeCircle(p1.x, p1.y, handleSize).strokeCircle(p2.x, p2.y, handleSize)
+            canvas
+                .setStroke(colors[color % colors.size])
+                .strokeLine(p0.x, p0.y, p1.x, p1.y)
+                .strokeLine(p2.x, p2.y, p3.x, p3.y)
+                .setFill(background)
+                .fillCircle(p0.x, p0.y, anchorSize)
+                .fillCircle(p1.x, p1.y, handleSize)
+                .fillCircle(p2.x, p2.y, handleSize)
+                .fillCircle(p3.x, p3.y, anchorSize)
+                .setStroke("#FFFFFF")
+                .strokeCircle(p0.x, p0.y, anchorSize)
+                .strokeCircle(p3.x, p3.y, anchorSize)
+                .setStroke(colors[color % colors.size])
+                .strokeCircle(p1.x, p1.y, handleSize)
+                .strokeCircle(p2.x, p2.y, handleSize)
 
             color++
         }
@@ -131,31 +148,39 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
 
         val robotPos = robot.position.toRR()
 
-        val robotTopLeft = Vec2d(
-            cos(robot.heading) * (-robot.size.x / 2) - sin(robot.heading) * (-robot.size.y / 2),
-            sin(robot.heading) * (-robot.size.x / 2) + cos(robot.heading) * (-robot.size.y / 2)
-        )
-        val robotTopRight = Vec2d(
-            cos(robot.heading) * (robot.size.x / 2) - sin(robot.heading) * (-robot.size.y / 2),
-            sin(robot.heading) * (robot.size.x / 2) + cos(robot.heading) * (-robot.size.y / 2)
-        )
-        val robotBottomLeft = Vec2d(
-            cos(robot.heading) * (-robot.size.x / 2) - sin(robot.heading) * (robot.size.y / 2),
-            sin(robot.heading) * (-robot.size.x / 2) + cos(robot.heading) * (robot.size.y / 2)
-        )
-        val robotBottomRight = Vec2d(
-            cos(robot.heading) * (robot.size.x / 2) - sin(robot.heading) * (robot.size.y / 2),
-            sin(robot.heading) * (robot.size.x / 2) + cos(robot.heading) * (robot.size.y / 2)
-        )
+        val robotTopLeft =
+            Vec2d(
+                cos(robot.heading) * (-robot.size.x / 2) - sin(robot.heading) * (-robot.size.y / 2),
+                sin(robot.heading) * (-robot.size.x / 2) + cos(robot.heading) * (-robot.size.y / 2),
+            )
+        val robotTopRight =
+            Vec2d(
+                cos(robot.heading) * (robot.size.x / 2) - sin(robot.heading) * (-robot.size.y / 2),
+                sin(robot.heading) * (robot.size.x / 2) + cos(robot.heading) * (-robot.size.y / 2),
+            )
+        val robotBottomLeft =
+            Vec2d(
+                cos(robot.heading) * (-robot.size.x / 2) - sin(robot.heading) * (robot.size.y / 2),
+                sin(robot.heading) * (-robot.size.x / 2) + cos(robot.heading) * (robot.size.y / 2),
+            )
+        val robotBottomRight =
+            Vec2d(
+                cos(robot.heading) * (robot.size.x / 2) - sin(robot.heading) * (robot.size.y / 2),
+                sin(robot.heading) * (robot.size.x / 2) + cos(robot.heading) * (robot.size.y / 2),
+            )
 
         val robotCorners =
             listOf(robotTopLeft, robotTopRight, robotBottomRight, robotBottomLeft).map { it.toRR() + robotPos }
 
         val robotPolyline = listOf(*robotCorners.toTypedArray(), robotCorners[0])
 
-        canvas.setFill("#FFFFFF")
-            .strokePolyline(copyPositions.map { it.x }.toDoubleArray(), copyPositions.map { it.y }.toDoubleArray()
-            ).setFill(Utils.Colors.purple).fillCircle(robotPos.x, robotPos.y, 1.0)
+        canvas
+            .setFill("#FFFFFF")
+            .strokePolyline(
+                copyPositions.map { it.x }.toDoubleArray(),
+                copyPositions.map { it.y }.toDoubleArray(),
+            ).setFill(Utils.Colors.purple)
+            .fillCircle(robotPos.x, robotPos.y, 1.0)
             .strokeCircle(robotPos.x, robotPos.y, purePursuit.currentLookahead)
             .strokeLine(robotPos.x, robotPos.y, lookaheadPointRR.x, lookaheadPointRR.y)
             .strokePolyline(robotPolyline.map { it.x }.toDoubleArray(), robotPolyline.map { it.y }.toDoubleArray())
@@ -163,7 +188,10 @@ class PurePursuitOpMode(ppi: Double, updateHertz: Double = -1.0) : OpMode(ppi, u
 }
 
 object Util {
-    fun getAngleDiff(a: Pair<Vec2d, Double>, b: Vec2d): Double {
+    fun getAngleDiff(
+        a: Pair<Vec2d, Double>,
+        b: Vec2d,
+    ): Double {
         val (aPoint, aAngle) = a
         val diff = Utils.normalizeAngle(aPoint.angleTo(b))
         return Utils.normalizeAngle(diff - aAngle)
