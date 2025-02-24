@@ -376,7 +376,7 @@ class BasicTeleop : OpMode() {
 
         @JvmField
         var useBasketAssist: Boolean = false
-g
+
         @JvmField
         var basketAssistWeight: Double = 0.025
     }
