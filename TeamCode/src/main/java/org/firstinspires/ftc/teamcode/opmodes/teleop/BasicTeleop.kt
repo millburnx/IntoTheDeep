@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.utils.reset
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
@@ -291,18 +292,30 @@ class BasicTeleop : OpMode() {
             hasInit = true
         }
 
+        val attemptingToBasket =
+            robot.outtake.slides.target > Slides.wall && robot.outtake.arm.state == OuttakeArmPosition.BASKET
+        val basketAssist: Double =
+            if (useBasketAssist && attemptingToBasket) {
+                val targetAngle = 135.0
+                val currentAngle = robot.drive.pose.heading
+                val diff = normalizeDegrees(targetAngle - currentAngle)
+                diff * basketAssistWeight
+            } else {
+                0.0
+            }
+
         if (fieldCentric) {
             robot.drive.fieldCentric(
                 gamepad1.left_stick_y.toDouble(),
                 -gamepad1.left_stick_x.toDouble(),
-                -gamepad1.right_stick_x.toDouble(),
+                -gamepad1.right_stick_x.toDouble() + basketAssist,
                 Math.toRadians(-robot.imu.robotYawPitchRollAngles.yaw),
             )
         } else {
             robot.drive.robotCentric(
                 gamepad1.left_stick_y.toDouble(),
                 -gamepad1.left_stick_x.toDouble(),
-                -gamepad1.right_stick_x.toDouble(),
+                -gamepad1.right_stick_x.toDouble() + basketAssist,
             )
         }
 
@@ -344,9 +357,6 @@ class BasicTeleop : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var pickupTimeout: Long = 750
-
-        @JvmField
         var transferClawDelay: Long = 200
 
         @JvmField
@@ -365,9 +375,9 @@ class BasicTeleop : OpMode() {
         var specimenDelay: Long = 500
 
         @JvmField
-        var specScoreDelay: Long = 625
-
+        var useBasketAssist: Boolean = false
+g
         @JvmField
-        var sweepDuration: Long = 1500
+        var basketAssistWeight: Double = 0.025
     }
 }
