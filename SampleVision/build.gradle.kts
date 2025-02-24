@@ -1,9 +1,6 @@
 apply("../build.common.gradle")
 apply("../build.dependencies.gradle")
 
-apply("../build.common.gradle")
-apply("../build.dependencies.gradle")
-
 android {
     namespace = "com.millburnx.samplevision"
     compileSdk = 34

@@ -1,4 +1,4 @@
-package org.example
+package com.millburnx.samplevision
 
 import com.millburnx.utils.Vec2d
 import org.opencv.core.Core
