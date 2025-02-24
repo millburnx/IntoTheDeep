@@ -275,6 +275,6 @@ class ControlRewrite : OpMode() {
         var outtakeLiftingDuration: Long = 500
 
         @JvmField
-        var specimenCloseDuration: Long = 500
+        var specimenCloseDuration: Long = 250
     }
 }

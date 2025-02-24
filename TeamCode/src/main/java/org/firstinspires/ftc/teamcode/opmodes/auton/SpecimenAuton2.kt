@@ -12,12 +12,10 @@ import com.millburnx.utils.Path
 import com.millburnx.utils.TSV
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDCommand
-import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDManager
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
@@ -26,23 +24,10 @@ import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.in
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.specimenCloseDuration
 import java.io.File
 
-class AutonRobot(
-    opMode: OpMode,
-) : Robot(opMode) {
-    val pidManager = PIDManager(this)
-    override val additionalSubsystems = listOf(pidManager)
-
-    override fun init() {
-        imu.resetYaw()
-        drive.breakMotors()
-        super.init()
-    }
-}
-
-@Autonomous(name = "Specimen Auton", preselectTeleOp = "Basic Teleop")
+@Autonomous(name = "Specimen Auton 2", preselectTeleOp = "Basic Teleop")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
-class SpecimenAuton : OpMode() {
+class SpecimenAuton2 : OpMode() {
     override val robot by lazy { AutonRobot(this) }
 
     override fun initialize() {
@@ -58,10 +43,29 @@ class SpecimenAuton : OpMode() {
 
         fun pickupSamples() =
             SequentialCommandGroup(
-                pp(loadPath("pre1"), -180.0),
-                PIDCommand(robot, Pose2d(Vec2d(pushX, -40.0), -180.0)),
-                pp(loadPath("pre2"), -180.0),
-                PIDCommand(robot, Pose2d(Vec2d(pushX, -52.0), -180.0)),
+                robot.intake.open(),
+                PIDCommand(robot, Pose2d(Vec2d(sample1GrabX, sample1GrabY), sample1GrabH)),
+                WaitCommand(tempDelay),
+                robot.intake.extend(),
+                robot.intake.grab(),
+                PIDCommand(robot, Pose2d(Vec2d(sample1DropX, sample1DropY), sample1DropH)),
+                WaitCommand(tempDelay),
+                robot.intake.open(),
+                PIDCommand(robot, Pose2d(Vec2d(sample2GrabX, sample2GrabY), sample2GrabH)),
+                WaitCommand(tempDelay),
+                robot.intake.extend(),
+                robot.intake.grab(),
+                PIDCommand(robot, Pose2d(Vec2d(sample2DropX, sample2DropY), sample2DropH)),
+                WaitCommand(tempDelay),
+                robot.intake.open(),
+                PIDCommand(robot, Pose2d(Vec2d(sample3GrabX, sample3GrabY), sample3GrabH)),
+                WaitCommand(tempDelay),
+                robot.intake.extend(),
+                robot.intake.grab(),
+                PIDCommand(robot, Pose2d(Vec2d(sample3DropX, sample3DropY), sample3DropH)),
+                WaitCommand(tempDelay),
+                robot.intake.open(),
+                robot.intake.retract(),
             )
 
         fun specimenPickup() =
@@ -142,7 +146,7 @@ class SpecimenAuton : OpMode() {
                     robot.outtake.base(),
                 ),
                 ParallelCommandGroup(
-                    specimenPickup(),
+//                    specimenPickup(),
                     pickupSamples(),
                 ),
                 scoreSpec(1),
@@ -216,9 +220,6 @@ class SpecimenAuton : OpMode() {
         var scoringDuration: Long = 500
 
         @JvmField
-        var pushX = -52.0
-
-        @JvmField
         var pickupX = -56.0
 
         @JvmField
@@ -235,5 +236,68 @@ class SpecimenAuton : OpMode() {
 
         @JvmField
         var scoreOffset = 1.0
+
+        @JvmField
+        var tempDelay = 1000L
+
+        // sample1
+
+        @JvmField
+        var sample1GrabX: Double = -42.0
+
+        @JvmField
+        var sample1GrabY: Double = -36.0
+
+        @JvmField
+        var sample1GrabH: Double = -45.0
+
+        @JvmField
+        var sample1DropX: Double = -42.0
+
+        @JvmField
+        var sample1DropY: Double = -36.0
+
+        @JvmField
+        var sample1DropH: Double = -135.0
+
+        // sample2
+
+        @JvmField
+        var sample2GrabX: Double = -42.0
+
+        @JvmField
+        var sample2GrabY: Double = -44.0
+
+        @JvmField
+        var sample2GrabH: Double = -45.0
+
+        @JvmField
+        var sample2DropX: Double = -42.0
+
+        @JvmField
+        var sample2DropY: Double = -44.0
+
+        @JvmField
+        var sample2DropH: Double = -135.0
+
+        // sample3
+
+        @JvmField
+        var sample3GrabX: Double = -42.0
+
+        @JvmField
+        var sample3GrabY: Double = -52.0
+
+        @JvmField
+        var sample3GrabH: Double = -45.0
+
+        @JvmField
+        var sample3DropX: Double = -42.0
+
+        @JvmField
+        var sample3DropY: Double = -52.0
+
+        @JvmField
+        var sample3DropH: Double = -135.0
     }
 }

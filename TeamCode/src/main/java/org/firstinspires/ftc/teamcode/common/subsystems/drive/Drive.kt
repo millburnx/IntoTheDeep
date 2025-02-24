@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
 import com.acmerobotics.dashboard.config.Config
 import com.millburnx.utils.Vec2d
+import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
@@ -35,6 +36,18 @@ open class Drive(
         super.init()
         (robot.hardware["para"] as DcMotorEx).reset()
         (robot.hardware["frontLeft"] as DcMotorEx).reset()
+    }
+
+    fun breakMotors() {
+        listOf(frontLeft, frontRight, backLeft, backRight).forEach {
+            it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        }
+    }
+
+    fun floatMotors() {
+        listOf(frontLeft, frontRight, backLeft, backRight).forEach {
+            it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+        }
     }
 
     override fun periodic() {

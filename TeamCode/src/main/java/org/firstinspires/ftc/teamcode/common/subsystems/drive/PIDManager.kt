@@ -14,11 +14,11 @@ import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
 import kotlin.math.abs
 
-class PIDManager(
+open class PIDManager(
     val robot: Robot,
 ) : Subsystem() {
     var isOn = false
-    var target = Pose2d()
+    open var target = Pose2d()
     var tolerance = Pose2d(PIDSettings.tolerance, headingTolerance)
     val drive: Drive = robot.drive
 
