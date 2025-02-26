@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.angleThres
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.clawRadius
+import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.scale
 
 @Config
 class AutoPickup(
