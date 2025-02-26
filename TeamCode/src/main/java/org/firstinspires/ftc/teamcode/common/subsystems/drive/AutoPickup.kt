@@ -89,11 +89,11 @@ class AutoPickup(
             SequentialCommandGroup(
                 InstantCommand({
                     val target = lastTarget!!
-                    robot.pidManager.isOn = true
-                    robot.pidManager.target = target.first
+                    robot.drive.pidManager.isOn = true
+                    robot.drive.pidManager.target = target.first
                     robot.intake.diffy.roll = target.second
                 }),
-                WaitUntilCommand(robot.pidManager::atTarget),
+                WaitUntilCommand(robot.drive.pidManager::atTarget),
                 WaitCommand(pidStablizationDuration),
             ),
             InstantCommand({}),
@@ -102,14 +102,14 @@ class AutoPickup(
 
     fun stop() =
         InstantCommand({
-            robot.pidManager.isOn = false
-            robot.pidManager.kP = PIDSettings.kP
-            robot.pidManager.kI = PIDSettings.kI
-            robot.pidManager.kD = PIDSettings.kD
-            robot.pidManager.kPHeading = PIDSettings.kPHeading
-            robot.pidManager.kIHeading = PIDSettings.kIHeading
-            robot.pidManager.kDHeading = PIDSettings.kDHeading
-            robot.pidManager.tolerance = Pose2d(PIDSettings.tolerance, PIDSettings.headingTolerance)
+            robot.drive.pidManager.isOn = false
+            robot.drive.pidManager.kP = PIDSettings.kP
+            robot.drive.pidManager.kI = PIDSettings.kI
+            robot.drive.pidManager.kD = PIDSettings.kD
+            robot.drive.pidManager.kPHeading = PIDSettings.kPHeading
+            robot.drive.pidManager.kIHeading = PIDSettings.kIHeading
+            robot.drive.pidManager.kDHeading = PIDSettings.kDHeading
+            robot.drive.pidManager.tolerance = Pose2d(PIDSettings.tolerance, PIDSettings.headingTolerance)
         })
 
     companion object {

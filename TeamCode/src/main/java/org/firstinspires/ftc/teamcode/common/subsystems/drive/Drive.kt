@@ -1,15 +1,23 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
+import android.os.Environment
 import com.acmerobotics.dashboard.config.Config
+import com.millburnx.utils.Path
+import com.millburnx.utils.TSV
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
+import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.headingTolerance
+import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
+import org.firstinspires.ftc.teamcode.common.utils.loadPath
 import org.firstinspires.ftc.teamcode.common.utils.reset
 import org.firstinspires.ftc.teamcode.rr.drive.SampleMecanumDrive
+import java.io.File
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -18,6 +26,9 @@ open class Drive(
     val robot: Robot,
     breakMotors: Boolean = false,
 ) : Subsystem() {
+    val pidManager: PIDManager = PIDManager(robot)
+    val subsystems: List<Subsystem> = listOf(pidManager)
+
     val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).apply { init(isBrake = breakMotors) }
     val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init(false, isBrake = breakMotors) }
     val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).apply { init(isBrake = breakMotors) }
@@ -42,9 +53,9 @@ open class Drive(
 //    val stuckDectector = StuckDectector(robot)
 
     override fun init() {
-        super.init()
         (robot.hardware["para"] as DcMotorEx).reset()
         (robot.hardware["frontLeft"] as DcMotorEx).reset()
+        subsystems.forEach { it.init() }
     }
 
     fun breakMotors() {
@@ -87,6 +98,32 @@ open class Drive(
         frontRight.power = (forward - strafe - rotate) / denominator
         backRight.power = (forward + strafe - rotate) / denominator
     }
+
+    fun pid(
+        target: Pose2d,
+        tolerance: Pose2d = Pose2d(PIDSettings.tolerance, headingTolerance),
+    ) = PIDCommand(robot, target, tolerance)
+
+    fun pointsToPid(file: String): List<PIDCommand> {
+        val csv = TSV.bufferedRead(File("${Environment.getExternalStorageDirectory().path}/Paths/$file.tsv"))
+        val points: MutableList<Pose2d> = mutableListOf()
+        for (item in csv) {
+            points.add(Pose2d(item[0].toDouble(), item[1].toDouble(), item[2].toDouble()))
+        }
+        return pointsToPid(points)
+    }
+
+    fun pointsToPid(points: List<Pose2d>): List<PIDCommand> = points.map { robot.drive.pid(it) }
+
+    fun purePursuit(
+        path: String,
+        heading: Double,
+    ) = purePursuit(Path.loadPath(path), heading)
+
+    fun purePursuit(
+        path: Path,
+        heading: Double,
+    ) = PurePursuitCommand(robot, heading, path.points)
 
     companion object {
         @JvmField

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.auton
 
-import android.os.Environment
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
 import com.arcrobotics.ftclib.command.ConditionalCommand
@@ -8,14 +7,9 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
-import com.millburnx.utils.Path
-import com.millburnx.utils.TSV
-import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
-import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
@@ -23,7 +17,6 @@ import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.intakeLoweringDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.specimenCloseDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
-import java.io.File
 
 class AutonRobot(
     opMode: OpMode,
@@ -53,10 +46,10 @@ class SpecimenAuton : OpMode() {
 
         fun pickupSamples() =
             SequentialCommandGroup(
-                pp(loadPath("pre1"), -180.0),
-                PIDCommand(robot, Pose2d(Vec2d(pushX, -40.0), -180.0)),
-                pp(loadPath("pre2"), -180.0),
-                PIDCommand(robot, Pose2d(Vec2d(pushX, -52.0), -180.0)),
+                robot.drive.purePursuit("pre1", -180.0),
+                robot.drive.pid(Pose2d(pushX, -40.0, -180.0)),
+                robot.drive.purePursuit("pre2", -180.0),
+                robot.drive.pid(Pose2d(pushX, -52.0, -180.0)),
             )
 
         fun specimenPickup() =
@@ -97,17 +90,21 @@ class SpecimenAuton : OpMode() {
         fun scoreSpec(offset: Int) =
             SequentialCommandGroup(
                 ParallelCommandGroup(
-                    PIDCommand(robot, Pose2d(Vec2d(pickupX, pickupY), -180.0)),
+                    robot.drive.pid(Pose2d(pickupX, pickupY, -180.0)),
                     specimenPickup(),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(pickupPower, 0.0, 0.0)).withTimeout(pickupDuration),
+                RelativeDrive(robot.drive, robot.drive.pidManager, Pose2d(pickupPower, 0.0, 0.0)).withTimeout(
+                    pickupDuration,
+                ),
                 WaitCommand(humanDuration),
                 specimenGrab(),
                 ParallelCommandGroup(
                     specimenFlip(),
-                    PIDCommand(robot, Pose2d(Vec2d(scoreX, scoreY + offset * scoreOffset), -180.0)),
+                    robot.drive.pid(Pose2d(scoreX, scoreY + offset * scoreOffset, -180.0)),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(scoreDuration),
+                RelativeDrive(robot.drive, robot.drive.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(
+                    scoreDuration,
+                ),
                 ParallelCommandGroup(
                     robot.outtake.arm.specimenScoring(),
                     WaitCommand(scoringDuration),
@@ -121,11 +118,13 @@ class SpecimenAuton : OpMode() {
         commands.add(
             SequentialCommandGroup(
                 ParallelCommandGroup(
-                    PIDCommand(robot, Pose2d(Vec2d(scoreX, scoreY), -180.0)),
+                    robot.drive.pid(Pose2d(scoreX, scoreY, -180.0)),
                     robot.outtake.arm.specimen(),
                     robot.outtake.wrist.specimen(),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(scoreDuration),
+                RelativeDrive(robot.drive, robot.drive.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(
+                    scoreDuration,
+                ),
                 ParallelCommandGroup(
                     robot.outtake.arm.specimenScoring(),
                     WaitCommand(scoringDuration),
@@ -147,38 +146,6 @@ class SpecimenAuton : OpMode() {
 
         schedule(SequentialCommandGroup(*commands.toTypedArray()))
     }
-
-    fun loadPoints(file: String): List<Pose2d> {
-        val csv = TSV.bufferedRead(File("${Environment.getExternalStorageDirectory().path}/Paths/$file.tsv"))
-        val points: MutableList<Pose2d> = mutableListOf()
-        for (item in csv) {
-            points.add(Pose2d(item[0].toDouble(), item[1].toDouble(), item[2].toDouble()))
-        }
-        return points
-    }
-
-    fun pointToPath(points: List<Pose2d>): List<PIDCommand> = points.map { PIDCommand(robot, it) }
-
-    fun loadPath(file: String): Path {
-        val rootDir = Environment.getExternalStorageDirectory()
-        val filePath = "$rootDir/Paths/$file.tsv"
-        val path =
-            try {
-                val loaded = Vec2d.loadList(File(filePath))
-                println(loaded)
-                loaded
-            } catch (e: Error) {
-                e.printStackTrace()
-                println("$file.tsv not found")
-                Path(listOf())
-            }
-        return path
-    }
-
-    fun pp(
-        path: Path,
-        heading: Double,
-    ) = PurePursuitCommand(robot, heading, path.points)
 
     override fun exec() {
     }

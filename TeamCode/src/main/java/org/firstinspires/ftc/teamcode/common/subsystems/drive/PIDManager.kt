@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
-import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
 import kotlin.math.abs
 
 open class PIDManager(
@@ -71,19 +70,19 @@ open class PIDManager(
 }
 
 class PIDCommand(
-    val robot: AutonRobot,
+    val robot: Robot,
     val target: Pose2d,
     val tolerance: Pose2d = Pose2d(PIDSettings.tolerance, headingTolerance),
 ) : CommandBase() {
     init {
-        addRequirements(robot.drive, robot.pidManager)
+        addRequirements(robot.drive, robot.drive.pidManager)
     }
 
     override fun execute() {
-        robot.pidManager.isOn = true
-        robot.pidManager.target = target
-        robot.pidManager.tolerance = tolerance
+        robot.drive.pidManager.isOn = true
+        robot.drive.pidManager.target = target
+        robot.drive.pidManager.tolerance = tolerance
     }
 
-    override fun isFinished(): Boolean = robot.pidManager.atTarget()
+    override fun isFinished(): Boolean = robot.drive.pidManager.atTarget()
 }

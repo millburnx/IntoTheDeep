@@ -39,7 +39,7 @@ class BasicTeleop : OpMode() {
                     gamepad1::right_bumper,
                     this@BasicTeleop,
                     SequentialCommandGroup(
-                        InstantCommand({ robot.pidManager.isOn = false }),
+                        InstantCommand({ robot.drive.pidManager.isOn = false }),
                         ParallelCommandGroup(
                             robot.intake.extend(),
                             robot.intake.open(),
@@ -67,7 +67,7 @@ class BasicTeleop : OpMode() {
                             SequentialCommandGroup(
                                 robot.autoPickup.align(),
                                 robot.intake.grab(),
-                                InstantCommand({ robot.pidManager.isOn = false }),
+                                InstantCommand({ robot.drive.pidManager.isOn = false }),
                                 ParallelCommandGroup(
                                     robot.intake.retract(),
                                     robot.outtake.open(),
@@ -326,8 +326,8 @@ class BasicTeleop : OpMode() {
 
 //        robot.telemetryManager.send()
 
-        robot.telemetry.addData("pid", robot.pidManager.isOn)
-        robot.telemetry.addData("pid target", robot.pidManager.target)
+        robot.telemetry.addData("pid", robot.drive.pidManager.isOn)
+        robot.telemetry.addData("pid target", robot.drive.pidManager.target)
         robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
         robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
     }

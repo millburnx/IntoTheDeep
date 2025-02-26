@@ -126,7 +126,7 @@ public class Detector(
                 null,
             )
         }
-        // check if the center is near the edge and the area/sides are smal`ler than supposed to be
+        // check if the center is near the edge and the area/sides are smaller than supposed to be
         // samples are 1.5x3.5 inches, adjust down a bit to account for goofy contours
         val longestSide = max(minBounding.size.x, minBounding.size.y)
         val shortestSide = min(minBounding.size.x, minBounding.size.y)

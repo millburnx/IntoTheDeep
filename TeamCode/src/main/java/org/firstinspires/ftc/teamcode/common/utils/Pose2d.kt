@@ -32,7 +32,7 @@ data class Pose2d(
             x: Double,
             y: Double,
             radians: Double,
-        ): Pose2d = Pose2d(Vec2d(x, y), Math.toDegrees(radians))
+        ): Pose2d = Pose2d(x, y, Math.toDegrees(radians))
 
         fun fromRR(pose: com.acmerobotics.roadrunner.geometry.Pose2d): Pose2d = Pose2d(pose.x, pose.y, Math.toDegrees(pose.heading))
 

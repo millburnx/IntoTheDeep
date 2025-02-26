@@ -260,7 +260,7 @@ class ControlRewrite : OpMode() {
 
         val assists = basketAssist + rungAssist + wallAssist
 
-        if (!robot.pidManager.isOn) {
+        if (!robot.drive.pidManager.isOn) {
             if (fieldCentric) {
                 robot.drive.fieldCentric(
                     gamepad1.left_stick_y.toDouble(),
@@ -293,8 +293,8 @@ class ControlRewrite : OpMode() {
             robot.outtake.slides.isManual = false
         }
 
-        robot.telemetry.addData("pid", robot.pidManager.isOn)
-        robot.telemetry.addData("pid target", robot.pidManager.target)
+        robot.telemetry.addData("pid", robot.drive.pidManager.isOn)
+        robot.telemetry.addData("pid target", robot.drive.pidManager.target)
         robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
         robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
         robot.telemetry.addData("slides", robot.outtake.slides.position)

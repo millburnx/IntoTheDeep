@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.processors.SampleColor
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
-import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDManager
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleVision
@@ -41,9 +40,8 @@ open class SampleCameraRobot(
     opMode: OpMode,
 ) : Robot(opMode) {
     open val camera by lazy { SampleVision(this) }
-    val pidManager: PIDManager = PIDManager(this)
     val autoPickup = AutoPickup(this, listOf(SampleColor.YELLOW, if (isRed) SampleColor.RED else SampleColor.BLUE))
-    override val additionalSubsystems = listOf(camera, pidManager, autoPickup)
+    override val additionalSubsystems = listOf(camera, autoPickup)
 
     override fun init() {
         imu.resetYaw()
@@ -196,11 +194,11 @@ class SampleDectectionTuner : OpMode() {
             }
         }
 
-        println("${robot.pidManager.atTarget()} | $isReady")
+        println("${robot.drive.pidManager.atTarget()} | $isReady")
 
         if (fullAuto &&
             robot.intake.linkage.target == 1.0 &&
-            robot.pidManager.atTarget() &&
+            robot.drive.pidManager.atTarget() &&
             targetPoseInternal != null &&
             robot.intake.arm.state == IntakeArmPosition.EXTENDED &&
             isReady
@@ -219,8 +217,8 @@ class SampleDectectionTuner : OpMode() {
             isReady = false
         }
 
-        robot.pidManager.isOn = translationEnabled
-        if (!robot.pidManager.isOn) {
+        robot.drive.pidManager.isOn = translationEnabled
+        if (!robot.drive.pidManager.isOn) {
             robot.drive.robotCentric(
                 gamepad1.left_stick_y.toDouble(),
                 -gamepad1.left_stick_x.toDouble(),
@@ -234,9 +232,9 @@ class SampleDectectionTuner : OpMode() {
 //                }
                 val newAngle = -Math.toRadians(robot.intake.diffy.roll * 90)
                 rotationalOffset = Vec2d(cos(newAngle), sin(newAngle) - 1.0).rotate(-90.0) * clawRadius
-                robot.pidManager.target = targetPose!! - rotationalOffset
+                robot.drive.pidManager.target = targetPose!! - rotationalOffset
             } else {
-                robot.pidManager.target = targetPose!!
+                robot.drive.pidManager.target = targetPose!!
             }
         }
 

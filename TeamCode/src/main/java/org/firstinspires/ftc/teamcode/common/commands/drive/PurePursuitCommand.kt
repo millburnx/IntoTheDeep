@@ -5,12 +5,12 @@ import com.arcrobotics.ftclib.command.CommandBase
 import com.millburnx.purepursuit.PurePursuit
 import com.millburnx.purepursuit.Util.getAngleDiff
 import com.millburnx.utils.Vec2d
+import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
 
 @Config
 class PurePursuitCommand(
-    val robot: AutonRobot,
+    val robot: Robot,
     val targetHeading: Double,
     val path: List<Vec2d>,
     val lookahead: ClosedRange<Double> = 8.0..16.0,
@@ -45,13 +45,13 @@ class PurePursuitCommand(
 
             virtualHeading = Math.toDegrees(pose.position.angleTo(results.target))
 
-            robot.pidManager.isOn = true
-            robot.pidManager.target = Pose2d(results.target, targetHeading)
+            robot.drive.pidManager.isOn = true
+            robot.drive.pidManager.target = Pose2d(results.target, targetHeading)
         } else {
             val endDistance = pose.distanceTo(path.last())
             if (endDistance < lookahead.start) {
-                robot.pidManager.isOn = true
-                robot.pidManager.target = Pose2d(path.last(), targetHeading)
+                robot.drive.pidManager.isOn = true
+                robot.drive.pidManager.target = Pose2d(path.last(), targetHeading)
             } else {
                 val powerF = pose.distanceTo(results.target) * if (backwards) -1.0 else 1.0
                 val angleDiff =
@@ -62,7 +62,7 @@ class PurePursuitCommand(
                     }
                 val powerH = Math.toDegrees(angleDiff)
 
-                robot.pidManager.isOn = false
+                robot.drive.pidManager.isOn = false
                 robot.drive.robotCentric(powerF * multiF, 0.0, -powerH * multiH)
             }
         }
@@ -74,7 +74,7 @@ class PurePursuitCommand(
 
     override fun isFinished(): Boolean {
 //        if (exitOnStuck && robot.drive.stuckDectector.isStuck) return true
-        return robot.pidManager.atTarget()
+        return robot.drive.pidManager.atTarget()
     }
 
     companion object {

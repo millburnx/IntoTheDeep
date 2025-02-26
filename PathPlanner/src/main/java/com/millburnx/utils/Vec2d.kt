@@ -176,4 +176,6 @@ data class Vec2d(
 data class Path(
     val points: List<Vec2d>,
     val endHeading: Double? = null,
-)
+) {
+    companion object
+}
