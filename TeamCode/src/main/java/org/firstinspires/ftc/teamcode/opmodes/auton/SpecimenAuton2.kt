@@ -97,10 +97,10 @@ class SpecimenAuton2 : OpMode() {
 
         fun specimenFlip() =
             SequentialCommandGroup(
-                SlidesCommand(robot.outtake.slides, Slides.wall),
                 ParallelCommandGroup(
                     robot.outtake.arm.specimen(),
                     robot.outtake.wrist.specimen(),
+                    SlidesCommand(robot.outtake.slides, Slides.highRung),
                 ),
             )
 
@@ -117,11 +117,7 @@ class SpecimenAuton2 : OpMode() {
                     specimenFlip(),
                     PIDCommand(robot, Pose2d(Vec2d(scoreX, scoreY + offset * scoreOffset), -180.0)),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(scoreDuration),
-                ParallelCommandGroup(
-                    robot.outtake.arm.specimenScoring(),
-                    WaitCommand(scoringDuration),
-                ),
+                SlidesCommand(robot.outtake.slides, Slides.highRungScore),
                 ParallelCommandGroup(
                     robot.outtake.open(),
                     robot.outtake.base(),
@@ -132,15 +128,9 @@ class SpecimenAuton2 : OpMode() {
             SequentialCommandGroup(
                 ParallelCommandGroup(
                     PIDCommand(robot, Pose2d(Vec2d(scoreX, scoreY), -180.0)),
-                    SlidesCommand(robot.outtake.slides, Slides.wall),
-                    robot.outtake.arm.specimen(),
-                    robot.outtake.wrist.specimen(),
+                    specimenFlip(),
                 ),
-                RelativeDrive(robot.drive, robot.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(scoreDuration),
-                ParallelCommandGroup(
-                    robot.outtake.arm.specimenScoring(),
-                    WaitCommand(scoringDuration),
-                ),
+                SlidesCommand(robot.outtake.slides, Slides.highRungScore),
                 ParallelCommandGroup(
                     robot.outtake.open(),
                     robot.outtake.base(),

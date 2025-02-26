@@ -93,7 +93,6 @@ class SpecimenAuton : OpMode() {
 
         fun specimenFlip() =
             SequentialCommandGroup(
-                SlidesCommand(robot.outtake.slides, Slides.wall),
                 ParallelCommandGroup(
                     robot.outtake.arm.specimen(),
                     robot.outtake.wrist.specimen(),
@@ -128,7 +127,6 @@ class SpecimenAuton : OpMode() {
             SequentialCommandGroup(
                 ParallelCommandGroup(
                     PIDCommand(robot, Pose2d(Vec2d(scoreX, scoreY), -180.0)),
-                    SlidesCommand(robot.outtake.slides, Slides.wall),
                     robot.outtake.arm.specimen(),
                     robot.outtake.wrist.specimen(),
                 ),

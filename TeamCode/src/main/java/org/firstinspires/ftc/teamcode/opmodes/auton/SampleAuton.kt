@@ -7,8 +7,11 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
+import com.millburnx.utils.Path
 import com.millburnx.utils.TSV
+import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
@@ -134,6 +137,7 @@ class SampleAuton : OpMode() {
                     WaitCommand(pidStablize),
                     robot.intake.extend(),
                 ),
+                InstantCommand({ robot.intake.diffy.roll = sample3Roll }),
                 WaitCommand(grabDuration),
                 grab(),
                 ParallelCommandGroup(
@@ -142,16 +146,40 @@ class SampleAuton : OpMode() {
                 ),
                 WaitCommand(basketDuration),
                 drop(),
-                down(),
+                ParallelCommandGroup(
+                    down(),
+                    pp(loadPath("parkSamples"), 90.0),
+                ),
             ),
         )
 
         schedule(SequentialCommandGroup(*commands.toTypedArray()))
     }
 
+    fun loadPath(file: String): Path {
+        val rootDir = Environment.getExternalStorageDirectory()
+        val filePath = "$rootDir/Paths/$file.tsv"
+        val path =
+            try {
+                val loaded = Vec2d.loadList(File(filePath))
+                println(loaded)
+                loaded
+            } catch (e: Error) {
+                e.printStackTrace()
+                println("$file.tsv not found")
+                Path(listOf())
+            }
+        return path
+    }
+
+    fun pp(
+        path: Path,
+        heading: Double,
+    ) = PurePursuitCommand(robot, heading, path.points)
+
     companion object {
         @JvmField
-        var startingX = -60.0
+        var startingX = -58.0
 
         @JvmField
         var startingY = 40.0
@@ -163,7 +191,7 @@ class SampleAuton : OpMode() {
         var sample1X = -47.0
 
         @JvmField
-        var sample1Y = 51.5
+        var sample1Y = 49.5
 
         @JvmField
         var sample2X = -47.0
@@ -172,13 +200,16 @@ class SampleAuton : OpMode() {
         var sample2Y = 59.5
 
         @JvmField
-        var sample3X = -42.5
+        var sample3X = -40.5
 
         @JvmField
-        var sample3Y = 55.5
+        var sample3Y = 52.5
 
         @JvmField
         var sample3H = 45.0
+
+        @JvmField
+        var sample3Roll = -0.5
 
         @JvmField
         var basketX = -56.0
@@ -187,13 +218,13 @@ class SampleAuton : OpMode() {
         var basketY = 58.0
 
         @JvmField
-        var basketDuration: Long = 750
+        var basketDuration: Long = 250
 
         @JvmField
-        var grabDuration: Long = 750
+        var grabDuration: Long = 250
 
         @JvmField
-        var pidStablize: Long = 750
+        var pidStablize: Long = 250
     }
 
     fun loadPoints(file: String): List<Pose2d> {

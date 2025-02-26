@@ -11,6 +11,9 @@ abstract class OpMode : CommandOpMode() {
     }
 
     override fun run() {
+        for (hub in robot.hubs) {
+            hub.clearBulkCache()
+        }
         robot.telemetryManager.pre()
         super.run()
         this.exec()

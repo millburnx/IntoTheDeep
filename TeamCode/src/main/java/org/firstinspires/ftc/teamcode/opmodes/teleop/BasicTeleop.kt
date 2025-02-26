@@ -21,7 +21,6 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.common.utils.reset
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
@@ -292,17 +291,7 @@ class BasicTeleop : OpMode() {
             hasInit = true
         }
 
-        val attemptingToBasket =
-            robot.outtake.slides.target > Slides.wall && robot.outtake.arm.state == OuttakeArmPosition.BASKET
-        val basketAssist: Double =
-            if (useBasketAssist && attemptingToBasket) {
-                val targetAngle = 135.0
-                val currentAngle = robot.drive.pose.heading
-                val diff = normalizeDegrees(targetAngle - currentAngle)
-                diff * basketAssistWeight
-            } else {
-                0.0
-            }
+        val basketAssist: Double = 0.0
 
         if (fieldCentric) {
             robot.drive.fieldCentric(
@@ -351,19 +340,19 @@ class BasicTeleop : OpMode() {
         var slideThreshold: Double = 0.1
 
         @JvmField
-        var intakePickupArmDelay: Long = 250
+        var intakePickupArmDelay: Long = 500
 
         @JvmField
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var transferClawDelay: Long = 200
+        var transferClawDelay: Long = 250L
 
         @JvmField
         var outtakePickupClawDelay: Long = 250
 
         @JvmField
-        var intakeDuration: Long = 1000
+        var intakeDuration: Long = 625
 
         @JvmField
         var fieldCentric: Boolean = true
@@ -373,11 +362,5 @@ class BasicTeleop : OpMode() {
 
         @JvmField
         var specimenDelay: Long = 500
-
-        @JvmField
-        var useBasketAssist: Boolean = false
-
-        @JvmField
-        var basketAssistWeight: Double = 0.025
     }
 }

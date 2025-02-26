@@ -53,7 +53,7 @@ class SampleDetector :
         var blueUpper: Double = 255.0
 
         @JvmField
-        var areaMin: Double = 2_000.0
+        var areaMin: Double = 6_000.0
 
         @JvmField
         var areaMax: Double = 250_000.0

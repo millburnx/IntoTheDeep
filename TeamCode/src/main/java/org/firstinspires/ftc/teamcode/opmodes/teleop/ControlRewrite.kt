@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPositi
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
+import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
 
@@ -131,11 +133,11 @@ class ControlRewrite : OpMode() {
                     SequentialCommandGroup(
                         robot.outtake.close(),
                         WaitCommand(specimenCloseDuration),
-                        SlidesCommand(robot.outtake.slides, Slides.wall),
                         ParallelCommandGroup(
                             robot.outtake.arm.specimen(),
                             robot.outtake.wrist.specimen(),
                         ),
+                        SlidesCommand(robot.outtake.slides, Slides.highRung),
                     ),
                 )
 
@@ -163,7 +165,7 @@ class ControlRewrite : OpMode() {
                             robot.outtake.open(),
                         ),
                         SequentialCommandGroup(
-                            robot.outtake.arm.specimenScoring(),
+                            SlidesCommand(robot.outtake.slides, Slides.highRungScore),
                         ),
                         { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ),
@@ -196,6 +198,16 @@ class ControlRewrite : OpMode() {
                         { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ),
                 )
+
+            val imuReset =
+                EdgeDetector(
+                    gamepad1::circle,
+                    this@ControlRewrite,
+                    InstantCommand({
+                        robot.imu.resetYaw()
+                        gamepad1.rumble(250)
+                    }),
+                )
         }
     }
 
@@ -212,19 +224,55 @@ class ControlRewrite : OpMode() {
             hasInit = true
         }
 
+        val attemptingToBasket =
+            robot.outtake.slides.target > (Slides.lowBasket - Slides.min) / 2 && robot.outtake.arm.state == OuttakeArmPosition.BASKET
+        val basketAssist: Double =
+            if (useBasketAssist && attemptingToBasket) {
+                val targetAngle = basketAssistHeading
+                val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
+                val diff = normalizeDegrees(targetAngle - currentAngle)
+                diff * basketAssistWeight
+            } else {
+                0.0
+            }
+
+        val attemptingToRung = robot.outtake.arm.state == OuttakeArmPosition.SPECIMEN
+        val rungAssist: Double =
+            if (useRungAssist && attemptingToRung) {
+                val targetAngle = rungAssistHeading
+                val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
+                val diff = normalizeDegrees(targetAngle - currentAngle)
+                diff * rungAssistWeight
+            } else {
+                0.0
+            }
+
+        val attemptingToWall = robot.outtake.arm.state == OuttakeArmPosition.PICKUP
+        val wallAssist: Double =
+            if (useWallAssist && attemptingToWall) {
+                val targetAngle = wallAssistHeading
+                val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
+                val diff = normalizeDegrees(targetAngle - currentAngle)
+                diff * wallAssistWeight
+            } else {
+                0.0
+            }
+
+        val assists = basketAssist + rungAssist + wallAssist
+
         if (!robot.pidManager.isOn) {
             if (fieldCentric) {
                 robot.drive.fieldCentric(
                     gamepad1.left_stick_y.toDouble(),
                     -gamepad1.left_stick_x.toDouble(),
-                    -gamepad1.right_stick_x.toDouble(),
+                    -gamepad1.right_stick_x.toDouble() + assists,
                     Math.toRadians(-robot.imu.robotYawPitchRollAngles.yaw),
                 )
             } else {
                 robot.drive.robotCentric(
                     gamepad1.left_stick_y.toDouble(),
                     -gamepad1.left_stick_x.toDouble(),
-                    -gamepad1.right_stick_x.toDouble(),
+                    -gamepad1.right_stick_x.toDouble() + assists,
                 )
             }
         }
@@ -258,7 +306,7 @@ class ControlRewrite : OpMode() {
         var slideThreshold: Double = 0.1
 
         @JvmField
-        var fieldCentric: Boolean = false
+        var fieldCentric: Boolean = true
 
         // delays
 
@@ -276,5 +324,32 @@ class ControlRewrite : OpMode() {
 
         @JvmField
         var specimenCloseDuration: Long = 250
+
+        @JvmField
+        var useBasketAssist: Boolean = true
+
+        @JvmField
+        var basketAssistWeight: Double = 0.025
+
+        @JvmField
+        var basketAssistHeading: Double = -45.0
+
+        @JvmField
+        var useRungAssist: Boolean = true
+
+        @JvmField
+        var rungAssistWeight: Double = 0.025
+
+        @JvmField
+        var rungAssistHeading: Double = 180.0
+
+        @JvmField
+        var useWallAssist: Boolean = true
+
+        @JvmField
+        var wallAssistWeight: Double = 0.025
+
+        @JvmField
+        var wallAssistHeading: Double = 180.0
     }
 }

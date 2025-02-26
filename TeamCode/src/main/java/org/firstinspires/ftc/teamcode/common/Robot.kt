@@ -52,7 +52,7 @@ open class Robot(
     val deltaTime = DeltaTime()
 
     open fun init() {
-        hubs.forEach { it.bulkCachingMode = BulkCachingMode.AUTO }
+        hubs.forEach { it.bulkCachingMode = BulkCachingMode.MANUAL }
         subsystems.forEach {
             it.init() // triggers lazy loader
         }

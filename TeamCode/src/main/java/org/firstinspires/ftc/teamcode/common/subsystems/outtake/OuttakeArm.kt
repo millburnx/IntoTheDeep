@@ -60,13 +60,13 @@ class OuttakeArm(
 
     companion object {
         @JvmField
-        var basePosition = 0.77
+        var basePosition = 0.75
 
         @JvmField
-        var basketPosition = 0.65
+        var basketPosition = 0.625
 
         @JvmField
-        var specimenPosition = 0.55
+        var specimenPosition = 0.44
 
         @JvmField
         var specimenScoringPosition = 0.77

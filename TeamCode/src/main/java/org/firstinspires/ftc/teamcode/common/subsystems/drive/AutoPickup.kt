@@ -11,14 +11,12 @@ import com.arcrobotics.ftclib.command.WaitUntilCommand
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
-import org.firstinspires.ftc.teamcode.common.commands.drive.PickupPIDSettings
 import org.firstinspires.ftc.teamcode.common.processors.SampleColor
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.angleThres
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.clawRadius
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.scale
 
 @Config
 class AutoPickup(
@@ -91,13 +89,6 @@ class AutoPickup(
                 InstantCommand({
                     val target = lastTarget!!
                     robot.pidManager.isOn = true
-                    robot.pidManager.kP = PickupPIDSettings.kP
-                    robot.pidManager.kI = PickupPIDSettings.kI
-                    robot.pidManager.kD = PickupPIDSettings.kD
-                    robot.pidManager.kPHeading = PickupPIDSettings.kPHeading
-                    robot.pidManager.kIHeading = PickupPIDSettings.kIHeading
-                    robot.pidManager.kDHeading = PickupPIDSettings.kDHeading
-                    robot.pidManager.tolerance = Pose2d(PickupPIDSettings.tolerance, PickupPIDSettings.headingTolerance)
                     robot.pidManager.target = target.first
                     robot.intake.diffy.roll = target.second
                 }),
