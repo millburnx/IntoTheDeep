@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.function.Consumer
 import org.firstinspires.ftc.robotcore.external.function.Continuation
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration
+import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner
 import org.firstinspires.ftc.vision.VisionProcessor
 import org.opencv.android.Utils
 import org.opencv.core.Core
@@ -69,6 +70,9 @@ class SampleDetector :
 
         @JvmField
         var centerSize: Int = 7
+
+        @JvmField
+        var crosshairSize: Int = 5
     }
 
     override fun init(
@@ -177,6 +181,16 @@ class SampleDetector :
                 -1,
             )
         }
+        Imgproc.circle(
+            masked,
+            Point(
+                SampleDectectionTuner.crosshairX + frame.width() / 2,
+                -SampleDectectionTuner.crosshairY + frame.height() / 2,
+            ),
+            crosshairSize,
+            Scalar(0.0, 255.0, 0.0),
+            -1,
+        )
 
         val contoursBitmap = Bitmap.createBitmap(masked.width(), masked.height(), Bitmap.Config.RGB_565)
         Utils.matToBitmap(masked, contoursBitmap)
@@ -202,12 +216,16 @@ class SampleDetector :
         data: List<DetectionData>,
         color: SampleColor,
     ): List<SampleDetection> {
+        val crosshair =
+            Vec2d(frame.width(), frame.height()) / 2 +
+                Vec2d(
+                    SampleDectectionTuner.crosshairX,
+                    SampleDectectionTuner.crosshairY,
+                )
         for (detection in data) {
             val rect = detection.rect
             val center =
-                Vec2d(1.0, -1.0) * (Vec2d(rect.center.x, rect.center.y) - Vec2d(frame.width(), frame.height()) / 2)
-            val area = rect.size.width * rect.size.height
-            val ratio = min(rect.size.height / rect.size.width, rect.size.width / rect.size.height)
+                (Vec2d(1.0, -1.0) * Vec2d(rect.center.x, rect.center.y)) - crosshair
             Imgproc.putText(
                 masked,
                 String.format(
