@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
+import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
@@ -12,10 +13,24 @@ class StuckDectector(
 
     val velocity: Pose2d
         get() {
+            if (positionQueue.queue.size < 2) return Pose2d() // not enough data
             // sum up the abs diff, divide by time
-            val veloSum = positionQueue.queue
-            return Pose2d()
+            val deltaTime = positionQueue.queue.last().second - positionQueue.queue.first().second
+            val deltas = positionQueue.queue.map { it.first }.zipWithNext()
+            val travelSum = deltas.fold(Pose2d()) { acc, next -> acc + (next.first - next.second).abs() }
+
+            return travelSum / deltaTime
         }
+
+    val isStuck: Boolean
+        get() {
+            val distance = velocity.distanceTo(Vec2d())
+            return distance < stuckVeloT && velocity.heading < stuckVeloH
+        }
+
+    override fun periodic() {
+        robot.telemetry.addData("stuck", isStuck)
+    }
 
     companion object {
         @JvmField

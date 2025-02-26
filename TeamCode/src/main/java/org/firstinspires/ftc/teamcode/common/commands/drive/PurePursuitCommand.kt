@@ -13,6 +13,7 @@ class PurePursuitCommand(
     val targetHeading: Double,
     val path: List<Vec2d>,
     val lookahead: ClosedRange<Double> = 8.0..16.0,
+    val exitOnStuck: Boolean = false, // useful for if you're ramming into a wall
 ) : CommandBase() {
     val purePursuit = PurePursuit(path, lookahead, PIDSettings.tolerance)
     val endingState = false
@@ -40,7 +41,10 @@ class PurePursuitCommand(
         robot.telemetryManager.drawRobot(packet, Pose2d(pose.position, virtualHeading), "#00ff00")
     }
 
-    override fun isFinished(): Boolean = robot.pidManager.atTarget()
+    override fun isFinished(): Boolean {
+        if (exitOnStuck && robot.drive.stuckDectector.isStuck) return true
+        return robot.pidManager.atTarget()
+    }
 
     companion object {
         @JvmField

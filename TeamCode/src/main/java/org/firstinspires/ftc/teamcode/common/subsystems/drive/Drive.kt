@@ -32,6 +32,8 @@ open class Drive(
             odometry.poseEstimate = value.toRawRR()
         }
 
+    val stuckDectector = StuckDectector(robot)
+
     override fun init() {
         super.init()
         (robot.hardware["para"] as DcMotorEx).reset()
