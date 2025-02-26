@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
+import com.arcrobotics.ftclib.command.WaitUntilCommand
 import com.millburnx.utils.Path
 import com.millburnx.utils.TSV
 import com.millburnx.utils.Vec2d
@@ -43,7 +44,13 @@ class SampleAuton : OpMode() {
 
         val grab = {
             SequentialCommandGroup(
+                robot.autoPickup.startScanning(),
+                WaitUntilCommand({ robot.autoPickup.lastTarget != null }),
+                robot.autoPickup.stopScanning(),
+                robot.autoPickup.align(),
                 robot.intake.grab(),
+                robot.autoPickup.stop(),
+                InstantCommand({ robot.autoPickup.lastTarget = null }),
                 ParallelCommandGroup(
                     robot.intake.retract(),
                     robot.outtake.open(),
@@ -95,14 +102,23 @@ class SampleAuton : OpMode() {
             )
         }
 
-        commands.add(
+        val basket = {
             SequentialCommandGroup(
                 ParallelCommandGroup(
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
+                    SequentialCommandGroup(
+                        WaitUntilCommand({ robot.outtake.slides.position > Slides.min + (Slides.highBasket - Slides.min) / 2 }),
+                        PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
+                    ),
                     up(),
                 ),
                 WaitCommand(basketDuration),
                 drop(),
+            )
+        }
+
+        commands.add(
+            SequentialCommandGroup(
+                basket(),
                 ParallelCommandGroup(
                     down(),
                     PIDCommand(robot, Pose2d(sample1X, sample1Y, 0.0)),
@@ -111,12 +127,7 @@ class SampleAuton : OpMode() {
                 ),
                 WaitCommand(grabDuration),
                 grab(),
-                ParallelCommandGroup(
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
-                    up(),
-                ),
-                WaitCommand(basketDuration),
-                drop(),
+                basket(),
                 ParallelCommandGroup(
                     down(),
                     PIDCommand(robot, Pose2d(sample2X, sample2Y, 0.0)),
@@ -125,27 +136,17 @@ class SampleAuton : OpMode() {
                 ),
                 WaitCommand(grabDuration),
                 grab(),
-                ParallelCommandGroup(
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
-                    up(),
-                ),
-                WaitCommand(basketDuration),
-                drop(),
+                basket(),
                 ParallelCommandGroup(
                     down(),
                     PIDCommand(robot, Pose2d(sample3X, sample3Y, sample3H)),
                     WaitCommand(pidStablize),
                     robot.intake.extend(),
                 ),
-                InstantCommand({ robot.intake.diffy.roll = sample3Roll }),
+//                InstantCommand({ robot.intake.diffy.roll = sample3Roll }),
                 WaitCommand(grabDuration),
                 grab(),
-                ParallelCommandGroup(
-                    PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
-                    up(),
-                ),
-                WaitCommand(basketDuration),
-                drop(),
+                basket(),
                 ParallelCommandGroup(
                     down(),
                     pp(loadPath("parkSamples"), 90.0),
@@ -218,7 +219,7 @@ class SampleAuton : OpMode() {
         var basketY = 58.0
 
         @JvmField
-        var basketDuration: Long = 250
+        var basketDuration: Long = 500
 
         @JvmField
         var grabDuration: Long = 250

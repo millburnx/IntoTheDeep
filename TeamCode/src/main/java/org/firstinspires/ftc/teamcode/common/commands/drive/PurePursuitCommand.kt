@@ -73,7 +73,7 @@ class PurePursuitCommand(
     }
 
     override fun isFinished(): Boolean {
-        if (exitOnStuck && robot.drive.stuckDectector.isStuck) return true
+//        if (exitOnStuck && robot.drive.stuckDectector.isStuck) return true
         return robot.pidManager.atTarget()
     }
 

@@ -11,6 +11,8 @@ class ProfiledPIDManager(
 
     var profiledTarget = Pose2d()
 
+    var isDecelerating = false
+
     override var target = Pose2d()
         set(value) {
             field = value
@@ -18,7 +20,16 @@ class ProfiledPIDManager(
         }
 
     override fun periodic() {
-        // need to actually figure out how to turn accel into distance tmr morning i need to sleep lol
+        // check what state we should be in
+        if (!isDecelerating && shouldDecelerate()) isDecelerating = true
+    }
+
+    fun shouldDecelerate(): Boolean {
+//        val currentVelocity = (robot.drive.oldPose.distanceTo(robot.drive.pose)) / robot.deltaTime.deltaTime
+//        val distanceForDeceleration = sqrt((currentVelocity * 2) / -maxAccelTrans)
+//        val distanceToTarget = robot.drive.pose.distanceTo(target)
+//        return distanceToTarget < distanceForDeceleration
+        return false
     }
 
     companion object {

@@ -32,6 +32,9 @@ class StuckDectector(
 
     override fun periodic() {
         robot.telemetry.addData("stuck", isStuck)
+        robot.telemetry.addData("velocityX", velocity.x)
+        robot.telemetry.addData("velocityY", velocity.y)
+        robot.telemetry.addData("velocityH", velocity.heading)
     }
 
     companion object {

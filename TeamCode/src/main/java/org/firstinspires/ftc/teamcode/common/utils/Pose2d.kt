@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.utils
 
 import com.millburnx.utils.Vec2d
 import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 data class Pose2d(
     val position: Vec2d = Vec2d(),
@@ -71,4 +72,6 @@ data class Pose2d(
     fun distanceTo(pose: Pose2d) = distanceTo(pose.position)
 
     fun distanceTo(vec2d: Vec2d) = position.distanceTo(vec2d)
+
+    fun sign() = Pose2d(position.sign(), heading.sign)
 }

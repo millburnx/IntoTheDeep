@@ -12,30 +12,25 @@ import com.millburnx.utils.Path
 import com.millburnx.utils.TSV
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDCommand
-import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDManager
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.intakeLoweringDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.specimenCloseDuration
+import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import java.io.File
 
 class AutonRobot(
     opMode: OpMode,
-) : Robot(opMode) {
-    val pidManager = PIDManager(this)
-    override val additionalSubsystems = listOf(pidManager)
-
+) : SampleCameraRobot(opMode) {
     override fun init() {
-        imu.resetYaw()
-        drive.breakMotors()
         super.init()
+        drive.breakMotors()
     }
 }
 

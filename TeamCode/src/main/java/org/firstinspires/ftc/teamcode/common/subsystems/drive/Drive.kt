@@ -30,9 +30,16 @@ open class Drive(
         }
         set(value) {
             odometry.poseEstimate = value.toRawRR()
+//            oldPose = value
         }
 
-    val stuckDectector = StuckDectector(robot)
+//    var oldPose: Pose2d = Pose2d()
+//        set(value) {
+//            odometry.poseEstimate = value.toRawRR()
+//            field = value
+//        }
+
+//    val stuckDectector = StuckDectector(robot)
 
     override fun init() {
         super.init()
@@ -53,7 +60,7 @@ open class Drive(
     }
 
     override fun periodic() {
-        super.periodic()
+//        oldPose = pose
         odometry.update()
     }
 
