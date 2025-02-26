@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakeDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakePickupArmDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakePickupClawDelay
 
@@ -40,15 +40,12 @@ class ExtendCommand(
 ) : SequentialCommandGroup() {
     init {
         addCommands(
-            InstantCommand({
-                intake.linkage.target = 1.0
-                intake.arm.state = IntakeArmPosition.EXTENDED
-                intake.diffy.pitch = Diffy.hoverPitch
-                intake.diffy.roll = Diffy.hoverRoll
-            }, intake.linkage, intake.arm, intake.diffy),
-            WaitCommand(intakeDuration),
+            ParallelCommandGroup(
+                intake.linkage.extend(),
+                intake.arm.extended(),
+                intake.diffy.hover(),
+            ),
         )
-        addRequirements(intake.linkage, intake.arm, intake.diffy)
     }
 }
 
@@ -57,15 +54,12 @@ class RetractCommand(
 ) : SequentialCommandGroup() {
     init {
         addCommands(
-            InstantCommand({
-                intake.linkage.target = 0.0
-                intake.arm.state = IntakeArmPosition.BASE
-                intake.diffy.pitch = Diffy.transferPitch
-                intake.diffy.roll = Diffy.transferRoll
-            }, intake.linkage, intake.arm, intake.diffy),
-            WaitCommand(intakeDuration),
+            ParallelCommandGroup(
+                intake.linkage.retract(),
+                intake.arm.base(),
+                intake.diffy.transfer(),
+            ),
         )
-        addRequirements(intake.linkage, intake.arm, intake.diffy)
     }
 }
 
@@ -74,18 +68,13 @@ class BarSideRetractCommand(
 ) : SequentialCommandGroup() {
     init {
         addCommands(
-            InstantCommand({
-                intake.linkage.target = 0.0
-                intake.arm.state = IntakeArmPosition.EXTENDED
-                intake.diffy.pitch = Diffy.transferPitch
-                intake.diffy.roll = Diffy.transferRoll
-            }, intake.linkage, intake.arm, intake.diffy),
-            WaitCommand(intakeDuration),
-            InstantCommand({
-                intake.arm.state = IntakeArmPosition.BASE
-            }, intake.arm),
+            ParallelCommandGroup(
+                intake.linkage.retract(),
+                intake.arm.extended(),
+                intake.diffy.transfer(),
+            ),
+            intake.arm.base(),
         )
-        addRequirements(intake.linkage, intake.arm, intake.diffy)
     }
 }
 
@@ -94,14 +83,11 @@ class GrabCommand(
 ) : SequentialCommandGroup() {
     init {
         addCommands(
-            InstantCommand({
-                intake.arm.state = IntakeArmPosition.FLOOR
-                intake.diffy.pitch = Diffy.pickupPitch
-            }, intake),
+            intake.arm.floor(),
+            intake.diffy.pickup(),
             WaitCommand(intakePickupArmDelay),
             intake.close(),
             WaitCommand(intakePickupClawDelay),
         )
-        addRequirements(intake.arm, intake.diffy, intake.claw)
     }
 }

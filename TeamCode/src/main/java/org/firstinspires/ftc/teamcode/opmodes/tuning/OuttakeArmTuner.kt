@@ -33,6 +33,8 @@ class OuttakeArmTuner : OpMode() {
             robot.outtakeArm.state = OuttakeArmPosition.PICKUP
         } else if (state == 5) {
             robot.outtakeArm.state = OuttakeArmPosition.HUMAN
+        } else if (state == 6) {
+            robot.outtakeArm.state = OuttakeArmPosition.PARK
         }
     }
 

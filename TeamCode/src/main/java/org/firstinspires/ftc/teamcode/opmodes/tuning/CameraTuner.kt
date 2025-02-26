@@ -101,10 +101,10 @@ class SampleDectectionTuner : OpMode() {
                 EdgeDetector(
                     gamepad1::dpad_down,
                     this@SampleDectectionTuner,
-                    InstantCommand({
-                        robot.intake.arm.state = IntakeArmPosition.FLOOR
-                        robot.intake.diffy.pitch = Diffy.pickupPitch
-                    }, robot.intake),
+                    ParallelCommandGroup(
+                        robot.intake.arm.floor(),
+                        robot.intake.diffy.pickup(),
+                    ),
                 )
 
             val clawToggle =

@@ -15,6 +15,7 @@ enum class OuttakeArmPosition {
     BASKET,
     PICKUP,
     HUMAN,
+    PARK,
 }
 
 @Config
@@ -39,6 +40,7 @@ class OuttakeArm(
                 OuttakeArmPosition.BASKET -> basketPosition
                 OuttakeArmPosition.PICKUP -> pickupPosition
                 OuttakeArmPosition.HUMAN -> humanPosition
+                OuttakeArmPosition.PARK -> parkPosition
             }
         servoLimiter.maxSpeed = maxSpeed
         servoLimiter.update(target)
@@ -46,17 +48,19 @@ class OuttakeArm(
         rightServo.position = servoLimiter.current
     }
 
-    fun base() = InstantCommand({ state = OuttakeArmPosition.BASE })
+    fun base() = InstantCommand({ state = OuttakeArmPosition.BASE }, this)
 
-    fun specimen() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN })
+    fun specimen() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN }, this)
 
-    fun specimenScoring() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN_SCORING })
+    fun specimenScoring() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN_SCORING }, this)
 
-    fun basket() = InstantCommand({ state = OuttakeArmPosition.BASKET })
+    fun basket() = InstantCommand({ state = OuttakeArmPosition.BASKET }, this)
 
-    fun pickup() = InstantCommand({ state = OuttakeArmPosition.PICKUP })
+    fun pickup() = InstantCommand({ state = OuttakeArmPosition.PICKUP }, this)
 
-    fun human() = InstantCommand({ state = OuttakeArmPosition.HUMAN })
+    fun human() = InstantCommand({ state = OuttakeArmPosition.HUMAN }, this)
+
+    fun park() = InstantCommand({ state = OuttakeArmPosition.PARK }, this)
 
     companion object {
         @JvmField
@@ -76,6 +80,9 @@ class OuttakeArm(
 
         @JvmField
         var humanPosition = 0.4
+
+        @JvmField
+        var parkPosition = 0.6
 
         @JvmField
         var maxSpeed = -1.0

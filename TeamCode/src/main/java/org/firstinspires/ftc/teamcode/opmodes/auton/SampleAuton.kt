@@ -91,10 +91,8 @@ class SampleAuton : OpMode() {
                 WaitCommand(250),
                 ParallelCommandGroup(
                     ParallelCommandGroup(
-                        InstantCommand({
-                            robot.outtake.arm.state = OuttakeArmPosition.BASE
-                            robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                        }, robot.outtake.arm, robot.outtake.wrist),
+                        robot.outtake.arm.base(),
+                        robot.outtake.wrist.base(),
                         WaitCommand(outtakeDropArmDelay),
                     ),
                     PIDCommand(robot, Pose2d(basketX, basketY, -45.0)),
@@ -148,7 +146,9 @@ class SampleAuton : OpMode() {
                 grab(),
                 basket(),
                 ParallelCommandGroup(
-                    down(),
+                    SlidesCommand(robot.outtake.slides, Slides.min),
+                    robot.outtake.arm.park(),
+                    robot.outtake.wrist.park(),
                     pp(loadPath("parkSamples"), 90.0),
                 ),
             ),

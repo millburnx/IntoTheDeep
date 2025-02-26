@@ -7,7 +7,9 @@ import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class Outtake(val robot: Robot) : Subsystem() {
+class Outtake(
+    val robot: Robot,
+) : Subsystem() {
     val slides: Slides = Slides(robot)
     val arm: OuttakeArm = OuttakeArm(robot)
     val wrist: OuttakeWrist = OuttakeWrist(robot)
@@ -21,22 +23,22 @@ class Outtake(val robot: Robot) : Subsystem() {
     fun base() = BaseCommand(this)
 
     fun open() = InstantCommand(claw::open, claw)
+
     fun close() = InstantCommand(claw::close, claw)
 }
 
-class BaseCommand(outtake: Outtake) : SequentialCommandGroup() {
+class BaseCommand(
+    outtake: Outtake,
+) : SequentialCommandGroup() {
     init {
         addCommands(
             ParallelCommandGroup(
                 SlidesCommand(outtake.slides, Slides.min),
                 ParallelCommandGroup(
-                    InstantCommand({
-                        outtake.arm.state = OuttakeArmPosition.BASE
-                        outtake.wrist.state = OuttakeWristPosition.BASE
-                    }, outtake.arm, outtake.wrist),
-                )
-            )
+                    outtake.arm.base(),
+                    outtake.wrist.base(),
+                ),
+            ),
         )
-        addRequirements(outtake.slides, outtake.arm, outtake.wrist)
     }
 }

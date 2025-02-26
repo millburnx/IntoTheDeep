@@ -33,6 +33,8 @@ class OuttakeWristTuner : OpMode() {
             robot.outtakeWrist.state = OuttakeWristPosition.PICKUP
         } else if (state == 5) {
             robot.outtakeWrist.state = OuttakeWristPosition.HUMAN
+        } else if (state == 6) {
+            robot.outtakeWrist.state = OuttakeWristPosition.PARK
         }
     }
 

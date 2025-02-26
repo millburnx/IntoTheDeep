@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.ParallelCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import com.millburnx.utils.Utils
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
+import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakeDuration
 
 @Config
 class Linkage(
@@ -18,6 +22,22 @@ class Linkage(
     override fun init() {
         periodic()
     }
+
+    fun extendAsync() = InstantCommand({ target = 1.0 }, this)
+
+    fun extend() =
+        ParallelCommandGroup(
+            extendAsync(),
+            WaitCommand(intakeDuration),
+        )
+
+    fun retractAsync() = InstantCommand({ target = 0.0 }, this)
+
+    fun retract() =
+        ParallelCommandGroup(
+            retractAsync(),
+            WaitCommand(intakeDuration),
+        )
 
     override fun periodic() {
         if (!enabled) return
