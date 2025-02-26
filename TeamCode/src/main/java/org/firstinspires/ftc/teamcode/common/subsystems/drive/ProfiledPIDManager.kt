@@ -9,7 +9,23 @@ class ProfiledPIDManager(
     // this is NOT a traditional motion profile as it is positional based
     // but has code to prevent oscillations if the robot happens to be faster than the desired profile
 
-//    override var profiledTarget
+    var profiledTarget = Pose2d()
 
     override var target = Pose2d()
+        set(value) {
+            field = value
+            profiledTarget = robot.drive.pose // reset
+        }
+
+    override fun periodic() {
+        // need to actually figure out how to turn accel into distance tmr morning i need to sleep lol
+    }
+
+    companion object {
+        @JvmField
+        var maxAccelTrans = 48.0
+
+        @JvmField
+        var maxAccelHeading = 180.0
+    }
 }

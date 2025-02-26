@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
+import com.acmerobotics.dashboard.config.Config
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
+@Config
 class StuckDectector(
     val robot: Robot,
 ) : Subsystem() {
