@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.baseIntakeDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakePickupArmDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakePickupClawDelay
 
@@ -22,72 +23,68 @@ class Intake(
         subsystems.forEach { it.init() }
     }
 
-    fun extend() = ExtendCommand(this)
+    fun extend() =
+        ParallelCommandGroup(
+            linkage.extend(),
+            arm.extended(),
+            diffy.hover(),
+        )
 
-    fun retract() = RetractCommand(this)
+    fun extendAsync() =
+        ParallelCommandGroup(
+            linkage.extendAsync(),
+            arm.extended(),
+            diffy.hover(),
+        )
 
-    fun barSideRetract() = BarSideRetractCommand(this)
+    fun baseExtend() =
+        ParallelCommandGroup(
+            WaitCommand(baseIntakeDuration),
+            baseExtendAsync(),
+        )
 
-    fun grab() = GrabCommand(this)
+    fun baseExtendAsync() =
+        ParallelCommandGroup(
+            arm.extended(),
+            diffy.hover(),
+        )
+
+    fun retract() =
+        ParallelCommandGroup(
+            linkage.retract(),
+            arm.base(),
+            diffy.transfer(),
+        )
+
+    fun retractAsync() =
+        ParallelCommandGroup(
+            linkage.retractAsync(),
+            arm.base(),
+            diffy.transfer(),
+        )
+
+    fun baseRetract() =
+        ParallelCommandGroup(
+            WaitCommand(baseIntakeDuration),
+            baseRetractAsync(),
+        )
+
+    fun baseRetractAsync() =
+        ParallelCommandGroup(
+            arm.base(),
+            diffy.transfer(),
+        )
+
+    fun grab() =
+        SequentialCommandGroup(
+            arm.floor(),
+            diffy.pickup(),
+            WaitCommand(intakePickupArmDelay),
+            close(),
+            WaitCommand(intakePickupClawDelay),
+        )
 
     fun open() = InstantCommand(claw::open, claw)
 
     fun close() = InstantCommand(claw::close, claw)
-}
-
-class ExtendCommand(
-    intake: Intake,
-) : SequentialCommandGroup() {
-    init {
-        addCommands(
-            ParallelCommandGroup(
-                intake.linkage.extend(),
-                intake.arm.extended(),
-                intake.diffy.hover(),
-            ),
-        )
-    }
-}
-
-class RetractCommand(
-    intake: Intake,
-) : SequentialCommandGroup() {
-    init {
-        addCommands(
-            ParallelCommandGroup(
-                intake.linkage.retract(),
-                intake.arm.base(),
-                intake.diffy.transfer(),
-            ),
-        )
-    }
-}
-
-class BarSideRetractCommand(
-    intake: Intake,
-) : SequentialCommandGroup() {
-    init {
-        addCommands(
-            ParallelCommandGroup(
-                intake.linkage.retract(),
-                intake.arm.extended(),
-                intake.diffy.transfer(),
-            ),
-            intake.arm.base(),
-        )
-    }
-}
-
-class GrabCommand(
-    intake: Intake,
-) : SequentialCommandGroup() {
-    init {
-        addCommands(
-            intake.arm.floor(),
-            intake.diffy.pickup(),
-            WaitCommand(intakePickupArmDelay),
-            intake.close(),
-            WaitCommand(intakePickupClawDelay),
-        )
-    }
 }

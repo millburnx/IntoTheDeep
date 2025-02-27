@@ -106,11 +106,7 @@ class MainTeleop : OpMode() {
                             { robot.intake.arm.state == IntakeArmPosition.SPECIMEN },
                         ),
                         robot.intake.open(),
-                        ParallelCommandGroup(
-                            robot.intake.arm.extended(),
-                            robot.intake.diffy.hover(),
-                            WaitCommand(baseIntakeDuration),
-                        ),
+                        robot.intake.baseExtend(),
                         WaitCommand(AutoPickup.cameraStablizationDuration),
                         robot.autoPickup.startScanning(),
                         robot.autoPickup.rumbleForever,
@@ -128,11 +124,7 @@ class MainTeleop : OpMode() {
                                 robot.autoPickup.stop(),
                                 // transfer
                                 ParallelCommandGroup(
-                                    ParallelCommandGroup(
-                                        robot.intake.arm.base(),
-                                        robot.intake.diffy.transfer(),
-                                        WaitCommand(baseIntakeDuration),
-                                    ),
+                                    robot.intake.baseRetract(),
                                     robot.outtake.open(),
                                     robot.outtake.base(),
                                 ),
