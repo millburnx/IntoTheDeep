@@ -88,6 +88,69 @@ class MainTeleop : OpMode() {
                     ),
                 )
 
+            val basePickup =
+                EdgeDetector(
+                    robot.gp1::left_bumper,
+                    this@MainTeleop,
+                    SequentialCommandGroup(
+                        robot.autoPickup.stop(),
+                        ConditionalCommand(
+                            SequentialCommandGroup(
+                                ParallelCommandGroup(
+                                    robot.outtake.arm.base(),
+                                    robot.outtake.wrist.base(),
+                                ),
+                                WaitCommand(outtakeLiftingDuration),
+                            ),
+                            InstantCommand({}),
+                            { robot.intake.arm.state == IntakeArmPosition.SPECIMEN },
+                        ),
+                        robot.intake.open(),
+                        ParallelCommandGroup(
+                            robot.intake.arm.extended(),
+                            robot.intake.diffy.hover(),
+                            WaitCommand(baseIntakeDuration),
+                        ),
+                        WaitCommand(AutoPickup.cameraStablizationDuration),
+                        robot.autoPickup.startScanning(),
+                        robot.autoPickup.rumbleForever,
+                    ),
+                    SequentialCommandGroup(
+                        ParallelCommandGroup(
+                            robot.autoPickup.cancelRumble(),
+                            robot.autoPickup.stopScanning(),
+                        ),
+                        ConditionalCommand(
+                            SequentialCommandGroup(
+                                robot.autoPickup.align(),
+                                // .withTimeout(AutoPickup.alignmentTimeout)
+                                robot.intake.grab(),
+                                robot.autoPickup.stop(),
+                                // transfer
+                                ParallelCommandGroup(
+                                    ParallelCommandGroup(
+                                        robot.intake.arm.base(),
+                                        robot.intake.diffy.transfer(),
+                                        WaitCommand(baseIntakeDuration),
+                                    ),
+                                    robot.outtake.open(),
+                                    robot.outtake.base(),
+                                ),
+                                robot.outtake.close(),
+                                WaitCommand(transferClawDelay),
+                                robot.intake.open(),
+                                WaitCommand(outtakeFlipDelay),
+                                ParallelCommandGroup(
+                                    robot.outtake.arm.basket(),
+                                    robot.outtake.wrist.basket(),
+                                ),
+                            ),
+                            robot.intake.retract(),
+                            { robot.autoPickup.lastTarget != null },
+                        ),
+                    ),
+                )
+
             // samples
             val lowBasket =
                 EdgeDetector(
@@ -341,6 +404,9 @@ class MainTeleop : OpMode() {
 
         @JvmField
         var intakePickupClawDelay: Long = 250
+
+        @JvmField
+        var baseIntakeDuration: Long = 250
 
         @JvmField
         var intakeDuration: Long = 625
