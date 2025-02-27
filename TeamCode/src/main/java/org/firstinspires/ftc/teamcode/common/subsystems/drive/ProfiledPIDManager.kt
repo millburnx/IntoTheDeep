@@ -18,7 +18,7 @@ class ProfiledPIDManager(
     val currentTransVelocity
         get() = (robot.drive.oldPose.distanceTo(robot.drive.pose)) / robot.deltaTime.deltaTime
     val currentHeadingVelocity
-        get() = normalizeDegrees(robot.drive.pose.heading - robot.drive.oldPose.heading) / robot.deltaTime.deltaTime
+        get() = (robot.drive.pose - robot.drive.oldPose).heading / robot.deltaTime.deltaTime
 
     var profiledTarget = Pose2d()
 

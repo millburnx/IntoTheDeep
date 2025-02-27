@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.common.commands.drive
 import com.acmerobotics.dashboard.config.Config
 
 @Config
-class PickupPIDSettings {
+class PickupPIDSettings : PIDSettings() {
     companion object {
         @JvmField
         var kP: Double = 0.0
@@ -38,7 +38,7 @@ class PickupPIDSettings {
 }
 
 @Config
-class PIDSettings {
+open class PIDSettings {
     companion object {
         @JvmField
         var kP: Double = 0.2

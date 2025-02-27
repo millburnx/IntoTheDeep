@@ -19,7 +19,7 @@ class StuckDectector(
             // sum up the abs diff, divide by time
             val deltaTime = positionQueue.queue.last().second - positionQueue.queue.first().second
             val deltas = positionQueue.queue.map { it.first }.zipWithNext()
-            val travelSum = deltas.fold(Pose2d()) { acc, next -> acc + (next.first - next.second).abs() }
+            val travelSum = deltas.reversed().fold(Pose2d()) { acc, next -> acc + (next.first - next.second).abs() }
 
             return travelSum / deltaTime
         }
@@ -31,10 +31,10 @@ class StuckDectector(
         }
 
     override fun periodic() {
-        robot.telemetry.addData("stuck", isStuck)
-        robot.telemetry.addData("velocityX", velocity.x)
-        robot.telemetry.addData("velocityY", velocity.y)
-        robot.telemetry.addData("velocityH", velocity.heading)
+        robot.telemetry.addData("stuck | stuck", isStuck)
+        robot.telemetry.addData("stuck | velocityX", velocity.x)
+        robot.telemetry.addData("stuck | velocityY", velocity.y)
+        robot.telemetry.addData("stuck | velocityH", velocity.heading)
     }
 
     companion object {

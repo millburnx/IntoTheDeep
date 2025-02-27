@@ -57,7 +57,7 @@ data class Pose2d(
 
     operator fun plus(other: Vec2d): Pose2d = Pose2d(position + other, heading)
 
-    operator fun minus(other: Pose2d): Pose2d = Pose2d(position - other.position, heading - other.heading)
+    operator fun minus(other: Pose2d): Pose2d = Pose2d(position - other.position, normalizeDegrees(heading - other.heading))
 
     operator fun minus(other: Vec2d): Pose2d = Pose2d(position - other, heading)
 

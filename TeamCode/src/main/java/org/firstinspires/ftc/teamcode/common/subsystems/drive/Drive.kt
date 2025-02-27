@@ -26,8 +26,9 @@ open class Drive(
     val robot: Robot,
     breakMotors: Boolean = false,
 ) : Subsystem() {
-    val pidManager: PIDManager = PIDManager(robot)
-    val subsystems: List<Subsystem> = listOf(pidManager)
+    open val pidManager: PIDManager = PIDManager(robot)
+    val stuckDectector = StuckDectector(robot)
+    val subsystems: List<Subsystem> = listOf(pidManager, stuckDectector)
 
     val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).apply { init(isBrake = breakMotors) }
     val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init(false, isBrake = breakMotors) }
@@ -45,8 +46,6 @@ open class Drive(
         }
 
     var oldPose: Pose2d = Pose2d()
-
-    val stuckDectector = StuckDectector(robot)
 
     override fun init() {
         (robot.hardware["para"] as DcMotorEx).reset()

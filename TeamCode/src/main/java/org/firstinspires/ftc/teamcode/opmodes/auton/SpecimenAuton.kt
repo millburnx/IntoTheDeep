@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intake
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.specimenCloseDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 
-class AutonRobot(
+open class AutonRobot(
     opMode: OpMode,
 ) : SampleCameraRobot(opMode) {
     override fun init() {
