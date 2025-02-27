@@ -185,7 +185,7 @@ class SampleDetector :
             masked,
             Point(
                 SampleDectectionTuner.crosshairX + frame.width() / 2,
-                -SampleDectectionTuner.crosshairY + frame.height() / 2,
+                SampleDectectionTuner.crosshairY + frame.height() / 2,
             ),
             crosshairSize,
             Scalar(0.0, 255.0, 0.0),
@@ -225,7 +225,7 @@ class SampleDetector :
         for (detection in data) {
             val rect = detection.rect
             val center =
-                (Vec2d(1.0, -1.0) * Vec2d(rect.center.x, rect.center.y)) - crosshair
+                Vec2d(-1.0, -1.0) * (Vec2d(rect.center.x, rect.center.y) - crosshair)
             Imgproc.putText(
                 masked,
                 String.format(

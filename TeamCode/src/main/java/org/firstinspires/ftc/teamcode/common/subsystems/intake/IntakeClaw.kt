@@ -35,6 +35,6 @@ class IntakeClaw(
         var open: Double = 0.4
 
         @JvmField
-        var closed: Double = 0.8
+        var closed: Double = 0.0
     }
 }

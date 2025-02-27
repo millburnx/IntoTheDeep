@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.intakeLoweringDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.specimenCloseDuration
 
-@Autonomous(name = "Specimen Auton 2", preselectTeleOp = "Basic Teleop")
+@Autonomous(name = "Specimen Auton 2", preselectTeleOp = "New Teleop")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SpecimenAuton2 : OpMode() {

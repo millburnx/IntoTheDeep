@@ -147,7 +147,7 @@ class ControlRewrite : OpMode() {
                     this@ControlRewrite,
                     SequentialCommandGroup(
                         ParallelCommandGroup(
-                            robot.outtake.base(),
+                            SlidesCommand(robot.outtake.slides, Slides.min),
                             robot.outtake.arm.human(),
                             robot.outtake.wrist.human(),
                         ),

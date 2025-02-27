@@ -19,7 +19,6 @@ open class PIDManager(
     var isOn = false
     open var target = Pose2d()
     var tolerance = Pose2d(PIDSettings.tolerance, headingTolerance)
-    val drive: Drive = robot.drive
 
     val pidX by lazy { PIDController(kP, kI, kD) }
     val pidY by lazy { PIDController(kP, kI, kD) }
@@ -39,29 +38,29 @@ open class PIDManager(
         pidY.setPID(kP, kI, kD)
         pidH.setPID(kPHeading, kIHeading, kDHeading)
 
-        val x = pidX.calculate(drive.pose.x, target.x)
-        val y = pidY.calculate(drive.pose.y, target.y)
-        val h = pidH.calculate(drive.pose.heading, target.heading)
+        val x = pidX.calculate(robot.drive.pose.x, target.x)
+        val y = pidY.calculate(robot.drive.pose.y, target.y)
+        val h = pidH.calculate(robot.drive.pose.heading, target.heading)
 
-        drive.fieldCentric(
+        robot.drive.fieldCentric(
             -x,
             y,
             h,
-            -Math.toRadians(drive.pose.heading),
+            -Math.toRadians(robot.drive.pose.heading),
         )
     }
 
     fun atTarget(): Boolean {
         if (!isOn) return true
-        val diff = (target - drive.pose).abs()
+        val diff = (target - robot.drive.pose).abs()
         val atX = diff.x < tolerance.x
         val atY = diff.y < tolerance.y
         val atH = normalizeDegrees(diff.heading) < tolerance.heading
 //        println("atX: $atX, atY: $atY, atH: $atH $diff ${drive.pose} $target")
 
-        val motorThreshold = drive.motors.all { abs(it.power) < wheelThreshold }
+        val motorThreshold = robot.drive.motors.all { abs(it.power) < wheelThreshold }
 
-        println("$motorThreshold ${drive.motors.map { abs(it.power) }}")
+        println("$motorThreshold ${robot.drive.motors.map { abs(it.power) }}")
 
         if (!motorThreshold && usePowerSettling) return false
 

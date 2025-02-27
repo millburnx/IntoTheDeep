@@ -41,16 +41,12 @@ open class Drive(
         }
         set(value) {
             odometry.poseEstimate = value.toRawRR()
-//            oldPose = value
+            oldPose = value
         }
 
-//    var oldPose: Pose2d = Pose2d()
-//        set(value) {
-//            odometry.poseEstimate = value.toRawRR()
-//            field = value
-//        }
+    var oldPose: Pose2d = Pose2d()
 
-//    val stuckDectector = StuckDectector(robot)
+    val stuckDectector = StuckDectector(robot)
 
     override fun init() {
         (robot.hardware["para"] as DcMotorEx).reset()
@@ -71,7 +67,7 @@ open class Drive(
     }
 
     override fun periodic() {
-//        oldPose = pose
+        oldPose = pose
         odometry.update()
     }
 

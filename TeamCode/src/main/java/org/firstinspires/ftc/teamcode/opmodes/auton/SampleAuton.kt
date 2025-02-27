@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auton
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
 import com.arcrobotics.ftclib.command.InstantCommand
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.outtakeDropArmDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.transferClawDelay
 
-@Autonomous(name = "Sample Auton", preselectTeleOp = "Basic Teleop")
+@Autonomous(name = "Sample Auton", preselectTeleOp = "New Teleop")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SampleAuton : OpMode() {
@@ -25,6 +26,8 @@ class SampleAuton : OpMode() {
 
     override fun initialize() {
         super.initialize()
+
+        FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
 
         robot.drive.pose = Pose2d(startingX, startingY, startingHeading)
         val commands = mutableListOf<Command>()

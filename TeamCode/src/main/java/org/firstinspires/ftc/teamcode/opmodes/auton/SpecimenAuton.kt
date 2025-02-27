@@ -27,7 +27,7 @@ class AutonRobot(
     }
 }
 
-@Autonomous(name = "Specimen Auton", preselectTeleOp = "Basic Teleop")
+@Autonomous(name = "Specimen Auton", preselectTeleOp = "New Teleop")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SpecimenAuton : OpMode() {
