@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.millburnx.utils.Vec2d
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
+import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -14,8 +15,10 @@ class ProfiledPIDManager(
     // this is NOT a traditional motion profile as it is positional based
     // but has code to prevent oscillations if the robot happens to be faster than the desired profile
 
-    val currentVelocity
+    val currentTransVelocity
         get() = (robot.drive.oldPose.distanceTo(robot.drive.pose)) / robot.deltaTime.deltaTime
+    val currentHeadingVelocity
+        get() = normalizeDegrees(robot.drive.pose.heading - robot.drive.oldPose.heading) / robot.deltaTime.deltaTime
 
     var profiledTarget = Pose2d()
 
@@ -41,20 +44,26 @@ class ProfiledPIDManager(
         }
 
         if (!isDecelerating) {
-            val newVelocity = currentVelocity + maxAccelTrans
+            val newVelocity = currentTransVelocity + maxAccelTrans
             val forwardMost = forwardMost()
             val directionVector = target.position - forwardMost
             val correctedVector = directionVector.normalize() * newVelocity // rescale to target velocity
             val newPose = clamp(forwardMost + correctedVector, forwardMost)
-            profiledTarget = Pose2d(newPose, target.heading)
+
+            val newHeadingVelocity = currentHeadingVelocity + maxAccelHeading
+            val newHeading = normalizeDegrees(robot.drive.pose.heading + newHeadingVelocity)
+            profiledTarget = Pose2d(newPose, newHeading)
         } else {
-            val newVelocity = currentVelocity - maxAccelTrans
+            val newVelocity = currentTransVelocity - maxAccelTrans
             // we might not need forwardMost for deceleration tbh, can prob just use the bot pose
             val forwardMost = forwardMost()
             val directionVector = target.position - forwardMost
             val correctedVector = directionVector.normalize() * newVelocity // rescale to target velocity
             val newPose = clamp(forwardMost + correctedVector, forwardMost)
-            profiledTarget = Pose2d(newPose, target.heading)
+
+            val newHeadingVelocity = currentHeadingVelocity - maxAccelHeading
+            val newHeading = normalizeDegrees(robot.drive.pose.heading + newHeadingVelocity)
+            profiledTarget = Pose2d(newPose, newHeading)
         }
 
         // actual PID part, taken from the base PIDManager
@@ -95,9 +104,9 @@ class ProfiledPIDManager(
 
     // https://www.desmos.com/calculator/q5xaa1mdyc
     fun shouldDecelerate(): Boolean {
-        val timeForDecleration = currentVelocity / maxAccelTrans
+        val timeForDecleration = currentTransVelocity / maxAccelTrans
         val distanceForDeceleration =
-            currentVelocity * timeForDecleration + (-maxAccelTrans * timeForDecleration.pow(2)) / 2
+            currentTransVelocity * timeForDecleration + (-maxAccelTrans * timeForDecleration.pow(2)) / 2
         val distanceToTarget = robot.drive.pose.distanceTo(target)
         return distanceToTarget < distanceForDeceleration
         return false
