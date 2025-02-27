@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.headingTolerance
 import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
+import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
@@ -95,6 +96,11 @@ open class Drive(
         frontRight.power = (forward - strafe - weightedRotate) / denominator
         backRight.power = (forward + strafe - weightedRotate) / denominator
     }
+
+    fun relativeDrive(
+        power: Pose2d,
+        useStuckDectector: Boolean = false,
+    ) = RelativeDrive(robot, power, useStuckDectector)
 
     fun pid(
         target: Pose2d,

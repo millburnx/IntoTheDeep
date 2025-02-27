@@ -1,30 +1,29 @@
 package org.firstinspires.ftc.teamcode.common.commands.drive
 
 import com.arcrobotics.ftclib.command.CommandBase
-import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
-import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDManager
+import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 
-class RelativeDrive(val drive: Drive, val pidManager: PIDManager, val power: Pose2d) : CommandBase() {
+class RelativeDrive(
+    val robot: Robot,
+    val power: Pose2d,
+    val useStuckDectector: Boolean = false,
+) : CommandBase() {
     init {
-        addRequirements(drive)
+        addRequirements(robot.drive)
     }
 
     override fun initialize() {
-        pidManager.isOn = false
+        robot.drive.pidManager.isOn = false
     }
 
     override fun execute() {
-        drive.robotCentric(-power.x, power.y, power.heading)
+        robot.drive.robotCentric(-power.x, power.y, power.heading)
     }
 
     override fun end(interrupted: Boolean) {
-        drive.robotCentric(0.0, 0.0, 0.0)
+        robot.drive.robotCentric(0.0, 0.0, 0.0)
     }
 
-    override fun isFinished(): Boolean {
-        // we should add smt w/ odom to seem if we are moving at all
-        // if we are fully still for a while then we're already hitting the wall
-        return false
-    }
+    override fun isFinished(): Boolean = useStuckDectector && robot.drive.stuckDectector.isStuck
 }

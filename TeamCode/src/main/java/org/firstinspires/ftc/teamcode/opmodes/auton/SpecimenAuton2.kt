@@ -8,7 +8,6 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
@@ -103,7 +102,7 @@ class SpecimenAuton2 : OpMode() {
                     robot.drive.pid(Pose2d(pickupX, pickupY, -180.0)),
                     specimenPickup(),
                 ),
-                RelativeDrive(robot.drive, robot.drive.pidManager, Pose2d(pickupPower, 0.0, 0.0)).withTimeout(
+                robot.drive.relativeDrive(Pose2d(pickupPower, 0.0, 0.0)).withTimeout(
                     pickupDuration,
                 ),
                 WaitCommand(humanDuration),
@@ -128,7 +127,7 @@ class SpecimenAuton2 : OpMode() {
                     robot.drive.pid(Pose2d(scoreX, scoreY, -180.0)),
                     specimenFlip(),
                 ),
-                RelativeDrive(robot.drive, robot.drive.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(
+                robot.drive.relativeDrive(Pose2d(scorePower, 0.0, 0.0)).withTimeout(
                     scoreDuration,
                 ),
                 ParallelCommandGroup(
