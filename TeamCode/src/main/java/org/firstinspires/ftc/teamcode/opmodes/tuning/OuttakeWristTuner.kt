@@ -15,7 +15,7 @@ class OuttakeWristOnly(
     override val subsystems: List<Subsystem> by lazy { listOf(outtakeWrist) }
 }
 
-@TeleOp(name = "Outtake Wrist Tuner")
+@TeleOp(name = "Outtake Wrist Tuner", group = "Tuning")
 @Config
 class OuttakeWristTuner : OpMode() {
     override val robot by lazy { OuttakeWristOnly(this) }

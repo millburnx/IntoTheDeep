@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
 
-@TeleOp(name = "PID Tuner")
+@TeleOp(name = "PID Tuner", group = "Tuning")
 @Config
 class PIDTuner : OpMode() {
     override val robot by lazy { AutonRobot(this) }

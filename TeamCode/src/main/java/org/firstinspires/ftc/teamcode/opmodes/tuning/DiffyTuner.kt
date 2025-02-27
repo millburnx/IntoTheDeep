@@ -7,12 +7,14 @@ import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class DiffyOnly(opmode: OpMode) : Robot(opmode) {
+class DiffyOnly(
+    opmode: OpMode,
+) : Robot(opmode) {
     val diffy: Diffy by lazy { Diffy(this) }
     override val subsystems: List<Subsystem> by lazy { listOf(diffy) }
 }
 
-@TeleOp(name = "Diffy Tuner")
+@TeleOp(name = "Diffy Tuner", group = "Tuning")
 @Config
 class DiffyTuner : OpMode() {
     override val robot by lazy { DiffyOnly(this) }

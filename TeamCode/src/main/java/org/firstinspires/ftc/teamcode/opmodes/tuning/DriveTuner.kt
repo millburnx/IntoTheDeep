@@ -9,9 +9,8 @@ import org.firstinspires.ftc.teamcode.common.utils.init
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
-@TeleOp(name = "Drive Tuner")
+@TeleOp(name = "Drive Tuner", group = "Tuning")
 class DriveTuner : CommandOpMode() {
-
     val frontLeft: DcMotorEx by lazy { (hardwareMap["frontLeft"] as DcMotorEx).apply { init() } }
     val frontRight: DcMotorEx by lazy { (hardwareMap["frontRight"] as DcMotorEx).apply { init(false) } }
     val backLeft: DcMotorEx by lazy { (hardwareMap["backLeft"] as DcMotorEx).apply { init() } }

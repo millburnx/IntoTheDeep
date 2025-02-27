@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.utils.init
 
-@TeleOp(name = "Drive Motor Tuner")
+@TeleOp(name = "Drive Motor Tuner", group = "Tuning")
 class DriveMotorTuner : CommandOpMode() {
     val frontLeft: DcMotorEx by lazy { (hardwareMap["frontLeft"] as DcMotorEx).apply { init(false) } }
     val frontRight: DcMotorEx by lazy { (hardwareMap["frontRight"] as DcMotorEx).apply { init() } }

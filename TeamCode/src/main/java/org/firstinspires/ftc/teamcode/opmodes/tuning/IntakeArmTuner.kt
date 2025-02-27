@@ -8,12 +8,14 @@ import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class IntakeArmOnly(opmode: OpMode) : Robot(opmode) {
+class IntakeArmOnly(
+    opmode: OpMode,
+) : Robot(opmode) {
     val intakeArm: IntakeArm by lazy { IntakeArm(this) }
     override val subsystems: List<Subsystem> by lazy { listOf(intakeArm) }
 }
 
-@TeleOp(name = "Intake Arm Tuner")
+@TeleOp(name = "Intake Arm Tuner", group = "Tuning")
 @Config
 class IntakeArmTuner : OpMode() {
     override val robot by lazy { IntakeArmOnly(this) }

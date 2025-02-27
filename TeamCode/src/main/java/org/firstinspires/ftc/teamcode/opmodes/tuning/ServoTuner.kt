@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.common.utils.DeltaTime
 import org.firstinspires.ftc.teamcode.common.utils.ServoLimiter
 import org.firstinspires.ftc.teamcode.common.utils.init
 
-@TeleOp(name = "Servo Tuner")
+@TeleOp(name = "Servo Tuner", group = "Tuning")
 @Config
 class ServoTuner : CommandOpMode() {
     val servo by lazy { (hardwareMap[name] as ServoImplEx).apply { init(reverse) } }

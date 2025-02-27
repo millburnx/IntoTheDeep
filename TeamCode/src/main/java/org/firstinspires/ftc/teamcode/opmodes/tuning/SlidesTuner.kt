@@ -7,12 +7,14 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class SlidesOnly(opmode: OpMode) : Robot(opmode) {
+class SlidesOnly(
+    opmode: OpMode,
+) : Robot(opmode) {
     val slides: Slides by lazy { Slides(this) }
     override val subsystems: List<Subsystem> by lazy { listOf(slides) }
 }
 
-@TeleOp(name = "Slides Tuner")
+@TeleOp(name = "Slides Tuner", group = "Tuning")
 @Config
 class SlidesTuner : OpMode() {
     override val robot by lazy { SlidesOnly(this) }

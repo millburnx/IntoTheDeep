@@ -15,7 +15,7 @@ class OdomOnly(
     override val subsystems: List<Subsystem> by lazy { listOf(drive) }
 }
 
-@TeleOp(name = "Odom Tuner")
+@TeleOp(name = "Odom Tuner", group = "Tuning")
 @Config
 class OdomTuner : OpMode() {
     override val robot by lazy { OdomOnly(this) }

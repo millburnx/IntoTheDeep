@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.utils.init
 
-@TeleOp(name = "Motor PIDF Tuner")
+@TeleOp(name = "Motor PIDF Tuner", group = "Tuning")
 @Config
 class MotorPIDFTuner : CommandOpMode() {
     val motor by lazy { hardwareMap[name] as DcMotorEx }

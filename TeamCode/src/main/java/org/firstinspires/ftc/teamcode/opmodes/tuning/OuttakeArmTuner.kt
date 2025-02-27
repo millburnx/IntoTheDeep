@@ -15,7 +15,7 @@ class OuttakeArmOnly(
     override val subsystems: List<Subsystem> by lazy { listOf(outtakeArm) }
 }
 
-@TeleOp(name = "Outtake Arm Tuner")
+@TeleOp(name = "Outtake Arm Tuner", group = "Tuning")
 @Config
 class OuttakeArmTuner : OpMode() {
     override val robot by lazy { OuttakeArmOnly(this) }

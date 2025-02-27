@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import org.firstinspires.ftc.teamcode.common.utils.init
 
-@TeleOp(name = "Motor Tuner")
+@TeleOp(name = "Motor Tuner", group = "Tuning")
 @Config
 class MotorTuner : CommandOpMode() {
     val motor by lazy { (hardwareMap[name] as DcMotorEx).apply { init(reverse) } }

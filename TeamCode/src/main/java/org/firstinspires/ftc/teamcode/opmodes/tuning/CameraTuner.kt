@@ -49,7 +49,7 @@ open class SampleCameraRobot(
     }
 }
 
-@TeleOp(name = "Camera Tuner")
+@TeleOp(name = "Camera Tuner", group = "Tuning")
 open class CameraTuner : OpMode() {
     override val robot by lazy { CameraRobot(this) }
 
@@ -59,7 +59,7 @@ open class CameraTuner : OpMode() {
     }
 }
 
-@TeleOp(name = "Sample Dectector Tuner")
+@TeleOp(name = "Sample Dectector Tuner", group = "Tuning")
 @Config
 class SampleDectectionTuner : OpMode() {
     override val robot by lazy { SampleCameraRobot(this) }

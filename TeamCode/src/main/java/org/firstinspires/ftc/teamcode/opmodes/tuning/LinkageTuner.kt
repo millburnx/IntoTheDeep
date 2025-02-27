@@ -7,12 +7,14 @@ import org.firstinspires.ftc.teamcode.common.subsystems.intake.Linkage
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
-class LinkageOnly(opmode: OpMode) : Robot(opmode) {
+class LinkageOnly(
+    opmode: OpMode,
+) : Robot(opmode) {
     val linkage: Linkage by lazy { Linkage(this) }
     override val subsystems: List<Subsystem> by lazy { listOf(linkage) }
 }
 
-@TeleOp(name = "Linkage Tuner")
+@TeleOp(name = "Linkage Tuner", group = "Tuning")
 @Config
 class LinkageTuner : OpMode() {
     override val robot by lazy { LinkageOnly(this) }

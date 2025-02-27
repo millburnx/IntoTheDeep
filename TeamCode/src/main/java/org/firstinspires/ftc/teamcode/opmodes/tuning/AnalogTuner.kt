@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.AnalogInput
 import org.firstinspires.ftc.teamcode.common.utils.DeltaTime
 
-@TeleOp(name = "Analog Tuner")
+@TeleOp(name = "Analog Tuner", group = "Tuning")
 @Config
-class Analog : CommandOpMode() {
+class AnalogTuner : CommandOpMode() {
     val input by lazy { (hardwareMap[name] as AnalogInput) }
     val deltaTime = DeltaTime()
     val multiTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
