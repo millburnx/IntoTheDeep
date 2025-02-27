@@ -121,6 +121,9 @@ class Slides(
         var highRungScore: Double = 2000.0
 
         @JvmField
+        var wall: Double = 162.5
+
+        @JvmField
         var lowBasket: Double = 700.0
 
         @JvmField

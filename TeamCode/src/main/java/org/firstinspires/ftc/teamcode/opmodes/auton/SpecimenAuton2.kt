@@ -90,10 +90,10 @@ class SpecimenAuton2 : OpMode() {
 
         fun specimenFlip() =
             SequentialCommandGroup(
+                SlidesCommand(robot.outtake.slides, Slides.wall),
                 ParallelCommandGroup(
                     robot.outtake.arm.specimen(),
                     robot.outtake.wrist.specimen(),
-                    SlidesCommand(robot.outtake.slides, Slides.highRung),
                 ),
             )
 
@@ -112,7 +112,10 @@ class SpecimenAuton2 : OpMode() {
                     specimenFlip(),
                     robot.drive.pid(Pose2d(scoreX, scoreY + offset * scoreOffset, -180.0)),
                 ),
-                SlidesCommand(robot.outtake.slides, Slides.highRungScore),
+                ParallelCommandGroup(
+                    robot.outtake.arm.specimenScoring(),
+                    WaitCommand(scoringDuration),
+                ),
                 ParallelCommandGroup(
                     robot.outtake.open(),
                     robot.outtake.base(),
@@ -125,7 +128,13 @@ class SpecimenAuton2 : OpMode() {
                     robot.drive.pid(Pose2d(scoreX, scoreY, -180.0)),
                     specimenFlip(),
                 ),
-                SlidesCommand(robot.outtake.slides, Slides.highRungScore),
+                RelativeDrive(robot.drive, robot.drive.pidManager, Pose2d(scorePower, 0.0, 0.0)).withTimeout(
+                    scoreDuration,
+                ),
+                ParallelCommandGroup(
+                    robot.outtake.arm.specimenScoring(),
+                    WaitCommand(scoringDuration),
+                ),
                 ParallelCommandGroup(
                     robot.outtake.open(),
                     robot.outtake.base(),
