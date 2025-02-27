@@ -42,12 +42,7 @@ open class PIDManager(
         val y = pidY.calculate(robot.drive.pose.y, target.y)
         val h = pidH.calculate(robot.drive.pose.heading, target.heading)
 
-        robot.drive.fieldCentric(
-            -x,
-            y,
-            h,
-            -Math.toRadians(robot.drive.pose.heading),
-        )
+        robot.drive.fieldCentric(-x, y, h, -robot.drive.pose.radians)
     }
 
     fun atTarget(): Boolean {
