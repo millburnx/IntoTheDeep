@@ -12,6 +12,7 @@ import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
 import org.firstinspires.ftc.teamcode.common.processors.SampleColor
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
@@ -51,7 +52,7 @@ class AutoPickup(
                 val targetRoll = -target.angle / 90.0
                 val actualRoll = if (targetRoll > angleThres) -1.0 else targetRoll
                 val actualRadian = Math.toRadians(-actualRoll * 90.0) // reverse the angle to roll
-                val rotationalOffset = ((Vec2d.fromAngle(actualRadian) + Vec2d(0, -1)) * clawRadius)
+                val rotationalOffset = ((Vec2d.fromAngle(actualRadian) * Vec2d(-1, 1) + Vec2d(0, -1)) * clawRadius)
 
                 val totalOffset = (sampleOffset - rotationalOffset).rotate(Math.toRadians(currentPose.degrees - 90.0))
                 val targetPose = currentPose + totalOffset
@@ -91,6 +92,7 @@ class AutoPickup(
                     val target = lastTarget!!
                     robot.drive.pidManager.isOn = true
                     robot.drive.pidManager.target = target.first
+                    robot.intake.diffy.pitch = Diffy.pickupPitch
                     robot.intake.diffy.roll = target.second
                 }),
                 WaitUntilCommand(robot.drive.pidManager::atTarget),

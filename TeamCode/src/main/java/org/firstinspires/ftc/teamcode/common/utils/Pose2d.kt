@@ -53,7 +53,7 @@ data class Pose2d(
 
     fun abs(): Pose2d = Pose2d(position.abs(), heading.absoluteValue)
 
-    operator fun plus(other: Pose2d): Pose2d = Pose2d(position + other.position, heading + other.heading)
+    operator fun plus(other: Pose2d): Pose2d = Pose2d(position + other.position, normalizeDegrees(heading + other.heading))
 
     operator fun plus(other: Vec2d): Pose2d = Pose2d(position + other, heading)
 

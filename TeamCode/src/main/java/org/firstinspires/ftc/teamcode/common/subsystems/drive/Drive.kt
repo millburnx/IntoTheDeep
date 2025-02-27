@@ -87,11 +87,13 @@ open class Drive(
         val forward = relativeVector.x
         val strafe = relativeVector.y
 
-        val denominator = max(forward.absoluteValue + strafe.absoluteValue + rotate.absoluteValue, 1.0)
-        frontLeft.power = (forward + strafe + rotate) / denominator
-        backLeft.power = (forward - strafe + rotate) / denominator
-        frontRight.power = (forward - strafe - rotate) / denominator
-        backRight.power = (forward + strafe - rotate) / denominator
+        val weightedRotate = rotate + strafe * extendoWeighting * robot.intake.linkage.target
+
+        val denominator = max(forward.absoluteValue + strafe.absoluteValue + weightedRotate.absoluteValue, 1.0)
+        frontLeft.power = (forward + strafe + weightedRotate) / denominator
+        backLeft.power = (forward - strafe + weightedRotate) / denominator
+        frontRight.power = (forward - strafe - weightedRotate) / denominator
+        backRight.power = (forward + strafe - weightedRotate) / denominator
     }
 
     fun pid(
@@ -123,5 +125,8 @@ open class Drive(
     companion object {
         @JvmField
         var strafeMultiplier: Double = 1.1
+
+        @JvmField
+        var extendoWeighting: Double = 0.0
     }
 }

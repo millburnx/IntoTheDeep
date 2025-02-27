@@ -274,9 +274,9 @@ class SampleDectectionTuner : OpMode() {
         var fullAuto: Boolean = true
 
         @JvmField
-        var crosshairX: Double = 0.0
+        var crosshairX: Double = 10.0
 
         @JvmField
-        var crosshairY: Double = 0.0
+        var crosshairY: Double = -10.0
     }
 }

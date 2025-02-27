@@ -41,7 +41,7 @@ class PickupPIDSettings : PIDSettings() {
 open class PIDSettings {
     companion object {
         @JvmField
-        var kP: Double = 0.2
+        var kP: Double = 0.22
 
         @JvmField
         var kI: Double = 0.0
@@ -50,7 +50,7 @@ open class PIDSettings {
         var kD: Double = 0.0285
 
         @JvmField
-        var kPHeading: Double = 0.0875
+        var kPHeading: Double = 0.2
 
         @JvmField
         var kIHeading: Double = 0.0
@@ -59,10 +59,10 @@ open class PIDSettings {
         var kDHeading: Double = 0.00001
 
         @JvmField
-        var tolerance: Double = 1.5
+        var tolerance: Double = 1.0
 
         @JvmField
-        var headingTolerance: Double = 4.0
+        var headingTolerance: Double = 2.0
 
         @JvmField
         var usePowerSettling: Boolean = false
