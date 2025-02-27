@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
-import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakeDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakeDuration
 
 @Config
 class Linkage(

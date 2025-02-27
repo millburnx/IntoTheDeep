@@ -18,8 +18,8 @@ import org.firstinspires.ftc.teamcode.common.subsystems.vision.Vision
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.intakeDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.BasicTeleop.Companion.isRed
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakeDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.isRed
 import org.firstinspires.ftc.teamcode.opmodes.tuning.DiffyTuner.Companion.roll
 import kotlin.math.cos
 import kotlin.math.sin

@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.intakeLoweringDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.ControlRewrite.Companion.specimenCloseDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakeLoweringDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.specimenCloseDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 
 class AutonRobot(
@@ -27,7 +27,7 @@ class AutonRobot(
     }
 }
 
-@Autonomous(name = "Specimen Auton", preselectTeleOp = "New Teleop")
+@Autonomous(name = "Specimen Auton", preselectTeleOp = "Main Teleop")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SpecimenAuton : OpMode() {

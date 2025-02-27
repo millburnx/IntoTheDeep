@@ -22,8 +22,8 @@ import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
 
 @Config
-@TeleOp(name = "New Teleop")
-class ControlRewrite : OpMode() {
+@TeleOp(name = "Main Teleop")
+class MainTeleop : OpMode() {
     override val robot: SampleCameraRobot by lazy { SampleCameraRobot(this) }
 
     val triggers by lazy {
@@ -31,7 +31,7 @@ class ControlRewrite : OpMode() {
             val pickup =
                 EdgeDetector(
                     robot.gp1::right_bumper,
-                    this@ControlRewrite,
+                    this@MainTeleop,
                     SequentialCommandGroup(
                         robot.autoPickup.stop(),
                         ConditionalCommand(
@@ -87,7 +87,7 @@ class ControlRewrite : OpMode() {
             val lowBasket =
                 EdgeDetector(
                     robot.gp1::dpad_down,
-                    this@ControlRewrite,
+                    this@MainTeleop,
                     SequentialCommandGroup(
                         SlidesCommand(robot.outtake.slides, Slides.lowBasket),
                         robot.outtake.arm.basket(),
@@ -98,7 +98,7 @@ class ControlRewrite : OpMode() {
             val highBasket =
                 EdgeDetector(
                     robot.gp1::dpad_up,
-                    this@ControlRewrite,
+                    this@MainTeleop,
                     SequentialCommandGroup(
                         SlidesCommand(robot.outtake.slides, Slides.highBasket),
                         robot.outtake.arm.basket(),
@@ -110,7 +110,7 @@ class ControlRewrite : OpMode() {
             val specimenPickup =
                 EdgeDetector(
                     robot.gp1::cross,
-                    this@ControlRewrite,
+                    this@MainTeleop,
                     SequentialCommandGroup(
                         ParallelCommandGroup(
                             SlidesCommand(robot.outtake.slides, Slides.min),
@@ -144,7 +144,7 @@ class ControlRewrite : OpMode() {
             val hpDrop =
                 EdgeDetector(
                     robot.gp1::square,
-                    this@ControlRewrite,
+                    this@MainTeleop,
                     SequentialCommandGroup(
                         ParallelCommandGroup(
                             SlidesCommand(robot.outtake.slides, Slides.min),
@@ -159,7 +159,7 @@ class ControlRewrite : OpMode() {
             val score =
                 EdgeDetector(
                     robot.gp1::triangle,
-                    this@ControlRewrite,
+                    this@MainTeleop,
                     ConditionalCommand(
                         SequentialCommandGroup(
                             robot.outtake.open(),
@@ -202,7 +202,7 @@ class ControlRewrite : OpMode() {
             val imuReset =
                 EdgeDetector(
                     gamepad1::circle,
-                    this@ControlRewrite,
+                    this@MainTeleop,
                     InstantCommand({
                         robot.imu.resetYaw()
                         gamepad1.rumble(250)
@@ -303,10 +303,13 @@ class ControlRewrite : OpMode() {
 
     companion object {
         @JvmField
-        var slideThreshold: Double = 0.1
+        var isRed: Boolean = false
 
         @JvmField
         var fieldCentric: Boolean = true
+
+        @JvmField
+        var slideThreshold: Double = 0.1
 
         // delays
 
@@ -324,6 +327,20 @@ class ControlRewrite : OpMode() {
 
         @JvmField
         var specimenCloseDuration: Long = 250
+
+        @JvmField
+        var outtakeDropArmDelay: Long = 250
+
+        @JvmField
+        var intakePickupArmDelay: Long = 500
+
+        @JvmField
+        var intakePickupClawDelay: Long = 250
+
+        @JvmField
+        var intakeDuration: Long = 625
+
+        // Heading assist
 
         @JvmField
         var useBasketAssist: Boolean = true
