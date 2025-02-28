@@ -121,7 +121,7 @@ class MainTeleop : OpMode() {
                             robot.macros.transfer(),
                         ),
                     ) { toggles.autoPickup },
-                )g
+                )
 
             // samples
             val lowBasket =
