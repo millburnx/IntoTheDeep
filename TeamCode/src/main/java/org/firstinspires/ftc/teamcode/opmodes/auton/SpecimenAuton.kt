@@ -115,6 +115,11 @@ class SpecimenAuton : OpMode() {
                 ),
             )
 
+        fun park() =
+            SequentialCommandGroup(
+                robot.drive.pid(Pose2d(parkX, parkY, -180.0)),
+            )
+
         commands.add(
             SequentialCommandGroup(
                 ParallelCommandGroup(
@@ -141,7 +146,7 @@ class SpecimenAuton : OpMode() {
                 scoreSpec(1),
                 scoreSpec(2),
                 scoreSpec(3),
-                scoreSpec(4),
+                park(),
             ),
         )
 
@@ -196,5 +201,11 @@ class SpecimenAuton : OpMode() {
 
         @JvmField
         var scoreOffset = 1.0
+
+        @JvmField
+        var parkX = -56.0
+
+        @JvmField
+        var parkY = -40.0
     }
 }
