@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides.Companion.rezeroPower
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
@@ -45,6 +46,20 @@ class MainTeleop : OpMode() {
                     useRungAssist = !useRungAssist
                     useWallAssist = !useWallAssist
                 }
+
+            val liftResets =
+                EdgeDetector(
+                    gamepad2::cross,
+                    this@MainTeleop,
+                    SequentialCommandGroup(
+                        robot.outtake.slides.directPower(rezeroPower),
+                        robot.outtake.slides.enableDirect(),
+                    ),
+                    SequentialCommandGroup(
+                        robot.outtake.slides.rezeroCmd(),
+                        robot.outtake.slides.disableDirect(),
+                    ),
+                )
 
             fun pickupPre(
                 rumble: RunCommand,
