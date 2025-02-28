@@ -17,7 +17,7 @@ class StuckDectector(
         get() {
             if (positionQueue.queue.size < 2) return Pose2d() // not enough data
             // sum up the abs diff, divide by time
-            val deltaTime = positionQueue.queue.last().second - positionQueue.queue.first().second
+            val deltaTime = (positionQueue.queue.last().second - positionQueue.queue.first().second) / 1000
             val deltas = positionQueue.queue.map { it.first }.zipWithNext()
             val travelSum = deltas.reversed().fold(Pose2d()) { acc, next -> acc + (next.first - next.second).abs() }
 
@@ -31,10 +31,14 @@ class StuckDectector(
         }
 
     override fun periodic() {
+        positionQueue.add(robot.drive.pose)
+
         robot.telemetry.addData("stuck | stuck", isStuck)
         robot.telemetry.addData("stuck | velocityX", velocity.x)
         robot.telemetry.addData("stuck | velocityY", velocity.y)
         robot.telemetry.addData("stuck | velocityH", velocity.heading)
+
+        robot.telemetry.addData("stuck | queue", positionQueue.queue.size)
     }
 
     companion object {
@@ -42,10 +46,10 @@ class StuckDectector(
         var stuckDuration: Long = 250L
 
         @JvmField
-        var stuckVeloT: Double = 0.25
+        var stuckVeloT: Double = 1.0
 
         @JvmField
-        var stuckVeloH: Double = 0.5
+        var stuckVeloH: Double = 4.0
     }
 }
 
@@ -57,8 +61,15 @@ class TimeQueue<T>(
 
     val queue = ArrayDeque<Pair<T, Double>>()
 
+    fun add(x: T) {
+        queue.add(x to elapsedTime.milliseconds())
+    }
+
     override fun init() {
         elapsedTime.reset()
+    }
+
+    override fun periodic() {
         queue.removeIf {
             elapsedTime.milliseconds() > it.second + duration
         }

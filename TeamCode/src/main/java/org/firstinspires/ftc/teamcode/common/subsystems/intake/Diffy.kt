@@ -56,7 +56,7 @@ class Diffy(
 
     companion object {
         @JvmField
-        var transferPitch = 0.9
+        var transferPitch = 0.95
 
         @JvmField
         var transferRoll = 0.95

@@ -81,9 +81,9 @@ class AutoPickup(
         )
     }
 
-    val rumbleForever = RunCommand(this::rumble)
+    fun rumbleForever() = RunCommand(this::rumble)
 
-    fun cancelRumble() = InstantCommand({ if (rumbleForever.isScheduled) rumbleForever.cancel() })
+    fun cancelRumble(cmd: RunCommand) = InstantCommand({ if (cmd.isScheduled) cmd.cancel() })
 
     fun align(): CommandBase =
         ConditionalCommand(

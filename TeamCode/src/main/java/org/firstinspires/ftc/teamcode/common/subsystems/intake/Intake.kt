@@ -40,7 +40,8 @@ class Intake(
     fun baseExtend() =
         ParallelCommandGroup(
             WaitCommand(baseIntakeDuration),
-            baseExtendAsync(),
+            arm.extended(),
+            diffy.hover(),
         )
 
     fun baseExtendAsync() =
@@ -66,7 +67,8 @@ class Intake(
     fun baseRetract() =
         ParallelCommandGroup(
             WaitCommand(baseIntakeDuration),
-            baseRetractAsync(),
+            arm.base(),
+            diffy.transfer(),
         )
 
     fun baseRetractAsync() =

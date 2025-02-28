@@ -28,6 +28,7 @@ class MainTeleop : OpMode() {
 
     val triggers by lazy {
         object {
+            val rumble1 = robot.autoPickup.rumbleForever()
             val pickup =
                 EdgeDetector(
                     robot.gp1::right_bumper,
@@ -49,11 +50,11 @@ class MainTeleop : OpMode() {
                         robot.intake.extend(),
                         WaitCommand(AutoPickup.cameraStablizationDuration),
                         robot.autoPickup.startScanning(),
-                        robot.autoPickup.rumbleForever,
+                        rumble1,
                     ),
                     SequentialCommandGroup(
                         ParallelCommandGroup(
-                            robot.autoPickup.cancelRumble(),
+                            robot.autoPickup.cancelRumble(rumble1),
                             robot.autoPickup.stopScanning(),
                         ),
                         ConditionalCommand(
@@ -88,6 +89,7 @@ class MainTeleop : OpMode() {
                     ),
                 )
 
+            val rumble2 = robot.autoPickup.rumbleForever()
             val basePickup =
                 EdgeDetector(
                     robot.gp1::left_bumper,
@@ -109,11 +111,11 @@ class MainTeleop : OpMode() {
                         robot.intake.baseExtend(),
                         WaitCommand(AutoPickup.cameraStablizationDuration),
                         robot.autoPickup.startScanning(),
-                        robot.autoPickup.rumbleForever,
+                        rumble2,
                     ),
                     SequentialCommandGroup(
                         ParallelCommandGroup(
-                            robot.autoPickup.cancelRumble(),
+                            robot.autoPickup.cancelRumble(rumble2),
                             robot.autoPickup.stopScanning(),
                         ),
                         ConditionalCommand(
@@ -194,10 +196,10 @@ class MainTeleop : OpMode() {
                         robot.outtake.close(),
                         WaitCommand(specimenCloseDuration),
                         ParallelCommandGroup(
+                            SlidesCommand(robot.outtake.slides, Slides.wall),
                             robot.outtake.arm.specimen(),
                             robot.outtake.wrist.specimen(),
                         ),
-                        SlidesCommand(robot.outtake.slides, Slides.highRung),
                     ),
                 )
 
@@ -225,7 +227,7 @@ class MainTeleop : OpMode() {
                             robot.outtake.open(),
                         ),
                         SequentialCommandGroup(
-                            SlidesCommand(robot.outtake.slides, Slides.highRungScore),
+                            robot.outtake.arm.specimenScoring(),
                         ),
                         { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ),
@@ -398,7 +400,7 @@ class MainTeleop : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var baseIntakeDuration: Long = 250
+        var baseIntakeDuration: Long = 500
 
         @JvmField
         var intakeDuration: Long = 625
@@ -406,7 +408,7 @@ class MainTeleop : OpMode() {
         // Heading assist
 
         @JvmField
-        var useBasketAssist: Boolean = true
+        var useBasketAssist: Boolean = false
 
         @JvmField
         var basketAssistWeight: Double = 0.025
@@ -415,7 +417,7 @@ class MainTeleop : OpMode() {
         var basketAssistHeading: Double = -45.0
 
         @JvmField
-        var useRungAssist: Boolean = true
+        var useRungAssist: Boolean = false
 
         @JvmField
         var rungAssistWeight: Double = 0.025

@@ -88,7 +88,7 @@ open class Drive(
         val forward = relativeVector.x
         val strafe = relativeVector.y
 
-        val weightedRotate = rotate + strafe * extendoWeighting * robot.intake.linkage.target
+        val weightedRotate = rotate + strafe * frontWeighting + strafe * extendoWeighting * robot.intake.linkage.target
 
         val denominator = max(forward.absoluteValue + strafe.absoluteValue + weightedRotate.absoluteValue, 1.0)
         frontLeft.power = (forward + strafe + weightedRotate) / denominator
@@ -131,6 +131,9 @@ open class Drive(
     companion object {
         @JvmField
         var strafeMultiplier: Double = 1.1
+
+        @JvmField
+        var frontWeighting: Double = 0.0
 
         @JvmField
         var extendoWeighting: Double = 0.0

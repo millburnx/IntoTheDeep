@@ -155,7 +155,7 @@ class SampleAuton : OpMode() {
 
     companion object {
         @JvmField
-        var startingX = -58.0
+        var startingX = -60.0
 
         @JvmField
         var startingY = 40.0
