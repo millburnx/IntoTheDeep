@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.CommandBase
 import com.millburnx.purepursuit.PurePursuit
 import com.millburnx.purepursuit.Util.getAngleDiff
 import com.millburnx.utils.Vec2d
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 
@@ -23,10 +24,13 @@ class PurePursuitCommand(
     val purePursuit = PurePursuit(path, lookahead, PIDSettings.tolerance)
     val endingState = false
 
+    val elapsedTime = ElapsedTime()
+
     var virtualHeading: Double = 0.0
 
     override fun initialize() {
         virtualHeading = robot.drive.pose.heading
+        elapsedTime.reset()
     }
 
     override fun execute() {
@@ -73,7 +77,7 @@ class PurePursuitCommand(
     }
 
     override fun isFinished(): Boolean {
-        if (exitOnStuck && robot.drive.stuckDectector.isStuck) return true
+        if (exitOnStuck && elapsedTime.milliseconds() > minStuckThreshold && robot.drive.stuckDectector.isStuck) return true
         return robot.drive.pidManager.atTarget()
     }
 
@@ -83,5 +87,8 @@ class PurePursuitCommand(
 
         @JvmField
         var multiH = 1.0
+
+        @JvmField
+        var minStuckThreshold: Long = 250L
     }
 }

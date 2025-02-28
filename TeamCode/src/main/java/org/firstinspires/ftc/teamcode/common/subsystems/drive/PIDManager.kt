@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.controller.PIDController
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.headingTolerance
@@ -67,9 +68,16 @@ class PIDCommand(
     val robot: Robot,
     val target: Pose2d,
     val tolerance: Pose2d = Pose2d(PIDSettings.tolerance, headingTolerance),
+    val useStuckDectector: Boolean = false,
 ) : CommandBase() {
+    val elapsedTime = ElapsedTime()
+
     init {
         addRequirements(robot.drive, robot.drive.pidManager)
+    }
+
+    override fun initialize() {
+        elapsedTime.reset()
     }
 
     override fun execute() {
@@ -78,5 +86,13 @@ class PIDCommand(
         robot.drive.pidManager.tolerance = tolerance
     }
 
-    override fun isFinished(): Boolean = robot.drive.pidManager.atTarget()
+    override fun isFinished(): Boolean {
+        if (useStuckDectector && elapsedTime.milliseconds() > minStuckThreshold && robot.drive.stuckDectector.isStuck) return true
+        return robot.drive.pidManager.atTarget()
+    }
+
+    companion object {
+        @JvmField
+        var minStuckThreshold: Long = 250L
+    }
 }
