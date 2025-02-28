@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
+import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
@@ -38,47 +39,61 @@ class MainTeleop : OpMode() {
                 EdgeDetector(gamepad2::square) {
                     toggles.autoPickup = !toggles.autoPickup
                 }
+            val toggleAssists =
+                EdgeDetector(gamepad2::triangle) {
+                    useBasketAssist = !useBasketAssist
+                    useRungAssist = !useRungAssist
+                    useWallAssist = !useWallAssist
+                }
+
+            fun pickupPre(
+                rumble: RunCommand,
+                useLinkage: Boolean,
+            ) = SequentialCommandGroup(
+                robot.autoPickup.stop(),
+                robot.macros.exitSpecPickup(),
+                robot.intake.open(),
+                if (useLinkage) robot.intake.extend() else robot.intake.baseExtend(),
+                ConditionalCommand(
+                    SequentialCommandGroup(
+                        WaitCommand(AutoPickup.cameraStablizationDuration),
+                        robot.autoPickup.startScanning(),
+                        rumble,
+                    ),
+                    InstantCommand({}),
+                ) { toggles.autoPickup },
+            )
+
+            fun pickupPost(rumble: RunCommand) =
+                ConditionalCommand(
+                    SequentialCommandGroup(
+                        ParallelCommandGroup(
+                            robot.autoPickup.cancelRumble(rumble),
+                            robot.autoPickup.stopScanning(),
+                        ),
+                        ConditionalCommand(
+                            SequentialCommandGroup(
+                                robot.autoPickup.align(),
+                                robot.intake.grab(),
+                                robot.autoPickup.stop(),
+                                robot.macros.transfer(),
+                            ),
+                            robot.intake.retract(),
+                        ) { robot.autoPickup.lastTarget != null },
+                    ),
+                    SequentialCommandGroup(
+                        robot.intake.grab(),
+                        robot.macros.transfer(),
+                    ),
+                ) { toggles.autoPickup }
 
             val rumble1 = robot.autoPickup.rumbleForever()
             val pickup =
                 EdgeDetector(
                     robot.gp1::right_bumper,
                     this@MainTeleop,
-                    SequentialCommandGroup(
-                        robot.autoPickup.stop(),
-                        robot.macros.exitSpecPickup(),
-                        robot.intake.open(),
-                        robot.intake.extend(),
-                        ConditionalCommand(
-                            SequentialCommandGroup(
-                                WaitCommand(AutoPickup.cameraStablizationDuration),
-                                robot.autoPickup.startScanning(),
-                                rumble1,
-                            ),
-                            InstantCommand({}),
-                        ) { toggles.autoPickup },
-                    ),
-                    ConditionalCommand(
-                        SequentialCommandGroup(
-                            ParallelCommandGroup(
-                                robot.autoPickup.cancelRumble(rumble1),
-                                robot.autoPickup.stopScanning(),
-                            ),
-                            ConditionalCommand(
-                                SequentialCommandGroup(
-                                    robot.autoPickup.align(),
-                                    robot.intake.grab(),
-                                    robot.autoPickup.stop(),
-                                    robot.macros.transfer(),
-                                ),
-                                robot.intake.retract(),
-                            ) { robot.autoPickup.lastTarget != null },
-                        ),
-                        SequentialCommandGroup(
-                            robot.intake.grab(),
-                            robot.macros.transfer(),
-                        ),
-                    ) { toggles.autoPickup },
+                    pickupPre(rumble1, true),
+                    pickupPost(rumble1),
                 )
 
             val rumble2 = robot.autoPickup.rumbleForever()
@@ -86,41 +101,8 @@ class MainTeleop : OpMode() {
                 EdgeDetector(
                     robot.gp1::left_bumper,
                     this@MainTeleop,
-                    SequentialCommandGroup(
-                        robot.autoPickup.stop(),
-                        robot.macros.exitSpecPickup(),
-                        robot.intake.open(),
-                        robot.intake.baseExtend(),
-                        ConditionalCommand(
-                            SequentialCommandGroup(
-                                WaitCommand(AutoPickup.cameraStablizationDuration),
-                                robot.autoPickup.startScanning(),
-                                rumble2,
-                            ),
-                            InstantCommand({}),
-                        ) { toggles.autoPickup },
-                    ),
-                    ConditionalCommand(
-                        SequentialCommandGroup(
-                            ParallelCommandGroup(
-                                robot.autoPickup.cancelRumble(rumble2),
-                                robot.autoPickup.stopScanning(),
-                            ),
-                            ConditionalCommand(
-                                SequentialCommandGroup(
-                                    robot.autoPickup.align(),
-                                    robot.intake.grab(),
-                                    robot.autoPickup.stop(),
-                                    robot.macros.transfer(),
-                                ),
-                                robot.intake.retract(),
-                            ) { robot.autoPickup.lastTarget != null },
-                        ),
-                        SequentialCommandGroup(
-                            robot.intake.grab(),
-                            robot.macros.transfer(),
-                        ),
-                    ) { toggles.autoPickup },
+                    pickupPre(rumble2, false),
+                    pickupPost(rumble2),
                 )
 
             // samples
