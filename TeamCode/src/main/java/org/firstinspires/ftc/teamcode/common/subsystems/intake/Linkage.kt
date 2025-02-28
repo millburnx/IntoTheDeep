@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.init
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.baseIntakeDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakeDuration
 
 @Config
@@ -27,16 +28,18 @@ class Linkage(
 
     fun extend() =
         ParallelCommandGroup(
+            WaitCommand(
+                (intakeDuration * (1 - robot.intake.linkage.target)).toLong().coerceAtLeast(baseIntakeDuration),
+            ),
             extendAsync(),
-            WaitCommand(intakeDuration),
         )
 
     fun retractAsync() = InstantCommand({ target = 0.0 }, this)
 
     fun retract() =
         ParallelCommandGroup(
+            WaitCommand((intakeDuration * robot.intake.linkage.target).toLong().coerceAtLeast(baseIntakeDuration)),
             retractAsync(),
-            WaitCommand(intakeDuration),
         )
 
     override fun periodic() {

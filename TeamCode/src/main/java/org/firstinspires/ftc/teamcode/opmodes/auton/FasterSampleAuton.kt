@@ -48,7 +48,7 @@ class FasterSampleAuton : OpMode() {
                 robot.autoPickup.stop(),
                 InstantCommand({ robot.autoPickup.lastTarget = null }),
                 ParallelCommandGroup(
-                    robot.intake.baseRetract(),
+                    robot.intake.retract(),
                     robot.outtake.open(),
                     robot.outtake.base(),
                 ),

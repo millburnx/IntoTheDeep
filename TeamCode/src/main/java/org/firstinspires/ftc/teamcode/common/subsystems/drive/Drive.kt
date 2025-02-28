@@ -36,6 +36,7 @@ open class Drive(
     val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).apply { init(isBrake = breakMotors) }
     val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init(false, isBrake = breakMotors) }
     val motors = listOf(frontLeft, frontRight, backLeft, backRight)
+
     val odometry = SampleMecanumDrive(robot.hardware).localizer
     var pose: Pose2d
         get() {

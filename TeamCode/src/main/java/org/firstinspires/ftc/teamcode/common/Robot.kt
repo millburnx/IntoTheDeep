@@ -30,7 +30,6 @@ open class Robot(
                 ),
             ),
         )
-//        a.resetYaw()
         a
     }
     val gp1: Gamepad by lazy { opMode.gamepad1 }

@@ -29,11 +29,6 @@ open class CameraRobot(
 ) : Robot(opMode) {
     open val camera by lazy { Vision(this) }
     override val additionalSubsystems = listOf(camera)
-
-    override fun init() {
-        imu.resetYaw()
-        super.init()
-    }
 }
 
 open class SampleCameraRobot(
@@ -42,11 +37,6 @@ open class SampleCameraRobot(
     open val camera by lazy { SampleVision(this) }
     val autoPickup = AutoPickup(this, listOf(SampleColor.YELLOW, if (isRed) SampleColor.RED else SampleColor.BLUE))
     override val additionalSubsystems = listOf(camera, autoPickup)
-
-    override fun init() {
-        imu.resetYaw()
-        super.init()
-    }
 }
 
 @TeleOp(name = "Camera Tuner", group = "Tuning")

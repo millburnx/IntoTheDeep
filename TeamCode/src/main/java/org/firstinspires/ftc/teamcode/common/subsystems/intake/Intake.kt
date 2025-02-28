@@ -64,19 +64,6 @@ class Intake(
             diffy.transfer(),
         )
 
-    fun baseRetract() =
-        ParallelCommandGroup(
-            WaitCommand(baseIntakeDuration),
-            arm.base(),
-            diffy.transfer(),
-        )
-
-    fun baseRetractAsync() =
-        ParallelCommandGroup(
-            arm.base(),
-            diffy.transfer(),
-        )
-
     fun grab() =
         SequentialCommandGroup(
             arm.floor(),

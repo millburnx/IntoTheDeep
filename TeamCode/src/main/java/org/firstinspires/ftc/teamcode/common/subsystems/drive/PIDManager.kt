@@ -18,6 +18,12 @@ open class PIDManager(
     val robot: Robot,
 ) : Subsystem() {
     var isOn = false
+        set(value) {
+            if (field != value) {
+                field = value
+                if (value) robot.drive.breakMotors() else robot.drive.floatMotors()
+            }
+        }
     open var target = Pose2d()
     var tolerance = Pose2d(PIDSettings.tolerance, headingTolerance)
 

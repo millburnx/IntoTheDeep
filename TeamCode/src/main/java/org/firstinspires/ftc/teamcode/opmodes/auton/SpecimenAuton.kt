@@ -22,7 +22,7 @@ open class AutonRobot(
 ) : SampleCameraRobot(opMode) {
     override fun init() {
         super.init()
-        drive.breakMotors()
+        imu.resetYaw()
     }
 }
 

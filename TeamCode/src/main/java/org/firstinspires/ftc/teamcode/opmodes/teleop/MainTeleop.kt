@@ -59,12 +59,7 @@ class MainTeleop : OpMode() {
                         ),
                         ConditionalCommand(
                             SequentialCommandGroup(
-                                InstantCommand({ robot.intake.linkage.target = partial }),
                                 robot.autoPickup.align(),
-                                ParallelCommandGroup(
-                                    InstantCommand({ robot.intake.linkage.target = 1.0 }),
-                                    WaitCommand((intakeDuration * (1 - partial)).toLong()),
-                                ),
                                 // .withTimeout(AutoPickup.alignmentTimeout)
                                 robot.intake.grab(),
                                 robot.autoPickup.stop(),
@@ -126,7 +121,7 @@ class MainTeleop : OpMode() {
                                 robot.autoPickup.stop(),
                                 // transfer
                                 ParallelCommandGroup(
-                                    robot.intake.baseRetract(),
+                                    robot.intake.retract(),
                                     robot.outtake.open(),
                                     robot.outtake.base(),
                                 ),
@@ -433,8 +428,5 @@ class MainTeleop : OpMode() {
 
         @JvmField
         var wallAssistHeading: Double = 180.0
-
-        @JvmField
-        var partial: Double = 1.0
     }
 }

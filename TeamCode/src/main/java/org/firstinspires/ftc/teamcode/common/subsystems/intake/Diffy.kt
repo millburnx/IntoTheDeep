@@ -75,8 +75,5 @@ class Diffy(
 
         @JvmField
         var pickupPitch = -0.6
-
-//        @JvmField
-//        var pickupRoll = -0.025
     }
 }
