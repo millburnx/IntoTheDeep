@@ -25,6 +25,7 @@ import kotlin.math.absoluteValue
 
 class TeleOpToggles {
     var autoPickup = false
+    var useAlternateSpec = false
 }
 
 @Config
@@ -49,7 +50,7 @@ class MainTeleop : OpMode() {
 
             val liftResets =
                 EdgeDetector(
-                    gamepad2::cross,
+                    gamepad2::circle,
                     this@MainTeleop,
                     SequentialCommandGroup(
                         robot.outtake.slides.directPower(rezeroPower),
@@ -60,6 +61,8 @@ class MainTeleop : OpMode() {
                         robot.outtake.slides.disableDirect(),
                     ),
                 )
+
+            val alternativeSpec = EdgeDetector(gamepad2::cross) { toggles.useAlternateSpec = !toggles.useAlternateSpec }
 
             fun pickupPre(
                 rumble: RunCommand,
@@ -169,11 +172,18 @@ class MainTeleop : OpMode() {
                     SequentialCommandGroup(
                         robot.outtake.close(),
                         WaitCommand(specimenCloseDuration),
-                        ParallelCommandGroup(
-                            SlidesCommand(robot.outtake.slides, Slides.wall),
-                            robot.outtake.arm.specimen(),
-                            robot.outtake.wrist.specimen(),
-                        ),
+                        ConditionalCommand(
+                            ParallelCommandGroup(
+                                SlidesCommand(robot.outtake.slides, Slides.wall),
+                                robot.outtake.arm.specimen(),
+                                robot.outtake.wrist.specimen(),
+                            ),
+                            ParallelCommandGroup(
+                                SlidesCommand(robot.outtake.slides, Slides.highRung),
+                                robot.outtake.arm.altSpecimen(),
+                                robot.outtake.wrist.altSpecimen(),
+                            ),
+                        ) { !toggles.useAlternateSpec },
                     ),
                 )
 
@@ -200,9 +210,14 @@ class MainTeleop : OpMode() {
                         SequentialCommandGroup(
                             robot.outtake.open(),
                         ),
-                        SequentialCommandGroup(
-                            robot.outtake.arm.specimenScoring(),
-                        ),
+                        ConditionalCommand(
+                            SequentialCommandGroup(
+                                robot.outtake.arm.specimenScoring(),
+                            ),
+                            SequentialCommandGroup(
+                                SlidesCommand(robot.outtake.slides, Slides.highRungScore),
+                            ),
+                        ) { toggles.useAlternateSpec },
                     ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ConditionalCommand(
                         SequentialCommandGroup(

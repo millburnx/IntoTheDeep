@@ -12,6 +12,7 @@ enum class OuttakeArmPosition {
     BASE,
     SPECIMEN,
     SPECIMEN_SCORING,
+    ALT_SPECIMEN,
     BASKET,
     PICKUP,
     HUMAN,
@@ -37,6 +38,7 @@ class OuttakeArm(
                 OuttakeArmPosition.BASE -> basePosition
                 OuttakeArmPosition.SPECIMEN -> specimenPosition
                 OuttakeArmPosition.SPECIMEN_SCORING -> specimenScoringPosition
+                OuttakeArmPosition.ALT_SPECIMEN -> altSpecimenPosition
                 OuttakeArmPosition.BASKET -> basketPosition
                 OuttakeArmPosition.PICKUP -> pickupPosition
                 OuttakeArmPosition.HUMAN -> humanPosition
@@ -53,6 +55,8 @@ class OuttakeArm(
     fun specimen() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN }, this)
 
     fun specimenScoring() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN_SCORING }, this)
+
+    fun altSpecimen() = InstantCommand({ state = OuttakeArmPosition.ALT_SPECIMEN }, this)
 
     fun basket() = InstantCommand({ state = OuttakeArmPosition.BASKET }, this)
 
@@ -76,10 +80,13 @@ class OuttakeArm(
         var specimenScoringPosition = 0.65
 
         @JvmField
+        var altSpecimenPosition = 0.38
+
+        @JvmField
         var pickupPosition = 0.89
 
         @JvmField
-        var humanPosition = 0.4
+        var humanPosition = 0.38
 
         @JvmField
         var parkPosition = 0.6

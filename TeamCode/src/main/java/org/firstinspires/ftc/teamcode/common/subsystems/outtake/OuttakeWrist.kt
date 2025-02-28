@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.common.utils.init
 enum class OuttakeWristPosition {
     BASE,
     SPECIMEN,
+    ALT_SPECIMEN,
     BASKET,
     PICKUP,
     HUMAN,
@@ -32,6 +33,7 @@ class OuttakeWrist(
             when (state) {
                 OuttakeWristPosition.BASE -> basePosition
                 OuttakeWristPosition.SPECIMEN -> specimenPosition
+                OuttakeWristPosition.ALT_SPECIMEN -> altSpecimenPosition
                 OuttakeWristPosition.BASKET -> basketPosition
                 OuttakeWristPosition.PICKUP -> pickupPosition
                 OuttakeWristPosition.HUMAN -> humanPosition
@@ -43,6 +45,8 @@ class OuttakeWrist(
     fun base() = InstantCommand({ state = OuttakeWristPosition.BASE }, this)
 
     fun specimen() = InstantCommand({ state = OuttakeWristPosition.SPECIMEN }, this)
+
+    fun altSpecimen() = InstantCommand({ state = OuttakeWristPosition.ALT_SPECIMEN }, this)
 
     fun basket() = InstantCommand({ state = OuttakeWristPosition.BASKET }, this)
 
@@ -61,6 +65,9 @@ class OuttakeWrist(
 
         @JvmField
         var specimenPosition = 0.45
+
+        @JvmField
+        var altSpecimenPosition = 0.45
 
         @JvmField
         var pickupPosition = 0.45

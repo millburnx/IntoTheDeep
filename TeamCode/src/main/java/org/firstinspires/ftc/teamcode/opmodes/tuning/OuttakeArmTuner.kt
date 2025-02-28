@@ -43,12 +43,14 @@ class OuttakeArmTuner : OpMode() {
                         OuttakeArm.specimenScoringPosition =
                             (OuttakeArm.specimenScoringPosition + step).coerceIn(0.0, 1.0)
                     } else if (state == 3) {
-                        OuttakeArm.basketPosition = (OuttakeArm.basketPosition + step).coerceIn(0.0, 1.0)
+                        OuttakeArm.altSpecimenPosition = (OuttakeArm.altSpecimenPosition + step).coerceIn(0.0, 1.0)
                     } else if (state == 4) {
-                        OuttakeArm.pickupPosition = (OuttakeArm.pickupPosition + step).coerceIn(0.0, 1.0)
+                        OuttakeArm.basketPosition = (OuttakeArm.basketPosition + step).coerceIn(0.0, 1.0)
                     } else if (state == 5) {
-                        OuttakeArm.humanPosition = (OuttakeArm.humanPosition + step).coerceIn(0.0, 1.0)
+                        OuttakeArm.pickupPosition = (OuttakeArm.pickupPosition + step).coerceIn(0.0, 1.0)
                     } else if (state == 6) {
+                        OuttakeArm.humanPosition = (OuttakeArm.humanPosition + step).coerceIn(0.0, 1.0)
+                    } else if (state == 7) {
                         OuttakeArm.parkPosition = (OuttakeArm.parkPosition + step).coerceIn(0.0, 1.0)
                     }
                 }
@@ -63,12 +65,14 @@ class OuttakeArmTuner : OpMode() {
                         OuttakeArm.specimenScoringPosition =
                             (OuttakeArm.specimenScoringPosition - step).coerceIn(0.0, 1.0)
                     } else if (state == 3) {
-                        OuttakeArm.basketPosition = (OuttakeArm.basketPosition - step).coerceIn(0.0, 1.0)
+                        OuttakeArm.altSpecimenPosition = (OuttakeArm.altSpecimenPosition - step).coerceIn(0.0, 1.0)
                     } else if (state == 4) {
-                        OuttakeArm.pickupPosition = (OuttakeArm.pickupPosition - step).coerceIn(0.0, 1.0)
+                        OuttakeArm.basketPosition = (OuttakeArm.basketPosition - step).coerceIn(0.0, 1.0)
                     } else if (state == 5) {
-                        OuttakeArm.humanPosition = (OuttakeArm.humanPosition - step).coerceIn(0.0, 1.0)
+                        OuttakeArm.pickupPosition = (OuttakeArm.pickupPosition - step).coerceIn(0.0, 1.0)
                     } else if (state == 6) {
+                        OuttakeArm.humanPosition = (OuttakeArm.humanPosition - step).coerceIn(0.0, 1.0)
+                    } else if (state == 7) {
                         OuttakeArm.parkPosition = (OuttakeArm.parkPosition - step).coerceIn(0.0, 1.0)
                     }
                 }
@@ -88,15 +92,18 @@ class OuttakeArmTuner : OpMode() {
             robot.outtakeArm.state = OuttakeArmPosition.SPECIMEN_SCORING
             robot.telemetry.addData("state", "specimen scoring")
         } else if (state == 3) {
+            robot.outtakeArm.state = OuttakeArmPosition.ALT_SPECIMEN
+            robot.telemetry.addData("state", "alt specimen")
+        } else if (state == 4) {
             robot.outtakeArm.state = OuttakeArmPosition.BASKET
             robot.telemetry.addData("state", "basket")
-        } else if (state == 4) {
+        } else if (state == 5) {
             robot.outtakeArm.state = OuttakeArmPosition.PICKUP
             robot.telemetry.addData("state", "pickup")
-        } else if (state == 5) {
+        } else if (state == 6) {
             robot.outtakeArm.state = OuttakeArmPosition.HUMAN
             robot.telemetry.addData("state", "human")
-        } else if (state == 6) {
+        } else if (state == 7) {
             robot.outtakeArm.state = OuttakeArmPosition.PARK
             robot.telemetry.addData("state", "park")
         }
