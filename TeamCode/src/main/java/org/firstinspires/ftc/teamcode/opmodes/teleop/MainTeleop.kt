@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
 
 class TeleOpToggles {
-    var autoPickup = false
+    var autoPickup = true
     var useAlternateSpec = false
 }
 
@@ -319,12 +319,16 @@ class MainTeleop : OpMode() {
             robot.outtake.slides.isManual = false
         }
 
-        robot.telemetry.addData("pid", robot.drive.pidManager.isOn)
-        robot.telemetry.addData("pid target", robot.drive.pidManager.target)
-        robot.telemetry.addData("Delta Time", robot.deltaTime.deltaTime)
-        robot.telemetry.addData("Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
+        robot.telemetry.addData("pid | on", robot.drive.pidManager.isOn)
+        robot.telemetry.addData("pid | pid target", robot.drive.pidManager.target)
+        robot.telemetry.addData("hz | Delta Time", robot.deltaTime.deltaTime)
+        robot.telemetry.addData("hz | Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
         robot.telemetry.addData("slides", robot.outtake.slides.position)
-        robot.telemetry.addData("slides offset", robot.outtake.slides.encoderOffset)
+        robot.telemetry.addData("toggles | autopickup", toggles.autoPickup)
+        robot.telemetry.addData("toggles | alt spec", toggles.useAlternateSpec)
+        robot.telemetry.addData("assists | basket assist", useBasketAssist)
+        robot.telemetry.addData("assists | rung assist", useRungAssist)
+        robot.telemetry.addData("assists | wall assist", useWallAssist)
     }
 
     companion object {
