@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.outtakeDropArmDelay
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.transferClawDelay
 
 @Autonomous(name = "Faster Sample Auton", preselectTeleOp = "Main Teleop")
 @Config
@@ -47,23 +46,14 @@ class FasterSampleAuton : OpMode() {
                 robot.intake.grab(),
                 robot.autoPickup.stop(),
                 InstantCommand({ robot.autoPickup.lastTarget = null }),
-                ParallelCommandGroup(
-                    robot.intake.retract(),
-                    robot.outtake.open(),
-                    robot.outtake.base(),
-                ),
-                robot.outtake.close(),
-                WaitCommand(transferClawDelay),
-                robot.intake.open(),
+                robot.macros.miniTransfer(),
             )
         }
 
         val up = {
-            SequentialCommandGroup(
-                InstantCommand({
-                    robot.outtake.arm.state = OuttakeArmPosition.BASKET
-                    robot.outtake.wrist.state = OuttakeWristPosition.BASKET
-                }, robot.outtake),
+            ParallelCommandGroup(
+                robot.outtake.arm.basket(),
+                robot.outtake.wrist.basket(),
                 SlidesCommand(robot.outtake.slides, Slides.highBasket),
             )
         }
@@ -134,7 +124,6 @@ class FasterSampleAuton : OpMode() {
                     WaitCommand(pidStablize),
                     robot.intake.baseExtend(),
                 ),
-//                InstantCommand({ robot.intake.diffy.roll = sample3Roll }),
                 WaitCommand(grabDuration),
                 grab(),
                 basket(),

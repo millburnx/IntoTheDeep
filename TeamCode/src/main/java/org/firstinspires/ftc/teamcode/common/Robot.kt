@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.IMU
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Outtake
@@ -21,8 +22,8 @@ open class Robot(
     val telemetryManager by lazy { TelemetryManager(this) }
     val telemetry by lazy { telemetryManager.telemetry }
     val imu: IMU by lazy {
-        val a = hardware["imu"] as IMU
-        a.initialize(
+        val imu = hardware["imu"] as IMU
+        imu.initialize(
             IMU.Parameters(
                 RevHubOrientationOnRobot(
                     RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
@@ -30,8 +31,11 @@ open class Robot(
                 ),
             ),
         )
-        a
+        imu
     }
+
+    fun imuHeading(angleUnit: AngleUnit = AngleUnit.DEGREES): Double = imu.robotYawPitchRollAngles.getYaw(angleUnit)
+
     val gp1: Gamepad by lazy { opMode.gamepad1 }
     val gp2: Gamepad by lazy { opMode.gamepad2 }
 
@@ -56,4 +60,6 @@ open class Robot(
             it.init() // triggers lazy loader
         }
     }
+
+    val macros by lazy { Macros(this) }
 }

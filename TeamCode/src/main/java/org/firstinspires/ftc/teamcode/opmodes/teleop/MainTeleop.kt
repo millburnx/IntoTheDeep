@@ -21,13 +21,24 @@ import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
 
+class TeleOpToggles {
+    var autoPickup = false
+}
+
 @Config
 @TeleOp(name = "Main Teleop")
 class MainTeleop : OpMode() {
     override val robot: SampleCameraRobot by lazy { SampleCameraRobot(this) }
 
+    val toggles = TeleOpToggles()
+
     val triggers by lazy {
         object {
+            val toggleAutoPickup =
+                EdgeDetector(gamepad2::square) {
+                    toggles.autoPickup = !toggles.autoPickup
+                }
+
             val rumble1 = robot.autoPickup.rumbleForever()
             val pickup =
                 EdgeDetector(
@@ -35,53 +46,39 @@ class MainTeleop : OpMode() {
                     this@MainTeleop,
                     SequentialCommandGroup(
                         robot.autoPickup.stop(),
-                        ConditionalCommand(
-                            SequentialCommandGroup(
-                                ParallelCommandGroup(
-                                    robot.outtake.arm.base(),
-                                    robot.outtake.wrist.base(),
-                                ),
-                                WaitCommand(outtakeLiftingDuration),
-                            ),
-                            InstantCommand({}),
-                            { robot.intake.arm.state == IntakeArmPosition.SPECIMEN },
-                        ),
+                        robot.macros.exitSpecPickup(),
                         robot.intake.open(),
                         robot.intake.extend(),
-                        WaitCommand(AutoPickup.cameraStablizationDuration),
-                        robot.autoPickup.startScanning(),
-                        rumble1,
-                    ),
-                    SequentialCommandGroup(
-                        ParallelCommandGroup(
-                            robot.autoPickup.cancelRumble(rumble1),
-                            robot.autoPickup.stopScanning(),
-                        ),
                         ConditionalCommand(
                             SequentialCommandGroup(
-                                robot.autoPickup.align(),
-                                // .withTimeout(AutoPickup.alignmentTimeout)
-                                robot.intake.grab(),
-                                robot.autoPickup.stop(),
-                                // transfer
-                                ParallelCommandGroup(
-                                    robot.intake.retract(),
-                                    robot.outtake.open(),
-                                    robot.outtake.base(),
-                                ),
-                                robot.outtake.close(),
-                                WaitCommand(transferClawDelay),
-                                robot.intake.open(),
-                                WaitCommand(outtakeFlipDelay),
-                                ParallelCommandGroup(
-                                    robot.outtake.arm.basket(),
-                                    robot.outtake.wrist.basket(),
-                                ),
+                                WaitCommand(AutoPickup.cameraStablizationDuration),
+                                robot.autoPickup.startScanning(),
+                                rumble1,
                             ),
-                            robot.intake.retract(),
-                            { robot.autoPickup.lastTarget != null },
-                        ),
+                            InstantCommand({}),
+                        ) { toggles.autoPickup },
                     ),
+                    ConditionalCommand(
+                        SequentialCommandGroup(
+                            ParallelCommandGroup(
+                                robot.autoPickup.cancelRumble(rumble1),
+                                robot.autoPickup.stopScanning(),
+                            ),
+                            ConditionalCommand(
+                                SequentialCommandGroup(
+                                    robot.autoPickup.align(),
+                                    robot.intake.grab(),
+                                    robot.autoPickup.stop(),
+                                    robot.macros.transfer(),
+                                ),
+                                robot.intake.retract(),
+                            ) { robot.autoPickup.lastTarget != null },
+                        ),
+                        SequentialCommandGroup(
+                            robot.intake.grab(),
+                            robot.macros.transfer(),
+                        ),
+                    ) { toggles.autoPickup },
                 )
 
             val rumble2 = robot.autoPickup.rumbleForever()
@@ -91,54 +88,40 @@ class MainTeleop : OpMode() {
                     this@MainTeleop,
                     SequentialCommandGroup(
                         robot.autoPickup.stop(),
-                        ConditionalCommand(
-                            SequentialCommandGroup(
-                                ParallelCommandGroup(
-                                    robot.outtake.arm.base(),
-                                    robot.outtake.wrist.base(),
-                                ),
-                                WaitCommand(outtakeLiftingDuration),
-                            ),
-                            InstantCommand({}),
-                            { robot.intake.arm.state == IntakeArmPosition.SPECIMEN },
-                        ),
+                        robot.macros.exitSpecPickup(),
                         robot.intake.open(),
                         robot.intake.baseExtend(),
-                        WaitCommand(AutoPickup.cameraStablizationDuration),
-                        robot.autoPickup.startScanning(),
-                        rumble2,
-                    ),
-                    SequentialCommandGroup(
-                        ParallelCommandGroup(
-                            robot.autoPickup.cancelRumble(rumble2),
-                            robot.autoPickup.stopScanning(),
-                        ),
                         ConditionalCommand(
                             SequentialCommandGroup(
-                                robot.autoPickup.align(),
-                                // .withTimeout(AutoPickup.alignmentTimeout)
-                                robot.intake.grab(),
-                                robot.autoPickup.stop(),
-                                // transfer
-                                ParallelCommandGroup(
-                                    robot.intake.retract(),
-                                    robot.outtake.open(),
-                                    robot.outtake.base(),
-                                ),
-                                robot.outtake.close(),
-                                WaitCommand(transferClawDelay),
-                                robot.intake.open(),
-                                WaitCommand(outtakeFlipDelay),
-                                ParallelCommandGroup(
-                                    robot.outtake.arm.basket(),
-                                    robot.outtake.wrist.basket(),
-                                ),
+                                WaitCommand(AutoPickup.cameraStablizationDuration),
+                                robot.autoPickup.startScanning(),
+                                rumble2,
                             ),
-                            robot.intake.retract(),
-                            { robot.autoPickup.lastTarget != null },
-                        ),
+                            InstantCommand({}),
+                        ) { toggles.autoPickup },
                     ),
-                )
+                    ConditionalCommand(
+                        SequentialCommandGroup(
+                            ParallelCommandGroup(
+                                robot.autoPickup.cancelRumble(rumble2),
+                                robot.autoPickup.stopScanning(),
+                            ),
+                            ConditionalCommand(
+                                SequentialCommandGroup(
+                                    robot.autoPickup.align(),
+                                    robot.intake.grab(),
+                                    robot.autoPickup.stop(),
+                                    robot.macros.transfer(),
+                                ),
+                                robot.intake.retract(),
+                            ) { robot.autoPickup.lastTarget != null },
+                        ),
+                        SequentialCommandGroup(
+                            robot.intake.grab(),
+                            robot.macros.transfer(),
+                        ),
+                    ) { toggles.autoPickup },
+                )g
 
             // samples
             val lowBasket =
@@ -178,8 +161,7 @@ class MainTeleop : OpMode() {
                                     WaitCommand(intakeLoweringDuration),
                                 ),
                                 InstantCommand({}),
-                                { robot.intake.arm.state != IntakeArmPosition.SPECIMEN },
-                            ),
+                            ) { robot.intake.arm.state != IntakeArmPosition.SPECIMEN },
                         ),
                         ParallelCommandGroup(
                             robot.outtake.arm.pickup(),
@@ -224,8 +206,7 @@ class MainTeleop : OpMode() {
                         SequentialCommandGroup(
                             robot.outtake.arm.specimenScoring(),
                         ),
-                        { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
-                    ),
+                    ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ConditionalCommand(
                         SequentialCommandGroup(
                             robot.outtake.wrist.base(),
@@ -242,8 +223,7 @@ class MainTeleop : OpMode() {
                                         WaitCommand(intakeLoweringDuration),
                                     ),
                                     InstantCommand({}),
-                                    { robot.intake.arm.state != IntakeArmPosition.SPECIMEN },
-                                ),
+                                ) { robot.intake.arm.state != IntakeArmPosition.SPECIMEN },
                             ),
                             ParallelCommandGroup(
                                 robot.outtake.arm.pickup(),
@@ -252,8 +232,7 @@ class MainTeleop : OpMode() {
                             SlidesCommand(robot.outtake.slides, Slides.min),
                             robot.outtake.slides.reset(),
                         ),
-                        { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
-                    ),
+                    ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                 )
 
             val imuReset =
@@ -275,6 +254,16 @@ class MainTeleop : OpMode() {
 
     var hasInit = false
 
+    fun calculateAssist(
+        isAttempting: Boolean,
+        targetAngle: Double,
+    ): Double {
+        if (!isAttempting) return 0.0
+        val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
+        val diff = normalizeDegrees(targetAngle - currentAngle)
+        return diff * basketAssistWeight
+    }
+
     override fun exec() {
         if (!hasInit) {
             super.initialize()
@@ -283,60 +272,28 @@ class MainTeleop : OpMode() {
 
         val attemptingToBasket =
             robot.outtake.slides.target > (Slides.lowBasket - Slides.min) / 2 && robot.outtake.arm.state == OuttakeArmPosition.BASKET
-        val basketAssist: Double =
-            if (useBasketAssist && attemptingToBasket) {
-                val targetAngle = basketAssistHeading
-                val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
-                val diff = normalizeDegrees(targetAngle - currentAngle)
-                diff * basketAssistWeight
-            } else {
-                0.0
-            }
+        val basketAssist = calculateAssist(useBasketAssist && attemptingToBasket, basketAssistHeading)
 
         val attemptingToRung = robot.outtake.arm.state == OuttakeArmPosition.SPECIMEN
-        val rungAssist: Double =
-            if (useRungAssist && attemptingToRung) {
-                val targetAngle = rungAssistHeading
-                val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
-                val diff = normalizeDegrees(targetAngle - currentAngle)
-                diff * rungAssistWeight
-            } else {
-                0.0
-            }
+        val rungAssist = calculateAssist(useRungAssist && attemptingToRung, rungAssistHeading)
 
         val attemptingToWall = robot.outtake.arm.state == OuttakeArmPosition.PICKUP
-        val wallAssist: Double =
-            if (useWallAssist && attemptingToWall) {
-                val targetAngle = wallAssistHeading
-                val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
-                val diff = normalizeDegrees(targetAngle - currentAngle)
-                diff * wallAssistWeight
-            } else {
-                0.0
-            }
+        val wallAssist = calculateAssist(useWallAssist && attemptingToWall, wallAssistHeading)
 
         val assists = basketAssist + rungAssist + wallAssist
 
         if (!robot.drive.pidManager.isOn) {
-            if (fieldCentric) {
-                robot.drive.fieldCentric(
-                    gamepad1.left_stick_y.toDouble(),
-                    -gamepad1.left_stick_x.toDouble(),
-                    -gamepad1.right_stick_x.toDouble() + assists,
-                    Math.toRadians(-robot.imu.robotYawPitchRollAngles.yaw),
-                )
-            } else {
-                robot.drive.robotCentric(
-                    gamepad1.left_stick_y.toDouble(),
-                    -gamepad1.left_stick_x.toDouble(),
-                    -gamepad1.right_stick_x.toDouble() + assists,
-                )
-            }
+            robot.drive.fieldCentric(
+                gamepad1.left_stick_y.toDouble(),
+                -gamepad1.left_stick_x.toDouble(),
+                -gamepad1.right_stick_x.toDouble() + assists,
+                if (fieldCentric) -robot.imuHeading(AngleUnit.RADIANS) else 0.0,
+            )
         }
 
         // Slides
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        if (gamepad1.cross) {
+        if (gamepad2.cross) {
             robot.outtake.slides.isManual = true
             robot.outtake.slides.manualPower = -1.0
         } else if (slidePower.absoluteValue > slideThreshold) {
