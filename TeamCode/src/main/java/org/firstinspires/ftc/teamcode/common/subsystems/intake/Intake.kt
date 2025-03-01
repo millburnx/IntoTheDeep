@@ -40,6 +40,7 @@ class Intake(
     fun baseExtend() =
         ParallelCommandGroup(
             WaitCommand(baseIntakeDuration),
+            robot.intake.linkage.retractAsync(),
             arm.extended(),
             diffy.hover(),
         )

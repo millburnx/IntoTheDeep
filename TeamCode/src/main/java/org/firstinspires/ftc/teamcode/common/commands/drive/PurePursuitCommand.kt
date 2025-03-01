@@ -76,6 +76,10 @@ class PurePursuitCommand(
         robot.telemetryManager.drawRobot(packet, Pose2d(pose.position, virtualHeading), "#00ff00")
     }
 
+    override fun end(interrupted: Boolean) {
+        robot.drive.robotCentric(0.0, 0.0, 0.0)
+    }
+
     override fun isFinished(): Boolean {
         if (exitOnStuck && elapsedTime.milliseconds() > minStuckThreshold && robot.drive.stuckDectector.isStuck) return true
         return robot.drive.pidManager.atTarget()

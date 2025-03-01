@@ -25,12 +25,12 @@ class OuttakeWristTuner : OpMode() {
         object {
             val cycleLeft =
                 EdgeDetector(gamepad1::dpad_left) {
-                    state = (state - 1) % 7
+                    state = (state - 1) % 8
                 }
 
             val cycleRight =
                 EdgeDetector(gamepad1::dpad_right) {
-                    state = (state + 1) % 7
+                    state = (state + 1) % 8
                 }
 
             val moveUp =

@@ -30,6 +30,7 @@ class SampleAuton : OpMode() {
 
         robot.drive.pose = Pose2d(startingX, startingY, startingHeading)
         val commands = mutableListOf<Command>()
+        robot.outtake.arm.state = OuttakeArmPosition.TRANSFER
         robot.outtake.arm.periodic()
         robot.outtake.claw.close()
         robot.outtake.claw.periodic()
@@ -52,8 +53,16 @@ class SampleAuton : OpMode() {
 
         val up = {
             ParallelCommandGroup(
-                robot.outtake.arm.basket(),
-                robot.outtake.wrist.basket(),
+                SequentialCommandGroup(
+                    ParallelCommandGroup(
+                        robot.outtake.arm.basket(),
+                        robot.outtake.wrist.basket(),
+                    ),
+                    ParallelCommandGroup(
+                        robot.outtake.arm.basket(),
+                        robot.outtake.wrist.basket(),
+                    ),
+                ),
                 SlidesCommand(robot.outtake.slides, Slides.highBasket),
             )
         }
@@ -134,7 +143,7 @@ class SampleAuton : OpMode() {
                     SlidesCommand(robot.outtake.slides, Slides.min),
                     robot.outtake.arm.park(),
                     robot.outtake.wrist.park(),
-                    robot.drive.purePursuit("parkSamples", 90.0),
+                    robot.drive.purePursuit("parkSamples", 90.0, true),
                 ),
             ),
         )
@@ -165,7 +174,7 @@ class SampleAuton : OpMode() {
         var sample2Y = 59.5
 
         @JvmField
-        var sample3X = -40.5
+        var sample3X = -42.5
 
         @JvmField
         var sample3Y = 52.5
@@ -174,13 +183,10 @@ class SampleAuton : OpMode() {
         var sample3H = 45.0
 
         @JvmField
-        var sample3Roll = -0.5
+        var basketX = -57.0
 
         @JvmField
-        var basketX = -56.0
-
-        @JvmField
-        var basketY = 58.0
+        var basketY = 59.0
 
         @JvmField
         var basketDuration: Long = 500
@@ -189,7 +195,7 @@ class SampleAuton : OpMode() {
         var grabDuration: Long = 250
 
         @JvmField
-        var pidStablize: Long = 250
+        var pidStablize: Long = 500
     }
 
     override fun exec() {

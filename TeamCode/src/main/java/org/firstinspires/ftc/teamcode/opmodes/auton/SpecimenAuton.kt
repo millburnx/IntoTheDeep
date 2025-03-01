@@ -134,19 +134,21 @@ class SpecimenAuton : OpMode() {
                 ParallelCommandGroup(
                     robot.outtake.arm.specimenScoring(),
                     WaitCommand(scoringDuration),
+                    SlidesCommand(robot.outtake.slides, Slides.wall2),
+                    WaitCommand(scoringDuration2),
                 ),
                 ParallelCommandGroup(
                     robot.outtake.open(),
                     robot.outtake.base(),
                 ),
                 ParallelCommandGroup(
-                    specimenPickup(),
+//                    specimenPickup(),
                     pickupSamples(),
                 ),
-                scoreSpec(1),
-                scoreSpec(2),
-                scoreSpec(3),
-                park(),
+//                scoreSpec(1),
+//                scoreSpec(2),
+//                scoreSpec(3),
+//                park(),
             ),
         )
 
@@ -154,6 +156,7 @@ class SpecimenAuton : OpMode() {
     }
 
     override fun exec() {
+        robot.telemetry.addData("pid target", robot.drive.pidManager.target)
     }
 
     companion object {
@@ -180,6 +183,9 @@ class SpecimenAuton : OpMode() {
 
         @JvmField
         var scoringDuration: Long = 500
+
+        @JvmField
+        var scoringDuration2: Long = 250
 
         @JvmField
         var pushX = -52.0

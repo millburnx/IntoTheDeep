@@ -32,7 +32,7 @@ class RelativeDrive(
     }
 
     override fun isFinished(): Boolean {
-        if (elapsedTime.milliseconds() > minStuckThreshold) return false
+        if (elapsedTime.milliseconds() < minStuckThreshold) return false
         return useStuckDectector && robot.drive.stuckDectector.isStuck
     }
 

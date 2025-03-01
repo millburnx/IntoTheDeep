@@ -32,9 +32,9 @@ class IntakeClaw(
 
     companion object {
         @JvmField
-        var open: Double = 0.4
+        var open: Double = 0.6
 
         @JvmField
-        var closed: Double = 0.0
+        var closed: Double = 0.1
     }
 }

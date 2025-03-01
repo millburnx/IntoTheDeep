@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides.Companion
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
+import org.firstinspires.ftc.teamcode.opmodes.auton.SpecimenAuton.Companion.scoringDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
 
@@ -213,11 +214,13 @@ class MainTeleop : OpMode() {
                         ConditionalCommand(
                             SequentialCommandGroup(
                                 robot.outtake.arm.specimenScoring(),
+                                WaitCommand(scoringDuration),
+                                SlidesCommand(robot.outtake.slides, Slides.wall2),
                             ),
                             SequentialCommandGroup(
                                 SlidesCommand(robot.outtake.slides, Slides.highRungScore),
                             ),
-                        ) { toggles.useAlternateSpec },
+                        ) { !toggles.useAlternateSpec },
                     ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ConditionalCommand(
                         SequentialCommandGroup(
@@ -273,7 +276,7 @@ class MainTeleop : OpMode() {
         if (!isAttempting) return 0.0
         val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
         val diff = normalizeDegrees(targetAngle - currentAngle)
-        return diff * basketAssistWeight
+        return diff
     }
 
     override fun exec() {
@@ -284,13 +287,14 @@ class MainTeleop : OpMode() {
 
         val attemptingToBasket =
             robot.outtake.slides.target > (Slides.lowBasket - Slides.min) / 2 && robot.outtake.arm.state == OuttakeArmPosition.BASKET
-        val basketAssist = calculateAssist(useBasketAssist && attemptingToBasket, basketAssistHeading)
+        val basketAssist =
+            calculateAssist(useBasketAssist && attemptingToBasket, basketAssistHeading) * basketAssistWeight
 
         val attemptingToRung = robot.outtake.arm.state == OuttakeArmPosition.SPECIMEN
-        val rungAssist = calculateAssist(useRungAssist && attemptingToRung, rungAssistHeading)
+        val rungAssist = calculateAssist(useRungAssist && attemptingToRung, rungAssistHeading) * rungAssistWeight
 
         val attemptingToWall = robot.outtake.arm.state == OuttakeArmPosition.PICKUP
-        val wallAssist = calculateAssist(useWallAssist && attemptingToWall, wallAssistHeading)
+        val wallAssist = calculateAssist(useWallAssist && attemptingToWall, wallAssistHeading) * wallAssistWeight
 
         val assists = basketAssist + rungAssist + wallAssist
 
@@ -305,10 +309,7 @@ class MainTeleop : OpMode() {
 
         // Slides
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        if (gamepad2.cross) {
-            robot.outtake.slides.isManual = true
-            robot.outtake.slides.manualPower = -1.0
-        } else if (slidePower.absoluteValue > slideThreshold) {
+        if (slidePower.absoluteValue > slideThreshold) {
             robot.outtake.slides.isManual = true
             if (!robot.intake.claw.isOpen) {
                 robot.outtake.slides.manualPower = slidePower.clamp(-1.0, 0)
@@ -344,6 +345,9 @@ class MainTeleop : OpMode() {
         // delays
 
         @JvmField
+        var transferArmDelay: Long = 250
+
+        @JvmField
         var transferClawDelay: Long = 250
 
         @JvmField
@@ -376,7 +380,7 @@ class MainTeleop : OpMode() {
         // Heading assist
 
         @JvmField
-        var useBasketAssist: Boolean = false
+        var useBasketAssist: Boolean = true
 
         @JvmField
         var basketAssistWeight: Double = 0.025
@@ -385,7 +389,7 @@ class MainTeleop : OpMode() {
         var basketAssistHeading: Double = -45.0
 
         @JvmField
-        var useRungAssist: Boolean = false
+        var useRungAssist: Boolean = true
 
         @JvmField
         var rungAssistWeight: Double = 0.025

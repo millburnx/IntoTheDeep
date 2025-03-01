@@ -50,7 +50,7 @@ open class PIDSettings {
         var kD: Double = 0.0285
 
         @JvmField
-        var kPHeading: Double = 0.2
+        var kPHeading: Double = 0.0875
 
         @JvmField
         var kIHeading: Double = 0.0

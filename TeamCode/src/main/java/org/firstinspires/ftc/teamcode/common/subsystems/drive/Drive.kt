@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
 import android.os.Environment
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
 import com.millburnx.utils.Path
 import com.millburnx.utils.TSV
 import com.millburnx.utils.Vec2d
@@ -55,6 +56,11 @@ open class Drive(
         subsystems.forEach { it.init() }
     }
 
+    fun stop() =
+        InstantCommand({
+            robot.drive.robotCentric(0.0, 0.0, 0.0)
+        })
+
     fun breakMotors() {
         listOf(frontLeft, frontRight, backLeft, backRight).forEach {
             it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -106,7 +112,8 @@ open class Drive(
     fun pid(
         target: Pose2d,
         tolerance: Pose2d = Pose2d(PIDSettings.tolerance, headingTolerance),
-    ) = PIDCommand(robot, target, tolerance)
+        useStuckDectector: Boolean = false,
+    ) = PIDCommand(robot, target, tolerance, useStuckDectector)
 
     fun pointsToPid(file: String): List<PIDCommand> {
         val csv = TSV.bufferedRead(File("${Environment.getExternalStorageDirectory().path}/Paths/$file.tsv"))
@@ -122,12 +129,14 @@ open class Drive(
     fun purePursuit(
         path: String,
         heading: Double,
-    ) = purePursuit(Path.loadPath(path), heading)
+        useStuckDectector: Boolean = false,
+    ) = purePursuit(Path.loadPath(path), heading, useStuckDectector)
 
     fun purePursuit(
         path: Path,
         heading: Double,
-    ) = PurePursuitCommand(robot, heading, path.points)
+        useStuckDectector: Boolean = false,
+    ) = PurePursuitCommand(robot, heading, path.points, exitOnStuck = useStuckDectector)
 
     companion object {
         @JvmField

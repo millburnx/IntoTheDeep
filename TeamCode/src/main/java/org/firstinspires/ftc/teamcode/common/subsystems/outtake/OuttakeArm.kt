@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class OuttakeArmPosition {
     BASE,
+    TRANSFER,
     SPECIMEN,
     SPECIMEN_SCORING,
     ALT_SPECIMEN,
@@ -36,6 +37,7 @@ class OuttakeArm(
         val target =
             when (state) {
                 OuttakeArmPosition.BASE -> basePosition
+                OuttakeArmPosition.TRANSFER -> transferPosition
                 OuttakeArmPosition.SPECIMEN -> specimenPosition
                 OuttakeArmPosition.SPECIMEN_SCORING -> specimenScoringPosition
                 OuttakeArmPosition.ALT_SPECIMEN -> altSpecimenPosition
@@ -51,6 +53,8 @@ class OuttakeArm(
     }
 
     fun base() = InstantCommand({ state = OuttakeArmPosition.BASE }, this)
+
+    fun transfer() = InstantCommand({ state = OuttakeArmPosition.TRANSFER })
 
     fun specimen() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN }, this)
 
@@ -68,28 +72,31 @@ class OuttakeArm(
 
     companion object {
         @JvmField
-        var basePosition = 0.71
+        var basePosition = 0.6
 
         @JvmField
-        var basketPosition = 0.575
+        var transferPosition = 0.66
 
         @JvmField
-        var specimenPosition = 0.4
+        var basketPosition = 0.52
+
+        @JvmField
+        var specimenPosition = 0.43
 
         @JvmField
         var specimenScoringPosition = 0.65
 
         @JvmField
-        var altSpecimenPosition = 0.38
+        var altSpecimenPosition = 0.32
 
         @JvmField
-        var pickupPosition = 0.89
+        var pickupPosition = 0.74
 
         @JvmField
-        var humanPosition = 0.38
+        var humanPosition = 0.27
 
         @JvmField
-        var parkPosition = 0.6
+        var parkPosition = 0.52
 
         @JvmField
         var maxSpeed = -1.0

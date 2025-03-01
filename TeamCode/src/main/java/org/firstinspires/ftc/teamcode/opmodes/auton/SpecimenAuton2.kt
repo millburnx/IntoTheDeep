@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
+import com.arcrobotics.ftclib.command.WaitUntilCommand
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
@@ -33,31 +34,44 @@ class SpecimenAuton2 : OpMode() {
         robot.intake.diffy.periodic()
         robot.intake.claw.periodic()
 
+        fun autoGrab() =
+            SequentialCommandGroup(
+                robot.autoPickup.startScanning(),
+                WaitUntilCommand { robot.autoPickup.lastTarget != null },
+                robot.autoPickup.stopScanning(),
+                robot.autoPickup.align(),
+                robot.intake.grab(),
+                robot.autoPickup.stop(),
+                InstantCommand({ robot.autoPickup.lastTarget = null }),
+            )
+
         fun pickupSamples() =
             SequentialCommandGroup(
                 robot.intake.open(),
-                robot.drive.pid(Pose2d(sample1GrabX, sample1GrabY, sample1GrabH)),
+                robot.drive.pid(Pose2d(sample1X, sample1Y, 0.0)),
                 WaitCommand(tempDelay),
                 robot.intake.extend(),
-                robot.intake.grab(),
-                robot.drive.pid(Pose2d(sample1DropX, sample1DropY, sample1DropH)),
+                autoGrab(),
+                robot.intake.baseExtend(),
+                robot.drive.pid(Pose2d(sample1X, sample1Y, -180.0)),
                 WaitCommand(tempDelay),
                 robot.intake.open(),
-                robot.drive.pid(Pose2d(sample2GrabX, sample2GrabY, sample2GrabH)),
+                robot.drive.pid(Pose2d(sample2X, sample2Y, 0.0)),
                 WaitCommand(tempDelay),
                 robot.intake.extend(),
-                robot.intake.grab(),
-                robot.drive.pid(Pose2d(sample2DropX, sample2DropY, sample2DropH)),
+                autoGrab(),
+                robot.intake.baseExtend(),
+                robot.drive.pid(Pose2d(sample2X, sample2Y, -180.0)),
                 WaitCommand(tempDelay),
                 robot.intake.open(),
-                robot.drive.pid(Pose2d(sample3GrabX, sample3GrabY, sample3GrabH)),
+                robot.drive.pid(Pose2d(sample3X, sample3Y, sample3GrabH)),
                 WaitCommand(tempDelay),
                 robot.intake.extend(),
-                robot.intake.grab(),
-                robot.drive.pid(Pose2d(sample3DropX, sample3DropY, sample3DropH)),
+                autoGrab(),
+                robot.intake.baseExtend(),
+                robot.drive.pid(Pose2d(sample3X, sample3Y, sample3DropH)),
                 WaitCommand(tempDelay),
                 robot.intake.open(),
-                robot.intake.retract(),
             )
 
         fun specimenPickup() =
@@ -142,10 +156,10 @@ class SpecimenAuton2 : OpMode() {
 //                    specimenPickup(),
                     pickupSamples(),
                 ),
-                scoreSpec(1),
-                scoreSpec(2),
-                scoreSpec(3),
-                scoreSpec(4),
+//                scoreSpec(1),
+//                scoreSpec(2),
+//                scoreSpec(3),
+//                scoreSpec(4),
             ),
         )
 
@@ -204,61 +218,31 @@ class SpecimenAuton2 : OpMode() {
         // sample1
 
         @JvmField
-        var sample1GrabX: Double = -42.0
+        var sample1X: Double = -47.0
 
         @JvmField
-        var sample1GrabY: Double = -36.0
-
-        @JvmField
-        var sample1GrabH: Double = -45.0
-
-        @JvmField
-        var sample1DropX: Double = -42.0
-
-        @JvmField
-        var sample1DropY: Double = -36.0
-
-        @JvmField
-        var sample1DropH: Double = -135.0
+        var sample1Y: Double = -44.5
 
         // sample2
 
         @JvmField
-        var sample2GrabX: Double = -42.0
+        var sample2X: Double = -47.0
 
         @JvmField
-        var sample2GrabY: Double = -44.0
-
-        @JvmField
-        var sample2GrabH: Double = -45.0
-
-        @JvmField
-        var sample2DropX: Double = -42.0
-
-        @JvmField
-        var sample2DropY: Double = -44.0
-
-        @JvmField
-        var sample2DropH: Double = -135.0
+        var sample2Y: Double = -52.0
 
         // sample3
 
         @JvmField
-        var sample3GrabX: Double = -42.0
+        var sample3X: Double = -43.5
 
         @JvmField
-        var sample3GrabY: Double = -52.0
+        var sample3Y: Double = -48.5
 
         @JvmField
         var sample3GrabH: Double = -45.0
 
         @JvmField
-        var sample3DropX: Double = -42.0
-
-        @JvmField
-        var sample3DropY: Double = -52.0
-
-        @JvmField
-        var sample3DropH: Double = -135.0
+        var sample3DropH: Double = -180.0
     }
 }

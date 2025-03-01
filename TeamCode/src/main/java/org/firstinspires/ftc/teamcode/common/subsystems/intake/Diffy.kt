@@ -62,7 +62,7 @@ class Diffy(
         var transferRoll = 0.95
 
         @JvmField
-        var specimenPitch = 0.25
+        var specimenPitch = 0.6
 
         @JvmField
         var specimenRoll = 1.0

@@ -18,7 +18,7 @@ enum class IntakeArmPosition {
 class IntakeArm(
     val robot: Robot,
 ) : Subsystem() {
-    var leftServo: Servo = (robot.hardware["intakeArmLeft"] as Servo).apply { init() }
+    var leftServo: Servo = (robot.hardware["intakeArmLeft"] as Servo).apply { init(false) }
     var rightServo: Servo = (robot.hardware["intakeArmRight"] as Servo).apply { init(false) }
     var state: IntakeArmPosition = IntakeArmPosition.BASE
 

@@ -44,7 +44,7 @@ class Slides(
 
     var directPower = 0.0
 
-    fun disableDirect() = InstantCommand({ isDirect = true })
+    fun disableDirect() = InstantCommand({ isDirect = false })
 
     fun enableDirect() = InstantCommand({ isDirect = true })
 
@@ -121,10 +121,13 @@ class Slides(
         var highRungScore: Double = 2000.0
 
         @JvmField
-        var wall: Double = 162.5
+        var wall: Double = 170.0
 
         @JvmField
-        var lowBasket: Double = 700.0
+        var wall2: Double = 200.0
+
+        @JvmField
+        var lowBasket: Double = 900.0
 
         @JvmField
         var highBasket: Double = 2150.0
