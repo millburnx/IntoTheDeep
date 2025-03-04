@@ -70,12 +70,13 @@ class TwoWheelTrackingLocalizer(
             encoderTicksToInches(perpendicularEncoder.getCorrectedVelocity()) * Y_MULTIPLIER,
         )
 
+    @Suppress("ktlint:standard:property-naming")
     companion object {
         @JvmField
         var TICKS_PER_REV: Double = 8192.0
 
         @JvmField
-        var WHEEL_RADIUS: Double = 35 / 25.4 // in
+        var WHEEL_RADIUS: Double = 35 / 25.4 / 2 // in
 
         @JvmField
         var GEAR_RATIO: Double = 1.0 // output (wheel) speed / input (encoder) speed
@@ -93,10 +94,10 @@ class TwoWheelTrackingLocalizer(
         var PERPENDICULAR_Y: Double = 0.375
 
         @JvmField
-        var X_MULTIPLIER: Double = 0.49 // Multiplier in the X direction
+        var X_MULTIPLIER: Double = 1.0 // Multiplier in the X direction
 
         @JvmField
-        var Y_MULTIPLIER: Double = 0.49 // Multiplier in the Y direction
+        var Y_MULTIPLIER: Double = 1.0 // Multiplier in the Y direction
 
         fun encoderTicksToInches(ticks: Double): Double = WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV
     }
