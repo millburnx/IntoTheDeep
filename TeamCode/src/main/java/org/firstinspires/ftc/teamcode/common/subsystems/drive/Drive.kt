@@ -38,8 +38,8 @@ open class Drive(
 
     val motors = listOf(frontLeft, frontRight, backLeft, backRight)
 
-    val odometry = SampleMecanumDrive(robot.hardware).localizer
-    var pose: Pose2d
+    val odometry by lazy { SampleMecanumDrive(robot.hardware).localizer }
+    open var pose: Pose2d
         get() {
             return Pose2d.fromRR(odometry.poseEstimate)
         }
