@@ -34,6 +34,8 @@ open class Robot(
         imu
     }
 
+    var isRed: Boolean = false
+
     fun imuHeading(angleUnit: AngleUnit = AngleUnit.DEGREES): Double = imu.robotYawPitchRollAngles.getYaw(angleUnit)
 
     val gp1: Gamepad by lazy { opMode.gamepad1 }

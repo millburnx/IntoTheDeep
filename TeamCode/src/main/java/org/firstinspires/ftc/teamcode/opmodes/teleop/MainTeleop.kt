@@ -26,12 +26,12 @@ import kotlin.math.absoluteValue
 
 class TeleOpToggles {
     var autoPickup = true
-    var useAlternateSpec = false
+    var useAlternateSpec = true
 }
 
 @Config
-@TeleOp(name = "Main Teleop")
-class MainTeleop : OpMode() {
+@TeleOp(name = "Main Teleop Blue")
+open class MainTeleopBlue : OpMode() {
     override val robot: SampleCameraRobot by lazy { SampleCameraRobot(this) }
 
     val toggles = TeleOpToggles()
@@ -49,10 +49,21 @@ class MainTeleop : OpMode() {
                     useWallAssist = !useWallAssist
                 }
 
+            val park =
+                EdgeDetector(
+                    gamepad1::dpad_left,
+                    this@MainTeleopBlue,
+                    ParallelCommandGroup(
+                        SlidesCommand(robot.outtake.slides, Slides.min),
+                        robot.outtake.arm.park(),
+                        robot.outtake.wrist.park(),
+                    ),
+                )
+
             val liftResets =
                 EdgeDetector(
                     gamepad2::circle,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     SequentialCommandGroup(
                         robot.outtake.slides.directPower(rezeroPower),
                         robot.outtake.slides.enableDirect(),
@@ -62,6 +73,12 @@ class MainTeleop : OpMode() {
                         robot.outtake.slides.disableDirect(),
                     ),
                 )
+            val toggleColor =
+                EdgeDetector(
+                    gamepad2::dpad_up,
+                ) {
+                    robot.isRed = !robot.isRed
+                }
 
             val alternativeSpec = EdgeDetector(gamepad2::cross) { toggles.useAlternateSpec = !toggles.useAlternateSpec }
 
@@ -110,7 +127,7 @@ class MainTeleop : OpMode() {
             val pickup =
                 EdgeDetector(
                     robot.gp1::right_bumper,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     pickupPre(rumble1, true),
                     pickupPost(rumble1),
                 )
@@ -119,7 +136,7 @@ class MainTeleop : OpMode() {
             val basePickup =
                 EdgeDetector(
                     robot.gp1::left_bumper,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     pickupPre(rumble2, false),
                     pickupPost(rumble2),
                 )
@@ -128,7 +145,7 @@ class MainTeleop : OpMode() {
             val lowBasket =
                 EdgeDetector(
                     robot.gp1::dpad_down,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     SequentialCommandGroup(
                         SlidesCommand(robot.outtake.slides, Slides.lowBasket),
                         robot.outtake.arm.basket(),
@@ -139,7 +156,7 @@ class MainTeleop : OpMode() {
             val highBasket =
                 EdgeDetector(
                     robot.gp1::dpad_up,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     SequentialCommandGroup(
                         SlidesCommand(robot.outtake.slides, Slides.highBasket),
                         robot.outtake.arm.basket(),
@@ -151,7 +168,7 @@ class MainTeleop : OpMode() {
             val specimenPickup =
                 EdgeDetector(
                     robot.gp1::cross,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     SequentialCommandGroup(
                         ParallelCommandGroup(
                             SlidesCommand(robot.outtake.slides, Slides.min),
@@ -191,7 +208,7 @@ class MainTeleop : OpMode() {
             val hpDrop =
                 EdgeDetector(
                     robot.gp1::square,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     SequentialCommandGroup(
                         ParallelCommandGroup(
                             SlidesCommand(robot.outtake.slides, Slides.min),
@@ -206,7 +223,7 @@ class MainTeleop : OpMode() {
             val score =
                 EdgeDetector(
                     robot.gp1::triangle,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     ConditionalCommand(
                         SequentialCommandGroup(
                             robot.outtake.open(),
@@ -253,7 +270,7 @@ class MainTeleop : OpMode() {
             val imuReset =
                 EdgeDetector(
                     gamepad1::circle,
-                    this@MainTeleop,
+                    this@MainTeleopBlue,
                     InstantCommand({
                         robot.imu.resetYaw()
                         gamepad1.rumble(250)
@@ -263,6 +280,7 @@ class MainTeleop : OpMode() {
     }
 
     override fun initialize() {
+        robot.isRed = false
         FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
         triggers
     }
@@ -321,6 +339,7 @@ class MainTeleop : OpMode() {
         }
 
         robot.telemetry.addData("pid | on", robot.drive.pidManager.isOn)
+        robot.telemetry.addData("isRed", robot.isRed)
         robot.telemetry.addData("pid | pid target", robot.drive.pidManager.target)
         robot.telemetry.addData("hz | Delta Time", robot.deltaTime.deltaTime)
         robot.telemetry.addData("hz | Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
@@ -333,9 +352,6 @@ class MainTeleop : OpMode() {
     }
 
     companion object {
-        @JvmField
-        var isRed: Boolean = false
-
         @JvmField
         var fieldCentric: Boolean = true
 
@@ -372,10 +388,10 @@ class MainTeleop : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var baseIntakeDuration: Long = 500
+        var baseIntakeDuration: Long = 1250
 
         @JvmField
-        var intakeDuration: Long = 625
+        var intakeDuration: Long = 1500
 
         // Heading assist
 

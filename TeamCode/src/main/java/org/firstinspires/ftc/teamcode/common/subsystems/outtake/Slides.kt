@@ -5,22 +5,21 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.controller.PIDController
-import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
+import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.common.utils.init
 import kotlin.math.abs
 
 @Config
 class Slides(
     val robot: Robot,
 ) : Subsystem() {
-    val leftLift: DcMotorEx = (robot.hardware["leftLift"] as DcMotorEx).apply { init(isBrake = true) }
-    val rightLift: DcMotorEx = (robot.hardware["rightLift"] as DcMotorEx).apply { init(isBrake = true) }
+    val leftLift = CachedMotor(robot.hardware, "leftLift", isBrake = true)
+    val rightLift = CachedMotor(robot.hardware, "rightLift", isBrake = true)
     val pid = PIDController(kP, kI, kD)
     val position
-        get() = leftLift.currentPosition.toDouble() + encoderOffset
+        get() = leftLift.position + encoderOffset
 
     var encoderOffset: Double = 0.0
 

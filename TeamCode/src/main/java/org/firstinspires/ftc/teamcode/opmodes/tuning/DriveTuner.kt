@@ -3,18 +3,18 @@ package org.firstinspires.ftc.teamcode.opmodes.tuning
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotorEx
+import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive.Companion.cacheThreshold
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive.Companion.strafeMultiplier
-import org.firstinspires.ftc.teamcode.common.utils.init
+import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
 @TeleOp(name = "Drive Tuner", group = "Tuning")
 class DriveTuner : CommandOpMode() {
-    val frontLeft: DcMotorEx by lazy { (hardwareMap["frontLeft"] as DcMotorEx).apply { init() } }
-    val frontRight: DcMotorEx by lazy { (hardwareMap["frontRight"] as DcMotorEx).apply { init(false) } }
-    val backLeft: DcMotorEx by lazy { (hardwareMap["backLeft"] as DcMotorEx).apply { init() } }
-    val backRight: DcMotorEx by lazy { (hardwareMap["backRight"] as DcMotorEx).apply { init(false) } }
+    val frontLeft = CachedMotor(hardwareMap, "frontLeft", cacheThreshold, breakMotors)
+    val frontRight = CachedMotor(hardwareMap, "frontRight", cacheThreshold, breakMotors, false)
+    val backLeft = CachedMotor(hardwareMap, "backLeft", cacheThreshold, breakMotors)
+    val backRight = CachedMotor(hardwareMap, "backRight", cacheThreshold, breakMotors, false)
 
     override fun initialize() {
     }
@@ -43,5 +43,10 @@ class DriveTuner : CommandOpMode() {
         telemetry.addData("relative x", relativeVector.x)
         telemetry.addData("relative y", relativeVector.y)
         telemetry.update()
+    }
+
+    companion object {
+        @JvmField
+        var breakMotors: Boolean = false
     }
 }

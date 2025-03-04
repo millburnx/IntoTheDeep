@@ -22,6 +22,9 @@ class DiffyTuner : OpMode() {
     override fun exec() {
         robot.diffy.pitch = pitch
         robot.diffy.roll = roll
+
+        robot.telemetry.addData("left", robot.diffy.leftServo.position)
+        robot.telemetry.addData("right", robot.diffy.rightServo.position)
     }
 
     companion object {

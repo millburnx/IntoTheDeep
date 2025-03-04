@@ -6,16 +6,15 @@ import com.arcrobotics.ftclib.command.InstantCommand
 import com.millburnx.utils.Path
 import com.millburnx.utils.TSV
 import com.millburnx.utils.Vec2d
-import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.headingTolerance
 import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
+import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.common.utils.init
 import org.firstinspires.ftc.teamcode.common.utils.loadPath
 import org.firstinspires.ftc.teamcode.common.utils.reset
 import org.firstinspires.ftc.teamcode.rr.drive.SampleMecanumDrive
@@ -32,10 +31,11 @@ open class Drive(
     val stuckDectector = StuckDectector(robot)
     val subsystems: List<Subsystem> = listOf(pidManager, stuckDectector)
 
-    val frontLeft: DcMotorEx = (robot.hardware["frontLeft"] as DcMotorEx).apply { init(isBrake = breakMotors) }
-    val frontRight: DcMotorEx = (robot.hardware["frontRight"] as DcMotorEx).apply { init(false, isBrake = breakMotors) }
-    val backLeft: DcMotorEx = (robot.hardware["backLeft"] as DcMotorEx).apply { init(isBrake = breakMotors) }
-    val backRight: DcMotorEx = (robot.hardware["backRight"] as DcMotorEx).apply { init(false, isBrake = breakMotors) }
+    val frontLeft = CachedMotor(robot.hardware, "frontLeft", cacheThreshold, breakMotors)
+    val frontRight = CachedMotor(robot.hardware, "frontRight", cacheThreshold, breakMotors, false)
+    val backLeft = CachedMotor(robot.hardware, "backLeft", cacheThreshold, breakMotors)
+    val backRight = CachedMotor(robot.hardware, "backRight", cacheThreshold, breakMotors, false)
+
     val motors = listOf(frontLeft, frontRight, backLeft, backRight)
 
     val odometry = SampleMecanumDrive(robot.hardware).localizer
@@ -62,15 +62,11 @@ open class Drive(
         })
 
     fun breakMotors() {
-        listOf(frontLeft, frontRight, backLeft, backRight).forEach {
-            it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        }
+        motors.forEach { it.isBrake = true }
     }
 
     fun floatMotors() {
-        listOf(frontLeft, frontRight, backLeft, backRight).forEach {
-            it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
-        }
+        motors.forEach { it.isBrake = false }
     }
 
     override fun periodic() {
@@ -147,5 +143,8 @@ open class Drive(
 
         @JvmField
         var extendoWeighting: Double = 0.0
+
+        @JvmField
+        var cacheThreshold: Double = 0.0
     }
 }

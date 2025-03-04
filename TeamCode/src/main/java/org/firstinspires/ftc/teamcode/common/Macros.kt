@@ -6,10 +6,10 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.outtakeFlipDelay
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.outtakeLiftingDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.transferArmDelay
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.transferClawDelay
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeFlipDelay
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeLiftingDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.transferArmDelay
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.transferClawDelay
 
 class Macros(
     val robot: Robot,

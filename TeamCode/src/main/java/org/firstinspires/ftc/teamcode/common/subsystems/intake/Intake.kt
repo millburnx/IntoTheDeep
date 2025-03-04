@@ -6,9 +6,9 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.baseIntakeDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakePickupArmDelay
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakePickupClawDelay
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.baseIntakeDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.intakePickupArmDelay
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.intakePickupClawDelay
 
 class Intake(
     val robot: Robot,

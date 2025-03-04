@@ -22,8 +22,8 @@ class SlidesTuner : OpMode() {
     override fun exec() {
         robot.slides.target = target
 
-        robot.telemetry.addData("left pos", robot.slides.leftLift.currentPosition)
-        robot.telemetry.addData("right pos", robot.slides.rightLift.currentPosition)
+        robot.telemetry.addData("left pos", robot.slides.leftLift.position)
+        robot.telemetry.addData("right pos", robot.slides.rightLift.position)
     }
 
     companion object {

@@ -15,6 +15,7 @@ enum class OuttakeWristPosition {
     PICKUP,
     HUMAN,
     PARK,
+    HALFBASKET,
 }
 
 @Config
@@ -38,6 +39,7 @@ class OuttakeWrist(
                 OuttakeWristPosition.PICKUP -> pickupPosition
                 OuttakeWristPosition.HUMAN -> humanPosition
                 OuttakeWristPosition.PARK -> parkPosition
+                OuttakeWristPosition.HALFBASKET -> halfBasket
             }
         servo.position = target
     }
@@ -49,6 +51,8 @@ class OuttakeWrist(
     fun altSpecimen() = InstantCommand({ state = OuttakeWristPosition.ALT_SPECIMEN }, this)
 
     fun basket() = InstantCommand({ state = OuttakeWristPosition.BASKET }, this)
+
+    fun halfBasket() = InstantCommand({ state = OuttakeWristPosition.HALFBASKET }, this)
 
     fun pickup() = InstantCommand({ state = OuttakeWristPosition.PICKUP }, this)
 
@@ -77,5 +81,8 @@ class OuttakeWrist(
 
         @JvmField
         var parkPosition = 0.45
+
+        @JvmField
+        var halfBasket = (basketPosition + basePosition) / 2
     }
 }

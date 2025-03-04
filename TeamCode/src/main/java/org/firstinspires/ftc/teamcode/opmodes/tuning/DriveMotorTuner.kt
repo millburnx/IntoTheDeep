@@ -2,15 +2,16 @@ package org.firstinspires.ftc.teamcode.opmodes.tuning
 
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotorEx
-import org.firstinspires.ftc.teamcode.common.utils.init
+import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive.Companion.cacheThreshold
+import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
+import org.firstinspires.ftc.teamcode.opmodes.tuning.DriveTuner.Companion.breakMotors
 
 @TeleOp(name = "Drive Motor Tuner", group = "Tuning")
 class DriveMotorTuner : CommandOpMode() {
-    val frontLeft: DcMotorEx by lazy { (hardwareMap["frontLeft"] as DcMotorEx).apply { init(false) } }
-    val frontRight: DcMotorEx by lazy { (hardwareMap["frontRight"] as DcMotorEx).apply { init() } }
-    val backLeft: DcMotorEx by lazy { (hardwareMap["backLeft"] as DcMotorEx).apply { init(false) } }
-    val backRight: DcMotorEx by lazy { (hardwareMap["backRight"] as DcMotorEx).apply { init() } }
+    val frontLeft = CachedMotor(hardwareMap, "frontLeft", cacheThreshold, breakMotors)
+    val frontRight = CachedMotor(hardwareMap, "frontRight", cacheThreshold, breakMotors, false)
+    val backLeft = CachedMotor(hardwareMap, "backLeft", cacheThreshold, breakMotors)
+    val backRight = CachedMotor(hardwareMap, "backRight", cacheThreshold, breakMotors, false)
 
     override fun initialize() {
     }

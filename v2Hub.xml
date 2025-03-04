@@ -17,10 +17,9 @@
             <Servo name="intakeClaw" port="0"/>
             <Servo name="intakeArmRight" port="1"/>
             <Servo name="intakeArmLeft" port="2"/>
-            <Servo name="diffyRight" port="3"/>
-            <Servo name="diffyLeft" port="4"/>
+            <ContinuousRotationServo name="diffyRight" port="3"/>
+            <ContinuousRotationServo name="diffyLeft" port="4"/>
             <Servo name="linkageRight" port="5"/>
-            <AnalogInput name="analog2g" port="0"/>
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="para" port="1"/>
@@ -34,6 +33,7 @@
             <Servo name="outtakeWrist" port="4"/>
             <Servo name="a" port="5"/>
             <AnalogInput name="analog1" port="0"/>
+            <AnalogInput name="analog2" port="1"/>
             <LynxEmbeddedIMU name="imu" port="0" bus="0"/>
         </LynxModule>
     </LynxUsbDevice>

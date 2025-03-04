@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.common.utils
 import android.os.Environment
 import com.millburnx.utils.Path
 import com.millburnx.utils.Vec2d
+import com.qualcomm.robotcore.hardware.CRServo
+import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -33,6 +35,15 @@ fun Servo.init(isForward: Boolean = true) {
 
 fun ServoImplEx.init(isForward: Boolean = true) {
     direction = if (isForward) Servo.Direction.FORWARD else Servo.Direction.REVERSE
+    pwmRange = PwmControl.PwmRange(500.0, 2500.0)
+}
+
+fun CRServo.init(isForward: Boolean = true) {
+    direction = if (isForward) DcMotorSimple.Direction.FORWARD else DcMotorSimple.Direction.REVERSE
+}
+
+fun CRServoImplEx.init(isForward: Boolean = true) {
+    direction = if (isForward) DcMotorSimple.Direction.FORWARD else DcMotorSimple.Direction.REVERSE
     pwmRange = PwmControl.PwmRange(500.0, 2500.0)
 }
 

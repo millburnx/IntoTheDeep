@@ -15,9 +15,9 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosi
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.outtakeDropArmDelay
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeDropArmDelay
 
-@Autonomous(name = "Faster Sample Auton DONT RUN", preselectTeleOp = "Main Teleop")
+@Autonomous(name = "Faster Sample Auton DONT RUN", preselectTeleOp = "Main Teleop Red")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class FasterSampleAuton : OpMode() {

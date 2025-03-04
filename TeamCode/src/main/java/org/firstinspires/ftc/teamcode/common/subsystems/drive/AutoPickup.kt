@@ -23,8 +23,10 @@ import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Compa
 @Config
 class AutoPickup(
     val robot: SampleCameraRobot,
-    val colors: List<SampleColor>,
 ) : Subsystem() {
+    val colors
+        get() = listOf(SampleColor.YELLOW, if (robot.isRed) SampleColor.RED else SampleColor.BLUE)
+
     var lastTarget: Pair<Pose2d, Double>? = null
         set(value) {
             field = value

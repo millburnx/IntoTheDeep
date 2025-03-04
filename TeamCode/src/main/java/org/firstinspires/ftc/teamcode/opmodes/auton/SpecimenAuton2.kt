@@ -14,10 +14,10 @@ import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakeLoweringDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.specimenCloseDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.intakeLoweringDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.specimenCloseDuration
 
-@Autonomous(name = "Specimen Auton 2", preselectTeleOp = "Main Teleop")
+@Autonomous(name = "Specimen Auton 2", preselectTeleOp = "Main Teleop Red")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SpecimenAuton2 : OpMode() {

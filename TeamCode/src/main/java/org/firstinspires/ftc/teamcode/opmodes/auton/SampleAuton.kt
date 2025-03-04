@@ -15,9 +15,9 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosi
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.outtakeDropArmDelay
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeDropArmDelay
 
-@Autonomous(name = "Sample Auton", preselectTeleOp = "Main Teleop")
+@Autonomous(name = "Sample Auton", preselectTeleOp = "Main Teleop Red")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SampleAuton : OpMode() {
@@ -55,9 +55,10 @@ class SampleAuton : OpMode() {
             ParallelCommandGroup(
                 SequentialCommandGroup(
                     ParallelCommandGroup(
-                        robot.outtake.arm.basket(),
-                        robot.outtake.wrist.basket(),
+//                        robot.outtake.arm.halfBasket(),
+                        robot.outtake.wrist.halfBasket(),
                     ),
+                    WaitCommand(500),
                     ParallelCommandGroup(
                         robot.outtake.arm.basket(),
                         robot.outtake.wrist.basket(),

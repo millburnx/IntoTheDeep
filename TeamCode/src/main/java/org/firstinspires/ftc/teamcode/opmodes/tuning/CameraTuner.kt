@@ -9,7 +9,6 @@ import com.arcrobotics.ftclib.command.WaitCommand
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.Robot
-import org.firstinspires.ftc.teamcode.common.processors.SampleColor
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
@@ -18,8 +17,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.vision.Vision
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakeDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.isRed
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.intakeDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.DiffyTuner.Companion.roll
 import kotlin.math.cos
 import kotlin.math.sin
@@ -35,7 +33,7 @@ open class SampleCameraRobot(
     opMode: OpMode,
 ) : Robot(opMode) {
     open val camera by lazy { SampleVision(this) }
-    val autoPickup = AutoPickup(this, listOf(SampleColor.YELLOW, if (isRed) SampleColor.RED else SampleColor.BLUE))
+    val autoPickup = AutoPickup(this)
     override val additionalSubsystems = listOf(camera, autoPickup)
 }
 

@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.intakeLoweringDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleop.Companion.specimenCloseDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.intakeLoweringDuration
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.specimenCloseDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 
 open class AutonRobot(
@@ -26,7 +26,7 @@ open class AutonRobot(
     }
 }
 
-@Autonomous(name = "Specimen Auton", preselectTeleOp = "Main Teleop")
+@Autonomous(name = "Specimen Auton", preselectTeleOp = "Main Teleop Red")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SpecimenAuton : OpMode() {
@@ -80,10 +80,10 @@ class SpecimenAuton : OpMode() {
 
         fun specimenFlip() =
             SequentialCommandGroup(
-                SlidesCommand(robot.outtake.slides, Slides.wall),
+                SlidesCommand(robot.outtake.slides, Slides.highRung),
                 ParallelCommandGroup(
-                    robot.outtake.arm.specimen(),
-                    robot.outtake.wrist.specimen(),
+                    robot.outtake.arm.altSpecimen(),
+                    robot.outtake.wrist.altSpecimen(),
                 ),
             )
 
@@ -93,21 +93,14 @@ class SpecimenAuton : OpMode() {
                     robot.drive.pid(Pose2d(pickupX, pickupY, -180.0)),
                     specimenPickup(),
                 ),
-                robot.drive.relativeDrive(Pose2d(pickupPower, 0.0, 0.0)).withTimeout(
-                    pickupDuration,
-                ),
                 WaitCommand(humanDuration),
                 specimenGrab(),
                 ParallelCommandGroup(
                     specimenFlip(),
                     robot.drive.pid(Pose2d(scoreX, scoreY + offset * scoreOffset, -180.0)),
                 ),
-                robot.drive.relativeDrive(Pose2d(scorePower, 0.0, 0.0)).withTimeout(
-                    scoreDuration,
-                ),
                 ParallelCommandGroup(
-                    robot.outtake.arm.specimenScoring(),
-                    WaitCommand(scoringDuration),
+                    SlidesCommand(robot.outtake.slides, Slides.highRungScore),
                 ),
                 ParallelCommandGroup(
                     robot.outtake.open(),
@@ -124,31 +117,26 @@ class SpecimenAuton : OpMode() {
             SequentialCommandGroup(
                 ParallelCommandGroup(
                     robot.drive.pid(Pose2d(scoreX, scoreY, -180.0)),
-                    SlidesCommand(robot.outtake.slides, Slides.wall),
-                    robot.outtake.arm.specimen(),
-                    robot.outtake.wrist.specimen(),
-                ),
-                robot.drive.relativeDrive(Pose2d(scorePower, 0.0, 0.0)).withTimeout(
-                    scoreDuration,
+                    SlidesCommand(robot.outtake.slides, Slides.highRung),
+                    robot.outtake.arm.altSpecimen(),
+                    robot.outtake.wrist.altSpecimen(),
                 ),
                 ParallelCommandGroup(
                     robot.outtake.arm.specimenScoring(),
-                    WaitCommand(scoringDuration),
-                    SlidesCommand(robot.outtake.slides, Slides.wall2),
-                    WaitCommand(scoringDuration2),
+                    SlidesCommand(robot.outtake.slides, Slides.highRungScore),
                 ),
                 ParallelCommandGroup(
                     robot.outtake.open(),
                     robot.outtake.base(),
                 ),
                 ParallelCommandGroup(
-//                    specimenPickup(),
+                    specimenPickup(),
                     pickupSamples(),
                 ),
-//                scoreSpec(1),
-//                scoreSpec(2),
-//                scoreSpec(3),
-//                park(),
+                scoreSpec(1),
+                scoreSpec(2),
+                scoreSpec(3),
+                park(),
             ),
         )
 
