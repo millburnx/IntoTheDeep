@@ -17,7 +17,7 @@ class AxonCR(
     private var lastRawPosition = 0.0
     private var rotations = 0.0
     val rawPosition
-        get() = encoder.voltage / 3.3
+        get() = encoder.voltage / 3.3 * if (isForward) 1.0 else -1.0
 
     val position
         get() = rawPosition + rotations

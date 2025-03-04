@@ -11,8 +11,8 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 class Diffy(
     val robot: Robot,
 ) : Subsystem() {
-    val leftServo = AxonCR(robot.hardware, "diffyLeft", "analog2")
-    val rightServo = AxonCR(robot.hardware, "diffyRight", "analog1", false)
+    val leftServo = AxonCR(robot.hardware, "diffyLeft", "analog2", false)
+    val rightServo = AxonCR(robot.hardware, "diffyRight", "analog1")
 
     // each only has an effective range of +/- 0.25 aka 0-0.5 or half
     // as you need to ensure that pitch + roll never exceeds the bounds of 0 to 1
@@ -30,9 +30,9 @@ class Diffy(
         pidLeft.setPID(kP, kI, kD)
         pidRight.setPID(kP, kI, kD)
 
-        val pitchPosition = 0.5 + pitch / 4 // convert to 0.25 to 0.75
-        val leftPosition = pitchPosition - roll / 4 // 0 to 1
-        val rightPosition = pitchPosition + roll / 4 // 0 to 1
+        val pitchPosition = pitch
+        val leftPosition = pitchPosition - roll
+        val rightPosition = pitchPosition + roll
 
         leftServo.power = pidLeft.calculate(leftServo.position, leftPosition)
         rightServo.power = pidLeft.calculate(rightServo.position, rightPosition)
