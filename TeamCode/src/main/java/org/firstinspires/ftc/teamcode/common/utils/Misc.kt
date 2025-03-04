@@ -33,9 +33,14 @@ fun Servo.init(isForward: Boolean = true) {
     direction = if (isForward) Servo.Direction.FORWARD else Servo.Direction.REVERSE
 }
 
-fun ServoImplEx.init(isForward: Boolean = true) {
+fun ServoImplEx.init(
+    isForward: Boolean = true,
+    isAxon: Boolean = true,
+) {
     direction = if (isForward) Servo.Direction.FORWARD else Servo.Direction.REVERSE
-    pwmRange = PwmControl.PwmRange(500.0, 2500.0)
+    if (isAxon) {
+        pwmRange = PwmControl.PwmRange(500.0, 2500.0)
+    }
 }
 
 fun CRServo.init(isForward: Boolean = true) {

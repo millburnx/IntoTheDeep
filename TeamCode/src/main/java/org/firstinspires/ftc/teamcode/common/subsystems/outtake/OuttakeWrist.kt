@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.InstantCommand
-import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.utils.CachedServo
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class OuttakeWristPosition {
     BASE,
@@ -22,7 +21,7 @@ enum class OuttakeWristPosition {
 class OuttakeWrist(
     val robot: Robot,
 ) : Subsystem() {
-    var servo: Servo = (robot.hardware["outtakeWrist"] as Servo).apply { init() }
+    val servo = CachedServo(robot.hardware, "outtakeWrist")
     var state: OuttakeWristPosition = OuttakeWristPosition.BASE
 
     override fun init() {

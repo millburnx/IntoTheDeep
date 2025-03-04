@@ -1,16 +1,15 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
-import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.utils.CachedServo
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.common.utils.init
 
 @Config
 class OuttakeClaw(
     val robot: Robot,
 ) : Subsystem() {
-    val clawServo: ServoImplEx = (robot.hardware["outtakeClaw"] as ServoImplEx).apply { init() }
+    val clawServo = CachedServo(robot.hardware, "outtakeClaw", true)
 
     var isOpen = true
 

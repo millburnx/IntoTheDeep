@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.utils
 
 import com.qualcomm.robotcore.hardware.AnalogInput
-import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlin.math.absoluteValue
 
@@ -11,7 +10,7 @@ class AxonCR(
     encoderName: String,
     val isForward: Boolean = true,
 ) : Subsystem() {
-    val servo = (hardwareMap[servoName] as CRServoImplEx).apply { init(isForward) }
+    val servo = CachedCRServo(hardwareMap, servoName, isForward = isForward)
     val encoder = hardwareMap[encoderName] as AnalogInput
 
     private var lastRawPosition = 0.0
@@ -37,8 +36,7 @@ class AxonCR(
 
     var power = 0.0
         set(value) {
-            if (value == field) return
-            field = value
             servo.power = value
+            field = value
         }
 }

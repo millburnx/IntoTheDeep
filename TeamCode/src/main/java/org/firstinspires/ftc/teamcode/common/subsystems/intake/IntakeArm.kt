@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.InstantCommand
-import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.utils.CachedServo
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class IntakeArmPosition {
     BASE,
@@ -18,8 +17,9 @@ enum class IntakeArmPosition {
 class IntakeArm(
     val robot: Robot,
 ) : Subsystem() {
-    var leftServo: Servo = (robot.hardware["intakeArmLeft"] as Servo).apply { init(false) }
-    var rightServo: Servo = (robot.hardware["intakeArmRight"] as Servo).apply { init(false) }
+    val leftServo = CachedServo(robot.hardware, "intakeArmLeft", isForward = false)
+    val rightServo = CachedServo(robot.hardware, "intakeArmRight", isForward = false)
+
     var state: IntakeArmPosition = IntakeArmPosition.BASE
 
     override fun init() {

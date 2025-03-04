@@ -5,18 +5,15 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.PwmControl
-import com.qualcomm.robotcore.hardware.Servo.Direction
-import com.qualcomm.robotcore.hardware.ServoImplEx
+import org.firstinspires.ftc.teamcode.common.utils.CachedServo
 import org.firstinspires.ftc.teamcode.common.utils.DeltaTime
 import org.firstinspires.ftc.teamcode.common.utils.ServoLimiter
-import org.firstinspires.ftc.teamcode.common.utils.init
 
 @TeleOp(name = "Servo Tuner", group = "Tuning")
 @Config
 class ServoTuner : CommandOpMode() {
-    val servo by lazy { (hardwareMap[name] as ServoImplEx).apply { init(reverse) } }
-    val servo2 by lazy { (hardwareMap[name2] as ServoImplEx).apply { init(reverse2) } }
+    val servo = CachedServo(hardwareMap, name, isAxon = axon, isForward = reverse)
+    val servo2 = CachedServo(hardwareMap, name2, isAxon = axon, isForward = reverse2)
     val deltaTime = DeltaTime()
     val servoLimiter = ServoLimiter(maxSpeed, { deltaTime.deltaTime }, position)
     val multiTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
@@ -25,15 +22,6 @@ class ServoTuner : CommandOpMode() {
         super.run()
         servoLimiter.maxSpeed = maxSpeed
         servoLimiter.update(position)
-        if (axon) {
-            servo.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
-            servo2.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
-        } else {
-            servo.pwmRange = PwmControl.PwmRange(600.0, 2400.0)
-            servo2.pwmRange = PwmControl.PwmRange(600.0, 2400.0)
-        }
-        servo.direction = if (reverse) Direction.REVERSE else Direction.FORWARD
-        servo2.direction = if (reverse2) Direction.REVERSE else Direction.FORWARD
         if (maxSpeed == -1.0) {
             servo.position = position
             servo2.position = position

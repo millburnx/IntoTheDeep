@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.InstantCommand
-import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.teamcode.common.Robot
+import org.firstinspires.ftc.teamcode.common.utils.CachedServo
 import org.firstinspires.ftc.teamcode.common.utils.ServoLimiter
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-import org.firstinspires.ftc.teamcode.common.utils.init
 
 enum class OuttakeArmPosition {
     BASE,
@@ -24,8 +23,9 @@ enum class OuttakeArmPosition {
 class OuttakeArm(
     val robot: Robot,
 ) : Subsystem() {
-    var leftServo: ServoImplEx = (robot.hardware["outtakeArmLeft"] as ServoImplEx).apply { init() }
-    var rightServo: ServoImplEx = (robot.hardware["outtakeArmRight"] as ServoImplEx).apply { init(false) }
+    val leftServo = CachedServo(robot.hardware, "outtakeArmLeft", true)
+    val rightServo = CachedServo(robot.hardware, "outtakeArmRight", true, isForward = false)
+
     val servoLimiter = ServoLimiter(maxSpeed, robot.deltaTime::deltaTime, basePosition)
     var state: OuttakeArmPosition = OuttakeArmPosition.BASE
 

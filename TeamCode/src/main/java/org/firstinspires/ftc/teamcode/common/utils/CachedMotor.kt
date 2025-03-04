@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.utils
 
+import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
@@ -32,9 +33,10 @@ class CachedMotor(
     // this should essentially control the motor's power, the motor should not be modified in any other way
     var power: Double = 0.0
         set(value) {
-            if (abs(value - field) < cacheThreshold) return
-            motor.power = value
-            field = value
+            val clamped = value.clamp(-1.0, 1.0)
+            if (abs(clamped - field) < cacheThreshold) return
+            motor.power = clamped
+            field = clamped
         }
 
     val position: Double
