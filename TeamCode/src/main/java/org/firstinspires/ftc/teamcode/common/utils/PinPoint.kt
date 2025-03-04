@@ -7,9 +7,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 
 class PinPoint(
     val hardwareMap: HardwareMap,
-    val name: String,
+    val deviceName: String,
 ) : Subsystem() {
-    val pinPoint = hardwareMap[name] as GoBildaPinpointDriver
+    val pinPoint = hardwareMap[deviceName] as GoBildaPinpointDriver
 
     init {
         val circumferenceMM = diameterMM * Math.PI
