@@ -29,7 +29,7 @@ open class Drive(
 ) : Subsystem() {
     open val pidManager: PIDManager = PIDManager(robot)
     val stuckDectector = StuckDectector(robot)
-    val subsystems: List<Subsystem> = listOf(pidManager, stuckDectector)
+    open val subsystems: List<Subsystem> = listOf(pidManager, stuckDectector)
 
     val frontLeft = CachedMotor(robot.hardware, "frontLeft", cacheThreshold, breakMotors)
     val frontRight = CachedMotor(robot.hardware, "frontRight", cacheThreshold, breakMotors, false)

@@ -15,8 +15,8 @@
             <goBILDA5202SeriesMotor name="frontRight" port="2"/>
             <goBILDA5202SeriesMotor name="backRight" port="3"/>
             <Servo name="intakeClaw" port="0"/>
-            <Servo name="intakeArmRight" port="1"/>
-            <Servo name="intakeArmLeft" port="2"/>
+            <Servo name="intakeArmLeft" port="1"/>
+            <Servo name="intakeArmRight" port="2"/>
             <ContinuousRotationServo name="diffyRight" port="3"/>
             <ContinuousRotationServo name="diffyLeft" port="4"/>
             <Servo name="linkageRight" port="5"/>
@@ -35,6 +35,7 @@
             <AnalogInput name="analog1" port="0"/>
             <AnalogInput name="analog2" port="1"/>
             <LynxEmbeddedIMU name="imu" port="0" bus="0"/>
+            <goBILDAPinpoint name="pinpoint" port="1" bus="0"/>
         </LynxModule>
     </LynxUsbDevice>
 </Robot>

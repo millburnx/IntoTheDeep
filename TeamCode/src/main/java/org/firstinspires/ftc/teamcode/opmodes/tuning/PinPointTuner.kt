@@ -1,18 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmodes.tuning
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.PinPoint
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
+import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 class PinPointDrive(
     robot: PinPointRobot,
 ) : Drive(robot) {
-    val pinPoint = PinPoint(hardwareMap, "odo")
+    val pinPoint by lazy { PinPoint(robot.hardware, "pinpoint") }
     override var pose: Pose2d
         get() = pinPoint.pose
         set(value) {
@@ -26,28 +26,30 @@ class PinPointDrive(
         oldPose = pose
         pinPoint.update()
     }
+
+    override val subsystems: List<Subsystem> = listOf(pidManager, stuckDectector, pinPoint)
 }
 
 class PinPointRobot(
     opMode: OpMode,
 ) : Robot(opMode) {
-    override val drive: PinPointDrive = PinPointDrive(this)
+    override val drive: PinPointDrive by lazy { PinPointDrive(this) }
 }
 
 @TeleOp(name = "PinPoint Tuner")
 class PinPointTuner : OpMode() {
-    override val robot: PinPointRobot = PinPointRobot(this)
+    override val robot: PinPointRobot by lazy { PinPointRobot(this) }
 
     override fun initialize() {
         super.initialize()
         triggers
 
-        telemetry.addData("Status", "Initialized")
-        telemetry.addData("X offset", robot.drive.pinPoint.pinPoint.xOffset)
-        telemetry.addData("Y offset", robot.drive.pinPoint.pinPoint.yOffset)
-        telemetry.addData("Device Version Number:", robot.drive.pinPoint.pinPoint.deviceVersion)
-        telemetry.addData("Device Scalar", robot.drive.pinPoint.pinPoint.yawScalar)
-        telemetry.update()
+        robot.telemetry.addData("Status", "Initialized")
+        robot.telemetry.addData("X offset", robot.drive.pinPoint.pinPoint.xOffset)
+        robot.telemetry.addData("Y offset", robot.drive.pinPoint.pinPoint.yOffset)
+        robot.telemetry.addData("Device Version Number:", robot.drive.pinPoint.pinPoint.deviceVersion)
+        robot.telemetry.addData("Device Scalar", robot.drive.pinPoint.pinPoint.yawScalar)
+        robot.telemetry.update()
     }
 
     val triggers by lazy {
@@ -58,6 +60,13 @@ class PinPointTuner : OpMode() {
     }
 
     override fun exec() {
+        robot.drive.fieldCentric(
+            gamepad1.left_stick_y.toDouble(),
+            -gamepad1.left_stick_x.toDouble(),
+            -gamepad1.right_stick_x.toDouble(),
+            0.0,
+        )
+
         robot.telemetry.addData("Position", robot.drive.pose.toString())
         robot.telemetry.addData("Velocity", robot.drive.velocity.toString())
 

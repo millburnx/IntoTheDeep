@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.common.utils.GoBildaPinpointDriver
-import java.util.Locale
+import org.firstinspires.ftc.teamcode.common.utils.PinPoint.Companion.diameterMM
+import org.firstinspires.ftc.teamcode.common.utils.PinPoint.Companion.ticksPerRevolution
+import java.util.*
 
 /*
 This opmode shows how to use the goBILDA® Pinpoint Odometry Computer.
@@ -34,7 +36,7 @@ For support, contact tech@gobilda.com
  */
 @TeleOp(name = "goBILDA® PinPoint Odometry Example")
 class SensorGoBildaPinpointExample : LinearOpMode() {
-    val odo by lazy { hardwareMap["odo"] as GoBildaPinpointDriver }
+    val odo by lazy { hardwareMap["pinpoint"] as GoBildaPinpointDriver }
 
     var oldTime: Double = 0.0
 
@@ -55,9 +57,10 @@ class SensorGoBildaPinpointExample : LinearOpMode() {
         If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
         number of ticks per mm of your odometry pod.
          */
-        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
+        val circumferenceMM = diameterMM * Math.PI
+        val ticksPerMM = ticksPerRevolution / circumferenceMM
 
-        // odo.setEncoderResolution(13.26291192);
+        odo.setEncoderResolution(ticksPerMM)
 
         /*
         Set the direction that each of the two odometry pods count. The X (forward) pod should
@@ -66,7 +69,7 @@ class SensorGoBildaPinpointExample : LinearOpMode() {
          */
         odo.setEncoderDirections(
             GoBildaPinpointDriver.EncoderDirection.FORWARD,
-            GoBildaPinpointDriver.EncoderDirection.FORWARD,
+            GoBildaPinpointDriver.EncoderDirection.REVERSED,
         )
 
         /*

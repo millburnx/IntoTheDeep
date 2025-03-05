@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.common.utils
 
+import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 
+@Config
 class PinPoint(
     val hardwareMap: HardwareMap,
     val deviceName: String,
@@ -20,7 +22,7 @@ class PinPoint(
         pinPoint.setOffsets(xOffset * 25.4, yOffset * 25.4)
         pinPoint.setEncoderDirections(
             GoBildaPinpointDriver.EncoderDirection.FORWARD,
-            GoBildaPinpointDriver.EncoderDirection.FORWARD,
+            GoBildaPinpointDriver.EncoderDirection.REVERSED,
         )
     }
 

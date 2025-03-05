@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.common.utils.ServoLimiter
 @TeleOp(name = "Servo Tuner", group = "Tuning")
 @Config
 class ServoTuner : CommandOpMode() {
-    val servo = CachedServo(hardwareMap, name, isAxon = axon, isForward = reverse)
-    val servo2 = CachedServo(hardwareMap, name2, isAxon = axon, isForward = reverse2)
+    val servo by lazy { CachedServo(hardwareMap, name, isAxon = axon, isForward = reverse) }
+    val servo2 by lazy { CachedServo(hardwareMap, name2, isAxon = axon, isForward = reverse2) }
     val deltaTime = DeltaTime()
     val servoLimiter = ServoLimiter(maxSpeed, { deltaTime.deltaTime }, position)
     val multiTelemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
@@ -23,11 +23,11 @@ class ServoTuner : CommandOpMode() {
         servoLimiter.maxSpeed = maxSpeed
         servoLimiter.update(position)
         if (maxSpeed == -1.0) {
-            servo.position = position
-            servo2.position = position
+            servo.position = position / if (is5Turn1) 5 else 1
+            servo2.position = position / if (is5Turn2) 5 else 1
         } else {
-            servo.position = servoLimiter.current
-            servo2.position = servoLimiter.current
+            servo.position = servoLimiter.current / if (is5Turn1) 5 else 1
+            servo2.position = servoLimiter.current / if (is5Turn2) 5 else 1
         }
         multiTelemetry.addData("position", servoLimiter.current)
         multiTelemetry.update()
@@ -53,9 +53,15 @@ class ServoTuner : CommandOpMode() {
         var axon: Boolean = true
 
         @JvmField
-        var name2: String = "servo"
+        var name2: String = "a"
 
         @JvmField
         var reverse2: Boolean = true
+
+        @JvmField
+        var is5Turn1: Boolean = false
+
+        @JvmField
+        var is5Turn2: Boolean = false
     }
 }

@@ -17,7 +17,7 @@ enum class IntakeArmPosition {
 class IntakeArm(
     val robot: Robot,
 ) : Subsystem() {
-    val leftServo = CachedServo(robot.hardware, "intakeArmLeft", isForward = false)
+    val leftServo = CachedServo(robot.hardware, "intakeArmLeft", isForward = true)
     val rightServo = CachedServo(robot.hardware, "intakeArmRight", isForward = false)
 
     var state: IntakeArmPosition = IntakeArmPosition.BASE
