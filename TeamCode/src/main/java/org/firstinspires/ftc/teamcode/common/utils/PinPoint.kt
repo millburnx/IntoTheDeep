@@ -27,7 +27,7 @@ class PinPoint(
     }
 
     override fun init() {
-        reset()
+//        reset()
     }
 
     override fun periodic() {

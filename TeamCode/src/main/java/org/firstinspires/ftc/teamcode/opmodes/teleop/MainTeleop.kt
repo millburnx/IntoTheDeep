@@ -10,7 +10,6 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
@@ -273,7 +272,7 @@ open class MainTeleopBlue : OpMode() {
                     gamepad1::circle,
                     this@MainTeleopBlue,
                     InstantCommand({
-                        robot.imu.resetYaw()
+                        robot.drive.pinPoint.resetImu()
                         gamepad1.rumble(250)
                     }),
                 )
@@ -293,7 +292,7 @@ open class MainTeleopBlue : OpMode() {
         targetAngle: Double,
     ): Double {
         if (!isAttempting) return 0.0
-        val currentAngle = robot.imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
+        val currentAngle = robot.drive.pose.heading
         val diff = normalizeDegrees(targetAngle - currentAngle)
         return diff
     }
@@ -322,7 +321,7 @@ open class MainTeleopBlue : OpMode() {
                 gamepad1.left_stick_y.toDouble(),
                 -gamepad1.left_stick_x.toDouble(),
                 -gamepad1.right_stick_x.toDouble() + assists,
-                if (fieldCentric) -robot.imuHeading(AngleUnit.RADIANS) else 0.0,
+                if (fieldCentric) robot.drive.pose.radians else 0.0,
             )
         }
 

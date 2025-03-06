@@ -84,7 +84,7 @@ open class Drive(
         x: Double,
         y: Double,
         rotate: Double,
-        heading: Double,
+        heading: Double = pose.radians,
     ) {
         val relativeVector = Vec2d(x, y).rotate(-heading) * Vec2d(1.0, strafeMultiplier)
 

@@ -121,7 +121,7 @@ class FasterSampleAuton : OpMode() {
                     SequentialCommandGroup(
                         robot.drive.pid(Pose2d(sample2X, sample2Y, 0.0)),
                         WaitCommand(pidStablize),
-                        InstantCommand({ robot.drive.fieldCentric(0.0, 0.1, 0.0, robot.imuHeading()) }),
+                        InstantCommand({ robot.drive.fieldCentric(0.0, 0.1, 0.0) }),
                     ),
                     robot.intake.baseExtend(),
                 ),
@@ -132,7 +132,7 @@ class FasterSampleAuton : OpMode() {
                     SequentialCommandGroup(
                         robot.drive.pid(Pose2d(sample3X, sample3Y, sample3H)),
                         WaitCommand(pidStablize),
-                        InstantCommand({ robot.drive.fieldCentric(0.0, 0.1, 0.0, robot.imuHeading()) }),
+                        InstantCommand({ robot.drive.fieldCentric(0.0, 0.1, 0.0) }),
                     ),
                 ),
                 robot.intake.extend(),
