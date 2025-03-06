@@ -11,10 +11,23 @@ repositories {
     mavenCentral()
     maven { url = 'https://maven.brott.dev/' }
 }
+
+def isConsumer = gradle.startParameter.taskNames.any { it.contains("assemble") || it.contains("build") }
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation('com.acmerobotics.dashboard:dashboard:0.4.16') {
-        exclude group: 'org.firstinspires.ftc'
+//    compileOnly('com.acmerobotics.dashboard:dashboard:0.4.16') {
+//        exclude group: 'org.firstinspires.ftc'
+//    }
+
+    if (isConsumer) {
+        compileOnly('com.acmerobotics.dashboard:dashboard:0.4.16') {
+            exclude group: 'org.firstinspires.ftc'
+        }
+    } else {
+        implementation('com.acmerobotics.dashboard:dashboard:0.4.16') {
+            exclude group: 'org.firstinspires.ftc'
+        }
     }
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
 //    implementation 'org.ftclib.ftclib:core:2.1.1'
