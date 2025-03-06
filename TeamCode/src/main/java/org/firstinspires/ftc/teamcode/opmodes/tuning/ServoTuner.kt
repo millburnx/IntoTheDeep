@@ -5,9 +5,9 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.utils.CachedServo
 import org.firstinspires.ftc.teamcode.common.utils.DeltaTime
-import org.firstinspires.ftc.teamcode.common.utils.ServoLimiter
+import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedServo
+import org.firstinspires.ftc.teamcode.common.utils.hardware.ServoLimiter
 
 @TeleOp(name = "Servo Tuner", group = "Tuning")
 @Config

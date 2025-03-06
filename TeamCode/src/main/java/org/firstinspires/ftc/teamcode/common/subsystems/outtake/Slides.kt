@@ -7,8 +7,8 @@ import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
-import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedMotor
 import kotlin.math.abs
 
 @Config

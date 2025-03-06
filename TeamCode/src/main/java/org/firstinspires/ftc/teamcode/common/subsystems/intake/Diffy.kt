@@ -4,8 +4,8 @@ import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.teamcode.common.Robot
-import org.firstinspires.ftc.teamcode.common.utils.AxonCR
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.common.utils.hardware.AxonCR
 
 @Config
 class Diffy(

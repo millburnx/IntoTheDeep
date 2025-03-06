@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.common.utils
+package org.firstinspires.ftc.teamcode.common.utils.hardware
 
 import com.qualcomm.robotcore.hardware.AnalogInput
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import kotlin.math.absoluteValue
 
 class AxonCR(

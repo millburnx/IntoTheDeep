@@ -69,5 +69,8 @@ open class PIDSettings {
 
         @JvmField
         var wheelThreshold: Double = 0.15
+
+        @JvmField
+        var squid: Boolean = false
     }
 }

@@ -5,7 +5,7 @@ import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive.Companion.cacheThreshold
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive.Companion.strafeMultiplier
-import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
+import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedMotor
 import kotlin.math.absoluteValue
 import kotlin.math.max
 

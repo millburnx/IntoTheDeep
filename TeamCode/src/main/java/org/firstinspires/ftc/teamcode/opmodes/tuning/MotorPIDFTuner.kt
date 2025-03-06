@@ -6,7 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
+import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedMotor
 
 @TeleOp(name = "Motor PIDF Tuner", group = "Tuning")
 @Config

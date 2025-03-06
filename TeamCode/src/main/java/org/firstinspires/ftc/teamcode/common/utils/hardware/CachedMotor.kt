@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.common.utils
+package org.firstinspires.ftc.teamcode.common.utils.hardware
 
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.firstinspires.ftc.teamcode.common.utils.init
 import kotlin.math.abs
 
 class CachedMotor(

@@ -8,9 +8,9 @@ import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.headingTolerance
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.usePowerSettling
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.wheelThreshold
-import org.firstinspires.ftc.teamcode.common.utils.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.common.utils.control.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import kotlin.math.abs
 
@@ -31,6 +31,10 @@ open class PIDManager(
     val pidY by lazy { PIDController(kP, kI, kD) }
     val pidH by lazy { APIDController(kPHeading, kIHeading, kDHeading) }
 
+    val squidX by lazy { PIDController(kP, kI, kD) }
+    val squidY by lazy { PIDController(kP, kI, kD) }
+    val squidH by lazy { APIDController(kPHeading, kIHeading, kDHeading) }
+
     var kP = PIDSettings.kP
     var kI = PIDSettings.kI
     var kD = PIDSettings.kD
@@ -44,12 +48,24 @@ open class PIDManager(
         pidX.setPID(kP, kI, kD)
         pidY.setPID(kP, kI, kD)
         pidH.setPID(kPHeading, kIHeading, kDHeading)
+        squidX.setPID(kP, kI, kD)
+        squidY.setPID(kP, kI, kD)
+        squidH.setPID(kPHeading, kIHeading, kDHeading)
 
         val x = pidX.calculate(robot.drive.pose.x, target.x)
         val y = pidY.calculate(robot.drive.pose.y, target.y)
         val h = pidH.calculate(robot.drive.pose.heading, target.heading)
 
-        robot.drive.fieldCentric(-x, y, h, -robot.drive.pose.radians)
+        val squidX = pidX.calculate(robot.drive.pose.x, target.x)
+        val squidY = pidX.calculate(robot.drive.pose.y, target.y)
+        val squidH = pidX.calculate(robot.drive.pose.heading, target.heading)
+
+//        robot.drive.fieldCentric(-x, y, h, -robot.drive.pose.radians)
+        robot.drive.fieldCentric(
+            x = if (PIDSettings.squid) -squidX else -x,
+            y = if (PIDSettings.squid) squidY else y,
+            rotate = if (PIDSettings.squid) squidH else h,
+        )
     }
 
     fun atTarget(): Boolean {

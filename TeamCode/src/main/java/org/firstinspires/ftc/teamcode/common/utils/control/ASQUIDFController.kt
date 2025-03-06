@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.common.utils
+package org.firstinspires.ftc.teamcode.common.utils.control
 
+import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -16,7 +17,7 @@ import kotlin.math.min
  * measured value. If we consider e(t) the positional error, then
  * int(0,t)[e(t')dt'] is the total error and e'(t) is the velocity error.
  */
-open class APIDFController
+open class ASQUIDFController
     @JvmOverloads
     constructor(
         kp: Double,
@@ -270,11 +271,11 @@ open class APIDFController
         fun getPeriod(): Double = period
     }
 
-class APIDController(
+class ASQUIDController(
     kp: Double,
     ki: Double,
     kd: Double,
-) : APIDFController(kp, ki, kd, 0.0) {
+) : ASQUIDFController(kp, ki, kd, 0.0) {
     fun setPID(
         kp: Double,
         ki: Double,

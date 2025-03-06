@@ -19,7 +19,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *   SOFTWARE.
  */
-package org.firstinspires.ftc.teamcode.common.utils
+package org.firstinspires.ftc.teamcode.common.utils.hardware
 
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch
 import com.qualcomm.robotcore.hardware.HardwareDevice.Manufacturer

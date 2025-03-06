@@ -1,10 +1,14 @@
-package org.firstinspires.ftc.teamcode.common.utils
+package org.firstinspires.ftc.teamcode.common.utils.hardware
 
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import kotlin.math.abs
 import kotlin.math.roundToLong
 
-open class ServoLimiter(var maxSpeed: Double, val getDelta: () -> Double, startingPosition: Double = 0.0) {
+open class ServoLimiter(
+    var maxSpeed: Double,
+    val getDelta: () -> Double,
+    startingPosition: Double = 0.0,
+) {
     var current: Double = startingPosition
 
     fun update(target: Double) {
@@ -18,7 +22,11 @@ open class ServoLimiter(var maxSpeed: Double, val getDelta: () -> Double, starti
     }
 
     companion object {
-        fun estimateDuration(starting: Double, ending: Double, speed: Double): Long {
+        fun estimateDuration(
+            starting: Double,
+            ending: Double,
+            speed: Double,
+        ): Long {
             val diff = abs(starting - ending)
             return (diff / speed * 1000).roundToLong()
         }

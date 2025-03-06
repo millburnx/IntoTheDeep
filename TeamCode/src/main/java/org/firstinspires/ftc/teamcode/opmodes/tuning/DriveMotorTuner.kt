@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.tuning
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive.Companion.cacheThreshold
-import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
+import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedMotor
 import org.firstinspires.ftc.teamcode.opmodes.tuning.DriveTuner.Companion.breakMotors
 
 @TeleOp(name = "Drive Motor Tuner", group = "Tuning")
