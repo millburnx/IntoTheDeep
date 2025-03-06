@@ -13,11 +13,11 @@ import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companio
 import org.firstinspires.ftc.teamcode.common.commands.drive.PurePursuitCommand
 import org.firstinspires.ftc.teamcode.common.commands.drive.RelativeDrive
 import org.firstinspires.ftc.teamcode.common.utils.CachedMotor
+import org.firstinspires.ftc.teamcode.common.utils.PinPoint
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.loadPath
 import org.firstinspires.ftc.teamcode.common.utils.reset
-import org.firstinspires.ftc.teamcode.rr.drive.SampleMecanumDrive
 import java.io.File
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -38,15 +38,15 @@ open class Drive(
 
     val motors = listOf(frontLeft, frontRight, backLeft, backRight)
 
-    val odometry by lazy { SampleMecanumDrive(robot.hardware).localizer }
-    open var pose: Pose2d
-        get() {
-            return Pose2d.fromRR(odometry.poseEstimate)
-        }
+    val pinPoint by lazy { PinPoint(robot.hardware, "pinpoint") }
+    var pose: Pose2d
+        get() = pinPoint.pose
         set(value) {
-            odometry.poseEstimate = value.toRawRR()
-            oldPose = value
+            pinPoint.pose = value
         }
+
+    val velocity: Pose2d
+        get() = pinPoint.velocity
 
     var oldPose: Pose2d = Pose2d()
 
@@ -71,7 +71,7 @@ open class Drive(
 
     override fun periodic() {
         oldPose = pose
-        odometry.update()
+        pinPoint.update()
     }
 
     fun robotCentric(

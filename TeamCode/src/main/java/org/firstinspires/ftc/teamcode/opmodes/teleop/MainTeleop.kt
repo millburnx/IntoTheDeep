@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClawState
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides.Companion.rezeroPower
@@ -329,7 +330,7 @@ open class MainTeleopBlue : OpMode() {
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
         if (slidePower.absoluteValue > slideThreshold) {
             robot.outtake.slides.isManual = true
-            if (!robot.intake.claw.isOpen) {
+            if (robot.intake.claw.state != IntakeClawState.OPEN) {
                 robot.outtake.slides.manualPower = slidePower.clamp(-1.0, 0)
             } else {
                 robot.outtake.slides.manualPower = slidePower
@@ -367,7 +368,7 @@ open class MainTeleopBlue : OpMode() {
         var transferClawDelay: Long = 250
 
         @JvmField
-        var outtakeFlipDelay: Long = 250
+        var outtakeFlipDelay: Long = 500
 
         @JvmField
         var intakeLoweringDuration: Long = 750

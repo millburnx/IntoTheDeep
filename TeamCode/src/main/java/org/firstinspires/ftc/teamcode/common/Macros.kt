@@ -8,7 +8,6 @@ import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeFlipDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeLiftingDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.transferArmDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.transferClawDelay
 
 class Macros(
@@ -17,12 +16,13 @@ class Macros(
     fun miniTransfer() =
         SequentialCommandGroup(
             ParallelCommandGroup(
-                robot.intake.retract(),
                 robot.outtake.open(),
                 robot.outtake.base(),
+                robot.intake.linkage.retract(),
             ),
-            robot.outtake.arm.transfer(),
-            WaitCommand(transferArmDelay),
+            robot.intake.retract(),
+            robot.intake.claw.loose(),
+            WaitCommand(transferClawDelay),
             robot.outtake.close(),
             WaitCommand(transferClawDelay),
             robot.intake.open(),
@@ -31,6 +31,7 @@ class Macros(
     fun transfer() =
         SequentialCommandGroup(
             miniTransfer(),
+            robot.intake.baseExtend(),
             WaitCommand(outtakeFlipDelay),
             ParallelCommandGroup(
                 robot.outtake.arm.basket(),

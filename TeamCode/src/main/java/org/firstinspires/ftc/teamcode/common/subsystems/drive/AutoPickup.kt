@@ -51,9 +51,9 @@ class AutoPickup(
 
                 val sampleOffset = target.pos * scale
                 val currentPose = robot.drive.pose
-                val targetRoll = -target.angle / 90.0
-                val actualRoll = if (targetRoll > angleThres) -1.0 else targetRoll
-                val actualRadian = Math.toRadians(-actualRoll * 90.0) // reverse the angle to roll
+                val targetRoll = ((target.angle - 90.0) / 360.0)
+                val actualRoll = if (targetRoll > angleThres) 0.0 else targetRoll
+                val actualRadian = Math.toRadians((actualRoll * 360.0) + 90.0) // reverse the angle to roll
                 val rotationalOffset = ((Vec2d.fromAngle(actualRadian) * Vec2d(-1, 1) + Vec2d(0, -1)) * clawRadius)
 
                 val totalOffset = (sampleOffset - rotationalOffset).rotate(Math.toRadians(currentPose.degrees - 90.0))

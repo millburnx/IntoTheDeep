@@ -42,7 +42,7 @@ class CorrectedDrive(
     }
 
     fun getCentripetalCorrection(
-        currentVelocity: Pose2d = if (odometry.poseVelocity == null) Pose2d() else Pose2d.fromRR(odometry.poseVelocity!!),
+        currentVelocity: Pose2d = velocity,
         weighting: Double = centripetalWeight,
     ): Vec2d {
         if (!positionBuffer.isFull) return Vec2d(0)

@@ -2,43 +2,12 @@ package org.firstinspires.ftc.teamcode.opmodes.tuning
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.Robot
-import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
-import org.firstinspires.ftc.teamcode.common.utils.PinPoint
-import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.common.utils.Subsystem
-
-class PinPointDrive(
-    robot: PinPointRobot,
-) : Drive(robot) {
-    val pinPoint by lazy { PinPoint(robot.hardware, "pinpoint") }
-    override var pose: Pose2d
-        get() = pinPoint.pose
-        set(value) {
-            pinPoint.pose = value
-        }
-
-    val velocity: Pose2d
-        get() = pinPoint.velocity
-
-    override fun periodic() {
-        oldPose = pose
-        pinPoint.update()
-    }
-
-    override val subsystems: List<Subsystem> = listOf(pidManager, stuckDectector, pinPoint)
-}
-
-class PinPointRobot(
-    opMode: OpMode,
-) : Robot(opMode) {
-    override val drive: PinPointDrive by lazy { PinPointDrive(this) }
-}
 
 @TeleOp(name = "PinPoint Tuner")
 class PinPointTuner : OpMode() {
-    override val robot: PinPointRobot by lazy { PinPointRobot(this) }
+    override val robot: Robot by lazy { Robot(this) }
 
     override fun initialize() {
         super.initialize()

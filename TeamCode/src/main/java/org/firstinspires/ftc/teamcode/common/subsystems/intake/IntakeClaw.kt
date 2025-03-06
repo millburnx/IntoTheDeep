@@ -1,9 +1,16 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.intake
 
 import com.acmerobotics.dashboard.config.Config
+import com.arcrobotics.ftclib.command.InstantCommand
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.CachedServo
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+
+enum class IntakeClawState {
+    OPEN,
+    CLOSED,
+    LOOSE,
+}
 
 @Config
 class IntakeClaw(
@@ -11,14 +18,16 @@ class IntakeClaw(
 ) : Subsystem() {
     val clawServo = CachedServo(robot.hardware, "intakeClaw", true)
 
-    var isOpen = true
+    var state = IntakeClawState.OPEN
 
     fun open() {
-        isOpen = true
+        state = IntakeClawState.OPEN
     }
 
+    fun loose() = InstantCommand({ state = IntakeClawState.LOOSE })
+
     fun close() {
-        isOpen = false
+        state = IntakeClawState.CLOSED
     }
 
     override fun init() {
@@ -26,14 +35,23 @@ class IntakeClaw(
     }
 
     override fun periodic() {
-        clawServo.position = if (isOpen) open else closed
+//        clawServo.position = if (isOpen) open else closed
+        clawServo.position =
+            when (state) {
+                IntakeClawState.OPEN -> open
+                IntakeClawState.CLOSED -> closed
+                IntakeClawState.LOOSE -> loose
+            }
     }
 
     companion object {
         @JvmField
-        var open: Double = 0.6
+        var open: Double = 0.5
 
         @JvmField
         var closed: Double = 0.1
+
+        @JvmField
+        var loose: Double = 0.18
     }
 }

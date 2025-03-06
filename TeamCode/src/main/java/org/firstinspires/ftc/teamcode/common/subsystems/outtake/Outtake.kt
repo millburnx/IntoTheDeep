@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode.common.subsystems.outtake
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeFlipDelay
 
 class Outtake(
     val robot: Robot,
@@ -38,6 +40,7 @@ class BaseCommand(
                     outtake.arm.base(),
                     outtake.wrist.base(),
                 ),
+                WaitCommand(outtakeFlipDelay),
             ),
         )
     }

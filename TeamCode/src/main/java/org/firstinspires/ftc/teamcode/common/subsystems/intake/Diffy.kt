@@ -20,7 +20,7 @@ class Diffy(
     var roll: Double = transferRoll // rotate, -1 to 1
 
     override fun init() {
-        periodic()
+//        periodic()
     }
 
     val pidLeft = PIDController(kP, kI, kD)
@@ -36,6 +36,9 @@ class Diffy(
 
         leftServo.power = pidLeft.calculate(leftServo.position, leftPosition)
         rightServo.power = pidLeft.calculate(rightServo.position, rightPosition)
+
+//        leftServo.power = 0.0
+//        rightServo.power = 0.0
     }
 
     fun transfer() =
@@ -63,7 +66,7 @@ class Diffy(
 
     companion object {
         @JvmField
-        var kP = 0.1
+        var kP = -1.0
 
         @JvmField
         var kI = 0.0
@@ -72,24 +75,24 @@ class Diffy(
         var kD = 0.0
 
         @JvmField
-        var transferPitch = 0.95
+        var transferPitch = 0.5
 
         @JvmField
-        var transferRoll = 0.95
+        var transferRoll = 0.05
 
         @JvmField
-        var specimenPitch = 0.6
+        var specimenPitch = 0.25
 
         @JvmField
-        var specimenRoll = 1.0
+        var specimenRoll = 0.25
 
         @JvmField
-        var hoverPitch = -0.9
+        var hoverPitch = 0.0
 
         @JvmField
-        var hoverRoll = -1.0
+        var hoverRoll = 0.05
 
         @JvmField
-        var pickupPitch = -0.6
+        var pickupPitch = 0.1
     }
 }

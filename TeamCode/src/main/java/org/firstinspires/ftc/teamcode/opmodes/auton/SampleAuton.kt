@@ -30,7 +30,6 @@ class SampleAuton : OpMode() {
 
         robot.drive.pose = Pose2d(startingX, startingY, startingHeading)
         val commands = mutableListOf<Command>()
-        robot.outtake.arm.state = OuttakeArmPosition.TRANSFER
         robot.outtake.arm.periodic()
         robot.outtake.claw.close()
         robot.outtake.claw.periodic()

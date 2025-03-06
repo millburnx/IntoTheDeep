@@ -82,9 +82,9 @@ class PinPoint(
         var ticksPerRevolution: Double = 8192.0 // rev through bore
 
         @JvmField
-        var xOffset: Double = 6.0
+        var xOffset: Double = 5.75
 
         @JvmField
-        var yOffset: Double = -1.0
+        var yOffset: Double = -.75
     }
 }

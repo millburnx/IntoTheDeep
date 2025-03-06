@@ -23,11 +23,11 @@ class ServoTuner : CommandOpMode() {
         servoLimiter.maxSpeed = maxSpeed
         servoLimiter.update(position)
         if (maxSpeed == -1.0) {
-            servo.position = position / if (is5Turn1) 5 else 1
-            servo2.position = position / if (is5Turn2) 5 else 1
+            servo.position = position
+            servo2.position = position
         } else {
-            servo.position = servoLimiter.current / if (is5Turn1) 5 else 1
-            servo2.position = servoLimiter.current / if (is5Turn2) 5 else 1
+            servo.position = servoLimiter.current
+            servo2.position = servoLimiter.current
         }
         multiTelemetry.addData("position", servoLimiter.current)
         multiTelemetry.update()
@@ -57,11 +57,5 @@ class ServoTuner : CommandOpMode() {
 
         @JvmField
         var reverse2: Boolean = true
-
-        @JvmField
-        var is5Turn1: Boolean = false
-
-        @JvmField
-        var is5Turn2: Boolean = false
     }
 }

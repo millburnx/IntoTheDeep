@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClawState
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.SampleVision
 import org.firstinspires.ftc.teamcode.common.subsystems.vision.Vision
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
@@ -162,7 +163,7 @@ class SampleDectectionTuner : OpMode() {
         robot.telemetry.addData("state 1", robot.camera.camera1.cameraState)
         robot.telemetry.addData("FPS 1", robot.camera.camera1.fps)
 
-        robot.telemetry.addData("claw", robot.intake.claw.isOpen)
+        robot.telemetry.addData("claw", robot.intake.claw.state == IntakeClawState.OPEN)
 
         val allSamples1 = robot.camera.sampleDetector.allSamples
         val centered = allSamples1.minByOrNull { it.pos.distanceTo(Vec2d()) }

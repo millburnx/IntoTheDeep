@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 
 enum class OuttakeArmPosition {
     BASE,
-    TRANSFER,
     SPECIMEN,
     SPECIMEN_SCORING,
     ALT_SPECIMEN,
@@ -37,7 +36,6 @@ class OuttakeArm(
         val target =
             when (state) {
                 OuttakeArmPosition.BASE -> basePosition
-                OuttakeArmPosition.TRANSFER -> transferPosition
                 OuttakeArmPosition.SPECIMEN -> specimenPosition
                 OuttakeArmPosition.SPECIMEN_SCORING -> specimenScoringPosition
                 OuttakeArmPosition.ALT_SPECIMEN -> altSpecimenPosition
@@ -53,8 +51,6 @@ class OuttakeArm(
     }
 
     fun base() = InstantCommand({ state = OuttakeArmPosition.BASE }, this)
-
-    fun transfer() = InstantCommand({ state = OuttakeArmPosition.TRANSFER })
 
     fun specimen() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN }, this)
 
@@ -72,25 +68,22 @@ class OuttakeArm(
 
     companion object {
         @JvmField
-        var basePosition = 0.66
+        var basePosition = 0.83
 
         @JvmField
-        var transferPosition = 0.68
+        var basketPosition = 0.5
 
         @JvmField
-        var basketPosition = 0.55
+        var specimenPosition = 0.74
 
         @JvmField
-        var specimenPosition = 0.43
+        var specimenScoringPosition = specimenPosition
 
         @JvmField
-        var specimenScoringPosition = 0.65
+        var altSpecimenPosition = 0.74
 
         @JvmField
-        var altSpecimenPosition = 0.32
-
-        @JvmField
-        var pickupPosition = 0.78
+        var pickupPosition = 0.26
 
         @JvmField
         var humanPosition = 0.27
