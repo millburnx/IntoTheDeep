@@ -8,6 +8,7 @@ import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
+import kotlin.math.pow
 
 @Config
 class PurePursuitCommand(
@@ -49,8 +50,17 @@ class PurePursuitCommand(
 
             virtualHeading = Math.toDegrees(pose.position.angleTo(results.target))
 
+            // Apply velocity squared compensation
+            val velocity =
+                robot.drive.velocity.position
+                    .magnituide()
+            val correctionOffset = (a * velocity.pow(2)) + (b * velocity) + c
+            val correctedTarget = results.target - results.target.normalize().times(correctionOffset)
+
+            val target = if (useCorrection) correctedTarget else results.target
+
             robot.drive.pidManager.isOn = true
-            robot.drive.pidManager.target = Pose2d(results.target, targetHeading)
+            robot.drive.pidManager.target = Pose2d(target, targetHeading)
         } else {
             val endDistance = pose.distanceTo(path.last())
             if (endDistance < lookahead.start) {
@@ -94,5 +104,19 @@ class PurePursuitCommand(
 
         @JvmField
         var minStuckThreshold: Long = 250L
+
+        @JvmField
+        var useCorrection = true
+
+        @JvmField
+        var a = 0.1
+
+        // Quadratic coefficient
+        @JvmField
+        var b = 0.05
+
+        // Linear coefficient
+        @JvmField
+        var c = 0.0 // Constant offset
     }
 }

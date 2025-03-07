@@ -67,6 +67,8 @@ data class Vec2d(
         return sqrt(xDiff * xDiff + yDiff * yDiff)
     }
 
+    fun magnituide(): Double = sqrt(x * x + y * y)
+
     fun normalize(): Double = sqrt(this.dot(this))
 
     fun dot(other: Vec2d): Double = x * other.x + y * other.y

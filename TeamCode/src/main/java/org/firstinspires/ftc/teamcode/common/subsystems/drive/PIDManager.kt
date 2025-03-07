@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.subsystems.drive
 
+import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.controller.PIDController
 import com.qualcomm.robotcore.util.ElapsedTime
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.common.utils.control.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import kotlin.math.abs
 
+@Config
 open class PIDManager(
     val robot: Robot,
 ) : Subsystem() {
@@ -52,6 +54,19 @@ open class PIDManager(
         squidY.setPID(kP, kI, kD)
         squidH.setPID(kPHeading, kIHeading, kDHeading)
 
+        var target = target
+
+        if (coastStop && dragCoefficient != 0.0) {
+            val velo = robot.drive.velocity.position
+
+            val stoppingDistance = velo.magnituide() / dragCoefficient
+
+            val delta = velo / velo.magnituide() * stoppingDistance
+            val stop = robot.drive.pose.position + delta
+            val diff = target.position - stop
+            target = robot.drive.pose + diff // cut power except for corrective
+        }
+
         val x = pidX.calculate(robot.drive.pose.x, target.x)
         val y = pidY.calculate(robot.drive.pose.y, target.y)
         val h = pidH.calculate(robot.drive.pose.heading, target.heading)
@@ -83,6 +98,14 @@ open class PIDManager(
         if (!motorThreshold && usePowerSettling) return false
 
         return atX && atY && atH
+    }
+
+    companion object {
+        @JvmField
+        var coastStop = false
+
+        @JvmField
+        var dragCoefficient = 0.0
     }
 }
 

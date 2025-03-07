@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.common.utils.control
 
 import kotlin.math.abs
 import kotlin.math.min
+import kotlin.math.sign
 import kotlin.math.sqrt
 
 @Suppress("ktlint:standard:no-consecutive-comments", "ktlint:standard:property-naming")
@@ -187,7 +188,7 @@ open class SQUIDFController(
         totalError = if (totalError < minIntegral) minIntegral else min(maxIntegral, totalError)
 
         // returns u(t)
-        return p * sqrt(positionError) + i * totalError + d * velocityError + f * setPoint
+        return sqrt(p * abs(positionError)) * sign(positionError) + i * totalError + d * velocityError + f * setPoint
     }
 
     fun setPIDF(

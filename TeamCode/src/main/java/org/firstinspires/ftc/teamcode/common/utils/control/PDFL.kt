@@ -54,7 +54,7 @@ class PDFL(
             lastError = error
         }
 
-        val p = if (iSquid) sqrt(p(error)) else p(error)
+        val p = if (iSquid) sqrt(abs(p(error))) * sign(error) else p(error)
         val d = d(error, deltaTime)
         val f = f()
         val l = l(error)

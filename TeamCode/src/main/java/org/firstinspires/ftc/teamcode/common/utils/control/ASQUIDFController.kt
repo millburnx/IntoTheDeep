@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.common.utils.control
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import kotlin.math.abs
 import kotlin.math.min
+import kotlin.math.sign
+import kotlin.math.sqrt
 
 /**
  * This is a PID controller (https://en.wikipedia.org/wiki/PID_controller)
@@ -217,7 +219,7 @@ open class ASQUIDFController
             totalError = if (totalError < minIntegral) minIntegral else min(maxIntegral, totalError)
 
             // returns u(t)
-            return kP * errorValP + kI * totalError + kD * errorValV + kF * setPoint
+            return sqrt(kP * abs(errorValP)) * sign(errorValP) + kI * totalError + kD * errorValV + kF * setPoint
         }
 
         fun setPIDF(
