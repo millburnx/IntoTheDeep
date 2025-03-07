@@ -16,8 +16,6 @@ import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.angleThres
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.clawRadius
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleDectectionTuner.Companion.scale
 
 @Config
@@ -51,15 +49,23 @@ class AutoPickup(
 
                 val sampleOffset = target.pos * scale
                 val currentPose = robot.drive.pose
-                val targetRoll = ((target.angle - 90.0) / 360.0)
-                val actualRoll = if (targetRoll > angleThres) 0.0 else targetRoll
-                val actualRadian = Math.toRadians((actualRoll * 360.0) + 90.0) // reverse the angle to roll
-                val rotationalOffset = ((Vec2d.fromAngle(actualRadian) * Vec2d(-1, 1) + Vec2d(0, -1)) * clawRadius)
-
-                val totalOffset = (sampleOffset - rotationalOffset).rotate(Math.toRadians(currentPose.degrees - 90.0))
+                val actualAngle = target.angle + (robot.intake.diffy.roll - Diffy.hoverRoll) * 360
+                val totalOffset = (sampleOffset).rotate(Math.toRadians(currentPose.degrees - 90.0))
                 val targetPose = currentPose + totalOffset
 
-                lastTarget = targetPose to actualRoll
+                lastTarget = targetPose to actualAngle
+
+//                robot.intake.diffy.roll = Diffy.hoverRoll + actualAngle / 360
+//                println("${Diffy.hoverRoll + actualAngle / 360} $actualAngle ${target.angle}")
+                if (target.angle > 1) {
+                    robot.intake.diffy.roll += rollSpeed * robot.deltaTime.deltaTime * target.angle
+                } else if (target.angle < -1) {
+                    robot.intake.diffy.roll += rollSpeed * robot.deltaTime.deltaTime * target.angle
+                }
+
+                robot.telemetry.addData("target roll", Diffy.hoverRoll + actualAngle / 360)
+                robot.telemetry.addData("actual angle", actualAngle)
+                robot.telemetry.addData("target angle", target.angle)
             }
         }
         if (lastTargetTimer != null) {
@@ -128,5 +134,8 @@ class AutoPickup(
 
         @JvmField
         var alignmentTimeout: Long = 1000
+
+        @JvmField
+        var rollSpeed: Double = 0.01
     }
 }

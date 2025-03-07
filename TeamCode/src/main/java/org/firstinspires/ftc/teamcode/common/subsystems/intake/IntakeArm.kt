@@ -48,7 +48,7 @@ class IntakeArm(
 
     companion object {
         @JvmField
-        var basePosition = 0.675
+        var basePosition = 0.53
 
         @JvmField
         var extendedPosition = 0.62

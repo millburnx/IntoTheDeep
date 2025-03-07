@@ -172,15 +172,15 @@ class SampleDetector :
         yellowSamples.set(dataToSamples(yellowData, SampleColor.YELLOW))
         blueSamples.set(dataToSamples(blueData, SampleColor.BLUE))
 
-        (redSamples.get() + yellowSamples.get() + blueSamples.get()).forEach {
-            Imgproc.circle(
-                masked,
-                Point(it.pos.x + frame.width() / 2, -it.pos.y + frame.height() / 2),
-                centerSize,
-                Scalar(255.0, 0.0, 255.0),
-                -1,
-            )
-        }
+//        (redSamples.get() + yellowSamples.get() + blueSamples.get()).forEach {
+//            Imgproc.circle(
+//                masked,
+//                Point(it.pos.x + frame.width() / 2, -it.pos.y + frame.height() / 2),
+//                centerSize,
+//                Scalar(255.0, 0.0, 255.0),
+//                -1,
+//            )
+//        }
         Imgproc.circle(
             masked,
             Point(
@@ -262,11 +262,11 @@ class SampleDetector :
     }
 
     fun correctCVAngle(rect: RotatedRect): Double {
-        var angle = -rect.angle
+        var angle = rect.angle
         if (rect.size.width < rect.size.height) {
-            angle += 90.0
+            angle += 90
         }
-        return angle
+        return -(angle - 90)
     }
 
     override fun onDrawFrame(

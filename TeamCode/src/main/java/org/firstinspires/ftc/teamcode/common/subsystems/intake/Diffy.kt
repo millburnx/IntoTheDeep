@@ -14,6 +14,8 @@ class Diffy(
     val leftServo = AxonCR(robot.hardware, "diffyLeft", "analog2", false)
     val rightServo = AxonCR(robot.hardware, "diffyRight", "analog1")
 
+    var manualOverride: Boolean = false
+
     // each only has an effective range of +/- 0.25 aka 0-0.5 or half
     // as you need to ensure that pitch + roll never exceeds the bounds of 0 to 1
     var pitch: Double = transferPitch // up and down, -1 to 1
@@ -27,6 +29,10 @@ class Diffy(
     val pidRight = PIDController(kP, kI, kD)
 
     override fun periodic() {
+        if (manualOverride) {
+            return
+        }
+
         pidLeft.setPID(kP, kI, kD)
         pidRight.setPID(kP, kI, kD)
 
@@ -75,24 +81,24 @@ class Diffy(
         var kD = 0.0
 
         @JvmField
-        var transferPitch = 0.5
+        var transferPitch = 0.88
 
         @JvmField
-        var transferRoll = 0.05
+        var transferRoll = 0.0
 
         @JvmField
-        var specimenPitch = 0.25
+        var specimenPitch = 0.64
 
         @JvmField
-        var specimenRoll = 0.25
+        var specimenRoll = 0.0
 
         @JvmField
-        var hoverPitch = 0.0
+        var hoverPitch = 0.4
 
         @JvmField
-        var hoverRoll = 0.05
+        var hoverRoll = 0.0
 
         @JvmField
-        var pickupPitch = 0.1
+        var pickupPitch = 0.4
     }
 }

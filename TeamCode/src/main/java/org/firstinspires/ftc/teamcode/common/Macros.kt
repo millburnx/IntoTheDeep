@@ -18,25 +18,30 @@ class Macros(
             ParallelCommandGroup(
                 robot.outtake.open(),
                 robot.outtake.base(),
-                robot.intake.linkage.retract(),
+                robot.intake.retract(),
             ),
-            robot.intake.retract(),
             robot.intake.claw.loose(),
+            robot.outtake.arm.transfer(),
             WaitCommand(transferClawDelay),
             robot.outtake.close(),
             WaitCommand(transferClawDelay),
-            robot.intake.open(),
         )
 
-    fun transfer() =
+    fun exitTransfer() =
         SequentialCommandGroup(
-            miniTransfer(),
-            robot.intake.baseExtend(),
+            robot.intake.open(),
+            robot.intake.arm.extended(),
             WaitCommand(outtakeFlipDelay),
             ParallelCommandGroup(
                 robot.outtake.arm.basket(),
                 robot.outtake.wrist.basket(),
             ),
+        )
+
+    fun transfer() =
+        SequentialCommandGroup(
+            miniTransfer(),
+            exitTransfer(),
         )
 
     fun exitSpecPickup() =

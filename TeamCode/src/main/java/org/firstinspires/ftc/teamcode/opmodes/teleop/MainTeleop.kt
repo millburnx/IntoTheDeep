@@ -8,12 +8,13 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
-import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
-import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClawState
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides.Companion.rezeroPower
@@ -109,17 +110,17 @@ open class MainTeleopBlue : OpMode() {
                         ),
                         ConditionalCommand(
                             SequentialCommandGroup(
-                                robot.autoPickup.align(),
+//                                robot.autoPickup.align(),
                                 robot.intake.grab(),
                                 robot.autoPickup.stop(),
-                                robot.macros.transfer(),
+                                robot.macros.miniTransfer(),
                             ),
                             robot.intake.retract(),
                         ) { robot.autoPickup.lastTarget != null },
                     ),
                     SequentialCommandGroup(
                         robot.intake.grab(),
-                        robot.macros.transfer(),
+                        robot.macros.miniTransfer(),
                     ),
                 ) { toggles.autoPickup }
 
@@ -147,6 +148,7 @@ open class MainTeleopBlue : OpMode() {
                     robot.gp1::dpad_down,
                     this@MainTeleopBlue,
                     SequentialCommandGroup(
+                        robot.macros.exitTransfer(),
                         SlidesCommand(robot.outtake.slides, Slides.lowBasket),
                         robot.outtake.arm.basket(),
                         robot.outtake.wrist.basket(),
@@ -158,6 +160,7 @@ open class MainTeleopBlue : OpMode() {
                     robot.gp1::dpad_up,
                     this@MainTeleopBlue,
                     SequentialCommandGroup(
+                        robot.macros.exitTransfer(),
                         SlidesCommand(robot.outtake.slides, Slides.highBasket),
                         robot.outtake.arm.basket(),
                         robot.outtake.wrist.basket(),
@@ -273,6 +276,15 @@ open class MainTeleopBlue : OpMode() {
                     this@MainTeleopBlue,
                     InstantCommand({
                         robot.drive.pinPoint.resetImu()
+                        robot.drive.pinPoint.pinPoint.setPosition(
+                            Pose2D(
+                                DistanceUnit.INCH,
+                                robot.drive.pose.x,
+                                robot.drive.pose.y,
+                                AngleUnit.DEGREES,
+                                robot.drive.pose.heading,
+                            ),
+                        )
                         gamepad1.rumble(250)
                     }),
                 )
@@ -326,16 +338,13 @@ open class MainTeleopBlue : OpMode() {
         }
 
         // Slides
-        val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        if (slidePower.absoluteValue > slideThreshold) {
-            robot.outtake.slides.isManual = true
-            if (robot.intake.claw.state != IntakeClawState.OPEN) {
-                robot.outtake.slides.manualPower = slidePower.clamp(-1.0, 0)
-            } else {
-                robot.outtake.slides.manualPower = slidePower
-            }
+        val diffyPower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
+        if (diffyPower.absoluteValue > diffyThreshold) {
+            robot.intake.diffy.manualOverride = true
+            robot.intake.diffy.leftServo.power = diffyPower * diffyMultipler
+            robot.intake.diffy.rightServo.power = -diffyPower * diffyMultipler
         } else {
-            robot.outtake.slides.isManual = false
+            robot.intake.diffy.manualOverride = false
         }
 
         robot.telemetry.addData("pid | on", robot.drive.pidManager.isOn)
@@ -356,7 +365,10 @@ open class MainTeleopBlue : OpMode() {
         var fieldCentric: Boolean = true
 
         @JvmField
-        var slideThreshold: Double = 0.1
+        var diffyThreshold: Double = 0.1
+
+        @JvmField
+        var diffyMultipler: Double = 0.5
 
         // delays
 

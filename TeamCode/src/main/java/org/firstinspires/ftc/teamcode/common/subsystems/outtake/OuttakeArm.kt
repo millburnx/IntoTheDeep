@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.common.utils.hardware.ServoLimiter
 
 enum class OuttakeArmPosition {
     BASE,
+    TRANSFER,
     SPECIMEN,
     SPECIMEN_SCORING,
     ALT_SPECIMEN,
@@ -36,6 +37,7 @@ class OuttakeArm(
         val target =
             when (state) {
                 OuttakeArmPosition.BASE -> basePosition
+                OuttakeArmPosition.TRANSFER -> transferPosition
                 OuttakeArmPosition.SPECIMEN -> specimenPosition
                 OuttakeArmPosition.SPECIMEN_SCORING -> specimenScoringPosition
                 OuttakeArmPosition.ALT_SPECIMEN -> altSpecimenPosition
@@ -51,6 +53,8 @@ class OuttakeArm(
     }
 
     fun base() = InstantCommand({ state = OuttakeArmPosition.BASE }, this)
+
+    fun transfer() = InstantCommand({ state = OuttakeArmPosition.TRANSFER }, this)
 
     fun specimen() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN }, this)
 
@@ -68,10 +72,13 @@ class OuttakeArm(
 
     companion object {
         @JvmField
-        var basePosition = 0.83
+        var basePosition = 0.6
 
         @JvmField
-        var basketPosition = 0.5
+        var transferPosition = 0.65
+
+        @JvmField
+        var basketPosition = 0.48
 
         @JvmField
         var specimenPosition = 0.74
