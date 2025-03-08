@@ -24,7 +24,7 @@ class PinPointTuner : OpMode() {
     val triggers by lazy {
         object {
             val reset = EdgeDetector(gamepad1::a) { robot.drive.pinPoint.reset() }
-            val resetImu = EdgeDetector(gamepad1::b) { robot.drive.pinPoint.resetImu() }
+            val resetImu = EdgeDetector(gamepad1::b) { robot.drive.pinPoint.recalibrateImu() }
         }
     }
 

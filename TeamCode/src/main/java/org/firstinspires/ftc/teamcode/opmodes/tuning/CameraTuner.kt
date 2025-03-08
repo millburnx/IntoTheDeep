@@ -251,7 +251,7 @@ class SampleDectectionTuner : OpMode() {
         var rotationEnabled: Boolean = true
 
         @JvmField
-        var scale: Double = 0.02
+        var scale: Double = 0.019
 
         @JvmField
         var angleThres: Double = .9

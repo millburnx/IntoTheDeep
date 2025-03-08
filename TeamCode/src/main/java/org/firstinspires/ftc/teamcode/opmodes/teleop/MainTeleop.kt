@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
+import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
@@ -15,19 +16,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClawState
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides.Companion.rezeroPower
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
-import org.firstinspires.ftc.teamcode.opmodes.auton.SpecimenAuton.Companion.scoringDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
 
 class TeleOpToggles {
     var autoPickup = true
-    var useAlternateSpec = true
 }
 
 @Config
@@ -81,8 +81,6 @@ open class MainTeleopBlue : OpMode() {
                     robot.isRed = !robot.isRed
                 }
 
-            val alternativeSpec = EdgeDetector(gamepad2::cross) { toggles.useAlternateSpec = !toggles.useAlternateSpec }
-
             fun pickupPre(
                 rumble: RunCommand,
                 useLinkage: Boolean,
@@ -102,27 +100,38 @@ open class MainTeleopBlue : OpMode() {
             )
 
             fun pickupPost(rumble: RunCommand) =
-                ConditionalCommand(
-                    SequentialCommandGroup(
-                        ParallelCommandGroup(
-                            robot.autoPickup.cancelRumble(rumble),
-                            robot.autoPickup.stopScanning(),
-                        ),
-                        ConditionalCommand(
-                            SequentialCommandGroup(
-//                                robot.autoPickup.align(),
-                                robot.intake.grab(),
-                                robot.autoPickup.stop(),
-                                robot.macros.miniTransfer(),
+                SequentialCommandGroup(
+                    InstantCommand({
+//                        robot.intake.diffy.isManual = false
+//                        val pitch =
+//                            (robot.intake.diffy.leftServo.position + robot.intake.diffy.rightServo.position) / 2
+//                        val roll =
+//                            (robot.intake.diffy.rightServo.position - robot.intake.diffy.leftServo.position) / 2
+//                        robot.intake.diffy.roll = roll
+//                        robot.intake.diffy.pitch = pitch
+                    }),
+                    ConditionalCommand(
+                        SequentialCommandGroup(
+                            ParallelCommandGroup(
+                                robot.autoPickup.cancelRumble(rumble),
+                                robot.autoPickup.stopScanning(),
                             ),
-                            robot.intake.retract(),
-                        ) { robot.autoPickup.lastTarget != null },
-                    ),
-                    SequentialCommandGroup(
-                        robot.intake.grab(),
-                        robot.macros.miniTransfer(),
-                    ),
-                ) { toggles.autoPickup }
+                            ConditionalCommand(
+                                SequentialCommandGroup(
+                                    robot.autoPickup.align(),
+                                    robot.intake.grab(),
+                                    robot.autoPickup.stop(),
+                                    robot.macros.miniTransfer(),
+                                ),
+                                robot.intake.retract(),
+                            ) { robot.autoPickup.lastTarget != null },
+                        ),
+                        SequentialCommandGroup(
+                            robot.intake.grab(),
+                            robot.macros.miniTransfer(),
+                        ),
+                    ) { toggles.autoPickup },
+                )
 
             val rumble1 = robot.autoPickup.rumbleForever()
             val pickup =
@@ -193,18 +202,11 @@ open class MainTeleopBlue : OpMode() {
                     SequentialCommandGroup(
                         robot.outtake.close(),
                         WaitCommand(specimenCloseDuration),
-                        ConditionalCommand(
-                            ParallelCommandGroup(
-                                SlidesCommand(robot.outtake.slides, Slides.wall),
-                                robot.outtake.arm.specimen(),
-                                robot.outtake.wrist.specimen(),
-                            ),
-                            ParallelCommandGroup(
-                                SlidesCommand(robot.outtake.slides, Slides.highRung),
-                                robot.outtake.arm.altSpecimen(),
-                                robot.outtake.wrist.altSpecimen(),
-                            ),
-                        ) { !toggles.useAlternateSpec },
+                        ParallelCommandGroup(
+                            SlidesCommand(robot.outtake.slides, Slides.highRung),
+                            robot.outtake.arm.altSpecimen(),
+                            robot.outtake.wrist.altSpecimen(),
+                        ),
                     ),
                 )
 
@@ -231,16 +233,9 @@ open class MainTeleopBlue : OpMode() {
                         SequentialCommandGroup(
                             robot.outtake.open(),
                         ),
-                        ConditionalCommand(
-                            SequentialCommandGroup(
-                                robot.outtake.arm.specimenScoring(),
-                                WaitCommand(scoringDuration),
-                                SlidesCommand(robot.outtake.slides, Slides.wall2),
-                            ),
-                            SequentialCommandGroup(
-                                SlidesCommand(robot.outtake.slides, Slides.highRungScore),
-                            ),
-                        ) { !toggles.useAlternateSpec },
+                        SequentialCommandGroup(
+                            SlidesCommand(robot.outtake.slides, Slides.highRungScore),
+                        ),
                     ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ConditionalCommand(
                         SequentialCommandGroup(
@@ -275,14 +270,14 @@ open class MainTeleopBlue : OpMode() {
                     gamepad1::circle,
                     this@MainTeleopBlue,
                     InstantCommand({
-                        robot.drive.pinPoint.resetImu()
+//                        robot.drive.pinPoint.resetImu()
                         robot.drive.pinPoint.pinPoint.setPosition(
                             Pose2D(
                                 DistanceUnit.INCH,
                                 robot.drive.pose.x,
                                 robot.drive.pose.y,
                                 AngleUnit.DEGREES,
-                                robot.drive.pose.heading,
+                                0.0,
                             ),
                         )
                         gamepad1.rumble(250)
@@ -295,6 +290,7 @@ open class MainTeleopBlue : OpMode() {
         robot.isRed = false
         FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
         triggers
+        robot.drive.pinPoint.recalibrateImu()
     }
 
     var hasInit = false
@@ -333,19 +329,34 @@ open class MainTeleopBlue : OpMode() {
                 gamepad1.left_stick_y.toDouble(),
                 -gamepad1.left_stick_x.toDouble(),
                 -gamepad1.right_stick_x.toDouble() + assists,
-                if (fieldCentric) robot.drive.pose.radians else 0.0,
+                -if (fieldCentric) robot.drive.pose.radians else 0.0,
             )
         }
 
         // Slides
-        val diffyPower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        if (diffyPower.absoluteValue > diffyThreshold) {
-            robot.intake.diffy.manualOverride = true
-            robot.intake.diffy.leftServo.power = diffyPower * diffyMultipler
-            robot.intake.diffy.rightServo.power = -diffyPower * diffyMultipler
+//        val diffyPower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
+//        if (diffyPower.absoluteValue > diffyThreshold) {
+//            robot.intake.diffy.isManual = true
+//            robot.intake.diffy.leftServo.power = -diffyPower * diffyMultipler
+//            robot.intake.diffy.rightServo.power = diffyPower * diffyMultipler
+//        } else if (robot.intake.diffy.isManual) {
+//            robot.intake.diffy.leftServo.power = 0.0
+//            robot.intake.diffy.rightServo.power = 0.0
+//        }
+
+        val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
+        if (slidePower.absoluteValue > slideThreshold) {
+            robot.outtake.slides.isManual = true
+            if (robot.intake.claw.state != IntakeClawState.OPEN) {
+                robot.outtake.slides.manualPower = slidePower.clamp(-1.0, 0)
+            } else {
+                robot.outtake.slides.manualPower = slidePower
+            }
         } else {
-            robot.intake.diffy.manualOverride = false
+            robot.outtake.slides.isManual = false
         }
+
+        // we can make triggers do either rotate or slides based on the arm states?
 
         robot.telemetry.addData("pid | on", robot.drive.pidManager.isOn)
         robot.telemetry.addData("isRed", robot.isRed)
@@ -354,7 +365,6 @@ open class MainTeleopBlue : OpMode() {
         robot.telemetry.addData("hz | Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
         robot.telemetry.addData("slides", robot.outtake.slides.position)
         robot.telemetry.addData("toggles | autopickup", toggles.autoPickup)
-        robot.telemetry.addData("toggles | alt spec", toggles.useAlternateSpec)
         robot.telemetry.addData("assists | basket assist", useBasketAssist)
         robot.telemetry.addData("assists | rung assist", useRungAssist)
         robot.telemetry.addData("assists | wall assist", useWallAssist)
@@ -365,10 +375,10 @@ open class MainTeleopBlue : OpMode() {
         var fieldCentric: Boolean = true
 
         @JvmField
-        var diffyThreshold: Double = 0.1
+        var slideThreshold: Double = 0.1
 
         @JvmField
-        var diffyMultipler: Double = 0.5
+        var diffyMultipler: Double = 0.2
 
         // delays
 
@@ -423,7 +433,7 @@ open class MainTeleopBlue : OpMode() {
         var rungAssistWeight: Double = 0.025
 
         @JvmField
-        var rungAssistHeading: Double = 180.0
+        var rungAssistHeading: Double = 0.0
 
         @JvmField
         var useWallAssist: Boolean = true
@@ -432,6 +442,6 @@ open class MainTeleopBlue : OpMode() {
         var wallAssistWeight: Double = 0.025
 
         @JvmField
-        var wallAssistHeading: Double = 180.0
+        var wallAssistHeading: Double = 0.0
     }
 }

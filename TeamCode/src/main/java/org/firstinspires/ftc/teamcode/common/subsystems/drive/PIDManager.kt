@@ -9,9 +9,12 @@ import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.headingTolerance
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.usePowerSettling
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings.Companion.wheelThreshold
+import org.firstinspires.ftc.teamcode.common.commands.drive.PickupPIDSettings
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.control.APIDController
+import org.firstinspires.ftc.teamcode.common.utils.control.ASQUIDController
+import org.firstinspires.ftc.teamcode.common.utils.control.SQUIDController
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import kotlin.math.abs
 
@@ -33,17 +36,37 @@ open class PIDManager(
     val pidY by lazy { PIDController(kP, kI, kD) }
     val pidH by lazy { APIDController(kPHeading, kIHeading, kDHeading) }
 
-    val squidX by lazy { PIDController(kP, kI, kD) }
-    val squidY by lazy { PIDController(kP, kI, kD) }
-    val squidH by lazy { APIDController(kPHeading, kIHeading, kDHeading) }
+    val squidX by lazy { SQUIDController(kP, kI, kD) }
+    val squidY by lazy { SQUIDController(kP, kI, kD) }
+    val squidH by lazy { ASQUIDController(kPHeading, kIHeading, kDHeading) }
 
-    var kP = PIDSettings.kP
-    var kI = PIDSettings.kI
-    var kD = PIDSettings.kD
+    var isSamplePickup: Boolean = false
+        set(value) {
+            field = value
+            tolerance =
+                if (value) {
+                    Pose2d(PickupPIDSettings.tolerance, PickupPIDSettings.headingTolerance)
+                } else {
+                    Pose2d(
+                        PIDSettings.tolerance,
+                        headingTolerance,
+                    )
+                }
+        }
 
-    var kPHeading = PIDSettings.kPHeading
-    var kIHeading = PIDSettings.kIHeading
-    var kDHeading = PIDSettings.kDHeading
+    val kP
+        get() = if (isSamplePickup) PickupPIDSettings.kP else PIDSettings.kP
+    val kI
+        get() = if (isSamplePickup) PickupPIDSettings.kI else PIDSettings.kI
+    val kD
+        get() = if (isSamplePickup) PickupPIDSettings.kD else PIDSettings.kD
+
+    val kPHeading
+        get() = if (isSamplePickup) PickupPIDSettings.kPHeading else PIDSettings.kPHeading
+    val kIHeading
+        get() = if (isSamplePickup) PickupPIDSettings.kIHeading else PIDSettings.kIHeading
+    val kDHeading
+        get() = if (isSamplePickup) PickupPIDSettings.kDHeading else PIDSettings.kDHeading
 
     override fun periodic() {
         if (!isOn) return
@@ -72,14 +95,15 @@ open class PIDManager(
         val h = pidH.calculate(robot.drive.pose.heading, target.heading)
 
         val squidX = pidX.calculate(robot.drive.pose.x, target.x)
-        val squidY = pidX.calculate(robot.drive.pose.y, target.y)
-        val squidH = pidX.calculate(robot.drive.pose.heading, target.heading)
+        val squidY = pidY.calculate(robot.drive.pose.y, target.y)
+        val squidH = pidH.calculate(robot.drive.pose.heading, target.heading)
 
 //        robot.drive.fieldCentric(-x, y, h, -robot.drive.pose.radians)
         robot.drive.fieldCentric(
             x = if (PIDSettings.squid) -squidX else -x,
             y = if (PIDSettings.squid) squidY else y,
             rotate = if (PIDSettings.squid) squidH else h,
+            -robot.drive.pose.radians,
         )
     }
 

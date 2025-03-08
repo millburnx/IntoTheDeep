@@ -43,7 +43,7 @@ class PinPoint(
 
     fun reset() = pinPoint.resetPosAndIMU()
 
-    fun resetImu() = pinPoint.recalibrateIMU()
+    fun recalibrateImu() = pinPoint.recalibrateIMU()
 
     var pose: Pose2d = Pose2d()
         get() {

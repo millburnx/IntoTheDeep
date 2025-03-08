@@ -64,13 +64,13 @@ class OuttakeWrist(
         var basePosition = 0.05
 
         @JvmField
-        var basketPosition = 0.6
+        var basketPosition = 0.7
 
         @JvmField
         var specimenPosition = 0.45
 
         @JvmField
-        var altSpecimenPosition = 0.45
+        var altSpecimenPosition = 0.55
 
         @JvmField
         var pickupPosition = 0.45

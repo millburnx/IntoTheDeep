@@ -51,12 +51,12 @@ class IntakeArm(
         var basePosition = 0.53
 
         @JvmField
-        var extendedPosition = 0.62
+        var extendedPosition = 0.6
 
         @JvmField
-        var floorPosition = 0.8
+        var floorPosition = 0.78
 
         @JvmField
-        var specimenPosition = 0.22
+        var specimenPosition = 0.53
     }
 }

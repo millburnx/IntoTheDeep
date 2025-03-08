@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes.tuning
 import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.Robot
-import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.ProfiledPIDManager
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
@@ -48,14 +47,6 @@ class ProfiledPIDTuner : OpMode() {
         canvas.fillCircle(target.toRR().x, target.toRR().y, targetSize / 2)
         canvas.setStroke(pTargetColor)
         canvas.fillCircle(pTarget.toRR().x, pTarget.toRR().y, targetSize / 2)
-
-        robot.drive.pidManager.kP = PIDSettings.kP
-        robot.drive.pidManager.kI = PIDSettings.kI
-        robot.drive.pidManager.kD = PIDSettings.kD
-        robot.drive.pidManager.kPHeading = PIDSettings.kPHeading
-        robot.drive.pidManager.kIHeading = PIDSettings.kIHeading
-        robot.drive.pidManager.kDHeading = PIDSettings.kDHeading
-        robot.drive.pidManager.tolerance = Pose2d(PIDSettings.tolerance, PIDSettings.headingTolerance)
     }
 
     companion object {
