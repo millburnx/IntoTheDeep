@@ -33,48 +33,33 @@ class OuttakeArmTuner : OpMode() {
                     state = (state + 1) % 8
                 }
 
+            fun shift(step: Double) {
+                if (state == 0) {
+                    OuttakeArm.basePosition = (OuttakeArm.basePosition + step).coerceIn(0.0, 1.0)
+                } else if (state == 1) {
+                    OuttakeArm.transferPosition = (OuttakeArm.transferPosition + step).coerceIn(0.0, 1.0)
+                } else if (state == 2) {
+                    OuttakeArm.specimenPosition = (OuttakeArm.specimenPosition + step).coerceIn(0.0, 1.0)
+                } else if (state == 3) {
+                    OuttakeArm.autonSpecimenPosition =
+                        (OuttakeArm.autonSpecimenPosition + step).coerceIn(0.0, 1.0)
+                } else if (state == 4) {
+                    OuttakeArm.basketPosition = (OuttakeArm.basketPosition + step).coerceIn(0.0, 1.0)
+                } else if (state == 5) {
+                    OuttakeArm.pickupPosition = (OuttakeArm.pickupPosition + step).coerceIn(0.0, 1.0)
+                } else if (state == 6) {
+                    OuttakeArm.parkPosition = (OuttakeArm.parkPosition + step).coerceIn(0.0, 1.0)
+                }
+            }
+
             val moveUp =
                 EdgeDetector(gamepad1::dpad_up) {
-                    if (state == 0) {
-                        OuttakeArm.basePosition = (OuttakeArm.basePosition + step).coerceIn(0.0, 1.0)
-                    } else if (state == 1) {
-                        OuttakeArm.specimenPosition = (OuttakeArm.specimenPosition + step).coerceIn(0.0, 1.0)
-                    } else if (state == 2) {
-                        OuttakeArm.specimenScoringPosition =
-                            (OuttakeArm.specimenScoringPosition + step).coerceIn(0.0, 1.0)
-                    } else if (state == 3) {
-                        OuttakeArm.altSpecimenPosition = (OuttakeArm.altSpecimenPosition + step).coerceIn(0.0, 1.0)
-                    } else if (state == 4) {
-                        OuttakeArm.basketPosition = (OuttakeArm.basketPosition + step).coerceIn(0.0, 1.0)
-                    } else if (state == 5) {
-                        OuttakeArm.pickupPosition = (OuttakeArm.pickupPosition + step).coerceIn(0.0, 1.0)
-                    } else if (state == 6) {
-                        OuttakeArm.humanPosition = (OuttakeArm.humanPosition + step).coerceIn(0.0, 1.0)
-                    } else if (state == 7) {
-                        OuttakeArm.parkPosition = (OuttakeArm.parkPosition + step).coerceIn(0.0, 1.0)
-                    }
+                    shift(step)
                 }
 
             val moveDown =
                 EdgeDetector(gamepad1::dpad_down) {
-                    if (state == 0) {
-                        OuttakeArm.basePosition = (OuttakeArm.basePosition - step).coerceIn(0.0, 1.0)
-                    } else if (state == 1) {
-                        OuttakeArm.specimenPosition = (OuttakeArm.specimenPosition - step).coerceIn(0.0, 1.0)
-                    } else if (state == 2) {
-                        OuttakeArm.specimenScoringPosition =
-                            (OuttakeArm.specimenScoringPosition - step).coerceIn(0.0, 1.0)
-                    } else if (state == 3) {
-                        OuttakeArm.altSpecimenPosition = (OuttakeArm.altSpecimenPosition - step).coerceIn(0.0, 1.0)
-                    } else if (state == 4) {
-                        OuttakeArm.basketPosition = (OuttakeArm.basketPosition - step).coerceIn(0.0, 1.0)
-                    } else if (state == 5) {
-                        OuttakeArm.pickupPosition = (OuttakeArm.pickupPosition - step).coerceIn(0.0, 1.0)
-                    } else if (state == 6) {
-                        OuttakeArm.humanPosition = (OuttakeArm.humanPosition - step).coerceIn(0.0, 1.0)
-                    } else if (state == 7) {
-                        OuttakeArm.parkPosition = (OuttakeArm.parkPosition - step).coerceIn(0.0, 1.0)
-                    }
+                    shift(-step)
                 }
         }
     }
@@ -82,32 +67,32 @@ class OuttakeArmTuner : OpMode() {
     override fun exec() {
         triggers
 
-        if (state == 0) {
-            robot.outtakeArm.state = OuttakeArmPosition.BASE
-            robot.telemetry.addData("state", "base")
-        } else if (state == 1) {
-            robot.outtakeArm.state = OuttakeArmPosition.SPECIMEN
-            robot.telemetry.addData("state", "specimen")
-        } else if (state == 2) {
-            robot.outtakeArm.state = OuttakeArmPosition.SPECIMEN_SCORING
-            robot.telemetry.addData("state", "specimen scoring")
-        } else if (state == 3) {
-            robot.outtakeArm.state = OuttakeArmPosition.ALT_SPECIMEN
-            robot.telemetry.addData("state", "alt specimen")
-        } else if (state == 4) {
-            robot.outtakeArm.state = OuttakeArmPosition.BASKET
-            robot.telemetry.addData("state", "basket")
-        } else if (state == 5) {
-            robot.outtakeArm.state = OuttakeArmPosition.PICKUP
-            robot.telemetry.addData("state", "pickup")
-        } else if (state == 6) {
-            robot.outtakeArm.state = OuttakeArmPosition.HUMAN
-            robot.telemetry.addData("state", "human")
-        } else if (state == 7) {
-            robot.outtakeArm.state = OuttakeArmPosition.PARK
-            robot.telemetry.addData("state", "park")
+        robot.apply {
+            if (state == 0) {
+                outtakeArm.state = OuttakeArmPosition.BASE
+                telemetry.addData("state", "base")
+            } else if (state == 1) {
+                outtakeArm.state = OuttakeArmPosition.TRANSFER
+                telemetry.addData("state", "transfer")
+            } else if (state == 2) {
+                outtakeArm.state = OuttakeArmPosition.SPECIMEN
+                telemetry.addData("state", "specimen")
+            } else if (state == 3) {
+                outtakeArm.state = OuttakeArmPosition.AUTON_SPECIMEN
+                telemetry.addData("state", "auton specimen")
+            } else if (state == 4) {
+                outtakeArm.state = OuttakeArmPosition.BASKET
+                telemetry.addData("state", "basket")
+            } else if (state == 5) {
+                outtakeArm.state = OuttakeArmPosition.PICKUP
+                telemetry.addData("state", "pickup")
+            } else if (state == 6) {
+                outtakeArm.state = OuttakeArmPosition.PARK
+                telemetry.addData("state", "park")
+            }
+
+            telemetry.addData("position", outtakeArm.servoLimiter.current)
         }
-        robot.telemetry.addData("position", robot.outtakeArm.servoLimiter.current)
     }
 
     companion object {
