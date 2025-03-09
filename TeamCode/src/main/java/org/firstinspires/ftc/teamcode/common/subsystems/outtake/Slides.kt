@@ -119,13 +119,16 @@ class Slides(
         var highRung: Double = 1200.0
 
         @JvmField
+        var autonHighRung: Double = 1200.0
+
+        @JvmField
         var highRungScore: Double = 2000.0
 
         @JvmField
-        var wall: Double = 170.0
+        var autonHighRungScore: Double = 2000.0
 
         @JvmField
-        var wall2: Double = 200.0
+        var wall: Double = 170.0
 
         @JvmField
         var lowBasket: Double = 900.0

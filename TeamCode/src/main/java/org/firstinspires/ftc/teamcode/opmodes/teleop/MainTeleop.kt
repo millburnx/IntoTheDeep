@@ -292,8 +292,6 @@ open class MainTeleopBlue : OpMode() {
             telemetry.addData("pid | on", drive.pidManager.isOn)
             telemetry.addData("isRed", isRed)
             telemetry.addData("pid | pid target", drive.pidManager.target)
-            telemetry.addData("hz | Delta Time", deltaTime.deltaTime)
-            telemetry.addData("hz | Loop Hertz", 1.0 / deltaTime.deltaTime)
             telemetry.addData("slides", outtake.slides.position)
             telemetry.addData("toggles | autopickup", toggles.autoPickup)
             telemetry.addData("assists | basket assist", useBasketAssist)

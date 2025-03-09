@@ -61,6 +61,12 @@ class Diffy(
             pitch = pickupPitch
         })
 
+    fun sweep() =
+        InstantCommand({
+            pitch = sweepPitch
+            roll = sweepRoll
+        })
+
     companion object {
         @JvmField
         var kP = -1.0
@@ -85,5 +91,11 @@ class Diffy(
 
         @JvmField
         var pickupPitch = -0.5
+
+        @JvmField
+        var sweepPitch = 0.0
+
+        @JvmField
+        var sweepRoll = 0.1
     }
 }

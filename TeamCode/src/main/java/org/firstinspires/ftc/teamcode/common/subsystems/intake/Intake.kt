@@ -51,6 +51,37 @@ class Intake(
             diffy.hover(),
         )
 
+    private fun sweepPartial() =
+        ParallelCommandGroup(
+            arm.sweep(),
+            diffy.sweep(),
+        )
+
+    fun sweep() =
+        ParallelCommandGroup(
+            linkage.extend(),
+            sweepPartial(),
+        )
+
+    fun sweepAsync() =
+        ParallelCommandGroup(
+            linkage.extendAsync(),
+            sweepPartial(),
+        )
+
+    fun baseSweep() =
+        ParallelCommandGroup(
+            WaitCommand(baseIntakeDuration),
+            linkage.retract(),
+            sweepPartial(),
+        )
+
+    fun baseSweepAsync() =
+        ParallelCommandGroup(
+            linkage.retractAsync(),
+            sweepPartial(),
+        )
+
     fun retract() =
         ParallelCommandGroup(
             linkage.retract(),
