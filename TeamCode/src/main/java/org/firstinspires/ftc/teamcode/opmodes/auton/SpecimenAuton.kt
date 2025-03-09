@@ -170,6 +170,9 @@ class SpecimenAuton : OpMode() {
 
     override fun exec() {
         telemetry.addData("pid target", robot.drive.pidManager.target)
+        telemetry.addData("pid at target", robot.drive.pidManager.atTarget())
+        telemetry.addData("current commands", currentCommands.joinToString(", "))
+        println(currentCommands.joinToString(", "))
     }
 
     companion object {
