@@ -124,7 +124,7 @@ class SpecimenAuton : OpMode() {
                     scoreSpecimen(specimen),
                 )
 
-            fun park() = drive.pid(Pose2d(parkPose))
+            fun park() = namedCommand("park", drive.pid(Pose2d(parkPose)))
 
             schedule(
                 delayedSequential(
