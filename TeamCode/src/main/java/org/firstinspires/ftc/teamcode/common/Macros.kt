@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.common
 
-import com.arcrobotics.ftclib.command.ConditionalCommand
-import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
+import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeFlipDelay
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeLiftingDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.transferClawDelay
@@ -21,7 +20,7 @@ class Macros(
                 robot.intake.retract(),
             ),
             robot.intake.claw.loose(),
-            robot.outtake.arm.transfer(),
+            robot.outtake.transfer(),
             WaitCommand(transferClawDelay),
             robot.outtake.close(),
             WaitCommand(transferClawDelay),
@@ -32,10 +31,7 @@ class Macros(
             robot.intake.open(),
             robot.intake.arm.extended(),
             WaitCommand(outtakeFlipDelay),
-            ParallelCommandGroup(
-                robot.outtake.arm.basket(),
-                robot.outtake.wrist.basket(),
-            ),
+            robot.outtake.basketPartial(),
         )
 
     fun transfer() =
@@ -45,14 +41,10 @@ class Macros(
         )
 
     fun exitSpecPickup() =
-        ConditionalCommand(
+        conditionalCommand(
             SequentialCommandGroup(
-                ParallelCommandGroup(
-                    robot.outtake.arm.base(),
-                    robot.outtake.wrist.base(),
-                ),
+                robot.outtake.basePartial(),
                 WaitCommand(outtakeLiftingDuration),
             ),
-            InstantCommand({}),
         ) { robot.intake.arm.state == IntakeArmPosition.SPECIMEN }
 }

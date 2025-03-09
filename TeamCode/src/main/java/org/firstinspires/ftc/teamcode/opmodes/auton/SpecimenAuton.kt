@@ -2,19 +2,10 @@ package org.firstinspires.ftc.teamcode.opmodes.auton
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
-import com.arcrobotics.ftclib.command.ConditionalCommand
-import com.arcrobotics.ftclib.command.InstantCommand
-import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
-import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
-import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
-import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.intakeLoweringDuration
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.specimenCloseDuration
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 
 open class AutonRobot(
@@ -43,103 +34,6 @@ class SpecimenAuton : OpMode() {
         robot.intake.diffy.periodic()
         robot.intake.claw.periodic()
 
-        fun pickupSamples() =
-            SequentialCommandGroup(
-                robot.drive.purePursuit("pre1", -180.0),
-                robot.drive.pid(Pose2d(pushX, -40.0, -180.0)),
-                robot.drive.purePursuit("pre2", -180.0),
-                robot.drive.pid(Pose2d(pushX, -52.0, -180.0)),
-            )
-
-        fun specimenPickup() =
-            SequentialCommandGroup(
-                ParallelCommandGroup(
-                    SlidesCommand(robot.outtake.slides, Slides.min),
-                    ConditionalCommand(
-                        ParallelCommandGroup(
-                            robot.intake.arm.specimen(),
-                            robot.intake.diffy.specimen(),
-                            WaitCommand(intakeLoweringDuration),
-                        ),
-                        InstantCommand({}),
-                        { robot.intake.arm.state != IntakeArmPosition.SPECIMEN },
-                    ),
-                ),
-                ParallelCommandGroup(
-                    robot.outtake.arm.pickup(),
-                    robot.outtake.wrist.pickup(),
-                ),
-                robot.outtake.open(),
-            )
-
-        fun specimenGrab() =
-            SequentialCommandGroup(
-                robot.outtake.close(),
-                WaitCommand(specimenCloseDuration),
-            )
-
-        fun specimenFlip() =
-            SequentialCommandGroup(
-                SlidesCommand(robot.outtake.slides, Slides.highRung),
-                ParallelCommandGroup(
-                    robot.outtake.arm.altSpecimen(),
-                    robot.outtake.wrist.altSpecimen(),
-                ),
-            )
-
-        fun scoreSpec(offset: Int) =
-            SequentialCommandGroup(
-                ParallelCommandGroup(
-                    robot.drive.pid(Pose2d(pickupX, pickupY, -180.0)),
-                    specimenPickup(),
-                ),
-                WaitCommand(humanDuration),
-                specimenGrab(),
-                ParallelCommandGroup(
-                    specimenFlip(),
-                    robot.drive.pid(Pose2d(scoreX, scoreY + offset * scoreOffset, -180.0)),
-                ),
-                ParallelCommandGroup(
-                    SlidesCommand(robot.outtake.slides, Slides.highRungScore),
-                ),
-                ParallelCommandGroup(
-                    robot.outtake.open(),
-                    robot.outtake.base(),
-                ),
-            )
-
-        fun park() =
-            SequentialCommandGroup(
-                robot.drive.pid(Pose2d(parkX, parkY, -180.0)),
-            )
-
-        commands.add(
-            SequentialCommandGroup(
-                ParallelCommandGroup(
-                    robot.drive.pid(Pose2d(scoreX, scoreY, -180.0)),
-                    SlidesCommand(robot.outtake.slides, Slides.highRung),
-                    robot.outtake.arm.altSpecimen(),
-                    robot.outtake.wrist.altSpecimen(),
-                ),
-                ParallelCommandGroup(
-                    robot.outtake.arm.specimenScoring(),
-                    SlidesCommand(robot.outtake.slides, Slides.highRungScore),
-                ),
-                ParallelCommandGroup(
-                    robot.outtake.open(),
-                    robot.outtake.base(),
-                ),
-                ParallelCommandGroup(
-                    specimenPickup(),
-                    pickupSamples(),
-                ),
-                scoreSpec(1),
-                scoreSpec(2),
-                scoreSpec(3),
-                park(),
-            ),
-        )
-
         schedule(SequentialCommandGroup(*commands.toTypedArray()))
     }
 
@@ -156,50 +50,5 @@ class SpecimenAuton : OpMode() {
 
         @JvmField
         var startingHeading = 180.0
-
-        @JvmField
-        var scoreX = -36.0
-
-        @JvmField
-        var scoreY = 0.0
-
-        @JvmField
-        var scorePower = -1.0
-
-        @JvmField
-        var scoreDuration: Long = 250
-
-        @JvmField
-        var scoringDuration: Long = 500
-
-        @JvmField
-        var scoringDuration2: Long = 250
-
-        @JvmField
-        var pushX = -52.0
-
-        @JvmField
-        var pickupX = -56.0
-
-        @JvmField
-        var pickupY = -36.0
-
-        @JvmField
-        var pickupDuration = 500L
-
-        @JvmField
-        var humanDuration = 375L
-
-        @JvmField
-        var pickupPower = .5
-
-        @JvmField
-        var scoreOffset = 1.0
-
-        @JvmField
-        var parkX = -56.0
-
-        @JvmField
-        var parkY = -40.0
     }
 }

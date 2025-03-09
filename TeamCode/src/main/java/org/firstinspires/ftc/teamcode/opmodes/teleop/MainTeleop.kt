@@ -13,9 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
-import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
-import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClawState
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
@@ -39,6 +37,15 @@ open class MainTeleopBlue : OpMode() {
 
     val triggers by lazy {
         object {
+            init {
+                robot.apply {
+                    // we can move shit here so you don't have to spam robot.foo
+                    // only downside is you not longer can directly access triggers in the rest of the opmode
+                    // unless we make triggers a property of robot
+                    // or placing all the triggers in a hashmap (both have poor typing)
+                }
+            }
+
             val toggleAutoPickup =
                 EdgeDetector(gamepad2::square) {
                     toggles.autoPickup = !toggles.autoPickup
@@ -53,18 +60,12 @@ open class MainTeleopBlue : OpMode() {
             val park =
                 EdgeDetector(
                     gamepad1::dpad_left,
-                    this@MainTeleopBlue,
-                    ParallelCommandGroup(
-                        SlidesCommand(robot.outtake.slides, Slides.min),
-                        robot.outtake.arm.park(),
-                        robot.outtake.wrist.park(),
-                    ),
+                    robot.outtake.park(),
                 )
 
             val liftResets =
                 EdgeDetector(
                     gamepad2::circle,
-                    this@MainTeleopBlue,
                     SequentialCommandGroup(
                         robot.outtake.slides.directPower(rezeroPower),
                         robot.outtake.slides.enableDirect(),
@@ -74,6 +75,7 @@ open class MainTeleopBlue : OpMode() {
                         robot.outtake.slides.disableDirect(),
                     ),
                 )
+
             val toggleColor =
                 EdgeDetector(
                     gamepad2::dpad_up,
@@ -101,15 +103,6 @@ open class MainTeleopBlue : OpMode() {
 
             fun pickupPost(rumble: RunCommand) =
                 SequentialCommandGroup(
-                    InstantCommand({
-//                        robot.intake.diffy.isManual = false
-//                        val pitch =
-//                            (robot.intake.diffy.leftServo.position + robot.intake.diffy.rightServo.position) / 2
-//                        val roll =
-//                            (robot.intake.diffy.rightServo.position - robot.intake.diffy.leftServo.position) / 2
-//                        robot.intake.diffy.roll = roll
-//                        robot.intake.diffy.pitch = pitch
-                    }),
                     ConditionalCommand(
                         SequentialCommandGroup(
                             ParallelCommandGroup(
@@ -137,7 +130,6 @@ open class MainTeleopBlue : OpMode() {
             val pickup =
                 EdgeDetector(
                     robot.gp1::right_bumper,
-                    this@MainTeleopBlue,
                     pickupPre(rumble1, true),
                     pickupPost(rumble1),
                 )
@@ -146,7 +138,6 @@ open class MainTeleopBlue : OpMode() {
             val basePickup =
                 EdgeDetector(
                     robot.gp1::left_bumper,
-                    this@MainTeleopBlue,
                     pickupPre(rumble2, false),
                     pickupPost(rumble2),
                 )
@@ -155,24 +146,20 @@ open class MainTeleopBlue : OpMode() {
             val lowBasket =
                 EdgeDetector(
                     robot.gp1::dpad_down,
-                    this@MainTeleopBlue,
                     SequentialCommandGroup(
                         robot.macros.exitTransfer(),
-                        SlidesCommand(robot.outtake.slides, Slides.lowBasket),
-                        robot.outtake.arm.basket(),
-                        robot.outtake.wrist.basket(),
+                        robot.outtake.slides.goTo(Slides.lowBasket),
+                        robot.outtake.basketPartial(),
                     ),
                 )
 
             val highBasket =
                 EdgeDetector(
                     robot.gp1::dpad_up,
-                    this@MainTeleopBlue,
                     SequentialCommandGroup(
                         robot.macros.exitTransfer(),
-                        SlidesCommand(robot.outtake.slides, Slides.highBasket),
-                        robot.outtake.arm.basket(),
-                        robot.outtake.wrist.basket(),
+                        robot.outtake.slides.goTo(Slides.highBasket),
+                        robot.outtake.basketPartial(),
                     ),
                 )
 
@@ -180,47 +167,18 @@ open class MainTeleopBlue : OpMode() {
             val specimenPickup =
                 EdgeDetector(
                     robot.gp1::cross,
-                    this@MainTeleopBlue,
                     SequentialCommandGroup(
-                        ParallelCommandGroup(
-                            SlidesCommand(robot.outtake.slides, Slides.min),
-                            ConditionalCommand(
-                                ParallelCommandGroup(
-                                    robot.intake.arm.specimen(),
-                                    robot.intake.diffy.specimen(),
-                                    WaitCommand(intakeLoweringDuration),
-                                ),
-                                InstantCommand({}),
-                            ) { robot.intake.arm.state != IntakeArmPosition.SPECIMEN },
-                        ),
-                        ParallelCommandGroup(
-                            robot.outtake.arm.pickup(),
-                            robot.outtake.wrist.pickup(),
-                        ),
                         robot.outtake.open(),
+                        robot.outtake.slides.goTo(Slides.min),
+                        robot.outtake.specimenPickupPartial(),
                     ),
                     SequentialCommandGroup(
                         robot.outtake.close(),
                         WaitCommand(specimenCloseDuration),
                         ParallelCommandGroup(
-                            SlidesCommand(robot.outtake.slides, Slides.highRung),
-                            robot.outtake.arm.altSpecimen(),
-                            robot.outtake.wrist.altSpecimen(),
+                            robot.outtake.slides.goTo(Slides.highRung),
+                            robot.outtake.specimenPartial(),
                         ),
-                    ),
-                )
-
-            val hpDrop =
-                EdgeDetector(
-                    robot.gp1::square,
-                    this@MainTeleopBlue,
-                    SequentialCommandGroup(
-                        ParallelCommandGroup(
-                            SlidesCommand(robot.outtake.slides, Slides.min),
-                            robot.outtake.arm.human(),
-                            robot.outtake.wrist.human(),
-                        ),
-                        robot.outtake.open(),
                     ),
                 )
 
@@ -228,38 +186,19 @@ open class MainTeleopBlue : OpMode() {
             val score =
                 EdgeDetector(
                     robot.gp1::triangle,
-                    this@MainTeleopBlue,
                     ConditionalCommand(
-                        SequentialCommandGroup(
-                            robot.outtake.open(),
-                        ),
-                        SequentialCommandGroup(
-                            SlidesCommand(robot.outtake.slides, Slides.highRungScore),
-                        ),
+                        robot.outtake.open(),
+                        robot.outtake.slides.goTo(Slides.highRungScore),
                     ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
                     ConditionalCommand(
                         SequentialCommandGroup(
-                            robot.outtake.wrist.base(),
-                            robot.outtake.arm.base(),
+                            robot.outtake.basePartial(),
                             robot.outtake.base(),
                         ),
                         SequentialCommandGroup(
                             robot.outtake.open(),
-                            ParallelCommandGroup(
-                                ConditionalCommand(
-                                    ParallelCommandGroup(
-                                        robot.intake.arm.specimen(),
-                                        robot.intake.diffy.specimen(),
-                                        WaitCommand(intakeLoweringDuration),
-                                    ),
-                                    InstantCommand({}),
-                                ) { robot.intake.arm.state != IntakeArmPosition.SPECIMEN },
-                            ),
-                            ParallelCommandGroup(
-                                robot.outtake.arm.pickup(),
-                                robot.outtake.wrist.pickup(),
-                            ),
-                            SlidesCommand(robot.outtake.slides, Slides.min),
+                            robot.outtake.specimenPickupPartial(),
+                            robot.outtake.slides.goTo(Slides.min),
                             robot.outtake.slides.reset(),
                         ),
                     ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
@@ -268,7 +207,6 @@ open class MainTeleopBlue : OpMode() {
             val imuReset =
                 EdgeDetector(
                     gamepad1::circle,
-                    this@MainTeleopBlue,
                     InstantCommand({
 //                        robot.drive.pinPoint.resetImu()
                         robot.drive.pinPoint.pinPoint.setPosition(
@@ -334,15 +272,6 @@ open class MainTeleopBlue : OpMode() {
         }
 
         // Slides
-//        val diffyPower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-//        if (diffyPower.absoluteValue > diffyThreshold) {
-//            robot.intake.diffy.isManual = true
-//            robot.intake.diffy.leftServo.power = -diffyPower * diffyMultipler
-//            robot.intake.diffy.rightServo.power = diffyPower * diffyMultipler
-//        } else if (robot.intake.diffy.isManual) {
-//            robot.intake.diffy.leftServo.power = 0.0
-//            robot.intake.diffy.rightServo.power = 0.0
-//        }
 
         val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
         if (slidePower.absoluteValue > slideThreshold) {

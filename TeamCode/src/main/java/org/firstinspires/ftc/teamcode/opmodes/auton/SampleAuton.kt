@@ -54,11 +54,6 @@ class SampleAuton : OpMode() {
             ParallelCommandGroup(
                 SequentialCommandGroup(
                     ParallelCommandGroup(
-//                        robot.outtake.arm.halfBasket(),
-                        robot.outtake.wrist.halfBasket(),
-                    ),
-                    WaitCommand(500),
-                    ParallelCommandGroup(
                         robot.outtake.arm.basket(),
                         robot.outtake.wrist.basket(),
                     ),

@@ -42,21 +42,12 @@ class Diffy(
 
         leftServo.power = pidLeft.calculate(leftServo.position, leftPosition)
         rightServo.power = pidLeft.calculate(rightServo.position, rightPosition)
-
-//        leftServo.power = 0.0
-//        rightServo.power = 0.0
     }
 
     fun transfer() =
         InstantCommand({
             pitch = transferPitch
             roll = transferRoll
-        })
-
-    fun specimen() =
-        InstantCommand({
-            pitch = specimenPitch
-            roll = specimenRoll
         })
 
     fun hover() =
@@ -85,12 +76,6 @@ class Diffy(
 
         @JvmField
         var transferRoll = 0.1
-
-        @JvmField
-        var specimenPitch = 0.0
-
-        @JvmField
-        var specimenRoll = 0.1
 
         @JvmField
         var hoverPitch = -0.5

@@ -28,6 +28,8 @@ class Slides(
             field = value.coerceIn(min, max)
         }
 
+    fun goTo(target: Double) = SlidesCommand(this, target)
+
     var isManual = false
         set(value) {
             if (field && !value) {

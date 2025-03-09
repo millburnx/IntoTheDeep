@@ -11,11 +11,9 @@ enum class OuttakeArmPosition {
     BASE,
     TRANSFER,
     SPECIMEN,
-    SPECIMEN_SCORING,
-    ALT_SPECIMEN,
+    AUTON_SPECIMEN,
     BASKET,
     PICKUP,
-    HUMAN,
     PARK,
 }
 
@@ -39,11 +37,9 @@ class OuttakeArm(
                 OuttakeArmPosition.BASE -> basePosition
                 OuttakeArmPosition.TRANSFER -> transferPosition
                 OuttakeArmPosition.SPECIMEN -> specimenPosition
-                OuttakeArmPosition.SPECIMEN_SCORING -> specimenScoringPosition
-                OuttakeArmPosition.ALT_SPECIMEN -> altSpecimenPosition
+                OuttakeArmPosition.AUTON_SPECIMEN -> autonSpecimenPosition
                 OuttakeArmPosition.BASKET -> basketPosition
                 OuttakeArmPosition.PICKUP -> pickupPosition
-                OuttakeArmPosition.HUMAN -> humanPosition
                 OuttakeArmPosition.PARK -> parkPosition
             }
         servoLimiter.maxSpeed = maxSpeed
@@ -58,15 +54,11 @@ class OuttakeArm(
 
     fun specimen() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN }, this)
 
-    fun specimenScoring() = InstantCommand({ state = OuttakeArmPosition.SPECIMEN_SCORING }, this)
-
-    fun altSpecimen() = InstantCommand({ state = OuttakeArmPosition.ALT_SPECIMEN }, this)
+    fun autonSpecimen() = InstantCommand({ state = OuttakeArmPosition.AUTON_SPECIMEN }, this)
 
     fun basket() = InstantCommand({ state = OuttakeArmPosition.BASKET }, this)
 
     fun pickup() = InstantCommand({ state = OuttakeArmPosition.PICKUP }, this)
-
-    fun human() = InstantCommand({ state = OuttakeArmPosition.HUMAN }, this)
 
     fun park() = InstantCommand({ state = OuttakeArmPosition.PARK }, this)
 
@@ -84,16 +76,10 @@ class OuttakeArm(
         var specimenPosition = 0.74
 
         @JvmField
-        var specimenScoringPosition = specimenPosition
-
-        @JvmField
-        var altSpecimenPosition = 0.74
+        var autonSpecimenPosition = 0.74 // different so we can be right against the wall
 
         @JvmField
         var pickupPosition = 0.26
-
-        @JvmField
-        var humanPosition = 0.27
 
         @JvmField
         var parkPosition = 0.48

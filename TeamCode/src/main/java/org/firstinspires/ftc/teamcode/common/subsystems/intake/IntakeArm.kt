@@ -10,7 +10,6 @@ enum class IntakeArmPosition {
     BASE,
     EXTENDED,
     FLOOR,
-    SPECIMEN,
 }
 
 @Config
@@ -32,7 +31,6 @@ class IntakeArm(
                 IntakeArmPosition.BASE -> basePosition
                 IntakeArmPosition.EXTENDED -> extendedPosition
                 IntakeArmPosition.FLOOR -> floorPosition
-                IntakeArmPosition.SPECIMEN -> specimenPosition
             }
         leftServo.position = target
         rightServo.position = target
@@ -44,8 +42,6 @@ class IntakeArm(
 
     fun floor() = InstantCommand({ state = IntakeArmPosition.FLOOR })
 
-    fun specimen() = InstantCommand({ state = IntakeArmPosition.SPECIMEN })
-
     companion object {
         @JvmField
         var basePosition = 0.53
@@ -55,8 +51,5 @@ class IntakeArm(
 
         @JvmField
         var floorPosition = 0.78
-
-        @JvmField
-        var specimenPosition = 0.53
     }
 }

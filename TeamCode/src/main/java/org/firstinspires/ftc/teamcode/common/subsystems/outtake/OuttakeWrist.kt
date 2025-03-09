@@ -8,13 +8,12 @@ import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedServo
 
 enum class OuttakeWristPosition {
     BASE,
+    TRANSFER,
     SPECIMEN,
-    ALT_SPECIMEN,
+    AUTON_SPECIMEN,
     BASKET,
     PICKUP,
-    HUMAN,
     PARK,
-    HALFBASKET,
 }
 
 @Config
@@ -32,30 +31,27 @@ class OuttakeWrist(
         val target =
             when (state) {
                 OuttakeWristPosition.BASE -> basePosition
+                OuttakeWristPosition.TRANSFER -> transferPosition
                 OuttakeWristPosition.SPECIMEN -> specimenPosition
-                OuttakeWristPosition.ALT_SPECIMEN -> altSpecimenPosition
+                OuttakeWristPosition.AUTON_SPECIMEN -> autonSpecimenPosition
                 OuttakeWristPosition.BASKET -> basketPosition
                 OuttakeWristPosition.PICKUP -> pickupPosition
-                OuttakeWristPosition.HUMAN -> humanPosition
                 OuttakeWristPosition.PARK -> parkPosition
-                OuttakeWristPosition.HALFBASKET -> halfBasket
             }
         servo.position = target
     }
 
     fun base() = InstantCommand({ state = OuttakeWristPosition.BASE }, this)
 
+    fun transfer() = InstantCommand({ state = OuttakeWristPosition.TRANSFER }, this)
+
     fun specimen() = InstantCommand({ state = OuttakeWristPosition.SPECIMEN }, this)
 
-    fun altSpecimen() = InstantCommand({ state = OuttakeWristPosition.ALT_SPECIMEN }, this)
+    fun autonSpecimen() = InstantCommand({ state = OuttakeWristPosition.AUTON_SPECIMEN }, this)
 
     fun basket() = InstantCommand({ state = OuttakeWristPosition.BASKET }, this)
 
-    fun halfBasket() = InstantCommand({ state = OuttakeWristPosition.HALFBASKET }, this)
-
     fun pickup() = InstantCommand({ state = OuttakeWristPosition.PICKUP }, this)
-
-    fun human() = InstantCommand({ state = OuttakeWristPosition.HUMAN }, this)
 
     fun park() = InstantCommand({ state = OuttakeWristPosition.PARK }, this)
 
@@ -64,24 +60,21 @@ class OuttakeWrist(
         var basePosition = 0.05
 
         @JvmField
+        var transferPosition = 0.05
+
+        @JvmField
         var basketPosition = 0.7
 
         @JvmField
         var specimenPosition = 0.45
 
         @JvmField
-        var altSpecimenPosition = 0.55
+        var autonSpecimenPosition = 0.45
 
         @JvmField
         var pickupPosition = 0.45
 
         @JvmField
-        var humanPosition = 0.7
-
-        @JvmField
         var parkPosition = 0.45
-
-        @JvmField
-        var halfBasket = (basketPosition + basePosition) / 2
     }
 }

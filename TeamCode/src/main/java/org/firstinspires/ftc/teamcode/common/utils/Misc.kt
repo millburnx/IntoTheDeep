@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.common.utils
 
 import android.os.Environment
+import com.arcrobotics.ftclib.command.Command
+import com.arcrobotics.ftclib.command.ConditionalCommand
+import com.arcrobotics.ftclib.command.InstantCommand
 import com.millburnx.utils.Path
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.hardware.CRServo
@@ -74,3 +77,8 @@ fun Path.Companion.loadPath(file: String): Path {
         }
     return path
 }
+
+fun conditionalCommand(
+    command: Command,
+    condition: () -> Boolean,
+): Command = ConditionalCommand(command, InstantCommand({}), condition)
