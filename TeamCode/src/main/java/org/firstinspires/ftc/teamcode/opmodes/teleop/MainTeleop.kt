@@ -43,192 +43,193 @@ open class MainTeleopBlue : OpMode() {
                     // only downside is you not longer can directly access triggers in the rest of the opmode
                     // unless we make triggers a property of robot
                     // or placing all the triggers in a hashmap (both have poor typing)
-                }
-            }
 
-            val toggleAutoPickup =
-                EdgeDetector(gamepad2::square) {
-                    toggles.autoPickup = !toggles.autoPickup
-                }
-            val toggleAssists =
-                EdgeDetector(gamepad2::triangle) {
-                    useBasketAssist = !useBasketAssist
-                    useRungAssist = !useRungAssist
-                    useWallAssist = !useWallAssist
-                }
+                    val toggleAutoPickup =
+                        EdgeDetector(gp2::square) {
+                            toggles.autoPickup = !toggles.autoPickup
+                        }
+                    val toggleAssists =
+                        EdgeDetector(gp2::triangle) {
+                            useBasketAssist = !useBasketAssist
+                            useRungAssist = !useRungAssist
+                            useWallAssist = !useWallAssist
+                        }
 
-            val park =
-                EdgeDetector(
-                    gamepad1::dpad_left,
-                    robot.outtake.park(),
-                )
-
-            val liftResets =
-                EdgeDetector(
-                    gamepad2::circle,
-                    SequentialCommandGroup(
-                        robot.outtake.slides.directPower(rezeroPower),
-                        robot.outtake.slides.enableDirect(),
-                    ),
-                    SequentialCommandGroup(
-                        robot.outtake.slides.rezeroCmd(),
-                        robot.outtake.slides.disableDirect(),
-                    ),
-                )
-
-            val toggleColor =
-                EdgeDetector(
-                    gamepad2::dpad_up,
-                ) {
-                    robot.isRed = !robot.isRed
-                }
-
-            fun pickupPre(
-                rumble: RunCommand,
-                useLinkage: Boolean,
-            ) = SequentialCommandGroup(
-                robot.autoPickup.stop(),
-                robot.macros.exitSpecPickup(),
-                robot.intake.open(),
-                if (useLinkage) robot.intake.extend() else robot.intake.baseExtend(),
-                ConditionalCommand(
-                    SequentialCommandGroup(
-                        WaitCommand(AutoPickup.cameraStablizationDuration),
-                        robot.autoPickup.startScanning(),
-                        rumble,
-                    ),
-                    InstantCommand({}),
-                ) { toggles.autoPickup },
-            )
-
-            fun pickupPost(rumble: RunCommand) =
-                SequentialCommandGroup(
-                    ConditionalCommand(
-                        SequentialCommandGroup(
-                            ParallelCommandGroup(
-                                robot.autoPickup.cancelRumble(rumble),
-                                robot.autoPickup.stopScanning(),
+                    val liftResets =
+                        EdgeDetector(
+                            gp2::circle,
+                            SequentialCommandGroup(
+                                outtake.slides.directPower(rezeroPower),
+                                outtake.slides.enableDirect(),
                             ),
-                            ConditionalCommand(
-                                SequentialCommandGroup(
-                                    robot.autoPickup.align(),
-                                    robot.intake.grab(),
-                                    robot.autoPickup.stop(),
-                                    robot.macros.miniTransfer(),
-                                ),
-                                robot.intake.retract(),
-                            ) { robot.autoPickup.lastTarget != null },
-                        ),
-                        SequentialCommandGroup(
-                            robot.intake.grab(),
-                            robot.macros.miniTransfer(),
-                        ),
-                    ) { toggles.autoPickup },
-                )
-
-            val rumble1 = robot.autoPickup.rumbleForever()
-            val pickup =
-                EdgeDetector(
-                    robot.gp1::right_bumper,
-                    pickupPre(rumble1, true),
-                    pickupPost(rumble1),
-                )
-
-            val rumble2 = robot.autoPickup.rumbleForever()
-            val basePickup =
-                EdgeDetector(
-                    robot.gp1::left_bumper,
-                    pickupPre(rumble2, false),
-                    pickupPost(rumble2),
-                )
-
-            // samples
-            val lowBasket =
-                EdgeDetector(
-                    robot.gp1::dpad_down,
-                    SequentialCommandGroup(
-                        robot.macros.exitTransfer(),
-                        robot.outtake.slides.goTo(Slides.lowBasket),
-                        robot.outtake.basketPartial(),
-                    ),
-                )
-
-            val highBasket =
-                EdgeDetector(
-                    robot.gp1::dpad_up,
-                    SequentialCommandGroup(
-                        robot.macros.exitTransfer(),
-                        robot.outtake.slides.goTo(Slides.highBasket),
-                        robot.outtake.basketPartial(),
-                    ),
-                )
-
-            // specimen
-            val specimenPickup =
-                EdgeDetector(
-                    robot.gp1::cross,
-                    SequentialCommandGroup(
-                        robot.outtake.open(),
-                        robot.outtake.slides.goTo(Slides.min),
-                        robot.outtake.specimenPickupPartial(),
-                    ),
-                    SequentialCommandGroup(
-                        robot.outtake.close(),
-                        WaitCommand(specimenCloseDuration),
-                        ParallelCommandGroup(
-                            robot.outtake.slides.goTo(Slides.highRung),
-                            robot.outtake.specimenPartial(),
-                        ),
-                    ),
-                )
-
-            // scoring (sample & specimen)
-            val score =
-                EdgeDetector(
-                    robot.gp1::triangle,
-                    ConditionalCommand(
-                        robot.outtake.open(),
-                        robot.outtake.slides.goTo(Slides.highRungScore),
-                    ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
-                    ConditionalCommand(
-                        SequentialCommandGroup(
-                            robot.outtake.basePartial(),
-                            robot.outtake.base(),
-                        ),
-                        SequentialCommandGroup(
-                            robot.outtake.open(),
-                            robot.outtake.specimenPickupPartial(),
-                            robot.outtake.slides.goTo(Slides.min),
-                            robot.outtake.slides.reset(),
-                        ),
-                    ) { robot.outtake.arm.state == OuttakeArmPosition.BASKET },
-                )
-
-            val imuReset =
-                EdgeDetector(
-                    gamepad1::circle,
-                    InstantCommand({
-//                        robot.drive.pinPoint.resetImu()
-                        robot.drive.pinPoint.pinPoint.setPosition(
-                            Pose2D(
-                                DistanceUnit.INCH,
-                                robot.drive.pose.x,
-                                robot.drive.pose.y,
-                                AngleUnit.DEGREES,
-                                0.0,
+                            SequentialCommandGroup(
+                                outtake.slides.rezeroCmd(),
+                                outtake.slides.disableDirect(),
                             ),
                         )
-                        gamepad1.rumble(250)
-                    }),
-                )
+
+                    val toggleColor =
+                        EdgeDetector(
+                            gp2::dpad_up,
+                        ) {
+                            isRed = !isRed
+                        }
+
+                    val park =
+                        EdgeDetector(
+                            gp1::dpad_left,
+                            outtake.park(),
+                        )
+
+                    fun pickupPre(
+                        rumble: RunCommand,
+                        useLinkage: Boolean,
+                    ) = SequentialCommandGroup(
+                        autoPickup.stop(),
+                        macros.exitSpecPickup(),
+                        intake.open(),
+                        if (useLinkage) intake.extend() else intake.baseExtend(),
+                        ConditionalCommand(
+                            SequentialCommandGroup(
+                                WaitCommand(AutoPickup.cameraStablizationDuration),
+                                autoPickup.startScanning(),
+                                rumble,
+                            ),
+                            InstantCommand({}),
+                        ) { toggles.autoPickup },
+                    )
+
+                    fun pickupPost(rumble: RunCommand) =
+                        SequentialCommandGroup(
+                            ConditionalCommand(
+                                SequentialCommandGroup(
+                                    ParallelCommandGroup(
+                                        autoPickup.cancelRumble(rumble),
+                                        autoPickup.stopScanning(),
+                                    ),
+                                    ConditionalCommand(
+                                        SequentialCommandGroup(
+                                            autoPickup.align(),
+                                            intake.grab(),
+                                            autoPickup.stop(),
+                                            macros.miniTransfer(),
+                                        ),
+                                        intake.retract(),
+                                    ) { autoPickup.lastTarget != null },
+                                ),
+                                SequentialCommandGroup(
+                                    intake.grab(),
+                                    macros.miniTransfer(),
+                                ),
+                            ) { toggles.autoPickup },
+                        )
+
+                    val rumble1 = autoPickup.rumbleForever()
+                    val pickup =
+                        EdgeDetector(
+                            gp1::right_bumper,
+                            pickupPre(rumble1, true),
+                            pickupPost(rumble1),
+                        )
+
+                    val rumble2 = autoPickup.rumbleForever()
+                    val basePickup =
+                        EdgeDetector(
+                            gp1::left_bumper,
+                            pickupPre(rumble2, false),
+                            pickupPost(rumble2),
+                        )
+
+                    // samples
+                    val lowBasket =
+                        EdgeDetector(
+                            gp1::dpad_down,
+                            SequentialCommandGroup(
+                                macros.exitTransfer(),
+                                outtake.slides.goTo(Slides.lowBasket),
+                                outtake.basketPartial(),
+                            ),
+                        )
+
+                    val highBasket =
+                        EdgeDetector(
+                            gp1::dpad_up,
+                            SequentialCommandGroup(
+                                macros.exitTransfer(),
+                                outtake.slides.goTo(Slides.highBasket),
+                                outtake.basketPartial(),
+                            ),
+                        )
+
+                    // specimen
+                    val specimenPickup =
+                        EdgeDetector(
+                            gp1::cross,
+                            SequentialCommandGroup(
+                                outtake.open(),
+                                outtake.slides.goTo(Slides.min),
+                                outtake.specimenPickupPartial(),
+                            ),
+                            SequentialCommandGroup(
+                                outtake.close(),
+                                WaitCommand(specimenCloseDuration),
+                                ParallelCommandGroup(
+                                    outtake.slides.goTo(Slides.highRung),
+                                    outtake.specimenPartial(),
+                                ),
+                            ),
+                        )
+
+                    // scoring (sample & specimen)
+                    val score =
+                        EdgeDetector(
+                            gp1::triangle,
+                            ConditionalCommand(
+                                outtake.open(),
+                                outtake.slides.goTo(Slides.highRungScore),
+                            ) { outtake.arm.state == OuttakeArmPosition.BASKET },
+                            ConditionalCommand(
+                                SequentialCommandGroup(
+                                    outtake.basePartial(),
+                                    outtake.base(),
+                                ),
+                                SequentialCommandGroup(
+                                    outtake.open(),
+                                    outtake.specimenPickupPartial(),
+                                    outtake.slides.goTo(Slides.min),
+                                    outtake.slides.reset(),
+                                ),
+                            ) { outtake.arm.state == OuttakeArmPosition.BASKET },
+                        )
+
+                    val imuReset =
+                        EdgeDetector(
+                            gamepad1::circle,
+                            InstantCommand({
+                                drive.pinPoint.pinPoint.setPosition(
+                                    Pose2D(
+                                        DistanceUnit.INCH,
+                                        drive.pose.x,
+                                        drive.pose.y,
+                                        AngleUnit.DEGREES,
+                                        0.0,
+                                    ),
+                                )
+                                gamepad1.rumble(250)
+                            }),
+                        )
+                }
+            }
         }
     }
 
     override fun initialize() {
-        robot.isRed = false
-        FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
+        robot.apply {
+            isRed = false
+            FtcDashboard.getInstance().startCameraStream(camera.sampleDetector, 0.0)
+            drive.pinPoint.recalibrateImu()
+        }
         triggers
-        robot.drive.pinPoint.recalibrateImu()
     }
 
     var hasInit = false
@@ -249,54 +250,56 @@ open class MainTeleopBlue : OpMode() {
             hasInit = true
         }
 
-        val attemptingToBasket =
-            robot.outtake.slides.target > (Slides.lowBasket - Slides.min) / 2 && robot.outtake.arm.state == OuttakeArmPosition.BASKET
-        val basketAssist =
-            calculateAssist(useBasketAssist && attemptingToBasket, basketAssistHeading) * basketAssistWeight
+        robot.apply {
+            val attemptingToBasket =
+                outtake.slides.target > (Slides.lowBasket - Slides.min) / 2 && outtake.arm.state == OuttakeArmPosition.BASKET
+            val basketAssist =
+                calculateAssist(useBasketAssist && attemptingToBasket, basketAssistHeading) * basketAssistWeight
 
-        val attemptingToRung = robot.outtake.arm.state == OuttakeArmPosition.SPECIMEN
-        val rungAssist = calculateAssist(useRungAssist && attemptingToRung, rungAssistHeading) * rungAssistWeight
+            val attemptingToRung = outtake.arm.state == OuttakeArmPosition.SPECIMEN
+            val rungAssist = calculateAssist(useRungAssist && attemptingToRung, rungAssistHeading) * rungAssistWeight
 
-        val attemptingToWall = robot.outtake.arm.state == OuttakeArmPosition.PICKUP
-        val wallAssist = calculateAssist(useWallAssist && attemptingToWall, wallAssistHeading) * wallAssistWeight
+            val attemptingToWall = outtake.arm.state == OuttakeArmPosition.PICKUP
+            val wallAssist = calculateAssist(useWallAssist && attemptingToWall, wallAssistHeading) * wallAssistWeight
 
-        val assists = basketAssist + rungAssist + wallAssist
+            val assists = basketAssist + rungAssist + wallAssist
 
-        if (!robot.drive.pidManager.isOn) {
-            robot.drive.fieldCentric(
-                gamepad1.left_stick_y.toDouble(),
-                -gamepad1.left_stick_x.toDouble(),
-                -gamepad1.right_stick_x.toDouble() + assists,
-                -if (fieldCentric) robot.drive.pose.radians else 0.0,
-            )
-        }
-
-        // Slides
-
-        val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        if (slidePower.absoluteValue > slideThreshold) {
-            robot.outtake.slides.isManual = true
-            if (robot.intake.claw.state != IntakeClawState.OPEN) {
-                robot.outtake.slides.manualPower = slidePower.clamp(-1.0, 0)
-            } else {
-                robot.outtake.slides.manualPower = slidePower
+            if (!drive.pidManager.isOn) {
+                drive.fieldCentric(
+                    gamepad1.left_stick_y.toDouble(),
+                    -gamepad1.left_stick_x.toDouble(),
+                    -gamepad1.right_stick_x.toDouble() + assists,
+                    -if (fieldCentric) drive.pose.radians else 0.0,
+                )
             }
-        } else {
-            robot.outtake.slides.isManual = false
+
+            // Slides
+
+            val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
+            if (slidePower.absoluteValue > slideThreshold) {
+                outtake.slides.isManual = true
+                if (intake.claw.state != IntakeClawState.OPEN) {
+                    outtake.slides.manualPower = slidePower.clamp(-1.0, 0)
+                } else {
+                    outtake.slides.manualPower = slidePower
+                }
+            } else {
+                outtake.slides.isManual = false
+            }
+
+            // we can make triggers do either rotate or slides based on the arm states?
+
+            telemetry.addData("pid | on", drive.pidManager.isOn)
+            telemetry.addData("isRed", isRed)
+            telemetry.addData("pid | pid target", drive.pidManager.target)
+            telemetry.addData("hz | Delta Time", deltaTime.deltaTime)
+            telemetry.addData("hz | Loop Hertz", 1.0 / deltaTime.deltaTime)
+            telemetry.addData("slides", outtake.slides.position)
+            telemetry.addData("toggles | autopickup", toggles.autoPickup)
+            telemetry.addData("assists | basket assist", useBasketAssist)
+            telemetry.addData("assists | rung assist", useRungAssist)
+            telemetry.addData("assists | wall assist", useWallAssist)
         }
-
-        // we can make triggers do either rotate or slides based on the arm states?
-
-        robot.telemetry.addData("pid | on", robot.drive.pidManager.isOn)
-        robot.telemetry.addData("isRed", robot.isRed)
-        robot.telemetry.addData("pid | pid target", robot.drive.pidManager.target)
-        robot.telemetry.addData("hz | Delta Time", robot.deltaTime.deltaTime)
-        robot.telemetry.addData("hz | Loop Hertz", 1.0 / robot.deltaTime.deltaTime)
-        robot.telemetry.addData("slides", robot.outtake.slides.position)
-        robot.telemetry.addData("toggles | autopickup", toggles.autoPickup)
-        robot.telemetry.addData("assists | basket assist", useBasketAssist)
-        robot.telemetry.addData("assists | rung assist", useRungAssist)
-        robot.telemetry.addData("assists | wall assist", useWallAssist)
     }
 
     companion object {
