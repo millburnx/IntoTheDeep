@@ -3,10 +3,7 @@ package org.firstinspires.ftc.teamcode.common
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
-import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
-import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeFlipDelay
-import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeLiftingDuration
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.transferClawDelay
 
 class Macros(
@@ -39,12 +36,4 @@ class Macros(
             miniTransfer(),
             exitTransfer(),
         )
-
-    fun exitSpecPickup() =
-        conditionalCommand(
-            SequentialCommandGroup(
-                robot.outtake.basePartial(),
-                WaitCommand(outtakeLiftingDuration),
-            ),
-        ) { robot.intake.arm.state == IntakeArmPosition.SPECIMEN }
 }

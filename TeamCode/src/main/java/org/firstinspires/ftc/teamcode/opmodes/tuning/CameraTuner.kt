@@ -58,7 +58,6 @@ class SampleDectectionTuner : OpMode() {
             val linkageExtend =
                 EdgeDetector(
                     gamepad1::right_bumper,
-                    this@SampleDectectionTuner,
                     SequentialCommandGroup(
                         ParallelCommandGroup(
                             robot.intake.extend(),
@@ -73,7 +72,6 @@ class SampleDectectionTuner : OpMode() {
             val linkageRetract =
                 EdgeDetector(
                     gamepad1::left_bumper,
-                    this@SampleDectectionTuner,
                     SequentialCommandGroup(
                         InstantCommand({ isReady = false }),
                         ParallelCommandGroup(
@@ -87,7 +85,6 @@ class SampleDectectionTuner : OpMode() {
             val pickup =
                 EdgeDetector(
                     gamepad1::dpad_down,
-                    this@SampleDectectionTuner,
                     ParallelCommandGroup(
                         robot.intake.arm.floor(),
                         robot.intake.diffy.pickup(),
@@ -97,7 +94,6 @@ class SampleDectectionTuner : OpMode() {
             val clawToggle =
                 EdgeDetector(
                     gamepad1::dpad_up,
-                    this@SampleDectectionTuner,
                     robot.intake.close(),
                 )
 

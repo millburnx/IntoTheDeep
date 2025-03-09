@@ -86,7 +86,6 @@ open class MainTeleopBlue : OpMode() {
                         useLinkage: Boolean,
                     ) = SequentialCommandGroup(
                         autoPickup.stop(),
-                        macros.exitSpecPickup(),
                         intake.open(),
                         if (useLinkage) intake.extend() else intake.baseExtend(),
                         ConditionalCommand(
