@@ -35,18 +35,20 @@ data class Pose2d(
             radians: Double,
         ): Pose2d = Pose2d(x, y, Math.toDegrees(radians))
 
-        fun fromRR(pose: com.acmerobotics.roadrunner.geometry.Pose2d): Pose2d = Pose2d(pose.x, pose.y, Math.toDegrees(pose.heading))
+//        fun fromRR(pose: com.acmerobotics.roadrunner.geometry.Pose2d): Pose2d = Pose2d(pose.x, pose.y, Math.toDegrees(pose.heading))
 
         fun fromRR(pose: Pose2d): Pose2d = Pose2d(pose.x, pose.y, Math.toDegrees(pose.heading))
     }
 
-    fun toRR(): com.acmerobotics.roadrunner.geometry.Pose2d =
-        com.acmerobotics.roadrunner.geometry
-            .Pose2d(position.y, -position.x, Math.toRadians(heading))
+    fun toRR(): Pose2d = Pose2d(position.y, -position.x, heading)
 
-    fun toRawRR(): com.acmerobotics.roadrunner.geometry.Pose2d =
-        com.acmerobotics.roadrunner.geometry
-            .Pose2d(position.x, position.y, Math.toRadians(heading))
+//    fun toRR(): com.acmerobotics.roadrunner.geometry.Pose2d =
+//        com.acmerobotics.roadrunner.geometry
+//            .Pose2d(position.y, -position.x, Math.toRadians(heading))
+//
+//    fun toRawRR(): com.acmerobotics.roadrunner.geometry.Pose2d =
+//        com.acmerobotics.roadrunner.geometry
+//            .Pose2d(position.x, position.y, Math.toRadians(heading))
 
     operator fun unaryMinus(): Pose2d = Pose2d(-position, -heading)
 
