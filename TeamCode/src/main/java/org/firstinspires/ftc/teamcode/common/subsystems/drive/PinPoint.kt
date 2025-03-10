@@ -58,6 +58,7 @@ class PinPoint(
             if (field == value) return
             val ftcPose = Pose2D(DistanceUnit.INCH, value.x, value.y, AngleUnit.DEGREES, value.heading)
             pinPoint.setPosition(ftcPose)
+            println(ftcPose)
             field = value
         }
 

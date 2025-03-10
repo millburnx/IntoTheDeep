@@ -34,6 +34,6 @@ class OuttakeClaw(
         var open: Double = 0.9
 
         @JvmField
-        var closed: Double = 0.65
+        var closed: Double = 0.675
     }
 }

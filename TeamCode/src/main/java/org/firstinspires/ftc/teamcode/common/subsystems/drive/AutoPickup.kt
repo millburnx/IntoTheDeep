@@ -23,7 +23,9 @@ class AutoPickup(
     val robot: SampleCameraRobot,
 ) : Subsystem() {
     val colors
-        get() = listOf(SampleColor.YELLOW, if (robot.isRed) SampleColor.RED else SampleColor.BLUE)
+        get() =
+            listOf(if (robot.isRed) SampleColor.RED else SampleColor.BLUE) +
+                (if (robot.doYellow) listOf(SampleColor.YELLOW) else emptyList())
 
     var lastTarget: Pair<Pose2d, Double>? = null
         set(value) {
@@ -133,7 +135,7 @@ class AutoPickup(
         var cacheDuration: Double = 500.0
 
         @JvmField
-        var cameraStablizationDuration: Long = 250
+        var cameraStablizationDuration: Long = 0
 
         @JvmField
         var pidStablizationDuration: Long = 250

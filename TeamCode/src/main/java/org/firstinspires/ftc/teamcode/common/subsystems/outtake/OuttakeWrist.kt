@@ -57,24 +57,24 @@ class OuttakeWrist(
 
     companion object {
         @JvmField
-        var basePosition = 0.05
+        var basePosition = 0.8
 
         @JvmField
-        var transferPosition = 0.05
+        var transferPosition = 0.8
 
         @JvmField
-        var basketPosition = 0.7
+        var basketPosition = 0.15
 
         @JvmField
-        var specimenPosition = 0.45
+        var specimenPosition = 0.3
 
         @JvmField
-        var autonSpecimenPosition = 0.45
+        var autonSpecimenPosition = 0.4
 
         @JvmField
-        var pickupPosition = 0.45
+        var pickupPosition = 0.4
 
         @JvmField
-        var parkPosition = 0.45
+        var parkPosition = 0.4
     }
 }

@@ -8,6 +8,9 @@ import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
@@ -33,13 +36,27 @@ class SpecimenAuton : OpMode() {
     override fun initialize() {
         super.initialize()
 
+        Thread.sleep(200)
+
         robot.apply {
-            drive.pose = Pose2d(startingPose)
+            drive.pinPoint.pinPoint.setPosition(
+                Pose2D(
+                    DistanceUnit.INCH,
+                    -24.0,
+                    -36.0,
+                    AngleUnit.DEGREES,
+                    -12.0,
+                ),
+            )
+            Thread.sleep(200)
+            telemetry.addData("starting pose", Pose2d(startingPose))
+            telemetry.addData("Pose", drive.pose)
+            telemetry.update()
             outtake.arm.periodic()
             outtake.claw.close()
             outtake.claw.periodic()
             intake.arm.periodic()
-            intake.diffy.periodic()
+//            intake.diffy.periodic()
             intake.claw.periodic()
 
             fun readySpecimen() =
@@ -177,10 +194,10 @@ class SpecimenAuton : OpMode() {
 
     companion object {
         @JvmField
-        var startingPose = arrayOf(-64.0, 7.0, 0.0)
+        var startingPose = arrayOf(-62.0, 7.0, 0.0)
 
         @JvmField
-        var parkPose = arrayOf(-64.0, 7.0, 0.0)
+        var parkPose = arrayOf(-62.0, 7.0, 0.0)
 
         // make this pickup and scoring into a pure pursuit path
 

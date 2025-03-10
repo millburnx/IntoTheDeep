@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides.Companion.rezeroPower
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
+import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 import kotlin.math.absoluteValue
@@ -45,7 +46,7 @@ open class MainTeleopBlue : OpMode() {
                     // or placing all the triggers in a hashmap (both have poor typing)
 
                     val toggleAutoPickup =
-                        EdgeDetector(gp2::square) {
+                        EdgeDetector(button = gp2::square) {
                             toggles.autoPickup = !toggles.autoPickup
                         }
                     val toggleAssists =
@@ -68,12 +69,47 @@ open class MainTeleopBlue : OpMode() {
                             ),
                         )
 
+                    val toggleYellow =
+                        EdgeDetector(
+                            gp2::cross,
+                        ) {
+                            robot.doYellow = !robot.doYellow
+                        }
+
                     val toggleColor =
                         EdgeDetector(
                             gp2::dpad_up,
                         ) {
                             isRed = !isRed
                         }
+
+                    val dropToHuman =
+                        EdgeDetector(
+                            gp1::square,
+                            SequentialCommandGroup(
+                                intake.close(),
+                                conditionalCommand(
+                                    SequentialCommandGroup(
+                                        WaitCommand(transferClawDelay),
+                                        outtake.open(),
+                                        WaitCommand(transferClawDelay),
+                                    ),
+                                ) { !outtake.claw.isOpen },
+                                conditionalCommand(
+                                    SequentialCommandGroup(
+                                        outtake.basePartial(),
+                                        WaitCommand(transferClawDelay),
+                                    ),
+                                ) {
+                                    outtake.arm.state == OuttakeArmPosition.TRANSFER
+                                },
+                                intake.extend(),
+                            ),
+                            SequentialCommandGroup(
+                                intake.open(),
+                                intake.retract(),
+                            ),
+                        )
 
                     val park =
                         EdgeDetector(
@@ -87,6 +123,14 @@ open class MainTeleopBlue : OpMode() {
                     ) = SequentialCommandGroup(
                         autoPickup.stop(),
                         intake.open(),
+                        conditionalCommand(
+                            SequentialCommandGroup(
+                                outtake.basePartial(),
+                                WaitCommand(transferClawDelay),
+                            ),
+                        ) {
+                            outtake.arm.state == OuttakeArmPosition.TRANSFER
+                        },
                         if (useLinkage) intake.extend() else intake.baseExtend(),
                         ConditionalCommand(
                             SequentialCommandGroup(
@@ -339,10 +383,10 @@ open class MainTeleopBlue : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var baseIntakeDuration: Long = 1250
+        var baseIntakeDuration: Long = 1000
 
         @JvmField
-        var intakeDuration: Long = 1500
+        var intakeDuration: Long = 1000
 
         // Heading assist
 

@@ -20,6 +20,7 @@ open class Robot(
     val telemetry by lazy { telemetryManager.telemetry }
 
     var isRed: Boolean = false
+    var doYellow: Boolean = false
 
     val gp1: Gamepad by lazy { opMode.gamepad1 }
     val gp2: Gamepad by lazy { opMode.gamepad2 }

@@ -44,16 +44,16 @@ open class PickupPIDSettings : PIDSettings() {
 open class PIDSettings {
     companion object {
         @JvmField
-        var kP: Double = 0.2
+        var kP: Double = 0.05
 
         @JvmField
         var kI: Double = 0.0
 
         @JvmField
-        var kD: Double = 0.0
+        var kD: Double = 0.001
 
         @JvmField
-        var kPHeading: Double = 0.2
+        var kPHeading: Double = 0.075
 
         @JvmField
         var kIHeading: Double = 0.0
@@ -74,6 +74,6 @@ open class PIDSettings {
         var wheelThreshold: Double = 0.15
 
         @JvmField
-        var squid: Boolean = true
+        var squid: Boolean = false
     }
 }

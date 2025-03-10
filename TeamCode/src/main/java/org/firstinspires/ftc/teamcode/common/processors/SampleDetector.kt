@@ -42,13 +42,13 @@ class SampleDetector :
         var redUpper: Double = 255.0
 
         @JvmField
-        var yellowLower: Double = 90.0
+        var yellowLower: Double = 70.0
 
         @JvmField
         var yellowUpper: Double = 255.0
 
         @JvmField
-        var blueLower: Double = 150.0
+        var blueLower: Double = 170.0
 
         @JvmField
         var blueUpper: Double = 255.0
