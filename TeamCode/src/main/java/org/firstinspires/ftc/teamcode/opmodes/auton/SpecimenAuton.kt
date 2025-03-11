@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.command.ParallelDeadlineGroup
 import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
+import com.arcrobotics.ftclib.command.WaitUntilCommand
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
@@ -36,9 +37,10 @@ class SpecimenAuton : OpMode() {
     override fun initialize() {
         super.initialize()
 
-        Thread.sleep(200)
+        Thread.sleep(250)
 
         robot.apply {
+            drive.pinPoint.update()
             drive.pinPoint.pinPoint.setPosition(
                 Pose2D(
                     DistanceUnit.INCH,
@@ -48,7 +50,7 @@ class SpecimenAuton : OpMode() {
                     -12.0,
                 ),
             )
-            Thread.sleep(200)
+            drive.pinPoint.update()
             telemetry.addData("starting pose", Pose2d(startingPose))
             telemetry.addData("Pose", drive.pose)
             telemetry.update()
@@ -87,7 +89,9 @@ class SpecimenAuton : OpMode() {
                 SequentialCommandGroup(
                     drive.pid(Pose2d(startingPose)),
                     robot.intake.sweep(),
+                    WaitUntilCommand(gp1::x),
                     drive.pid(Pose2d(endingPose)),
+                    WaitUntilCommand(gp1::x),
                     robot.intake.retract(),
                 ),
             )

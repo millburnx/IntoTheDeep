@@ -6,28 +6,28 @@ import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedServo
 
-enum class IntakeClawState {
-    OPEN,
-    CLOSED,
-    LOOSE,
-}
-
 @Config
 class IntakeClaw(
     val robot: Robot,
 ) : Subsystem() {
-    val clawServo = CachedServo(robot.hardware, "intakeClaw", true)
-
-    var state = IntakeClawState.OPEN
-
-    fun open() {
-        state = IntakeClawState.OPEN
+    enum class State {
+        OPEN,
+        CLOSED,
+        LOOSE,
     }
 
-    fun loose() = InstantCommand({ state = IntakeClawState.LOOSE })
+    val clawServo = CachedServo(robot.hardware, "intakeClaw", true)
+
+    var state = State.OPEN
+
+    fun open() {
+        state = State.OPEN
+    }
+
+    fun loose() = InstantCommand({ state = State.LOOSE })
 
     fun close() {
-        state = IntakeClawState.CLOSED
+        state = State.CLOSED
     }
 
     override fun init() {
@@ -38,9 +38,9 @@ class IntakeClaw(
 //        clawServo.position = if (isOpen) open else closed
         clawServo.position =
             when (state) {
-                IntakeClawState.OPEN -> open
-                IntakeClawState.CLOSED -> closed
-                IntakeClawState.LOOSE -> loose
+                State.OPEN -> open
+                State.CLOSED -> closed
+                State.LOOSE -> loose
             }
     }
 

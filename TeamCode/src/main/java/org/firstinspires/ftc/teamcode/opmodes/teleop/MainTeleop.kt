@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
-import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClawState
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClaw
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
@@ -344,7 +344,7 @@ open class MainTeleopBlue : OpMode() {
             val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
             if (slidePower.absoluteValue > slideThreshold) {
                 outtake.slides.state = Slides.State.DIRECT
-                if (intake.claw.state != IntakeClawState.OPEN) {
+                if (intake.claw.state != IntakeClaw.State.OPEN) {
                     outtake.slides.power = slidePower.clamp(-1.0, 0)
                 } else {
                     outtake.slides.power = slidePower
