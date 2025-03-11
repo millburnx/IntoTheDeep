@@ -315,11 +315,12 @@ open class MainTeleopBlue : OpMode() {
                 val strafe = -gp1.left_stick_x.toDouble()
                 val rotate = -gp1.right_stick_x.toDouble()
 
-                if (forward.absoluteValue > minJoystickValue &&
-                    strafe.absoluteValue > minJoystickValue &&
-                    rotate.absoluteValue > minJoystickValue
+                if (useTeleopHold &&
+                    forward.absoluteValue < minJoystickValue &&
+                    strafe.absoluteValue < minJoystickValue &&
+                    rotate.absoluteValue < minJoystickValue
                 ) {
-                    if (useTeleopHold && teleopHoldTimer?.milliseconds() ?: 0L > teleopHoldDuration) {
+                    if (teleopHoldTimer?.milliseconds() ?: 0L > teleopHoldDuration) {
                         drive.pidManager.target = drive.pose
                         drive.pidManager.isTeleopHolding = true
                         teleopHoldTimer = null // we only want to run this when the timer just
@@ -331,15 +332,15 @@ open class MainTeleopBlue : OpMode() {
                         teleopHoldTimer?.reset()
                     }
                     drive.pidManager.isTeleopHolding = false
-                }
+                    val rotationalSpeed = if (intake.linkage.target == 1.0) linkageRotationMultiplier else 1.0
 
-                val rotationalSpeed = if (intake.linkage.target == 1.0) linkageRotationMultiplier else 1.0
-                drive.fieldCentric(
-                    forward,
-                    strafe,
-                    rotate * rotationalSpeed + assists,
-                    -if (fieldCentric) drive.pose.radians else 0.0,
-                )
+                    drive.fieldCentric(
+                        forward,
+                        strafe,
+                        rotate * rotationalSpeed + assists,
+                        -if (fieldCentric) drive.pose.radians else 0.0,
+                    )
+                }
             }
 
             // Slides
