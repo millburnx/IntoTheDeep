@@ -10,6 +10,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.kotlin.extensions.util.clamp
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
@@ -287,6 +288,8 @@ open class MainTeleopBlue : OpMode() {
         return diff
     }
 
+    var teleopHoldTimer: ElapsedTime? = ElapsedTime()
+
     override fun exec() {
         if (!hasInit) {
             super.initialize()
@@ -308,10 +311,33 @@ open class MainTeleopBlue : OpMode() {
             val assists = basketAssist + rungAssist + wallAssist
 
             if (!drive.pidManager.isOn) {
+                val forward = gp1.left_stick_y.toDouble()
+                val strafe = -gp1.left_stick_x.toDouble()
+                val rotate = -gp1.right_stick_x.toDouble()
+
+                if (forward.absoluteValue > minJoystickValue &&
+                    strafe.absoluteValue > minJoystickValue &&
+                    rotate.absoluteValue > minJoystickValue
+                ) {
+                    if (useTeleopHold && teleopHoldTimer?.milliseconds() ?: 0L > teleopHoldDuration) {
+                        drive.pidManager.target = drive.pose
+                        drive.pidManager.isTeleopHolding = true
+                        teleopHoldTimer = null // we only want to run this when the timer just
+                    }
+                } else {
+                    if (teleopHoldTimer == null) {
+                        teleopHoldTimer = ElapsedTime()
+                    } else {
+                        teleopHoldTimer?.reset()
+                    }
+                    drive.pidManager.isTeleopHolding = false
+                }
+
+                val rotationalSpeed = if (intake.linkage.target == 1.0) linkageRotationMultiplier else 1.0
                 drive.fieldCentric(
-                    gamepad1.left_stick_y.toDouble(),
-                    -gamepad1.left_stick_x.toDouble(),
-                    -gamepad1.right_stick_x.toDouble() + assists,
+                    forward,
+                    strafe,
+                    rotate * rotationalSpeed + assists,
                     -if (fieldCentric) drive.pose.radians else 0.0,
                 )
             }
@@ -351,24 +377,24 @@ open class MainTeleopBlue : OpMode() {
         var slideThreshold: Double = 0.1
 
         @JvmField
-        var diffyMultipler: Double = 0.2
-
-        // delays
+        var linkageRotationMultiplier: Double = 0.5
 
         @JvmField
-        var transferArmDelay: Long = 250
+        var useTeleopHold: Boolean = false
+
+        @JvmField
+        var teleopHoldDuration: Long = 500
+
+        @JvmField
+        var minJoystickValue: Double = 0.1
+
+        // delays
 
         @JvmField
         var transferClawDelay: Long = 250
 
         @JvmField
         var outtakeFlipDelay: Long = 500
-
-        @JvmField
-        var intakeLoweringDuration: Long = 750
-
-        @JvmField
-        var outtakeLiftingDuration: Long = 500
 
         @JvmField
         var specimenCloseDuration: Long = 250
@@ -388,8 +414,7 @@ open class MainTeleopBlue : OpMode() {
         @JvmField
         var intakeDuration: Long = 1000
 
-        // Heading assist
-
+        // <editor-fold desc="Heading Assist">
         @JvmField
         var useBasketAssist: Boolean = true
 
@@ -416,5 +441,6 @@ open class MainTeleopBlue : OpMode() {
 
         @JvmField
         var wallAssistHeading: Double = 0.0
+        // </editor-fold>
     }
 }

@@ -26,9 +26,24 @@ open class PIDManager(
         set(value) {
             if (field != value) {
                 field = value
+                if (value) {
+                    robot.drive.breakMotors()
+                    isTeleopHolding = false
+                } else {
+                    robot.drive.floatMotors()
+                    isTeleopHolding = true // default to hold
+                }
+            }
+        }
+
+    var isTeleopHolding = false
+        set(value) {
+            if (field != value) {
+                field = value
                 if (value) robot.drive.breakMotors() else robot.drive.floatMotors()
             }
         }
+
     open var target = Pose2d()
     var tolerance = Pose2d(PIDSettings.tolerance, headingTolerance)
 
@@ -69,7 +84,7 @@ open class PIDManager(
         get() = if (isSamplePickup) PickupPIDSettings.kDHeading else PIDSettings.kDHeading
 
     override fun periodic() {
-        if (!isOn) return
+        if (!isOn && !isTeleopHolding) return
         pidX.setPID(kP, kI, kD)
         pidY.setPID(kP, kI, kD)
         pidH.setPID(kPHeading, kIHeading, kDHeading)
