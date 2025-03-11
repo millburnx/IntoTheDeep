@@ -320,7 +320,7 @@ open class MainTeleopBlue : OpMode() {
                     strafe.absoluteValue < minJoystickValue &&
                     rotate.absoluteValue < minJoystickValue
                 ) {
-                    if (teleopHoldTimer?.milliseconds() ?: 0L > teleopHoldDuration) {
+                    if ((teleopHoldTimer?.milliseconds() ?: 0.0) > teleopHoldDuration) {
                         drive.pidManager.target = drive.pose
                         drive.pidManager.isTeleopHolding = true
                         teleopHoldTimer = null // we only want to run this when the timer just
