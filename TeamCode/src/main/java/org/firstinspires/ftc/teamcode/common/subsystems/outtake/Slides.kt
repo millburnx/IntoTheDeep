@@ -15,50 +15,62 @@ import kotlin.math.abs
 class Slides(
     val robot: Robot,
 ) : Subsystem() {
-    val leftLift = CachedMotor(robot.hardware, "leftLift", isBrake = true)
-    val rightLift = CachedMotor(robot.hardware, "rightLift", isBrake = true)
+    enum class State {
+        BASE,
+        WALL,
+        LOW_BASKET,
+        HIGH_BASKET,
+        HIGH_RUNG,
+        HIGH_RUNG_SCORE,
+        AUTON_HIGH_RUNG,
+        AUTON_HIGH_RUNG_SCORE,
+        MANUAL,
+        DIRECT,
+        REZERO,
+    }
+
+    var state = State.BASE
+        set(value) {
+            if (isStateLocked) return
+            if (field == value) return
+            field = value
+        }
+    var isStateLocked = false
+
+    val left = CachedMotor(robot.hardware, "leftLift", isBrake = true)
+    val right = CachedMotor(robot.hardware, "rightLift", isBrake = true)
     val pid = PIDController(kP, kI, kD)
     val position
-        get() = leftLift.position + encoderOffset
-
-    var encoderOffset: Double = 0.0
-
-    var target: Double = min
+        get() = left.position + encoderOffset
+    var power = 0.0
         set(value) {
-            field = value.coerceIn(min, max)
-        }
-
-    fun goTo(target: Double) = SlidesCommand(this, target)
-
-    var isManual = false
-        set(value) {
-            if (field && !value) {
-                target = position
-                isDirect = false // interrupts
-            }
+            if (field == value) return
+            left.power = value
+            right.power = value
             field = value
         }
 
-    var isDirect = false
+    var target = 0.0
+        set(value) {
+            if (field == value.coerceIn(min, max)) return
+            field = value.coerceIn(min, max)
+        }
 
-    var manualPower = 0.0
+    var encoderOffset: Double = 0.0
 
-    var directPower = 0.0
+    fun goTo(target: Double) = SlidesCommand(this, State.DIRECT, target)
 
-    fun disableDirect() = InstantCommand({ isDirect = false })
+    fun goTo(state: State) = SlidesCommand(this, state, target)
 
-    fun enableDirect() = InstantCommand({ isDirect = true })
-
-    fun directPower(power: Double) = InstantCommand({ directPower = power })
+    fun direct(power: Double) = SlidesCommand(this, State.DIRECT, power)
 
     fun reset() =
         SequentialCommandGroup(
-            SlidesCommand(this, min),
-            directPower(rezeroPower),
-            enableDirect(),
+            goTo(min),
+            direct(rezeroPower),
             WaitCommand(rezeroDuration),
             rezeroCmd(),
-            disableDirect(),
+            goTo(min),
         )
 
     fun rezeroCmd() = InstantCommand(this::rezero)
@@ -68,32 +80,37 @@ class Slides(
     }
 
     override fun periodic() {
-        if (isManual) {
-            leftLift.power = manualPower
-            rightLift.power = manualPower
+        if (state == State.DIRECT) return
+        if (state == State.REZERO) {
+            power = rezeroPower
             return
         }
-        if (isDirect) {
-            leftLift.power = directPower
-            rightLift.power = directPower
-            return
-        }
+
+        val target =
+            when (state) {
+                State.BASE -> 0.0
+                State.WALL -> wall
+                State.LOW_BASKET -> lowBasket
+                State.HIGH_BASKET -> highBasket
+                State.HIGH_RUNG -> highRung
+                State.HIGH_RUNG_SCORE -> highRungScore
+                State.AUTON_HIGH_RUNG -> autonHighRung
+                State.AUTON_HIGH_RUNG_SCORE -> autonHighRungScore
+                State.MANUAL -> this.target
+                else -> return
+            }
+
+        this.target = target
 
         pid.setPID(kP, kI, kD)
         val power = pid.calculate(position, target) + kF
         val error = target - position
 
-        // disable motors if lift is at base and target is also base
-        // I think to ignore this for resetting lift, you can set the target to below base (good anyway in case of drifting upwards)
-        // once you reset the encoder just set the target to base, and it should be fine
-        // alternatively just use a limit switch to reset the encoder (!)
-        if (abs(0 - target) < 5.0 && abs(error) < 10.0) {
-            leftLift.power = 0.0
-            rightLift.power = 0.0
+        if (abs(min - target) < 5.0 && abs(error) < 10.0) {
+            this.power = 0.0
+        } else {
+            this.power = power
         }
-
-        leftLift.power = power
-        rightLift.power = power
     }
 
     companion object {

@@ -52,7 +52,7 @@ class FasterSampleAuton : OpMode() {
             ParallelCommandGroup(
                 robot.outtake.arm.basket(),
                 robot.outtake.wrist.basket(),
-                SlidesCommand(robot.outtake.slides, Slides.highBasket),
+                SlidesCommand(robot.outtake.slides, Slides.State.HIGH_BASKET),
             )
         }
 
@@ -65,7 +65,7 @@ class FasterSampleAuton : OpMode() {
                     }, robot.outtake.arm, robot.outtake.wrist),
                     WaitCommand(outtakeDropArmDelay),
                 ),
-                SlidesCommand(robot.outtake.slides, Slides.min),
+                SlidesCommand(robot.outtake.slides, Slides.State.BASE),
             )
         }
 
@@ -138,7 +138,7 @@ class FasterSampleAuton : OpMode() {
                 grab(),
                 basket(),
                 ParallelCommandGroup(
-                    SlidesCommand(robot.outtake.slides, Slides.min),
+                    SlidesCommand(robot.outtake.slides, Slides.State.BASE),
                     robot.outtake.arm.park(),
                     robot.outtake.wrist.park(),
                     robot.drive.purePursuit("parkSamples", 90.0),

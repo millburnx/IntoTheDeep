@@ -57,7 +57,7 @@ class SampleAuton : OpMode() {
                         robot.outtake.wrist.basket(),
                     ),
                 ),
-                SlidesCommand(robot.outtake.slides, Slides.highBasket),
+                SlidesCommand(robot.outtake.slides, Slides.State.HIGH_BASKET),
             )
         }
 
@@ -70,7 +70,7 @@ class SampleAuton : OpMode() {
                     }, robot.outtake.arm, robot.outtake.wrist),
                     WaitCommand(outtakeDropArmDelay),
                 ),
-                SlidesCommand(robot.outtake.slides, Slides.min),
+                SlidesCommand(robot.outtake.slides, Slides.State.BASE),
             )
         }
 
@@ -134,7 +134,7 @@ class SampleAuton : OpMode() {
                 grab(),
                 basket(),
                 ParallelCommandGroup(
-                    SlidesCommand(robot.outtake.slides, Slides.min),
+                    SlidesCommand(robot.outtake.slides, Slides.State.BASE),
                     robot.outtake.arm.park(),
                     robot.outtake.wrist.park(),
                     robot.drive.purePursuit("parkSamples", 90.0, true),

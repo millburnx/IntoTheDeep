@@ -18,7 +18,6 @@ import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClawState
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
-import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides.Companion.rezeroPower
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
@@ -60,13 +59,10 @@ open class MainTeleopBlue : OpMode() {
                     val liftResets =
                         EdgeDetector(
                             gp2::circle,
-                            SequentialCommandGroup(
-                                outtake.slides.directPower(rezeroPower),
-                                outtake.slides.enableDirect(),
-                            ),
+                            outtake.slides.direct(Slides.rezeroPower),
                             SequentialCommandGroup(
                                 outtake.slides.rezeroCmd(),
-                                outtake.slides.disableDirect(),
+                                outtake.slides.goTo(Slides.State.BASE),
                             ),
                         )
 
@@ -347,14 +343,17 @@ open class MainTeleopBlue : OpMode() {
 
             val slidePower = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
             if (slidePower.absoluteValue > slideThreshold) {
-                outtake.slides.isManual = true
+                outtake.slides.state = Slides.State.DIRECT
                 if (intake.claw.state != IntakeClawState.OPEN) {
-                    outtake.slides.manualPower = slidePower.clamp(-1.0, 0)
+                    outtake.slides.power = slidePower.clamp(-1.0, 0)
                 } else {
-                    outtake.slides.manualPower = slidePower
+                    outtake.slides.power = slidePower
                 }
             } else {
-                outtake.slides.isManual = false
+                if (outtake.slides.state == Slides.State.DIRECT) {
+                    outtake.slides.state = Slides.State.MANUAL
+                    outtake.slides.target = outtake.slides.position
+                }
             }
 
             // we can make triggers do either rotate or slides based on the arm states?

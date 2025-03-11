@@ -8,18 +8,26 @@ import kotlin.math.absoluteValue
 @Config
 class SlidesCommand(
     val slides: Slides,
-    val target: Double,
-    val tolerance: Double = Companion.tolerance
+    val state: Slides.State,
+    val target: Double = slides.position,
+    val tolerance: Double = Companion.tolerance,
 ) : CommandBase() {
     init {
         addRequirements(slides)
     }
 
     override fun execute() {
-        slides.target = target
+        slides.state = state
+        if (state == Slides.State.DIRECT) {
+            slides.power = target
+        } else {
+            slides.target = target
+        }
     }
 
     override fun isFinished(): Boolean {
+        // just use a parallel group w/ a wait command, this only has to really run once
+        if (state == Slides.State.DIRECT) return true
         // slides.target instead of just target so we don't have to re-clamp or whatever again
         val diff = slides.position - slides.target
         return diff.absoluteValue < tolerance
