@@ -41,6 +41,8 @@ class IntakeArmTuner : OpMode() {
                         IntakeArm.extendedPosition = (IntakeArm.extendedPosition + step).coerceIn(0.0, 1.0)
                     } else if (state == 2) {
                         IntakeArm.floorPosition = (IntakeArm.floorPosition + step).coerceIn(0.0, 1.0)
+                    } else if (state == 3) {
+                        IntakeArm.sweepPosition = (IntakeArm.sweepPosition + step).coerceIn(0.0, 1.0)
                     }
                 }
 
@@ -52,6 +54,8 @@ class IntakeArmTuner : OpMode() {
                         IntakeArm.extendedPosition = (IntakeArm.extendedPosition - step).coerceIn(0.0, 1.0)
                     } else if (state == 2) {
                         IntakeArm.floorPosition = (IntakeArm.floorPosition - step).coerceIn(0.0, 1.0)
+                    } else if (state == 3) {
+                        IntakeArm.sweepPosition = (IntakeArm.sweepPosition - step).coerceIn(0.0, 1.0)
                     }
                 }
         }
@@ -69,6 +73,9 @@ class IntakeArmTuner : OpMode() {
         } else if (state == 2) {
             robot.intakeArm.state = IntakeArmPosition.FLOOR
             robot.telemetry.addData("state", "floor")
+        } else if (state == 3) {
+            robot.intakeArm.state = IntakeArmPosition.SWEEP
+            robot.telemetry.addData("state", "sweep")
         }
 
         robot.telemetry.addData("position", robot.intakeArm.leftServo.position)

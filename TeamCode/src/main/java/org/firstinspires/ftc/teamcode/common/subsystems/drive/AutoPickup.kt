@@ -60,14 +60,6 @@ class AutoPickup(
 
                 lastTarget = targetPose to (actualAngle / 360)
 
-//                robot.intake.diffy.roll = Diffy.hoverRoll + actualAngle / 360
-//                println("${Diffy.hoverRoll + actualAngle / 360} $actualAngle ${target.angle}")
-//                if (target.angle > 1) {
-//                    robot.intake.diffy.roll += rollSpeed * robot.deltaTime.deltaTime * target.angle
-//                } else if (target.angle < -1) {
-//                    robot.intake.diffy.roll += rollSpeed * robot.deltaTime.deltaTime * target.angle
-//                }
-
                 robot.telemetry.addData("target roll", Diffy.hoverRoll + actualAngle / 360)
                 robot.telemetry.addData("actual angle", actualAngle)
                 robot.telemetry.addData("target angle", target.angle)
@@ -81,17 +73,9 @@ class AutoPickup(
         }
     }
 
-    fun startScanning() =
-        InstantCommand({
-            scanning = true
-//            robot.intake.diffy.isManual = true
-        })
+    fun startScanning() = InstantCommand({ scanning = true })
 
-    fun stopScanning() =
-        InstantCommand({
-            scanning = false
-//            robot.intake.diffy.isManual = false
-        })
+    fun stopScanning() = InstantCommand({ scanning = false })
 
     fun rumble() {
         if (lastTarget == null) return
@@ -114,7 +98,8 @@ class AutoPickup(
                     robot.drive.pidManager.isOn = true
                     robot.drive.pidManager.isSamplePickup = true
                     robot.drive.pidManager.target = target.first
-                    robot.intake.diffy.pitch = Diffy.pickupPitch
+
+                    robot.intake.diffy.state = Diffy.State.PICKUP
                     robot.intake.diffy.roll = Diffy.hoverRoll + target.second
                 }),
                 WaitUntilCommand(robot.drive.pidManager::atTarget),

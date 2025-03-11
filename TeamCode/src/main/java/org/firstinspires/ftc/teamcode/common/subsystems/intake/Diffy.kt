@@ -11,61 +11,67 @@ import org.firstinspires.ftc.teamcode.common.utils.hardware.AxonCR
 class Diffy(
     val robot: Robot,
 ) : Subsystem() {
-    val leftServo = AxonCR(robot.hardware, "diffyLeft", "analog2", false)
-    val rightServo = AxonCR(robot.hardware, "diffyRight", "analog1")
+    enum class State {
+        TRANSFER,
+        HOVER,
+        PICKUP,
+        SWEEP,
+        MANUAL,
+        DIRECT,
+    }
 
-    var isManual: Boolean = false
+    val left = AxonCR(robot.hardware, "diffyLeft", "analog2", false)
+    val right = AxonCR(robot.hardware, "diffyRight", "analog1")
 
-    // each only has an effective range of +/- 0.25 aka 0-0.5 or half
-    // as you need to ensure that pitch + roll never exceeds the bounds of 0 to 1
-    var pitch: Double = transferPitch // up and down, -1 to 1
-    var roll: Double = transferRoll // rotate, -1 to 1
+    var state: State = State.TRANSFER
 
-    override fun init() {
-//        periodic()
+    var pitch: Double = transferPitch // up and down, ideally -1 to 1
+    var roll: Double = transferRoll // rotate, ideally -1 to 1
+
+    override fun init() {}
+
+    // run in a loo during init
+    fun initLoopable() {
+        periodic()
     }
 
     val pidLeft = PIDController(kP, kI, kD)
     val pidRight = PIDController(kP, kI, kD)
 
     override fun periodic() {
-        if (isManual) {
-            return
-        }
+        if (state == State.DIRECT) return // direct control
 
         pidLeft.setPID(kP, kI, kD)
         pidRight.setPID(kP, kI, kD)
 
-        val pitchPosition = pitch
-        val leftPosition = pitchPosition - roll
-        val rightPosition = pitchPosition + roll
+        val (pitch, roll) =
+            when (state) {
+                State.TRANSFER -> transferPitch to transferRoll
+                State.HOVER -> hoverPitch to hoverPitch // use pickup for when you're autorotating
+                State.PICKUP -> pickupPitch to this.roll
+                State.SWEEP -> sweepPitch to sweepRoll
+                else -> return
+            }
 
-        leftServo.power = pidLeft.calculate(leftServo.position, leftPosition)
-        rightServo.power = pidLeft.calculate(rightServo.position, rightPosition)
+        // make sure relative offsets work
+        this.pitch = pitch
+        this.roll = roll
+
+        val leftTarget = pitch - roll
+        val rightTarget = pitch + roll
+        left.power = pidLeft.calculate(left.position, leftTarget)
+        right.power = pidLeft.calculate(right.position, rightTarget)
     }
 
-    fun transfer() =
-        InstantCommand({
-            pitch = transferPitch
-            roll = transferRoll
-        })
+    fun transfer() = InstantCommand({ state = State.TRANSFER })
 
-    fun hover() =
-        InstantCommand({
-            pitch = hoverPitch
-            roll = hoverRoll
-        })
+    fun hover() = InstantCommand({ state = State.HOVER })
 
-    fun pickup() =
-        InstantCommand({
-            pitch = pickupPitch
-        })
+    fun pickup() = InstantCommand({ state = State.PICKUP })
 
-    fun sweep() =
-        InstantCommand({
-            pitch = sweepPitch
-            roll = sweepRoll
-        })
+    fun sweep() = InstantCommand({ state = State.SWEEP })
+
+    fun manual() = InstantCommand({ state = State.MANUAL })
 
     companion object {
         @JvmField

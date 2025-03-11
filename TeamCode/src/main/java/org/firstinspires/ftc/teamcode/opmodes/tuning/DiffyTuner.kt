@@ -20,11 +20,12 @@ class DiffyTuner : OpMode() {
     override val robot by lazy { DiffyOnly(this) }
 
     override fun exec() {
+        robot.diffy.state = Diffy.State.MANUAL
         robot.diffy.pitch = pitch
         robot.diffy.roll = roll
 
-        robot.telemetry.addData("left", robot.diffy.leftServo.position)
-        robot.telemetry.addData("right", robot.diffy.rightServo.position)
+        robot.telemetry.addData("left", robot.diffy.left.position)
+        robot.telemetry.addData("right", robot.diffy.right.position)
     }
 
     companion object {

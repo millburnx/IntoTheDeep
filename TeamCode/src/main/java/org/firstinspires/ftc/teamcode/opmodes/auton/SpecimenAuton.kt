@@ -56,7 +56,6 @@ class SpecimenAuton : OpMode() {
             outtake.claw.close()
             outtake.claw.periodic()
             intake.arm.periodic()
-//            intake.diffy.periodic()
             intake.claw.periodic()
 
             fun readySpecimen() =
@@ -155,6 +154,10 @@ class SpecimenAuton : OpMode() {
                     park(),
                 ),
             )
+
+            while (!isStarted()) {
+                intake.diffy.initLoopable()
+            }
         }
     }
 

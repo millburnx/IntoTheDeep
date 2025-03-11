@@ -212,9 +212,6 @@ class SampleDectectionTuner : OpMode() {
         }
         if (targetPose != null) {
             if (rotationEnabled) {
-//                if (targetAngle <= angleThres) {
-//                    robot.intake.diffy.roll = targetAngle
-//                }
                 val newAngle = -Math.toRadians(robot.intake.diffy.roll * 90)
                 rotationalOffset = Vec2d(cos(newAngle), sin(newAngle) - 1.0).rotate(-90.0) * clawRadius
                 robot.drive.pidManager.target = targetPose!! - rotationalOffset
@@ -227,9 +224,6 @@ class SampleDectectionTuner : OpMode() {
             roll = -centered.angle / 90.0
             robot.telemetry.addData("roll", roll)
             targetAngle = roll
-//            if (rotationEnabled) {
-//                robot.intake.diffy.roll = (robot.intake.diffy.roll + roll).clamp(-1.0, 1.0)
-//            }
         }
     }
 

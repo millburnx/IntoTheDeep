@@ -34,7 +34,6 @@ class FasterSampleAuton : OpMode() {
         robot.outtake.claw.close()
         robot.outtake.claw.periodic()
         robot.intake.arm.periodic()
-        robot.intake.diffy.periodic()
         robot.intake.claw.periodic()
 
         val grab = {
@@ -148,6 +147,10 @@ class FasterSampleAuton : OpMode() {
         )
 
         schedule(SequentialCommandGroup(*commands.toTypedArray()))
+
+        while (!isStarted()) {
+            robot.intake.diffy.initLoopable()
+        }
     }
 
     companion object {
