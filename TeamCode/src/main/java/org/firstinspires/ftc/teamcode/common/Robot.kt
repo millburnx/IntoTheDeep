@@ -6,6 +6,7 @@ import com.qualcomm.hardware.lynx.LynxModule.BulkCachingMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Intake
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Outtake
@@ -22,6 +23,8 @@ open class Robot(
     var isRed: Boolean = false
     var doYellow: Boolean = false
     var useTeleopHold: Boolean = false
+
+    val matchTimer by lazy { ElapsedTime() }
 
     val gp1: Gamepad by lazy { opMode.gamepad1 }
     val gp2: Gamepad by lazy { opMode.gamepad2 }

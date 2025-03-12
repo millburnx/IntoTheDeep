@@ -11,6 +11,7 @@ abstract class OpMode : CommandOpMode() {
     }
 
     override fun run() {
+        robot.matchTimer
         for (hub in robot.hubs) {
             hub.clearBulkCache()
         }
