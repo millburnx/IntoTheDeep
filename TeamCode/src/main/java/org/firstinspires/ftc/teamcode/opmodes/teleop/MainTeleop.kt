@@ -128,6 +128,13 @@ open class MainTeleopBlue : OpMode() {
                         ) {
                             outtake.arm.state == OuttakeArmPosition.TRANSFER
                         },
+                        conditionalCommand(
+                            SequentialCommandGroup(
+                                outtake.basePartial(),
+                            ),
+                        ) {
+                            outtake.arm.state != OuttakeArmPosition.BASE
+                        },
                         if (useLinkage) intake.extend() else intake.baseExtend(),
                         ConditionalCommand(
                             SequentialCommandGroup(
@@ -186,7 +193,7 @@ open class MainTeleopBlue : OpMode() {
                             gp1::dpad_down,
                             SequentialCommandGroup(
                                 macros.exitTransfer(),
-                                outtake.slides.goTo(Slides.lowBasket),
+                                outtake.slides.goTo(Slides.State.LOW_BASKET),
                                 outtake.basketPartial(),
                             ),
                         )
@@ -196,7 +203,7 @@ open class MainTeleopBlue : OpMode() {
                             gp1::dpad_up,
                             SequentialCommandGroup(
                                 macros.exitTransfer(),
-                                outtake.slides.goTo(Slides.highBasket),
+                                outtake.slides.goTo(Slides.State.HIGH_BASKET),
                                 outtake.basketPartial(),
                             ),
                         )
@@ -207,14 +214,14 @@ open class MainTeleopBlue : OpMode() {
                             gp1::cross,
                             SequentialCommandGroup(
                                 outtake.open(),
-                                outtake.slides.goTo(Slides.min),
+                                outtake.slides.goTo(Slides.State.BASE),
                                 outtake.specimenPickupPartial(),
                             ),
                             SequentialCommandGroup(
                                 outtake.close(),
                                 WaitCommand(specimenCloseDuration),
                                 ParallelCommandGroup(
-                                    outtake.slides.goTo(Slides.highRung),
+                                    outtake.slides.goTo(Slides.State.HIGH_RUNG),
                                     outtake.specimenPartial(),
                                 ),
                             ),
@@ -226,7 +233,7 @@ open class MainTeleopBlue : OpMode() {
                             gp1::triangle,
                             ConditionalCommand(
                                 outtake.open(),
-                                outtake.slides.goTo(Slides.highRungScore),
+                                outtake.slides.goTo(Slides.State.HIGH_RUNG_SCORE),
                             ) { outtake.arm.state == OuttakeArmPosition.BASKET },
                             ConditionalCommand(
                                 SequentialCommandGroup(
@@ -236,7 +243,7 @@ open class MainTeleopBlue : OpMode() {
                                 SequentialCommandGroup(
                                     outtake.open(),
                                     outtake.specimenPickupPartial(),
-                                    outtake.slides.goTo(Slides.min),
+                                    outtake.slides.goTo(Slides.State.BASE),
                                     outtake.slides.reset(),
                                 ),
                             ) { outtake.arm.state == OuttakeArmPosition.BASKET },
@@ -293,6 +300,7 @@ open class MainTeleopBlue : OpMode() {
         }
 
         robot.apply {
+            useTeleopHold = Companion.useTeleopHold
             val attemptingToBasket =
                 outtake.slides.target > (Slides.lowBasket - Slides.min) / 2 && outtake.arm.state == OuttakeArmPosition.BASKET
             val basketAssist =
@@ -311,22 +319,7 @@ open class MainTeleopBlue : OpMode() {
                 val strafe = -gp1.left_stick_x.toDouble()
                 val rotate = -gp1.right_stick_x.toDouble()
 
-                if (useTeleopHold &&
-                    forward.absoluteValue < minJoystickValue &&
-                    strafe.absoluteValue < minJoystickValue &&
-                    rotate.absoluteValue < minJoystickValue
-                ) {
-                    if ((teleopHoldTimer?.milliseconds() ?: 0.0) > teleopHoldDuration) {
-                        drive.pidManager.target = drive.pose
-                        drive.pidManager.isTeleopHolding = true
-                        teleopHoldTimer = null // we only want to run this when the timer just
-                    }
-                } else {
-                    if (teleopHoldTimer == null) {
-                        teleopHoldTimer = ElapsedTime()
-                    } else {
-                        teleopHoldTimer?.reset()
-                    }
+                val driveControl = {
                     drive.pidManager.isTeleopHolding = false
                     val rotationalSpeed = if (intake.linkage.target == 1.0) linkageRotationMultiplier else 1.0
 
@@ -336,6 +329,27 @@ open class MainTeleopBlue : OpMode() {
                         rotate * rotationalSpeed + assists,
                         -if (fieldCentric) drive.pose.radians else 0.0,
                     )
+                }
+
+                if (Companion.useTeleopHold &&
+                    forward.absoluteValue < minJoystickValue &&
+                    strafe.absoluteValue < minJoystickValue &&
+                    rotate.absoluteValue < minJoystickValue
+                ) {
+                    if ((teleopHoldTimer?.milliseconds() ?: 0.0) > teleopHoldDuration) {
+                        drive.pidManager.target = drive.pose
+                        drive.pidManager.isTeleopHolding = true
+                        teleopHoldTimer = null // we only want to run this when the timer just
+                    } else if (teleopHoldTimer != null) {
+                        driveControl()
+                    }
+                } else {
+                    if (teleopHoldTimer == null) {
+                        teleopHoldTimer = ElapsedTime()
+                    } else {
+                        teleopHoldTimer?.reset()
+                    }
+                    driveControl()
                 }
             }
 
@@ -359,9 +373,13 @@ open class MainTeleopBlue : OpMode() {
             // we can make triggers do either rotate or slides based on the arm states?
 
             telemetry.addData("pid | on", drive.pidManager.isOn)
+            telemetry.addData("pid | hold", drive.pidManager.isTeleopHolding)
+            telemetry.addData("timer", teleopHoldTimer?.milliseconds() ?: -1.0)
             telemetry.addData("isRed", isRed)
             telemetry.addData("pid | pid target", drive.pidManager.target)
             telemetry.addData("slides", outtake.slides.position)
+            telemetry.addData("slides target", outtake.slides.target)
+            telemetry.addData("slides state", outtake.slides.state)
             telemetry.addData("toggles | autopickup", toggles.autoPickup)
             telemetry.addData("assists | basket assist", useBasketAssist)
             telemetry.addData("assists | rung assist", useRungAssist)

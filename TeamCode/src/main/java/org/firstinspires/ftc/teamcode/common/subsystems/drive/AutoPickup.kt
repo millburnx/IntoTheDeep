@@ -40,6 +40,9 @@ class AutoPickup(
 
     var scanning: Boolean = false
 
+    val generalOffset
+        get() = Vec2d(generalOffsetX, generalOffsetY)
+
     override fun periodic() {
         if (scanning) {
             val samples = robot.camera.sampleDetector.allSamples
@@ -55,10 +58,19 @@ class AutoPickup(
                 val rotationalOffset =
                     ((Vec2d.fromAngle(Math.toRadians(actualAngle) + 90) * Vec2d(1, 1) + Vec2d(0, -1)) * clawRadius)
 
-                val totalOffset = (sampleOffset - rotationalOffset).rotate(Math.toRadians(currentPose.degrees - 90.0))
+                val totalOffset =
+                    (sampleOffset + generalOffset - rotationalOffset).rotate(Math.toRadians(currentPose.degrees - 90.0))
                 val targetPose = currentPose + totalOffset
 
                 lastTarget = targetPose to (actualAngle / 360)
+
+//                robot.intake.diffy.roll = Diffy.hoverRoll + actualAngle / 360
+//                println("${Diffy.hoverRoll + actualAngle / 360} $actualAngle ${target.angle}")
+//                if (target.angle > 1) {
+//                    robot.intake.diffy.roll += rollSpeed * robot.deltaTime.deltaTime * target.angle
+//                } else if (target.angle < -1) {
+//                    robot.intake.diffy.roll += rollSpeed * robot.deltaTime.deltaTime * target.angle
+//                }
 
                 robot.telemetry.addData("target roll", Diffy.hoverRoll + actualAngle / 360)
                 robot.telemetry.addData("actual angle", actualAngle)
@@ -73,9 +85,17 @@ class AutoPickup(
         }
     }
 
-    fun startScanning() = InstantCommand({ scanning = true })
+    fun startScanning() =
+        InstantCommand({
+            scanning = true
+//            robot.intake.diffy.isManual = true
+        })
 
-    fun stopScanning() = InstantCommand({ scanning = false })
+    fun stopScanning() =
+        InstantCommand({
+            scanning = false
+//            robot.intake.diffy.isManual = false
+        })
 
     fun rumble() {
         if (lastTarget == null) return
@@ -98,8 +118,7 @@ class AutoPickup(
                     robot.drive.pidManager.isOn = true
                     robot.drive.pidManager.isSamplePickup = true
                     robot.drive.pidManager.target = target.first
-
-                    robot.intake.diffy.state = Diffy.State.PICKUP
+                    robot.intake.diffy.pitch = Diffy.pickupPitch
                     robot.intake.diffy.roll = Diffy.hoverRoll + target.second
                 }),
                 WaitUntilCommand(robot.drive.pidManager::atTarget),
@@ -130,5 +149,11 @@ class AutoPickup(
 
         @JvmField
         var rollSpeed: Double = 0.01
+
+        @JvmField
+        var generalOffsetX = 0.0
+
+        @JvmField
+        var generalOffsetY = 0.25
     }
 }

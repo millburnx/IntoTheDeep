@@ -57,6 +57,6 @@ class IntakeArm(
         var floorPosition = 0.78
 
         @JvmField
-        var sweepPosition = 0.78
+        var sweepPosition = 0.925
     }
 }

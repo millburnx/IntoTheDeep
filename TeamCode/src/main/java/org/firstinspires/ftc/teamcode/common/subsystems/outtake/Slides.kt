@@ -35,6 +35,9 @@ class Slides(
             if (field == value) return
             field = value
         }
+
+    var actualTarget = 0.0
+
     var isStateLocked = false
 
     val left = CachedMotor(robot.hardware, "leftLift", isBrake = true)
@@ -52,7 +55,6 @@ class Slides(
 
     var target = 0.0
         set(value) {
-            if (field == value.coerceIn(min, max)) return
             field = value.coerceIn(min, max)
         }
 
@@ -67,9 +69,11 @@ class Slides(
     fun reset() =
         SequentialCommandGroup(
             goTo(min),
+            InstantCommand({ isStateLocked = true }),
             direct(rezeroPower),
             WaitCommand(rezeroDuration),
             rezeroCmd(),
+            InstantCommand({ isStateLocked = false }),
             goTo(min),
         )
 
@@ -88,7 +92,7 @@ class Slides(
 
         val target =
             when (state) {
-                State.BASE -> 0.0
+                State.BASE -> min
                 State.WALL -> wall
                 State.LOW_BASKET -> lowBasket
                 State.HIGH_BASKET -> highBasket
@@ -100,7 +104,10 @@ class Slides(
                 else -> return
             }
 
+        println("slide target $target")
+
         this.target = target
+        this.actualTarget = target
 
         pid.setPID(kP, kI, kD)
         val power = pid.calculate(position, target) + kF
@@ -127,22 +134,22 @@ class Slides(
         var kF: Double = 0.01
 
         @JvmField
-        var min: Double = 0.0
+        var min: Double = 1.0
 
         @JvmField
         var max: Double = 2200.0
 
         @JvmField
-        var highRung: Double = 1200.0
+        var highRung: Double = 1250.0
 
         @JvmField
-        var autonHighRung: Double = 1200.0
+        var autonHighRung: Double = 800.0
 
         @JvmField
         var highRungScore: Double = 2000.0
 
         @JvmField
-        var autonHighRungScore: Double = 2000.0
+        var autonHighRungScore: Double = 1550.0
 
         @JvmField
         var wall: Double = 170.0

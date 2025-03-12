@@ -247,7 +247,7 @@ class SampleDectectionTuner : OpMode() {
         var angleThres: Double = .9
 
         @JvmField
-        var clawRadius: Double = 1.0
+        var clawRadius: Double = .5
 
         @JvmField
         var fullAuto: Boolean = true

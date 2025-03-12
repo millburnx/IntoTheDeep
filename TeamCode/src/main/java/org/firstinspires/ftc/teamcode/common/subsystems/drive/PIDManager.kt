@@ -31,7 +31,7 @@ open class PIDManager(
                     isTeleopHolding = false
                 } else {
                     robot.drive.floatMotors()
-                    isTeleopHolding = true // default to hold
+                    if (robot.useTeleopHold) isTeleopHolding = true
                 }
             }
         }

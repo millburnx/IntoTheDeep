@@ -84,24 +84,24 @@ class Diffy(
         var kD = 0.0
 
         @JvmField
-        var transferPitch = 0.25
+        var transferPitch = 0.4
 
         @JvmField
-        var transferRoll = 0.35
+        var transferRoll = 0.5
 
         @JvmField
-        var hoverPitch = -0.3
+        var hoverPitch = -0.1
 
         @JvmField
-        var hoverRoll = -.2
+        var hoverRoll = 0.0
 
         @JvmField
         var pickupPitch = hoverPitch
 
         @JvmField
-        var sweepPitch = 0.2
+        var sweepPitch = transferPitch
 
         @JvmField
-        var sweepRoll = 0.1
+        var sweepRoll = transferRoll
     }
 }

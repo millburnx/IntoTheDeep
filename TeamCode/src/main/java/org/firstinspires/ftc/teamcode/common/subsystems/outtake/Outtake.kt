@@ -22,7 +22,7 @@ class Outtake(
 
     fun base() =
         ParallelCommandGroup(
-            slides.goTo(Slides.min),
+            slides.goTo(Slides.State.BASE),
             basePartial(),
             WaitCommand(outtakeFlipDelay),
         )
@@ -35,7 +35,7 @@ class Outtake(
 
     fun transfer() =
         ParallelCommandGroup(
-            slides.goTo(Slides.min),
+            slides.goTo(Slides.State.BASE),
             arm.transfer(),
             wrist.transfer(),
         )
@@ -66,7 +66,7 @@ class Outtake(
 
     fun park() =
         ParallelCommandGroup(
-            slides.goTo(Slides.min),
+            slides.goTo(Slides.State.BASE),
             parkPartial(),
         )
 

@@ -36,7 +36,7 @@ class SampleDetector :
         var enabled: Boolean = true
 
         @JvmField
-        var redLower: Double = 199.0
+        var redLower: Double = 180.0
 
         @JvmField
         var redUpper: Double = 255.0
@@ -48,7 +48,7 @@ class SampleDetector :
         var yellowUpper: Double = 255.0
 
         @JvmField
-        var blueLower: Double = 170.0
+        var blueLower: Double = 160.0
 
         @JvmField
         var blueUpper: Double = 255.0

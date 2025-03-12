@@ -76,7 +76,7 @@ class OuttakeArm(
         var specimenPosition = 0.74
 
         @JvmField
-        var autonSpecimenPosition = 0.74 // different so we can be right against the wall
+        var autonSpecimenPosition = 0.6 // different so we can be right against the wall
 
         @JvmField
         var pickupPosition = 0.26

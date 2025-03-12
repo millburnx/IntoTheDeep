@@ -21,6 +21,7 @@ open class Robot(
 
     var isRed: Boolean = false
     var doYellow: Boolean = false
+    var useTeleopHold: Boolean = false
 
     val gp1: Gamepad by lazy { opMode.gamepad1 }
     val gp2: Gamepad by lazy { opMode.gamepad2 }

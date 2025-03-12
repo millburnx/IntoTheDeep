@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.drive.Drive
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.PIDManager
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
+import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.control.PDFL
 import org.firstinspires.ftc.teamcode.opmodes.auton.AutonRobot
 
@@ -59,6 +60,7 @@ class PDFLDrive(
     robot: Robot,
 ) : Drive(robot) {
     override val pidManager: PDFLManager = PDFLManager(robot)
+    override val subsystems: List<Subsystem> = listOf(stuckDectector, pidManager)
 }
 
 class PDFLBot(

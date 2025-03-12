@@ -44,13 +44,13 @@ open class PickupPIDSettings : PIDSettings() {
 open class PIDSettings {
     companion object {
         @JvmField
-        var kP: Double = 0.05
+        var kP: Double = 0.175
 
         @JvmField
         var kI: Double = 0.0
 
         @JvmField
-        var kD: Double = 0.001
+        var kD: Double = 0.005
 
         @JvmField
         var kPHeading: Double = 0.075

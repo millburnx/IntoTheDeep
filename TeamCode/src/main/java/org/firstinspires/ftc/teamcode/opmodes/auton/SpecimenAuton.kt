@@ -3,15 +3,12 @@ package org.firstinspires.ftc.teamcode.opmodes.auton
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
-import com.arcrobotics.ftclib.command.ParallelDeadlineGroup
-import com.arcrobotics.ftclib.command.RunCommand
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.command.WaitUntilCommand
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
@@ -22,11 +19,11 @@ open class AutonRobot(
 ) : SampleCameraRobot(opMode) {
     override fun init() {
         super.init()
-        drive.pinPoint.reset()
     }
 }
 
-@Autonomous(name = "Specimen Auton", preselectTeleOp = "Main Teleop Red")
+// @Autonomous(name = "Specimen Auton", preselectTeleOp = "Main Teleop Red")
+@TeleOp(name = "Specimen Auton", group = "Auton")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SpecimenAuton : OpMode() {
@@ -37,24 +34,19 @@ class SpecimenAuton : OpMode() {
     override fun initialize() {
         super.initialize()
 
-        Thread.sleep(250)
-
         robot.apply {
+            drive.pinPoint.pinPoint.resetPosAndIMU()
+            sleep(500)
             drive.pinPoint.update()
-            drive.pinPoint.pinPoint.setPosition(
-                Pose2D(
-                    DistanceUnit.INCH,
-                    -24.0,
-                    -36.0,
-                    AngleUnit.DEGREES,
-                    -12.0,
-                ),
-            )
+            drive.pinPoint.pose = Pose2d(startingPose)
             drive.pinPoint.update()
             telemetry.addData("starting pose", Pose2d(startingPose))
             telemetry.addData("Pose", drive.pose)
             telemetry.update()
+            outtake.arm.state = OuttakeArmPosition.AUTON_SPECIMEN
             outtake.arm.periodic()
+            outtake.wrist.state = OuttakeWristPosition.AUTON_SPECIMEN
+            outtake.wrist.periodic()
             outtake.claw.close()
             outtake.claw.periodic()
             intake.arm.periodic()
@@ -64,7 +56,7 @@ class SpecimenAuton : OpMode() {
                 namedCommand(
                     "readySpecimen",
                     SequentialCommandGroup(
-                        outtake.slides.goTo(Slides.autonHighRung),
+                        outtake.slides.goTo(Slides.State.AUTON_HIGH_RUNG),
                         outtake.autonSpecimenPartial(),
                     ),
                 )
@@ -73,7 +65,7 @@ class SpecimenAuton : OpMode() {
                 namedCommand(
                     "clipSpecimen",
                     SequentialCommandGroup(
-                        outtake.slides.goTo(Slides.autonHighRungScore),
+                        outtake.slides.goTo(Slides.State.AUTON_HIGH_RUNG_SCORE),
                         outtake.autonSpecimenPartial(),
                     ),
                 )
@@ -89,10 +81,8 @@ class SpecimenAuton : OpMode() {
                 SequentialCommandGroup(
                     drive.pid(Pose2d(startingPose)),
                     robot.intake.sweep(),
-                    WaitUntilCommand(gp1::x),
                     drive.pid(Pose2d(endingPose)),
-                    WaitUntilCommand(gp1::x),
-                    robot.intake.retract(),
+                    robot.intake.arm.extended(),
                 ),
             )
 
@@ -112,13 +102,13 @@ class SpecimenAuton : OpMode() {
                     SequentialCommandGroup(
                         ParallelCommandGroup(
                             outtake.open(),
-                            outtake.slides.goTo(Slides.min),
+                            outtake.slides.goTo(Slides.State.BASE),
                             outtake.specimenPickupPartial(),
                             drive.pid(Pose2d(pickupPose)),
                         ),
                         drive.relativeDrive(Pose2d(pickupPower, 0.0, 0.0), true).withTimeout(pickupDuration),
                         outtake.close(),
-                        outtake.slides.goTo(Slides.wall),
+                        outtake.slides.goTo(Slides.State.WALL),
                     ),
                 )
 
@@ -128,10 +118,17 @@ class SpecimenAuton : OpMode() {
                     SequentialCommandGroup(
                         ParallelCommandGroup(
                             readySpecimen(),
-                            drive.pid(Pose2d(scoringPose)),
+                            SequentialCommandGroup(
+                                WaitUntilCommand {
+                                    outtake.slides.position > Slides.autonHighRung / 2.0
+                                },
+                                drive.pid(Pose2d(scoringPose)),
+                            ),
                         ),
                         drive.relativeDrive(Pose2d(scoringPower, 0.0, 0.0), true).withTimeout(scoringDuration),
+                        WaitUntilCommand({ gp1.cross }),
                         clipSpecimen(),
+                        WaitUntilCommand({ gp1.cross }),
                         releaseSpecimen(),
                     ),
                 )
@@ -148,30 +145,36 @@ class SpecimenAuton : OpMode() {
 
             schedule(
                 delayedSequential(
-                    1000,
+                    0,
                     scorePreloadSpecimen(),
-                    sweepSamples(),
+                    ParallelCommandGroup(
+                        outtake.basePartial(),
+                        outtake.slides.goTo(Slides.State.BASE),
+                        sweepSamples(),
+                    ),
+                    intake.linkage.retract(),
                     pickupAndScoreSpecimen(1),
                     pickupAndScoreSpecimen(2),
                     pickupAndScoreSpecimen(3),
                     pickupAndScoreSpecimen(4),
-                    park(),
+                    robot.intake.retract(),
+                    ParallelCommandGroup(
+                        outtake.base(),
+                        park(),
+                    ),
                 ),
             )
-
-            while (!isStarted()) {
-                intake.diffy.initLoopable()
-            }
         }
     }
 
     fun namedCommand(
         name: String,
         command: Command,
-    ) = ParallelDeadlineGroup(
-        command,
-        RunCommand({ currentCommands.add(name) }),
-    )
+    ) = command.beforeStarting { currentCommands.add(name) }.whenFinished { currentCommands.remove(name) }
+//    fun namedCommand(
+//        name: String,
+//        command: Command,
+//    ) = command
 
     fun delayedSequential(
         delay: Long,
@@ -188,35 +191,38 @@ class SpecimenAuton : OpMode() {
     )
 
     override fun run() {
-        currentCommands.clear()
+//        currentCommands.clear()
         super.run()
     }
 
     override fun exec() {
-        telemetry.addData("pid target", robot.drive.pidManager.target)
-        telemetry.addData("pid at target", robot.drive.pidManager.atTarget())
-        telemetry.addData("current commands", currentCommands.joinToString(", "))
+        robot.telemetry.addData("slide pos", robot.outtake.slides.position)
+        robot.telemetry.addData("slide target", robot.outtake.slides.target)
+        robot.telemetry.addData("slide state", robot.outtake.slides.state)
+        robot.telemetry.addData("pid target", robot.drive.pidManager.target)
+        robot.telemetry.addData("pid at target", robot.drive.pidManager.atTarget())
+        robot.telemetry.addData("current commands", currentCommands.joinToString(", "))
         println(currentCommands.joinToString(", "))
     }
 
     companion object {
         @JvmField
-        var startingPose = arrayOf(-62.0, 7.0, 0.0)
+        var startingPose = arrayOf(-62.0, -7.0, 0.0)
 
         @JvmField
-        var parkPose = arrayOf(-62.0, 7.0, 0.0)
+        var parkPose = arrayOf(-62.0, -7.0, 0.0)
 
         // make this pickup and scoring into a pure pursuit path
 
         // <editor-fold desc="Pickup Config">
         @JvmField
-        var pickupPose = arrayOf(-60.0, 7.0, 0.0)
+        var pickupPose = arrayOf(-52.0, -40.0, 0.0)
 
         @JvmField
         var pickupPower = -.5
 
         @JvmField
-        var pickupDuration = 500L
+        var pickupDuration = 1000L
         // </editor-fold>
 
         // <editor-fold desc="Scoring Config">
@@ -227,27 +233,27 @@ class SpecimenAuton : OpMode() {
         var scoringPower = .5
 
         @JvmField
-        var scoringDuration = 500L
+        var scoringDuration = 1000L
         // </editor-fold>
 
         // <editor-fold desc="Sweep Poses">
         @JvmField
-        var sweepFirstStartingPose = arrayOf(-36.0, -36.0, -45.0)
+        var sweepFirstStartingPose = arrayOf(-38.0, -29.0, -45.0)
 
         @JvmField
-        var sweepFirstEndingPose = arrayOf(-48.0, -36.0, 45.0)
+        var sweepFirstEndingPose = arrayOf(-48.0, -29.0, -135.0)
 
         @JvmField
-        var sweepSecondStartingPose = arrayOf(-36.0, -48.0, -45.0)
+        var sweepSecondStartingPose = arrayOf(-39.0, -38.0, -45.0)
 
         @JvmField
-        var sweepSecondEndingPose = arrayOf(-48.0, -48.0, 45.0)
+        var sweepSecondEndingPose = arrayOf(-48.0, -38.0, -135.0)
 
         @JvmField
-        var sweepThirdStartingPose = arrayOf(-36.0, -60.0, -45.0)
+        var sweepThirdStartingPose = arrayOf(-38.0, -48.0, -45.0)
 
         @JvmField
-        var sweepThirdEndingPose = arrayOf(-38.0, -60.0, 45.0)
+        var sweepThirdEndingPose = arrayOf(-48.0, -44.0, -135.0)
         // </editor-fold>
     }
 }
