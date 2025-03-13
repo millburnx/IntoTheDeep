@@ -110,8 +110,15 @@ class SpecimenAuton : OpMode() {
                     SequentialCommandGroup(
                         ParallelCommandGroup(
                             outtake.open(),
-                            outtake.slides.goTo(Slides.State.BASE),
-                            outtake.autonSpecimenPickupPartial(),
+                            SequentialCommandGroup(
+                                WaitUntilCommand {
+                                    val lastScoringPose =
+                                        Pose2d(scoringPose) + Vec2d(scoringOffset) * (specimen - 1.0)
+                                    drive.pose.distanceTo(lastScoringPose) > minDistanceForLowering
+                                },
+                                outtake.autonSpecimenPickupPartial(),
+                                outtake.slides.goTo(Slides.State.BASE),
+                            ),
                             drive.pid(Pose2d(pickupPose), tolerance = tolerance * 2.0),
                         ),
                         drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = 0.25),
@@ -139,13 +146,13 @@ class SpecimenAuton : OpMode() {
                                     outtake.slides.position > Slides.autonHighRung / 2.0
                                 },
                                 drive.pid(
-                                    Pose2d(scoringPose) + Vec2d(scoringOffset) * specimen.toDouble(),
+                                    Pose2d(scoringPose) + Vec2d(scoringOffset) * specimen,
                                     tolerance = tolerance * 2.0,
                                 ),
                             ),
                         ),
                         drive.pid(
-                            Pose2d(scoringPoseDeep) + Vec2d(scoringOffset) * specimen.toDouble(),
+                            Pose2d(scoringPoseDeep) + Vec2d(scoringOffset) * specimen,
                             useStuckDectector = true,
                             speed = 0.25,
                         ),
@@ -255,16 +262,19 @@ class SpecimenAuton : OpMode() {
 
         // <editor-fold desc="Scoring Config">
         @JvmField
-        var scoringPose = arrayOf(-42.0, -2.0, 180.0)
+        var scoringPose = arrayOf(-36.0, -2.0, 180.0)
 
         @JvmField
-        var scoringPoseDeep = arrayOf(-32.0, -2.0, 180.0)
+        var scoringPoseDeep = arrayOf(-28.0, -2.0, 180.0)
 
         @JvmField
         var scoringOffset = arrayOf(0.0, 1.0, 0.0)
 
         @JvmField
         var clipSpecimenDuration: Long = 500
+
+        @JvmField
+        var minDistanceForLowering = 8.0
         // </editor-fold>
 
         // <editor-fold desc="Sweep Poses">

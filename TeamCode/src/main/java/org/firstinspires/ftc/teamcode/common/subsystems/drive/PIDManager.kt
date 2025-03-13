@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
 import org.firstinspires.ftc.teamcode.common.utils.control.APIDController
 import org.firstinspires.ftc.teamcode.common.utils.control.ASQUIDController
+import org.firstinspires.ftc.teamcode.common.utils.control.DrivetrainSquIDController
 import org.firstinspires.ftc.teamcode.common.utils.control.SQUIDController
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import kotlin.math.abs
@@ -56,6 +57,8 @@ open class PIDManager(
     val squidX by lazy { SQUIDController(kP, kI, kD) }
     val squidY by lazy { SQUIDController(kP, kI, kD) }
     val squidH by lazy { ASQUIDController(kPHeading, kIHeading, kDHeading) }
+
+    val squidDT by lazy { DrivetrainSquIDController(kP, robot.drive.deltaTime) }
 
     var isSamplePickup: Boolean = false
         set(value) {
@@ -111,14 +114,34 @@ open class PIDManager(
         val y = pidY.calculate(robot.drive.pose.y, target.y)
         val h = pidH.calculate(robot.drive.pose.heading, target.heading)
 
-        val squidX = pidX.calculate(robot.drive.pose.x, target.x)
-        val squidY = pidY.calculate(robot.drive.pose.y, target.y)
-        val squidH = pidH.calculate(robot.drive.pose.heading, target.heading)
+        val squidX = squidX.calculate(robot.drive.pose.x, target.x)
+        val squidY = squidY.calculate(robot.drive.pose.y, target.y)
+        val squidH = squidH.calculate(robot.drive.pose.heading, target.heading)
+
+        val squid2 = squidDT.calculate(target.position, robot.drive.pose, robot.drive.velocity)
+
+        val movementX =
+            if (PIDSettings.squidv2) {
+                -squid2.x
+            } else if (PIDSettings.squid) {
+                -squidX
+            } else {
+                -x
+            }
+
+        val movementY =
+            if (PIDSettings.squidv2) {
+                -squid2.y
+            } else if (PIDSettings.squid) {
+                -squidY
+            } else {
+                -y
+            }
 
 //        robot.drive.fieldCentric(-x, y, h, -robot.drive.pose.radians)
         robot.drive.fieldCentric(
-            x = (if (PIDSettings.squid) -squidX else -x) * speed,
-            y = (if (PIDSettings.squid) squidY else y) * speed,
+            x = movementX * speed,
+            y = movementY * speed,
             rotate = (if (PIDSettings.squid) squidH else h) * speed,
             -robot.drive.pose.radians,
         )

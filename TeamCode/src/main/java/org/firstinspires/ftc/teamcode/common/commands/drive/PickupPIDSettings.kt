@@ -36,7 +36,10 @@ open class PickupPIDSettings : PIDSettings() {
         var wheelThreshold: Double = 0.15
 
         @JvmField
-        var squid: Boolean = true
+        var squid: Boolean = false
+
+        @JvmField
+        var squidv2: Boolean = false
     }
 }
 
@@ -75,5 +78,8 @@ open class PIDSettings {
 
         @JvmField
         var squid: Boolean = false
+
+        @JvmField
+        var squidv2: Boolean = false
     }
 }
