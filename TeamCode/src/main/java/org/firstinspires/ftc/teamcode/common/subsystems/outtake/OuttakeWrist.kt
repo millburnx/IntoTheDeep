@@ -13,6 +13,7 @@ enum class OuttakeWristPosition {
     AUTON_SPECIMEN,
     BASKET,
     PICKUP,
+    AUTON_PICKUP,
     PARK,
 }
 
@@ -36,6 +37,7 @@ class OuttakeWrist(
                 OuttakeWristPosition.AUTON_SPECIMEN -> autonSpecimenPosition
                 OuttakeWristPosition.BASKET -> basketPosition
                 OuttakeWristPosition.PICKUP -> pickupPosition
+                OuttakeWristPosition.AUTON_PICKUP -> autonPickupPosition
                 OuttakeWristPosition.PARK -> parkPosition
             }
         servo.position = target
@@ -53,6 +55,8 @@ class OuttakeWrist(
 
     fun pickup() = InstantCommand({ state = OuttakeWristPosition.PICKUP }, this)
 
+    fun autonPickup() = InstantCommand({ state = OuttakeWristPosition.AUTON_PICKUP }, this)
+
     fun park() = InstantCommand({ state = OuttakeWristPosition.PARK }, this)
 
     companion object {
@@ -69,10 +73,13 @@ class OuttakeWrist(
         var specimenPosition = 0.3
 
         @JvmField
-        var autonSpecimenPosition = 0.55
+        var autonSpecimenPosition = 0.1
 
         @JvmField
         var pickupPosition = 0.4
+
+        @JvmField
+        var autonPickupPosition = 0.35
 
         @JvmField
         var parkPosition = 0.4

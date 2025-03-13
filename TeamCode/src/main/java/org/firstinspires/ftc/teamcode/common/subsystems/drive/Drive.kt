@@ -108,7 +108,8 @@ open class Drive(
         target: Pose2d,
         tolerance: Pose2d = Pose2d(PIDSettings.tolerance, headingTolerance),
         useStuckDectector: Boolean = false,
-    ) = PIDCommand(robot, target, tolerance, useStuckDectector)
+        speed: Double = 1.0,
+    ) = PIDCommand(robot, target, tolerance, useStuckDectector, speed)
 
     fun pointsToPid(file: String): List<PIDCommand> {
         val csv = TSV.bufferedRead(File("${Environment.getExternalStorageDirectory().path}/Paths/$file.tsv"))

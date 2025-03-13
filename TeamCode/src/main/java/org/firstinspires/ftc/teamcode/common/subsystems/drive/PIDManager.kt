@@ -44,6 +44,8 @@ open class PIDManager(
             }
         }
 
+    var speed: Double = 1.0
+
     open var target = Pose2d()
     var tolerance = Pose2d(PIDSettings.tolerance, headingTolerance)
 
@@ -115,9 +117,9 @@ open class PIDManager(
 
 //        robot.drive.fieldCentric(-x, y, h, -robot.drive.pose.radians)
         robot.drive.fieldCentric(
-            x = if (PIDSettings.squid) -squidX else -x,
-            y = if (PIDSettings.squid) squidY else y,
-            rotate = if (PIDSettings.squid) squidH else h,
+            x = (if (PIDSettings.squid) -squidX else -x) * speed,
+            y = (if (PIDSettings.squid) squidY else y) * speed,
+            rotate = (if (PIDSettings.squid) squidH else h) * speed,
             -robot.drive.pose.radians,
         )
     }
@@ -153,6 +155,7 @@ class PIDCommand(
     val target: Pose2d,
     val tolerance: Pose2d = Pose2d(PIDSettings.tolerance, headingTolerance),
     val useStuckDectector: Boolean = false,
+    val speed: Double = 1.0,
 ) : CommandBase() {
     val elapsedTime = ElapsedTime()
 
@@ -168,6 +171,7 @@ class PIDCommand(
         robot.drive.pidManager.isOn = true
         robot.drive.pidManager.target = target
         robot.drive.pidManager.tolerance = tolerance
+        robot.drive.pidManager.speed = speed
     }
 
     override fun isFinished(): Boolean {

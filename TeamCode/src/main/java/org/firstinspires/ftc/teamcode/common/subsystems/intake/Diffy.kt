@@ -18,6 +18,7 @@ class Diffy(
         SWEEP,
         MANUAL,
         DIRECT,
+        AUTON_SPECIMEN,
     }
 
     val left = AxonCR(robot.hardware, "diffyLeft", "analog2", false)
@@ -47,9 +48,10 @@ class Diffy(
         val (pitch, roll) =
             when (state) {
                 State.TRANSFER -> transferPitch to transferRoll
-                State.HOVER -> hoverPitch to hoverPitch // use pickup for when you're autorotating
+                State.HOVER -> hoverPitch to hoverRoll // use pickup for when you're autorotating
                 State.PICKUP -> pickupPitch to this.roll
                 State.SWEEP -> sweepPitch to sweepRoll
+                State.AUTON_SPECIMEN -> autonSpecimenPitch to autonSpecimenRoll
                 else -> return
             }
 
@@ -71,6 +73,8 @@ class Diffy(
 
     fun sweep() = InstantCommand({ state = State.SWEEP })
 
+    fun autonSpecimen() = InstantCommand({ state = State.AUTON_SPECIMEN })
+
     fun manual() = InstantCommand({ state = State.MANUAL })
 
     companion object {
@@ -84,16 +88,16 @@ class Diffy(
         var kD = 0.0
 
         @JvmField
-        var transferPitch = 0.4
+        var transferPitch = 0.5
 
         @JvmField
-        var transferRoll = 0.5
+        var transferRoll = -0.4
 
         @JvmField
-        var hoverPitch = -0.1
+        var hoverPitch = -0.05
 
         @JvmField
-        var hoverRoll = 0.0
+        var hoverRoll = 0.1
 
         @JvmField
         var pickupPitch = hoverPitch
@@ -103,5 +107,11 @@ class Diffy(
 
         @JvmField
         var sweepRoll = transferRoll
+
+        @JvmField
+        var autonSpecimenPitch = 0.3
+
+        @JvmField
+        var autonSpecimenRoll = transferRoll
     }
 }

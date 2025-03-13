@@ -8,8 +8,11 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.command.WaitUntilCommand
+import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
@@ -46,12 +49,14 @@ class SpecimenAuton : OpMode() {
             telemetry.addData("starting pose", Pose2d(startingPose))
             telemetry.addData("Pose", drive.pose)
             telemetry.update()
-            outtake.arm.state = OuttakeArmPosition.AUTON_SPECIMEN
+            outtake.arm.state = OuttakeArmPosition.BASE
             outtake.arm.periodic()
-            outtake.wrist.state = OuttakeWristPosition.AUTON_SPECIMEN
+            outtake.wrist.state = OuttakeWristPosition.BASE
             outtake.wrist.periodic()
             outtake.claw.close()
             outtake.claw.periodic()
+            intake.arm.state = IntakeArmPosition.SAFE2
+            intake.diffy.state = Diffy.State.AUTON_SPECIMEN
             intake.arm.periodic()
             intake.claw.periodic()
 
@@ -67,18 +72,6 @@ class SpecimenAuton : OpMode() {
                     ParallelCommandGroup(
                         outtake.slides.goTo(Slides.State.AUTON_HIGH_RUNG),
                         outtake.autonSpecimenPartial(),
-                    ),
-                )
-
-            fun clipSpecimen() =
-                namedCommand(
-                    "clipSpecimen",
-                    SequentialCommandGroup(
-                        ParallelCommandGroup(
-                            outtake.slides.goTo(Slides.State.AUTON_HIGH_RUNG_SCORE),
-                            outtake.autonSpecimenPartial(),
-                        ),
-                        WaitCommand(clipSpecimenDuration),
                     ),
                 )
 
@@ -118,12 +111,19 @@ class SpecimenAuton : OpMode() {
                         ParallelCommandGroup(
                             outtake.open(),
                             outtake.slides.goTo(Slides.State.BASE),
-                            outtake.specimenPickupPartial(),
+                            outtake.autonSpecimenPickupPartial(),
                             drive.pid(Pose2d(pickupPose), tolerance = tolerance * 2.0),
                         ),
-                        drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true),
+                        drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = 0.25),
                         outtake.close(),
                         WaitCommand(pickupDuration),
+//                        InstantCommand({
+//                            robot.drive.pidManager.isOn = true
+//                            robot.drive.pidManager.target = drive.pose + Pose2d(pickupPreLift)
+//                            robot.drive.pidManager.tolerance = tolerance
+//                            robot.drive.pidManager.speed = 1.0
+//                        }),
+//                        WaitCommand(pickupDuration),
                         outtake.slides.goTo(Slides.State.WALL),
                     ),
                 )
@@ -138,11 +138,18 @@ class SpecimenAuton : OpMode() {
                                 WaitUntilCommand {
                                     outtake.slides.position > Slides.autonHighRung / 2.0
                                 },
-                                drive.pid(Pose2d(scoringPose), tolerance = tolerance * 2.0),
+                                drive.pid(
+                                    Pose2d(scoringPose) + Vec2d(scoringOffset) * specimen.toDouble(),
+                                    tolerance = tolerance * 2.0,
+                                ),
                             ),
                         ),
-                        drive.pid(Pose2d(scoringPoseDeep), useStuckDectector = true),
-                        clipSpecimen(),
+                        drive.pid(
+                            Pose2d(scoringPoseDeep) + Vec2d(scoringOffset) * specimen.toDouble(),
+                            useStuckDectector = true,
+                            speed = 0.25,
+                        ),
+                        WaitCommand(clipSpecimenDuration),
                         releaseSpecimen(),
                     ),
                 )
@@ -168,8 +175,11 @@ class SpecimenAuton : OpMode() {
                         sweepSamples(),
                     ),
                     InstantCommand({ println("Starting specimen scoring @ ${matchTimer.seconds()}") }),
+                    intake.linkage.retract(),
+                    intake.arm.safe2(),
+                    intake.diffy.autonSpecimen(),
+                    WaitCommand(1000),
                     ParallelCommandGroup(
-                        intake.retract(),
                         SequentialCommandGroup(
                             pickupAndScoreSpecimen(1),
                             pickupAndScoreSpecimen(2),
@@ -222,30 +232,36 @@ class SpecimenAuton : OpMode() {
 
     companion object {
         @JvmField
-        var startingPose = arrayOf(-62.0, -7.0, 0.0)
+        var startingPose = arrayOf(-64.0, -7.0, 180.0)
 
         @JvmField
-        var parkPose = arrayOf(-74.0, -36.0, 0.0)
+        var parkPose = arrayOf(-54.0, -36.0, 180.0)
 
         // make this pickup and scoring into a pure pursuit path
 
         // <editor-fold desc="Pickup Config">
         @JvmField
-        var pickupPose = arrayOf(-48.0, -36.0, 0.0)
+        var pickupPose = arrayOf(-54.0, -36.0, 180.0)
 
         @JvmField
-        var pickupPoseDeep = arrayOf(-64.0, -36.0, 0.0)
+        var pickupPoseDeep = arrayOf(-72.0, -36.0, 180.0)
 
         @JvmField
         var pickupDuration: Long = 250
+
+        @JvmField
+        var pickupPreLift = arrayOf(1.0, 0.0, 0.0)
         // </editor-fold>
 
         // <editor-fold desc="Scoring Config">
         @JvmField
-        var scoringPose = arrayOf(-40.0, 0.0, 0.0)
+        var scoringPose = arrayOf(-42.0, -2.0, 180.0)
 
         @JvmField
-        var scoringPoseDeep = arrayOf(-0.0, 0.0, 0.0)
+        var scoringPoseDeep = arrayOf(-32.0, -2.0, 180.0)
+
+        @JvmField
+        var scoringOffset = arrayOf(0.0, 1.0, 0.0)
 
         @JvmField
         var clipSpecimenDuration: Long = 500
@@ -259,16 +275,16 @@ class SpecimenAuton : OpMode() {
         var sweepFirstEndingPose = arrayOf(-48.0, -29.0, -135.0)
 
         @JvmField
-        var sweepSecondStartingPose = arrayOf(-39.0, -38.0, -45.0)
+        var sweepSecondStartingPose = arrayOf(-39.0, -34.0, -45.0)
 
         @JvmField
-        var sweepSecondEndingPose = arrayOf(-48.0, -38.0, -135.0)
+        var sweepSecondEndingPose = arrayOf(-48.0, -34.0, -135.0)
 
         @JvmField
-        var sweepThirdStartingPose = arrayOf(-38.0, -48.0, -45.0)
+        var sweepThirdStartingPose = arrayOf(-38.0, -44.0, -45.0)
 
         @JvmField
-        var sweepThirdEndingPose = arrayOf(-48.0, -44.0, -135.0)
+        var sweepThirdEndingPose = arrayOf(-48.0, -42.0, -135.0)
         // </editor-fold>
     }
 }

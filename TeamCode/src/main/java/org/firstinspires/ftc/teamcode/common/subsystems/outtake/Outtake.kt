@@ -64,6 +64,12 @@ class Outtake(
             wrist.pickup(),
         )
 
+    fun autonSpecimenPickupPartial() =
+        ParallelCommandGroup(
+            arm.autonPickup(),
+            wrist.autonPickup(),
+        )
+
     fun park() =
         ParallelCommandGroup(
             slides.goTo(Slides.State.BASE),

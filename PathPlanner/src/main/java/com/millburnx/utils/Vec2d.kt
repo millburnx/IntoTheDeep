@@ -16,6 +16,8 @@ data class Vec2d(
     val y: Double = x,
 ) {
     constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
+    constructor(arr: Array<Number>) : this(arr[0].toDouble(), arr[1].toDouble())
+    constructor(arr: Array<Double>) : this(arr[0], arr[1])
 
     constructor(v: Double) : this(v, v)
     constructor(v: Float) : this(v.toDouble())

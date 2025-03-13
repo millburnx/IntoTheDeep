@@ -378,7 +378,7 @@ open class MainTeleopBlue : OpMode() {
             telemetry.addData("isRed", isRed)
             telemetry.addData("pid | pid target", drive.pidManager.target)
             telemetry.addData("slides", outtake.slides.position)
-            telemetry.addData("slides target", outtake.slides.target)
+            telemetry.addData("slides target", outtake.slides.actualTarget)
             telemetry.addData("slides state", outtake.slides.state)
             telemetry.addData("toggles | autopickup", toggles.autoPickup)
             telemetry.addData("assists | basket assist", useBasketAssist)
@@ -392,13 +392,13 @@ open class MainTeleopBlue : OpMode() {
         var fieldCentric: Boolean = true
 
         @JvmField
-        var slideThreshold: Double = 0.1
+        var slideThreshold: Double = 0.25
 
         @JvmField
         var linkageRotationMultiplier: Double = 0.5
 
         @JvmField
-        var useTeleopHold: Boolean = false
+        var useTeleopHold: Boolean = true
 
         @JvmField
         var teleopHoldDuration: Long = 500

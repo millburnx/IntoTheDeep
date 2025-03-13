@@ -14,6 +14,7 @@ enum class OuttakeArmPosition {
     AUTON_SPECIMEN,
     BASKET,
     PICKUP,
+    AUTON_PICKUP,
     PARK,
 }
 
@@ -40,6 +41,7 @@ class OuttakeArm(
                 OuttakeArmPosition.AUTON_SPECIMEN -> autonSpecimenPosition
                 OuttakeArmPosition.BASKET -> basketPosition
                 OuttakeArmPosition.PICKUP -> pickupPosition
+                OuttakeArmPosition.AUTON_PICKUP -> autonPickupPosition
                 OuttakeArmPosition.PARK -> parkPosition
             }
         servoLimiter.maxSpeed = maxSpeed
@@ -60,6 +62,8 @@ class OuttakeArm(
 
     fun pickup() = InstantCommand({ state = OuttakeArmPosition.PICKUP }, this)
 
+    fun autonPickup() = InstantCommand({ state = OuttakeArmPosition.AUTON_PICKUP }, this)
+
     fun park() = InstantCommand({ state = OuttakeArmPosition.PARK }, this)
 
     companion object {
@@ -76,10 +80,13 @@ class OuttakeArm(
         var specimenPosition = 0.74
 
         @JvmField
-        var autonSpecimenPosition = 0.6 // different so we can be right against the wall
+        var autonSpecimenPosition = 0.26 // different so we can be right against the wall
 
         @JvmField
         var pickupPosition = 0.26
+
+        @JvmField
+        var autonPickupPosition = 0.74
 
         @JvmField
         var parkPosition = 0.48

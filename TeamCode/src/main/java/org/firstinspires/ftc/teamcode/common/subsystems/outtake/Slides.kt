@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.controller.PIDController
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.utils.Subsystem
+import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
 import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedMotor
 import kotlin.math.abs
 
@@ -23,7 +24,6 @@ class Slides(
         HIGH_RUNG,
         HIGH_RUNG_SCORE,
         AUTON_HIGH_RUNG,
-        AUTON_HIGH_RUNG_SCORE,
         MANUAL,
         DIRECT,
         REZERO,
@@ -31,14 +31,11 @@ class Slides(
 
     var state = State.BASE
         set(value) {
-            if (isStateLocked) return
             if (field == value) return
             field = value
         }
 
     var actualTarget = 0.0
-
-    var isStateLocked = false
 
     val left = CachedMotor(robot.hardware, "leftLift", isBrake = true)
     val right = CachedMotor(robot.hardware, "rightLift", isBrake = true)
@@ -68,13 +65,13 @@ class Slides(
 
     fun reset() =
         SequentialCommandGroup(
-            goTo(min),
-            InstantCommand({ isStateLocked = true }),
-            direct(rezeroPower),
+            goTo(State.BASE),
+            goTo(State.REZERO),
             WaitCommand(rezeroDuration),
-            rezeroCmd(),
-            InstantCommand({ isStateLocked = false }),
-            goTo(min),
+            conditionalCommand(
+                rezeroCmd(),
+            ) { state == State.REZERO },
+            goTo(State.BASE),
         )
 
     fun rezeroCmd() = InstantCommand(this::rezero)
@@ -99,7 +96,6 @@ class Slides(
                 State.HIGH_RUNG -> highRung
                 State.HIGH_RUNG_SCORE -> highRungScore
                 State.AUTON_HIGH_RUNG -> autonHighRung
-                State.AUTON_HIGH_RUNG_SCORE -> autonHighRungScore
                 State.MANUAL -> this.target
                 else -> return
             }
@@ -140,16 +136,13 @@ class Slides(
         var max: Double = 2200.0
 
         @JvmField
-        var highRung: Double = 1250.0
+        var highRung: Double = 1300.0
 
         @JvmField
-        var autonHighRung: Double = 800.0
+        var autonHighRung: Double = 1800.0
 
         @JvmField
         var highRungScore: Double = 2000.0
-
-        @JvmField
-        var autonHighRungScore: Double = 1550.0
 
         @JvmField
         var wall: Double = 170.0

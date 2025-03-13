@@ -48,6 +48,8 @@ class OuttakeArmTuner : OpMode() {
                 } else if (state == 5) {
                     OuttakeArm.pickupPosition = (OuttakeArm.pickupPosition + step).coerceIn(0.0, 1.0)
                 } else if (state == 6) {
+                    OuttakeArm.autonPickupPosition = (OuttakeArm.autonPickupPosition + step).coerceIn(0.0, 1.0)
+                } else if (state == 7) {
                     OuttakeArm.parkPosition = (OuttakeArm.parkPosition + step).coerceIn(0.0, 1.0)
                 }
             }
@@ -87,6 +89,9 @@ class OuttakeArmTuner : OpMode() {
                 outtakeArm.state = OuttakeArmPosition.PICKUP
                 telemetry.addData("state", "pickup")
             } else if (state == 6) {
+                outtakeArm.state = OuttakeArmPosition.AUTON_PICKUP
+                telemetry.addData("state", "auton pickup")
+            } else if (state == 7) {
                 outtakeArm.state = OuttakeArmPosition.PARK
                 telemetry.addData("state", "park")
             }

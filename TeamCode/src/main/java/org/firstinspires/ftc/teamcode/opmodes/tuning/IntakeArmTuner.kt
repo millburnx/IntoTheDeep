@@ -43,6 +43,10 @@ class IntakeArmTuner : OpMode() {
                         IntakeArm.floorPosition = (IntakeArm.floorPosition + step).coerceIn(0.0, 1.0)
                     } else if (state == 3) {
                         IntakeArm.sweepPosition = (IntakeArm.sweepPosition + step).coerceIn(0.0, 1.0)
+                    } else if (state == 4) {
+                        IntakeArm.safePosition = (IntakeArm.safePosition + step).coerceIn(0.0, 1.0)
+                    } else if (state == 5) {
+                        IntakeArm.safePosition = (IntakeArm.safe2Position + step).coerceIn(0.0, 1.0)
                     }
                 }
 
@@ -56,6 +60,10 @@ class IntakeArmTuner : OpMode() {
                         IntakeArm.floorPosition = (IntakeArm.floorPosition - step).coerceIn(0.0, 1.0)
                     } else if (state == 3) {
                         IntakeArm.sweepPosition = (IntakeArm.sweepPosition - step).coerceIn(0.0, 1.0)
+                    } else if (state == 4) {
+                        IntakeArm.safePosition = (IntakeArm.safePosition - step).coerceIn(0.0, 1.0)
+                    } else if (state == 5) {
+                        IntakeArm.safePosition = (IntakeArm.safe2Position - step).coerceIn(0.0, 1.0)
                     }
                 }
         }
@@ -76,6 +84,12 @@ class IntakeArmTuner : OpMode() {
         } else if (state == 3) {
             robot.intakeArm.state = IntakeArmPosition.SWEEP
             robot.telemetry.addData("state", "sweep")
+        } else if (state == 4) {
+            robot.intakeArm.state = IntakeArmPosition.SAFE
+            robot.telemetry.addData("state", "safe")
+        } else if (state == 5) {
+            robot.intakeArm.state = IntakeArmPosition.SAFE2
+            robot.telemetry.addData("state", "safe2")
         }
 
         robot.telemetry.addData("position", robot.intakeArm.leftServo.position)

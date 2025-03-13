@@ -118,7 +118,7 @@ class AutoPickup(
                     robot.drive.pidManager.isOn = true
                     robot.drive.pidManager.isSamplePickup = true
                     robot.drive.pidManager.target = target.first
-                    robot.intake.diffy.pitch = Diffy.pickupPitch
+                    robot.intake.diffy.state = Diffy.State.PICKUP
                     robot.intake.diffy.roll = Diffy.hoverRoll + target.second
                 }),
                 WaitUntilCommand(robot.drive.pidManager::atTarget),
