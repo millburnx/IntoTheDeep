@@ -43,7 +43,7 @@ class SampleAuton : OpMode() {
         val grab = {
             SequentialCommandGroup(
                 robot.autoPickup.startScanning(),
-                WaitUntilCommand({ robot.autoPickup.lastTarget != null }),
+                WaitUntilCommand { robot.autoPickup.lastTarget != null },
                 robot.autoPickup.stopScanning(),
                 robot.autoPickup.align(),
                 robot.intake.grab(),
@@ -67,11 +67,10 @@ class SampleAuton : OpMode() {
 
         val down = {
             SequentialCommandGroup(
-                ParallelCommandGroup(
-                    InstantCommand({
-                        robot.outtake.arm.state = OuttakeArmPosition.BASE
-                        robot.outtake.wrist.state = OuttakeWristPosition.BASE
-                    }, robot.outtake.arm, robot.outtake.wrist),
+                InstantCommand({
+                    robot.outtake.arm.state = OuttakeArmPosition.BASE
+                    robot.outtake.wrist.state = OuttakeWristPosition.BASE
+                }, robot.outtake.arm, robot.outtake.wrist).alongWith(
                     WaitCommand(outtakeDropArmDelay),
                 ),
                 SlidesCommand(robot.outtake.slides, Slides.State.BASE),
@@ -81,29 +80,32 @@ class SampleAuton : OpMode() {
         val drop = {
             SequentialCommandGroup(
                 robot.outtake.open(),
-                WaitCommand(250),
-                ParallelCommandGroup(
-                    ParallelCommandGroup(
-                        robot.outtake.arm.base(),
-                        robot.outtake.wrist.base(),
-                        WaitCommand(outtakeDropArmDelay),
-                    ),
-                    robot.drive.pid(Pose2d(basketX, basketY, -45.0)),
+                WaitCommand(250).andThen(
+                    robot.drive
+                        .pid(Pose2d(basketX, basketY, -45.0))
+                        .alongWith(
+                            ParallelCommandGroup(
+                                robot.outtake.arm.base(),
+                                robot.outtake.wrist.base(),
+                                WaitCommand(outtakeDropArmDelay),
+                            ),
+                        ),
                 ),
             )
         }
 
         val basket = {
             SequentialCommandGroup(
-                ParallelCommandGroup(
-                    SequentialCommandGroup(
-                        WaitUntilCommand({ robot.outtake.slides.position > Slides.min + (Slides.highBasket - Slides.min) / 2 }),
+                up().alongWith(
+                    WaitUntilCommand {
+                        robot.outtake.slides.position > Slides.min + (Slides.highBasket - Slides.min) / 2
+                    }.andThen(
                         robot.drive.pid(Pose2d(basketX, basketY, -45.0)),
                     ),
-                    up(),
                 ),
-                WaitCommand(basketDuration),
-                drop(),
+                WaitCommand(basketDuration).andThen(
+                    drop(),
+                ),
             )
         }
 
@@ -113,29 +115,35 @@ class SampleAuton : OpMode() {
                 ParallelCommandGroup(
                     down(),
                     robot.drive.pid(Pose2d(sample1X, sample1Y, 0.0)),
-                    WaitCommand(pidStablize),
-                    robot.intake.extend(),
+                    WaitCommand(pidStablize).andThen(
+                        robot.intake.extend(),
+                    ),
                 ),
-                WaitCommand(grabDuration),
-                grab(),
+                WaitCommand(grabDuration).andThen(
+                    grab(),
+                ),
                 basket(),
                 ParallelCommandGroup(
                     down(),
                     robot.drive.pid(Pose2d(sample2X, sample2Y, 0.0)),
-                    WaitCommand(pidStablize),
-                    robot.intake.extend(),
+                    WaitCommand(pidStablize).andThen(
+                        robot.intake.extend(),
+                    ),
                 ),
-                WaitCommand(grabDuration),
-                grab(),
+                WaitCommand(grabDuration).andThen(
+                    grab(),
+                ),
                 basket(),
                 ParallelCommandGroup(
                     down(),
                     robot.drive.pid(Pose2d(sample3X, sample3Y, sample3H)),
-                    WaitCommand(pidStablize),
-                    robot.intake.extend(),
+                    WaitCommand(pidStablize).andThen(
+                        robot.intake.extend(),
+                    ),
                 ),
-                WaitCommand(grabDuration),
-                grab(),
+                WaitCommand(grabDuration).andThen(
+                    grab(),
+                ),
                 basket(),
                 ParallelCommandGroup(
                     SlidesCommand(robot.outtake.slides, Slides.State.BASE),

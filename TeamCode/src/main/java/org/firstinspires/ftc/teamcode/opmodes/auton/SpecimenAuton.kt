@@ -85,10 +85,7 @@ class SpecimenAuton : OpMode() {
                 "sweepSample$sampleCount",
                 SequentialCommandGroup(
                     drive.pid(Pose2d(startingPose), tolerance = tolerance * 2.0),
-                    ParallelCommandGroup(
-                        intake.sweepAsync(),
-                        WaitCommand(250L),
-                    ),
+                    intake.sweepAsync().alongWith(WaitCommand(250L)),
                     drive.pid(Pose2d(endingPose), tolerance = tolerance * 2.0),
                     intake.arm.extended(),
                 ),
@@ -122,18 +119,15 @@ class SpecimenAuton : OpMode() {
                                     intake.diffy.autonSpecimen(),
                                 ),
                                 ParallelCommandGroup(
-                                    SequentialCommandGroup(
-                                        WaitCommand(armWait),
+                                    WaitCommand(armWait).andThen(
                                         outtake.autonSpecimenPickupPartial(),
                                     ),
-                                    SequentialCommandGroup(
-                                        WaitCommand(liftWait),
+                                    WaitCommand(liftWait).andThen(
                                         ParallelCommandGroup(
                                             outtake.slides.goTo(Slides.State.BASE),
-                                            SequentialCommandGroup(
-                                                WaitUntilCommand {
-                                                    outtake.slides.position < Slides.highRung
-                                                },
+                                            WaitUntilCommand {
+                                                outtake.slides.position < Slides.highRung
+                                            }.andThen(
                                                 intake.arm.safe2(),
                                             ),
                                         ),
@@ -185,19 +179,18 @@ class SpecimenAuton : OpMode() {
                         intake.arm.safe(),
                         readySpecimen(),
                         ParallelCommandGroup(
-                            InstantCommand({ println(purePursuitPath) }),
                             namedCommand(
                                 "pathing",
                                 purePursuitPath,
                             ),
-                            SequentialCommandGroup(
-                                WaitUntilCommand({
-                                    val pp = purePursuitPath.purePursuit
-                                    val pastSegment = pp.beziers.indexOf(pp.lastIntersection.line) >= scoringSlowSegment
-                                    val pastT = pp.lastIntersection.t > scoringSlowT
-//                                    print("segment ${pp.beziers.indexOf(pp.lastIntersection.line)} t ${pp.lastIntersection.t}")
-                                    return@WaitUntilCommand pastSegment && pastT
-                                }),
+                            WaitUntilCommand {
+                                val pp = purePursuitPath.purePursuit
+                                val pastSegment = pp.beziers.indexOf(pp.lastIntersection.line) >= scoringSlowSegment
+                                val pastT = pp.lastIntersection.t > scoringSlowT
+                                telemetry.addData("past segment", pastSegment)
+                                telemetry.addData("past t", pastT)
+                                return@WaitUntilCommand pastSegment && pastT
+                            }.andThen(
                                 InstantCommand({
                                     purePursuitPath.speed = slowSpeed
                                 }),
@@ -213,12 +206,11 @@ class SpecimenAuton : OpMode() {
                 namedCommand(
                     "scoreSpecimenPreload",
                     SequentialCommandGroup(
-                        readySpecimen(),
                         ParallelCommandGroup(
-                            SequentialCommandGroup(
-                                WaitUntilCommand {
-                                    outtake.slides.position > Slides.autonHighRung * 1 / 4
-                                },
+                            readySpecimen(),
+                            WaitUntilCommand {
+                                outtake.slides.position > Slides.autonHighRung * 1 / 4
+                            }.andThen(
                                 drive.pid(
                                     Pose2d(scoringPose),
                                     tolerance = tolerance * 2.0,
@@ -230,8 +222,9 @@ class SpecimenAuton : OpMode() {
                             useStuckDectector = true,
                             speed = slowSpeed,
                         ),
-                        WaitCommand(clipSpecimenDuration),
-                        releaseSpecimen(),
+                        WaitCommand(clipSpecimenDuration).andThen(
+                            releaseSpecimen(),
+                        ),
                     ),
                 ) // make its own pure pursuit path later
 
@@ -252,7 +245,9 @@ class SpecimenAuton : OpMode() {
                     InstantCommand({ println("Starting sample sweep @ ${matchTimer.seconds()}") }),
                     ParallelCommandGroup(
                         drive.pid(Pose2d(exitingScoring)),
-                        intake.extendAsync(),
+                        intake.linkage.extendAsync(),
+                        intake.arm.extended(),
+                        intake.diffy.sweep(),
                     ),
                     ParallelCommandGroup(
                         outtake.basePartial(),

@@ -87,15 +87,14 @@ open class MainTeleopBlue : OpMode() {
                             SequentialCommandGroup(
                                 intake.close(),
                                 conditionalCommand(
-                                    SequentialCommandGroup(
-                                        WaitCommand(transferClawDelay),
-                                        outtake.open(),
-                                        WaitCommand(transferClawDelay),
-                                    ),
+                                    WaitCommand(transferClawDelay)
+                                        .andThen(
+                                            outtake.open(),
+                                            WaitCommand(transferClawDelay),
+                                        ),
                                 ) { outtake.claw.state != OuttakeClaw.State.OPEN },
                                 conditionalCommand(
-                                    SequentialCommandGroup(
-                                        outtake.basePartial(),
+                                    outtake.basePartial().andThen(
                                         WaitCommand(transferClawDelay),
                                     ),
                                 ) {
@@ -122,28 +121,23 @@ open class MainTeleopBlue : OpMode() {
                         autoPickup.stop(),
                         intake.open(),
                         conditionalCommand(
-                            SequentialCommandGroup(
-                                outtake.basePartial(),
+                            outtake.basePartial().andThen(
                                 WaitCommand(transferClawDelay),
                             ),
                         ) {
                             outtake.arm.state == OuttakeArmPosition.TRANSFER
                         },
                         conditionalCommand(
-                            SequentialCommandGroup(
-                                outtake.basePartial(),
-                            ),
+                            outtake.basePartial(),
                         ) {
                             outtake.arm.state != OuttakeArmPosition.BASE
                         },
                         if (useLinkage) intake.extend() else intake.baseExtend(),
-                        ConditionalCommand(
-                            SequentialCommandGroup(
-                                WaitCommand(AutoPickup.cameraStablizationDuration),
+                        conditionalCommand(
+                            WaitCommand(AutoPickup.cameraStablizationDuration).andThen(
                                 autoPickup.startScanning(),
                                 rumble,
                             ),
-                            InstantCommand({}),
                         ) { toggles.autoPickup },
                     )
 
@@ -151,8 +145,7 @@ open class MainTeleopBlue : OpMode() {
                         SequentialCommandGroup(
                             ConditionalCommand(
                                 SequentialCommandGroup(
-                                    ParallelCommandGroup(
-                                        autoPickup.cancelRumble(rumble),
+                                    autoPickup.cancelRumble(rumble).alongWith(
                                         autoPickup.stopScanning(),
                                     ),
                                     ConditionalCommand(
@@ -220,10 +213,11 @@ open class MainTeleopBlue : OpMode() {
                             ),
                             SequentialCommandGroup(
                                 outtake.close(),
-                                WaitCommand(specimenCloseDuration),
-                                ParallelCommandGroup(
-                                    outtake.slides.goTo(Slides.State.HIGH_RUNG),
-                                    outtake.specimenPartial(),
+                                WaitCommand(specimenCloseDuration).andThen(
+                                    ParallelCommandGroup(
+                                        outtake.slides.goTo(Slides.State.HIGH_RUNG),
+                                        outtake.specimenPartial(),
+                                    ),
                                 ),
                             ),
                         )
@@ -237,10 +231,7 @@ open class MainTeleopBlue : OpMode() {
                                 outtake.slides.goTo(Slides.State.HIGH_RUNG_SCORE),
                             ) { outtake.arm.state == OuttakeArmPosition.BASKET },
                             ConditionalCommand(
-                                SequentialCommandGroup(
-                                    outtake.basePartial(),
-                                    outtake.base(),
-                                ),
+                                outtake.base(),
                                 SequentialCommandGroup(
                                     outtake.open(),
                                     outtake.specimenPickupPartial(),
