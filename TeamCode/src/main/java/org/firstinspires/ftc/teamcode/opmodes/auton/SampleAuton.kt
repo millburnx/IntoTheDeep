@@ -24,21 +24,23 @@ class SampleAuton : OpMode() {
     override val robot by lazy { AutonRobot(this) }
 
     override fun initialize() {
-        super.initialize()
-
         FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
 
+        robot.drive.pinPoint.pinPoint
+            .resetPosAndIMU()
         sleep(500)
         robot.drive.pinPoint.update()
-
         robot.drive.pose = Pose2d(startingX, startingY, startingHeading)
         robot.drive.pinPoint.update()
+
         val commands = mutableListOf<Command>()
         robot.outtake.arm.periodic()
         robot.outtake.claw.close()
         robot.outtake.claw.periodic()
         robot.intake.arm.periodic()
         robot.intake.claw.periodic()
+
+        super.initialize()
 
         val grab = {
             SequentialCommandGroup(

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auton
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
+import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
@@ -9,7 +10,7 @@ import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.command.WaitUntilCommand
 import com.millburnx.utils.Path
 import com.millburnx.utils.Vec2d
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeArmPosition
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosi
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
+import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 
 open class AutonRobot(
@@ -28,8 +30,8 @@ open class AutonRobot(
     }
 }
 
-// @Autonomous(name = "Specimen Auton", preselectTeleOp = "Main Teleop Red")
-@TeleOp(name = "Specimen Auton", group = "Auton")
+@Autonomous(name = "Specimen Auton", preselectTeleOp = "Main Teleop Red")
+// @TeleOp(name = "Specimen Auton", group = "Auton")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
 class SpecimenAuton : OpMode() {
@@ -97,7 +99,7 @@ class SpecimenAuton : OpMode() {
                     SequentialCommandGroup(
                         sweepSample(sweepFirstStartingPose, sweepFirstEndingPose, 0),
                         sweepSample(sweepSecondStartingPose, sweepSecondEndingPose, 1),
-                        sweepSample(sweepThirdStartingPose, sweepThirdEndingPose, 2),
+//                        sweepSample(sweepThirdStartingPose, sweepThirdEndingPose, 2),
                     ),
                 )
 
@@ -114,13 +116,19 @@ class SpecimenAuton : OpMode() {
                             ),
                             SequentialCommandGroup(
                                 ParallelCommandGroup(
-                                    intake.linkage.retract(),
-                                    intake.arm.safe2(),
+                                    conditionalCommand(
+                                        intake.linkage.retract(),
+                                    ) { intake.linkage.target == 1.0 },
+                                    ConditionalCommand(
+                                        intake.arm.safe(),
+                                        intake.arm.safe2(),
+                                    ) { outtake.slides.position > Slides.highRung / 2 },
                                     intake.diffy.autonSpecimen(),
                                 ),
                                 ParallelCommandGroup(
                                     WaitCommand(armWait).andThen(
                                         outtake.autonSpecimenPickupPartial(),
+                                        WaitCommand(625),
                                     ),
                                     WaitCommand(liftWait).andThen(
                                         ParallelCommandGroup(
@@ -260,13 +268,19 @@ class SpecimenAuton : OpMode() {
                             pickupAndScoreSpecimen(1),
                             pickupAndScoreSpecimen(2),
                             pickupAndScoreSpecimen(3),
-                            pickupAndScoreSpecimen(4),
+//                            pickupAndScoreSpecimen(4),
                         ),
                     ),
-//                    ParallelCommandGroup(
-//                        outtake.base(),
-//                        park(),
-//                    ),
+                    ParallelCommandGroup(
+                        park(),
+                        WaitCommand(1000).andThen(
+                            ParallelCommandGroup(
+                                intake.arm.base(),
+                                intake.diffy.transfer(),
+                                outtake.base(),
+                            ),
+                        ),
+                    ),
                 ),
             )
         }
@@ -348,7 +362,7 @@ class SpecimenAuton : OpMode() {
         var clipSpecimenDuration: Long = 0
 
         @JvmField
-        var armWait = 125L
+        var armWait = 250L
 
         @JvmField
         var liftWait = 250L
