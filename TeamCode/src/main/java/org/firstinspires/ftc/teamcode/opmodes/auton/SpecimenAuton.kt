@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.auton
 
 import com.acmerobotics.dashboard.config.Config
 import com.arcrobotics.ftclib.command.Command
-import com.arcrobotics.ftclib.command.ConditionalCommand
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
@@ -86,13 +85,10 @@ class SpecimenAuton : OpMode() {
                 "sweepSample$sampleCount",
                 SequentialCommandGroup(
                     drive.pid(Pose2d(startingPose), tolerance = tolerance * 2.0),
-                    ConditionalCommand(
-                        ParallelCommandGroup(
-                            intake.sweepAsync(),
-                            WaitCommand(250L),
-                        ),
-                        intake.sweep(),
-                    ) { intake.linkage.target == 1.0 },
+                    ParallelCommandGroup(
+                        intake.sweepAsync(),
+                        WaitCommand(250L),
+                    ),
                     drive.pid(Pose2d(endingPose), tolerance = tolerance * 2.0),
                     intake.arm.extended(),
                 ),
@@ -125,20 +121,22 @@ class SpecimenAuton : OpMode() {
                                     intake.arm.safe2(),
                                     intake.diffy.autonSpecimen(),
                                 ),
-                                WaitUntilCommand {
-                                    drive.pose.distanceTo(Pose2d(pickupPose)) < minDistanceForArm
-                                },
-                                outtake.autonSpecimenPickupPartial(),
-                                WaitUntilCommand {
-                                    drive.pose.distanceTo(Pose2d(pickupPose)) < minDistanceForLowering
-                                },
                                 ParallelCommandGroup(
-                                    outtake.slides.goTo(Slides.State.BASE),
                                     SequentialCommandGroup(
-                                        WaitUntilCommand {
-                                            outtake.slides.position < Slides.highRung
-                                        },
-                                        intake.arm.safe2(),
+                                        WaitCommand(armWait),
+                                        outtake.autonSpecimenPickupPartial(),
+                                    ),
+                                    SequentialCommandGroup(
+                                        WaitCommand(liftWait),
+                                        ParallelCommandGroup(
+                                            outtake.slides.goTo(Slides.State.BASE),
+                                            SequentialCommandGroup(
+                                                WaitUntilCommand {
+                                                    outtake.slides.position < Slides.highRung
+                                                },
+                                                intake.arm.safe2(),
+                                            ),
+                                        ),
                                     ),
                                 ),
                             ),
@@ -252,7 +250,10 @@ class SpecimenAuton : OpMode() {
                     0,
                     scorePreloadSpecimen(),
                     InstantCommand({ println("Starting sample sweep @ ${matchTimer.seconds()}") }),
-                    drive.pid(Pose2d(exitingScoring)),
+                    ParallelCommandGroup(
+                        drive.pid(Pose2d(exitingScoring)),
+                        intake.extendAsync(),
+                    ),
                     ParallelCommandGroup(
                         outtake.basePartial(),
                         outtake.slides.goTo(Slides.State.BASE),
@@ -352,10 +353,10 @@ class SpecimenAuton : OpMode() {
         var clipSpecimenDuration: Long = 0
 
         @JvmField
-        var minDistanceForArm = 52.0
+        var armWait = 125L
 
         @JvmField
-        var minDistanceForLowering = 44.0
+        var liftWait = 250L
         // </editor-fold>
 
         // <editor-fold desc="Sweep Poses">

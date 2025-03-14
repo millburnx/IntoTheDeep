@@ -28,7 +28,11 @@ class SampleAuton : OpMode() {
 
         FtcDashboard.getInstance().startCameraStream(robot.camera.sampleDetector, 0.0)
 
+        sleep(500)
+        robot.drive.pinPoint.update()
+
         robot.drive.pose = Pose2d(startingX, startingY, startingHeading)
+        robot.drive.pinPoint.update()
         val commands = mutableListOf<Command>()
         robot.outtake.arm.periodic()
         robot.outtake.claw.close()
