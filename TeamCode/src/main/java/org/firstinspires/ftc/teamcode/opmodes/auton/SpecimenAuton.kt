@@ -113,7 +113,11 @@ class SpecimenAuton : OpMode() {
                     "pickupSpecimen$specimen",
                     SequentialCommandGroup(
                         ParallelCommandGroup(
-                            outtake.open(),
+                            SequentialCommandGroup(
+                                outtake.open(),
+                                WaitCommand(500),
+                                outtake.tightOpen(), // slightly faster cuz less servo movement time 💀
+                            ),
                             SequentialCommandGroup(
                                 WaitUntilCommand {
                                     drive.pose.distanceTo(Pose2d(pickupPose)) < minDistanceForArm
@@ -137,7 +141,6 @@ class SpecimenAuton : OpMode() {
                         drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = slowSpeed),
                         outtake.close(),
                         WaitCommand(pickupDuration),
-                        outtake.slides.goTo(Slides.State.WALL),
                     ),
                 )
 
@@ -152,7 +155,7 @@ class SpecimenAuton : OpMode() {
                 return Path(
                     listOf(
                         pickupPos,
-                        Vec2d(pickupPos.x, pickupPos.y + (scoringPos.y - pickupPos.y) / 2),
+                        Vec2d(-48.0, pickupPos.y),
                     ) +
                         listOf(
                             Vec2d(-48, scoringPos.y) + offset,
@@ -165,7 +168,6 @@ class SpecimenAuton : OpMode() {
                         ),
                 )
             }
-            scoringSlowT
 
             fun scoreSpecimen(specimen: Int): Command {
                 val purePursuitPath =
@@ -278,10 +280,6 @@ class SpecimenAuton : OpMode() {
         name: String,
         command: Command,
     ) = command.beforeStarting { currentCommands.add(name) }.whenFinished { currentCommands.remove(name) }
-//    fun namedCommand(
-//        name: String,
-//        command: Command,
-//    ) = command
 
     fun delayedSequential(
         delay: Long,
@@ -328,7 +326,7 @@ class SpecimenAuton : OpMode() {
         var pickupPoseDeep = arrayOf(-72.0, -36.0, 180.0)
 
         @JvmField
-        var pickupDuration: Long = 250
+        var pickupDuration: Long = 125
         // </editor-fold>
 
         // <editor-fold desc="Scoring Config">
@@ -351,7 +349,7 @@ class SpecimenAuton : OpMode() {
         var exitingScoring = arrayOf(-40.0, -2.0, 180.0)
 
         @JvmField
-        var clipSpecimenDuration: Long = 500
+        var clipSpecimenDuration: Long = 0
 
         @JvmField
         var minDistanceForArm = 52.0

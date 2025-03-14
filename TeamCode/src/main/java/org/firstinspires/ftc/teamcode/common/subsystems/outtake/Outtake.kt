@@ -84,5 +84,7 @@ class Outtake(
 
     fun open() = InstantCommand(claw::open, claw)
 
+    fun tightOpen() = InstantCommand(claw::tightOpen, claw)
+
     fun close() = InstantCommand(claw::close, claw)
 }
