@@ -113,12 +113,18 @@ class SpecimenAuton : OpMode() {
                     "pickupSpecimen$specimen",
                     SequentialCommandGroup(
                         ParallelCommandGroup(
+                            drive.pid(Pose2d(pickupPose), tolerance = tolerance * 2.0),
                             SequentialCommandGroup(
                                 outtake.open(),
                                 WaitCommand(500),
                                 outtake.tightOpen(), // slightly faster cuz less servo movement time 💀
                             ),
                             SequentialCommandGroup(
+                                ParallelCommandGroup(
+                                    intake.linkage.retract(),
+                                    intake.arm.safe2(),
+                                    intake.diffy.autonSpecimen(),
+                                ),
                                 WaitUntilCommand {
                                     drive.pose.distanceTo(Pose2d(pickupPose)) < minDistanceForArm
                                 },
@@ -136,7 +142,6 @@ class SpecimenAuton : OpMode() {
                                     ),
                                 ),
                             ),
-                            drive.pid(Pose2d(pickupPose), tolerance = tolerance * 2.0),
                         ),
                         drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = slowSpeed),
                         outtake.close(),
@@ -254,11 +259,6 @@ class SpecimenAuton : OpMode() {
                         sweepSamples(),
                     ),
                     InstantCommand({ println("Starting specimen scoring @ ${matchTimer.seconds()}") }),
-                    ParallelCommandGroup(
-                        intake.linkage.retract(),
-                        intake.arm.safe2(),
-                        intake.diffy.autonSpecimen(),
-                    ),
                     ParallelCommandGroup(
                         SequentialCommandGroup(
                             pickupAndScoreSpecimen(1),
