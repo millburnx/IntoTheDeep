@@ -8,6 +8,7 @@ import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.Robot
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
+import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import kotlin.math.pow
 
 @Config
@@ -39,7 +40,13 @@ class PurePursuitCommand(
         val results =
             purePursuit.calc(
                 pose.position,
-                if (headingLock) virtualHeading else pose.heading,
+                if (headingLock) {
+                    virtualHeading
+                } else if (backwards) {
+                    normalizeDegrees(180 - pose.heading)
+                } else {
+                    pose.heading
+                },
                 robot.deltaTime.deltaTime,
             )
         robot.telemetry.addData("lookahead", results.lookahead)
@@ -79,7 +86,7 @@ class PurePursuitCommand(
 
                 robot.drive.pidManager.isOn = false
                 robot.drive.robotCentric(
-                    powerF * multiF * if (backwards) -1.0 else 1.0,
+                    -powerF * multiF * if (backwards) -1.0 else 1.0,
                     0.0,
                     -powerH * multiH,
                     speed = speed,
@@ -99,7 +106,7 @@ class PurePursuitCommand(
 
     override fun isFinished(): Boolean {
         if (exitOnStuck && elapsedTime.milliseconds() > minStuckThreshold && robot.drive.stuckDectector.isStuck) return true
-        return robot.drive.pidManager.atTarget()
+        return robot.drive.pidManager.atTarget() && robot.drive.pidManager.isOn
     }
 
     companion object {
@@ -107,10 +114,10 @@ class PurePursuitCommand(
         var multiF = 1.0
 
         @JvmField
-        var multiH = 1.0
+        var multiH = .1
 
         @JvmField
-        var minStuckThreshold: Long = 125L
+        var minStuckThreshold: Long = 500L
 
         @JvmField
         var useCorrection = false

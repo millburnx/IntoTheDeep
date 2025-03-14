@@ -87,7 +87,10 @@ class SpecimenAuton : OpMode() {
                 SequentialCommandGroup(
                     drive.pid(Pose2d(startingPose), tolerance = tolerance * 2.0),
                     ConditionalCommand(
-                        intake.sweepAsync(),
+                        ParallelCommandGroup(
+                            intake.sweepAsync(),
+                            WaitCommand(250L),
+                        ),
                         intake.sweep(),
                     ) { intake.linkage.target == 1.0 },
                     drive.pid(Pose2d(endingPose), tolerance = tolerance * 2.0),
@@ -131,7 +134,7 @@ class SpecimenAuton : OpMode() {
                             ),
                             drive.pid(Pose2d(pickupPose), tolerance = tolerance * 2.0),
                         ),
-                        drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = 0.75),
+                        drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = slowSpeed),
                         outtake.close(),
                         WaitCommand(pickupDuration),
                         outtake.slides.goTo(Slides.State.WALL),
@@ -149,15 +152,15 @@ class SpecimenAuton : OpMode() {
                 return Path(
                     listOf(
                         pickupPos,
-                        Vec2d(-48, pickupPos.y),
+                        Vec2d(pickupPos.x, pickupPos.y + (scoringPos.y - pickupPos.y) / 2),
                     ) +
                         listOf(
                             Vec2d(-48, scoringPos.y) + offset,
                             scoringPos + offset,
-                            Vec2d(-30, scoringPos.y) + offset,
+                            Vec2d(-36, scoringPos.y) + offset,
                         ) +
                         listOf(
-                            Vec2d(-30.0, 0.0) + offset,
+                            Vec2d(-36.0, 0.0) + offset,
                             scoringPosDeep + offset,
                         ),
                 )
@@ -177,17 +180,21 @@ class SpecimenAuton : OpMode() {
                         intake.arm.safe(),
                         readySpecimen(),
                         ParallelCommandGroup(
-                            purePursuitPath,
+                            InstantCommand({ println(purePursuitPath) }),
+                            namedCommand(
+                                "pathing",
+                                purePursuitPath,
+                            ),
                             SequentialCommandGroup(
                                 WaitUntilCommand({
                                     val pp = purePursuitPath.purePursuit
                                     val pastSegment = pp.beziers.indexOf(pp.lastIntersection.line) >= scoringSlowSegment
                                     val pastT = pp.lastIntersection.t > scoringSlowT
-                                    print("segment ${pp.beziers.indexOf(pp.lastIntersection.line)} t ${pp.lastIntersection.t}")
+//                                    print("segment ${pp.beziers.indexOf(pp.lastIntersection.line)} t ${pp.lastIntersection.t}")
                                     return@WaitUntilCommand pastSegment && pastT
                                 }),
                                 InstantCommand({
-                                    purePursuitPath.speed = 0.75
+                                    purePursuitPath.speed = slowSpeed
                                 }),
                             ),
                         ),
@@ -205,7 +212,7 @@ class SpecimenAuton : OpMode() {
                         ParallelCommandGroup(
                             SequentialCommandGroup(
                                 WaitUntilCommand {
-                                    outtake.slides.position > Slides.autonHighRung * 3 / 4
+                                    outtake.slides.position > Slides.autonHighRung * 1 / 4
                                 },
                                 drive.pid(
                                     Pose2d(scoringPose),
@@ -216,7 +223,7 @@ class SpecimenAuton : OpMode() {
                         drive.pid(
                             Pose2d(scoringPoseDeep),
                             useStuckDectector = true,
-                            speed = 0.75,
+                            speed = slowSpeed,
                         ),
                         WaitCommand(clipSpecimenDuration),
                         releaseSpecimen(),
@@ -298,7 +305,7 @@ class SpecimenAuton : OpMode() {
         robot.telemetry.addData("pid at target", robot.drive.pidManager.atTarget())
         robot.telemetry.addData("current commands", currentCommands.joinToString(", "))
         robot.telemetry.addData("time", robot.matchTimer.seconds())
-        println(currentCommands.joinToString(", "))
+        println(currentCommands.joinToString(" | "))
     }
 
     companion object {
@@ -308,11 +315,14 @@ class SpecimenAuton : OpMode() {
         @JvmField
         var parkPose = arrayOf(-54.0, -36.0, 180.0)
 
+        @JvmField
+        var slowSpeed = .625
+
         // make this pickup and scoring into a pure pursuit path
 
         // <editor-fold desc="Pickup Config">
         @JvmField
-        var pickupPose = arrayOf(-54.0, -36.0, 180.0)
+        var pickupPose = arrayOf(-58.0, -36.0, 180.0)
 
         @JvmField
         var pickupPoseDeep = arrayOf(-72.0, -36.0, 180.0)
@@ -323,7 +333,7 @@ class SpecimenAuton : OpMode() {
 
         // <editor-fold desc="Scoring Config">
         @JvmField
-        var scoringPose = arrayOf(-48.0, -2.0, 180.0)
+        var scoringPose = arrayOf(-40.0, -2.0, 180.0)
 
         @JvmField
         var scoringSlowSegment = 1
@@ -332,22 +342,22 @@ class SpecimenAuton : OpMode() {
         var scoringSlowT = 0.5
 
         @JvmField
-        var scoringPoseDeep = arrayOf(-24.0, -2.0, 180.0)
+        var scoringPoseDeep = arrayOf(-32.0, -2.0, 180.0)
 
         @JvmField
         var scoringOffset = arrayOf(0.0, 2.0, 0.0)
 
         @JvmField
-        var exitingScoring = arrayOf(-48.0, -2.0, 180.0)
+        var exitingScoring = arrayOf(-40.0, -2.0, 180.0)
 
         @JvmField
         var clipSpecimenDuration: Long = 500
 
         @JvmField
-        var minDistanceForArm = 64.0
+        var minDistanceForArm = 52.0
 
         @JvmField
-        var minDistanceForLowering = 52.0
+        var minDistanceForLowering = 44.0
         // </editor-fold>
 
         // <editor-fold desc="Sweep Poses">

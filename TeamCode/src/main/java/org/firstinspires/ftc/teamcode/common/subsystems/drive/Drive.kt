@@ -128,13 +128,24 @@ open class Drive(
         path: String,
         heading: Double,
         useStuckDectector: Boolean = false,
-    ) = purePursuit(Path.loadPath(path), heading, useStuckDectector)
+        headingLock: Boolean = true,
+        backwards: Boolean = false,
+    ) = purePursuit(Path.loadPath(path), heading, useStuckDectector, headingLock, backwards)
 
     fun purePursuit(
         path: Path,
         heading: Double,
         useStuckDectector: Boolean = false,
-    ) = PurePursuitCommand(robot, heading, path.points, exitOnStuck = useStuckDectector)
+        headingLock: Boolean = true,
+        backwards: Boolean = false,
+    ) = PurePursuitCommand(
+        robot,
+        heading,
+        path.points,
+        exitOnStuck = useStuckDectector,
+        headingLock = headingLock,
+        backwards = backwards,
+    )
 
     companion object {
         @JvmField

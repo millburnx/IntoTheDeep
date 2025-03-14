@@ -430,7 +430,7 @@ open class MainTeleopBlue : OpMode() {
         var baseIntakeDuration: Long = 1000
 
         @JvmField
-        var intakeDuration: Long = 1000
+        var intakeDuration: Long = 750
 
         // <editor-fold desc="Heading Assist">
         @JvmField

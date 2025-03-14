@@ -100,7 +100,7 @@ class Slides(
                 else -> return
             }
 
-        println("slide target $target")
+//        println("slide target $target")
 
         this.target = target
         this.actualTarget = target

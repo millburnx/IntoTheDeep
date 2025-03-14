@@ -135,7 +135,7 @@ open class PIDManager(
 
         val motorThreshold = robot.drive.motors.all { abs(it.power) < wheelThreshold }
 
-        println("$motorThreshold ${robot.drive.motors.map { abs(it.power) }}")
+//        println("$motorThreshold ${robot.drive.motors.map { abs(it.power) }}")
 
         if (!motorThreshold && usePowerSettling) return false
 
