@@ -22,9 +22,10 @@ class CorrectedDrive(
         y: Double,
         rotate: Double,
         heading: Double,
+        speed: Double,
     ) {
         val centripetalCorrection = getCentripetalCorrection()
-        super.fieldCentric(x + centripetalCorrection.x, y + centripetalCorrection.y, rotate, heading)
+        super.fieldCentric(x + centripetalCorrection.x, y + centripetalCorrection.y, rotate, heading, speed)
     }
 
     // https://en.wikipedia.org/wiki/Circumci rcle#Circumcenter_coordinates

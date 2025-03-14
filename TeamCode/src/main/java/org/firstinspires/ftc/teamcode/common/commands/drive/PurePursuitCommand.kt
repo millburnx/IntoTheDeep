@@ -21,9 +21,9 @@ class PurePursuitCommand(
     val multiF: Double = Companion.multiF,
     val multiH: Double = Companion.multiH,
     val backwards: Boolean = false, // only for if headingLock = false
+    var speed: Double = 1.0,
 ) : CommandBase() {
     val purePursuit = PurePursuit(path, lookahead, PIDSettings.tolerance)
-    val endingState = false
 
     val elapsedTime = ElapsedTime()
 
@@ -60,6 +60,7 @@ class PurePursuitCommand(
             val target = if (useCorrection) correctedTarget else results.target
 
             robot.drive.pidManager.isOn = true
+            robot.drive.pidManager.speed = speed
             robot.drive.pidManager.target = Pose2d(target, targetHeading)
         } else {
             val endDistance = pose.distanceTo(path.last())
@@ -77,7 +78,12 @@ class PurePursuitCommand(
                 val powerH = Math.toDegrees(angleDiff)
 
                 robot.drive.pidManager.isOn = false
-                robot.drive.robotCentric(powerF * multiF, 0.0, -powerH * multiH)
+                robot.drive.robotCentric(
+                    powerF * multiF * if (backwards) -1.0 else 1.0,
+                    0.0,
+                    -powerH * multiH,
+                    speed = speed,
+                )
             }
         }
 
@@ -88,6 +94,7 @@ class PurePursuitCommand(
 
     override fun end(interrupted: Boolean) {
         robot.drive.robotCentric(0.0, 0.0, 0.0)
+        robot.drive.pidManager.target = robot.drive.pose
     }
 
     override fun isFinished(): Boolean {
@@ -103,10 +110,10 @@ class PurePursuitCommand(
         var multiH = 1.0
 
         @JvmField
-        var minStuckThreshold: Long = 250L
+        var minStuckThreshold: Long = 125L
 
         @JvmField
-        var useCorrection = true
+        var useCorrection = false
 
         @JvmField
         var a = 0.1

@@ -31,6 +31,7 @@ class StuckDectector(
         }
 
     override fun periodic() {
+        positionQueue.duration = stuckDuration
         positionQueue.add(robot.drive.pose)
 
         robot.telemetry.addData("stuck | stuck", isStuck)
@@ -43,13 +44,13 @@ class StuckDectector(
 
     companion object {
         @JvmField
-        var stuckDuration: Long = 250L
+        var stuckDuration: Long = 150L
 
         @JvmField
-        var stuckVeloT: Double = 1.0
+        var stuckVeloT: Double = 3.0
 
         @JvmField
-        var stuckVeloH: Double = 4.0
+        var stuckVeloH: Double = 6.0
     }
 }
 

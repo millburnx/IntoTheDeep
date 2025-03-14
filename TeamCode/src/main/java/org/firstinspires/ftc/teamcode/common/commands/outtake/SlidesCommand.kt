@@ -29,7 +29,6 @@ class SlidesCommand(
         // just use a parallel group w/ a wait command, this only has to really run once
         if (state == Slides.State.DIRECT || state == Slides.State.REZERO) return true
         // slides.target instead of just target so we don't have to re-clamp or whatever again
-        if (slides.state != state) return true // cancelled/overridden
         val diff = slides.position - slides.actualTarget
         return diff.absoluteValue < tolerance
     }

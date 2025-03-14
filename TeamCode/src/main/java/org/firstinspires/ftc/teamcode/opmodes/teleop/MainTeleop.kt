@@ -421,7 +421,7 @@ open class MainTeleopBlue : OpMode() {
         var outtakeDropArmDelay: Long = 250
 
         @JvmField
-        var intakePickupArmDelay: Long = 500
+        var intakePickupArmDelay: Long = 250
 
         @JvmField
         var intakePickupClawDelay: Long = 250

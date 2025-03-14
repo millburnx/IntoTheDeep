@@ -77,13 +77,15 @@ open class Drive(
         forward: Double,
         strafe: Double,
         rotate: Double,
-    ) = fieldCentric(forward, strafe, rotate, 0.0)
+        speed: Double = 1.0,
+    ) = fieldCentric(forward, strafe, rotate, 0.0, speed)
 
     open fun fieldCentric(
         x: Double,
         y: Double,
         rotate: Double,
         heading: Double = pose.radians,
+        speed: Double = 1.0,
     ) {
         val relativeVector = Vec2d(x, y).rotate(-heading) * Vec2d(1.0, strafeMultiplier)
 
@@ -93,10 +95,10 @@ open class Drive(
         val weightedRotate = rotate + strafe * frontWeighting + strafe * extendoWeighting * robot.intake.linkage.target
 
         val denominator = max(forward.absoluteValue + strafe.absoluteValue + weightedRotate.absoluteValue, 1.0)
-        frontLeft.power = (forward + strafe + weightedRotate) / denominator
-        backLeft.power = (forward - strafe + weightedRotate) / denominator
-        frontRight.power = (forward - strafe - weightedRotate) / denominator
-        backRight.power = (forward + strafe - weightedRotate) / denominator
+        frontLeft.power = (forward + strafe + weightedRotate) / denominator * speed.coerceAtMost(1.0)
+        backLeft.power = (forward - strafe + weightedRotate) / denominator * speed.coerceAtMost(1.0)
+        frontRight.power = (forward - strafe - weightedRotate) / denominator * speed.coerceAtMost(1.0)
+        backRight.power = (forward + strafe - weightedRotate) / denominator * speed.coerceAtMost(1.0)
     }
 
     fun relativeDrive(

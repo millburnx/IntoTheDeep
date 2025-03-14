@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.command.WaitUntilCommand
+import com.millburnx.utils.Path
 import com.millburnx.utils.Vec2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.common.commands.drive.PIDSettings
@@ -38,8 +39,6 @@ class SpecimenAuton : OpMode() {
     val currentCommands = mutableListOf<String>()
 
     override fun initialize() {
-        super.initialize()
-
         robot.apply {
             drive.pinPoint.pinPoint.resetPosAndIMU()
             sleep(500)
@@ -55,10 +54,12 @@ class SpecimenAuton : OpMode() {
             outtake.wrist.periodic()
             outtake.claw.close()
             outtake.claw.periodic()
-            intake.arm.state = IntakeArmPosition.SAFE2
-            intake.diffy.state = Diffy.State.AUTON_SPECIMEN
+            intake.arm.state = IntakeArmPosition.BASE
+            intake.diffy.state = Diffy.State.TRANSFER
             intake.arm.periodic()
             intake.claw.periodic()
+
+            super.initialize()
 
             val tolerance =
                 Pose2d(
@@ -112,61 +113,122 @@ class SpecimenAuton : OpMode() {
                             outtake.open(),
                             SequentialCommandGroup(
                                 WaitUntilCommand {
-                                    val lastScoringPose =
-                                        Pose2d(scoringPose) + Vec2d(scoringOffset) * (specimen - 1.0)
-                                    drive.pose.distanceTo(lastScoringPose) > minDistanceForLowering
+                                    drive.pose.distanceTo(Pose2d(pickupPose)) < minDistanceForArm
                                 },
                                 outtake.autonSpecimenPickupPartial(),
-                                outtake.slides.goTo(Slides.State.BASE),
+                                WaitUntilCommand {
+                                    drive.pose.distanceTo(Pose2d(pickupPose)) < minDistanceForLowering
+                                },
+                                ParallelCommandGroup(
+                                    outtake.slides.goTo(Slides.State.BASE),
+                                    SequentialCommandGroup(
+                                        WaitUntilCommand {
+                                            outtake.slides.position < Slides.highRung
+                                        },
+                                        intake.arm.safe2(),
+                                    ),
+                                ),
                             ),
                             drive.pid(Pose2d(pickupPose), tolerance = tolerance * 2.0),
                         ),
-                        drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = 0.25),
+                        drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = 0.75),
                         outtake.close(),
                         WaitCommand(pickupDuration),
-//                        InstantCommand({
-//                            robot.drive.pidManager.isOn = true
-//                            robot.drive.pidManager.target = drive.pose + Pose2d(pickupPreLift)
-//                            robot.drive.pidManager.tolerance = tolerance
-//                            robot.drive.pidManager.speed = 1.0
-//                        }),
-//                        WaitCommand(pickupDuration),
                         outtake.slides.goTo(Slides.State.WALL),
                     ),
                 )
 
-            fun scoreSpecimen(specimen: Int) =
-                namedCommand(
+            fun getScoreSpecimenPath(specimen: Int): Path {
+                val pickupPos = Pose2d(pickupPose).position
+
+                val scoringPos = Pose2d(scoringPose).position
+                val scoringPosDeep = Pose2d(scoringPoseDeep).position
+
+                val offset = Pose2d(scoringOffset).position * specimen
+
+                return Path(
+                    listOf(
+                        pickupPos,
+                        Vec2d(-48, pickupPos.y),
+                    ) +
+                        listOf(
+                            Vec2d(-48, scoringPos.y) + offset,
+                            scoringPos + offset,
+                            Vec2d(-30, scoringPos.y) + offset,
+                        ) +
+                        listOf(
+                            Vec2d(-30.0, 0.0) + offset,
+                            scoringPosDeep + offset,
+                        ),
+                )
+            }
+            scoringSlowT
+
+            fun scoreSpecimen(specimen: Int): Command {
+                val purePursuitPath =
+                    drive.purePursuit(
+                        getScoreSpecimenPath(specimen),
+                        Pose2d(scoringPose).heading,
+                        useStuckDectector = true,
+                    )
+                return namedCommand(
                     "scoreSpecimen$specimen",
                     SequentialCommandGroup(
+                        intake.arm.safe(),
+                        readySpecimen(),
                         ParallelCommandGroup(
-                            readySpecimen(),
+                            purePursuitPath,
                             SequentialCommandGroup(
-                                WaitUntilCommand {
-                                    outtake.slides.position > Slides.autonHighRung / 2.0
-                                },
-                                drive.pid(
-                                    Pose2d(scoringPose) + Vec2d(scoringOffset) * specimen,
-                                    tolerance = tolerance * 2.0,
-                                ),
+                                WaitUntilCommand({
+                                    val pp = purePursuitPath.purePursuit
+                                    val pastSegment = pp.beziers.indexOf(pp.lastIntersection.line) >= scoringSlowSegment
+                                    val pastT = pp.lastIntersection.t > scoringSlowT
+                                    print("segment ${pp.beziers.indexOf(pp.lastIntersection.line)} t ${pp.lastIntersection.t}")
+                                    return@WaitUntilCommand pastSegment && pastT
+                                }),
+                                InstantCommand({
+                                    purePursuitPath.speed = 0.75
+                                }),
                             ),
-                        ),
-                        drive.pid(
-                            Pose2d(scoringPoseDeep) + Vec2d(scoringOffset) * specimen,
-                            useStuckDectector = true,
-                            speed = 0.25,
                         ),
                         WaitCommand(clipSpecimenDuration),
                         releaseSpecimen(),
                     ),
                 )
+            }
 
-            fun scorePreloadSpecimen() = scoreSpecimen(0) // make its own pure pursuit path later
+            fun scorePreloadSpecimen() =
+                namedCommand(
+                    "scoreSpecimenPreload",
+                    SequentialCommandGroup(
+                        readySpecimen(),
+                        ParallelCommandGroup(
+                            SequentialCommandGroup(
+                                WaitUntilCommand {
+                                    outtake.slides.position > Slides.autonHighRung * 3 / 4
+                                },
+                                drive.pid(
+                                    Pose2d(scoringPose),
+                                    tolerance = tolerance * 2.0,
+                                ),
+                            ),
+                        ),
+                        drive.pid(
+                            Pose2d(scoringPoseDeep),
+                            useStuckDectector = true,
+                            speed = 0.75,
+                        ),
+                        WaitCommand(clipSpecimenDuration),
+                        releaseSpecimen(),
+                    ),
+                ) // make its own pure pursuit path later
 
             fun pickupAndScoreSpecimen(specimen: Int) =
                 SequentialCommandGroup(
                     pickupSpecimen(specimen),
+                    InstantCommand({ println("Picked up specimen $specimen @ ${matchTimer.seconds()}") }),
                     scoreSpecimen(specimen),
+                    InstantCommand({ println("Scored specimen $specimen @ ${matchTimer.seconds()}") }),
                 )
 
             fun park() = namedCommand("park", drive.pid(Pose2d(parkPose)))
@@ -176,16 +238,18 @@ class SpecimenAuton : OpMode() {
                     0,
                     scorePreloadSpecimen(),
                     InstantCommand({ println("Starting sample sweep @ ${matchTimer.seconds()}") }),
+                    drive.pid(Pose2d(exitingScoring)),
                     ParallelCommandGroup(
                         outtake.basePartial(),
                         outtake.slides.goTo(Slides.State.BASE),
                         sweepSamples(),
                     ),
                     InstantCommand({ println("Starting specimen scoring @ ${matchTimer.seconds()}") }),
-                    intake.linkage.retract(),
-                    intake.arm.safe2(),
-                    intake.diffy.autonSpecimen(),
-                    WaitCommand(1000),
+                    ParallelCommandGroup(
+                        intake.linkage.retract(),
+                        intake.arm.safe2(),
+                        intake.diffy.autonSpecimen(),
+                    ),
                     ParallelCommandGroup(
                         SequentialCommandGroup(
                             pickupAndScoreSpecimen(1),
@@ -194,10 +258,10 @@ class SpecimenAuton : OpMode() {
                             pickupAndScoreSpecimen(4),
                         ),
                     ),
-                    ParallelCommandGroup(
-                        outtake.base(),
-                        park(),
-                    ),
+//                    ParallelCommandGroup(
+//                        outtake.base(),
+//                        park(),
+//                    ),
                 ),
             )
         }
@@ -255,26 +319,35 @@ class SpecimenAuton : OpMode() {
 
         @JvmField
         var pickupDuration: Long = 250
-
-        @JvmField
-        var pickupPreLift = arrayOf(1.0, 0.0, 0.0)
         // </editor-fold>
 
         // <editor-fold desc="Scoring Config">
         @JvmField
-        var scoringPose = arrayOf(-36.0, -2.0, 180.0)
+        var scoringPose = arrayOf(-48.0, -2.0, 180.0)
 
         @JvmField
-        var scoringPoseDeep = arrayOf(-28.0, -2.0, 180.0)
+        var scoringSlowSegment = 1
 
         @JvmField
-        var scoringOffset = arrayOf(0.0, 1.0, 0.0)
+        var scoringSlowT = 0.5
+
+        @JvmField
+        var scoringPoseDeep = arrayOf(-24.0, -2.0, 180.0)
+
+        @JvmField
+        var scoringOffset = arrayOf(0.0, 2.0, 0.0)
+
+        @JvmField
+        var exitingScoring = arrayOf(-48.0, -2.0, 180.0)
 
         @JvmField
         var clipSpecimenDuration: Long = 500
 
         @JvmField
-        var minDistanceForLowering = 8.0
+        var minDistanceForArm = 64.0
+
+        @JvmField
+        var minDistanceForLowering = 52.0
         // </editor-fold>
 
         // <editor-fold desc="Sweep Poses">

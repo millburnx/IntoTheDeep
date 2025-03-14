@@ -78,8 +78,5 @@ open class PIDSettings {
 
         @JvmField
         var squid: Boolean = false
-
-        @JvmField
-        var squidv2: Boolean = false
     }
 }
