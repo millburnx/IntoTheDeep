@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClaw
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
+import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeClaw
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
@@ -91,7 +92,7 @@ open class MainTeleopBlue : OpMode() {
                                         outtake.open(),
                                         WaitCommand(transferClawDelay),
                                     ),
-                                ) { !outtake.claw.isOpen },
+                                ) { outtake.claw.state != OuttakeClaw.State.OPEN },
                                 conditionalCommand(
                                     SequentialCommandGroup(
                                         outtake.basePartial(),
