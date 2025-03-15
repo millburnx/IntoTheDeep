@@ -71,7 +71,7 @@ class OuttakeArm(
         var basePosition = 0.6
 
         @JvmField
-        var transferPosition = 0.66
+        var transferPosition = 0.62
 
         @JvmField
         var basketPosition = 0.48

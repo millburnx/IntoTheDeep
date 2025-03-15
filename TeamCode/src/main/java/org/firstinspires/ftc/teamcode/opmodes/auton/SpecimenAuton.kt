@@ -370,16 +370,16 @@ class SpecimenAuton : OpMode() {
 
         // <editor-fold desc="Sweep Poses">
         @JvmField
-        var sweepFirstStartingPose = arrayOf(-38.0, -29.0, -45.0)
+        var sweepFirstStartingPose = arrayOf(-38.0, -28.5, -45.0)
 
         @JvmField
-        var sweepFirstEndingPose = arrayOf(-48.0, -29.0, -135.0)
+        var sweepFirstEndingPose = arrayOf(-56.0, -28.5, -115.0)
 
         @JvmField
-        var sweepSecondStartingPose = arrayOf(-39.0, -34.0, -45.0)
+        var sweepSecondStartingPose = arrayOf(-39.0, -39.0, -45.0)
 
         @JvmField
-        var sweepSecondEndingPose = arrayOf(-48.0, -34.0, -135.0)
+        var sweepSecondEndingPose = arrayOf(-56.0, -39.0, -115.0)
 
         @JvmField
         var sweepThirdStartingPose = arrayOf(-38.0, -44.0, -45.0)

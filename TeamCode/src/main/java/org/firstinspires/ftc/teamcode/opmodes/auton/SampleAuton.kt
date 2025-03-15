@@ -39,6 +39,7 @@ class SampleAuton : OpMode() {
         robot.outtake.claw.periodic()
         robot.intake.arm.periodic()
         robot.intake.claw.periodic()
+        robot.doYellow = true
 
         super.initialize()
 
@@ -98,6 +99,7 @@ class SampleAuton : OpMode() {
 
         val basket = {
             SequentialCommandGroup(
+                robot.macros.exitTransfer(),
                 up().alongWith(
                     WaitUntilCommand {
                         robot.outtake.slides.position > Slides.min + (Slides.highBasket - Slides.min) / 2
@@ -157,10 +159,6 @@ class SampleAuton : OpMode() {
         )
 
         schedule(SequentialCommandGroup(*commands.toTypedArray()))
-
-        while (!isStarted()) {
-            robot.intake.diffy.initLoopable()
-        }
     }
 
     companion object {

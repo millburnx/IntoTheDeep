@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeClaw
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.EdgeDetector
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
+import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
 import org.firstinspires.ftc.teamcode.common.utils.normalizeDegrees
 import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
@@ -323,17 +324,32 @@ open class MainTeleopBlue : OpMode() {
                     )
                 }
 
+                fun getLockHeading(default: Double): Double =
+                    if (useBasketAssist && attemptingToBasket) {
+                        basketAssistHeading
+                    } else if (useWallAssist && attemptingToWall) {
+                        wallAssistHeading
+                    } else if (useRungAssist && attemptingToRung) {
+                        rungAssistHeading
+                    } else {
+                        default
+                    }
+
                 if (Companion.useTeleopHold &&
                     forward.absoluteValue < minJoystickValue &&
                     strafe.absoluteValue < minJoystickValue &&
                     rotate.absoluteValue < minJoystickValue
                 ) {
                     if ((teleopHoldTimer?.milliseconds() ?: 0.0) > teleopHoldDuration) {
-                        drive.pidManager.target = drive.pose
+                        val target = drive.pose
+                        drive.pidManager.target = Pose2d(target.x, target.y, getLockHeading(target.heading))
                         drive.pidManager.isTeleopHolding = true
                         teleopHoldTimer = null // we only want to run this when the timer just
                     } else if (teleopHoldTimer != null) {
                         driveControl()
+                    } else {
+                        val target = drive.pidManager.target
+                        drive.pidManager.target = Pose2d(target.x, target.y, getLockHeading(target.heading))
                     }
                 } else {
                     if (teleopHoldTimer == null) {
@@ -419,10 +435,10 @@ open class MainTeleopBlue : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var baseIntakeDuration: Long = 1000
+        var baseIntakeDuration: Long = 1250
 
         @JvmField
-        var intakeDuration: Long = 750
+        var intakeDuration: Long = 1000
 
         // <editor-fold desc="Heading Assist">
         @JvmField
