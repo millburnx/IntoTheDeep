@@ -14,8 +14,8 @@ class AxonCR(
     val servo = CachedCRServo(hardwareMap, servoName, isForward = isForward)
     val encoder = hardwareMap[encoderName] as AnalogInput
 
-    private var lastRawPosition = 0.0
-    private var rotations = 0.0
+    private var lastRawPosition: Double? = null
+    var rotations: Int = 0
     val rawPosition
         get() = encoder.voltage / 3.3 * if (isForward) 1.0 else -1.0
 
@@ -23,7 +23,7 @@ class AxonCR(
         get() = rawPosition + rotations
 
     override fun periodic() {
-        val deltaRawPosition = rawPosition - lastRawPosition
+        val deltaRawPosition = rawPosition - (lastRawPosition ?: rawPosition)
         if (deltaRawPosition.absoluteValue > .5) {
             if (deltaRawPosition < 0) {
                 rotations += 1

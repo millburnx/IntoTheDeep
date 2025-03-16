@@ -39,6 +39,7 @@ class SampleAuton : OpMode() {
         robot.outtake.claw.periodic()
         robot.intake.arm.periodic()
         robot.intake.claw.periodic()
+        robot.intake.diffy.resetDiffyRotations()
         robot.doYellow = true
 
         super.initialize()
@@ -150,7 +151,9 @@ class SampleAuton : OpMode() {
                 ),
                 basket(),
                 ParallelCommandGroup(
-                    SlidesCommand(robot.outtake.slides, Slides.State.BASE),
+                    WaitCommand(500).andThen(
+                        SlidesCommand(robot.outtake.slides, Slides.State.BASE),
+                    ),
                     robot.outtake.arm.park(),
                     robot.outtake.wrist.park(),
                     robot.drive.purePursuit("parkSamples", 90.0, true),
@@ -202,7 +205,7 @@ class SampleAuton : OpMode() {
         var basketDuration: Long = 500
 
         @JvmField
-        var grabDuration: Long = 250
+        var grabDuration: Long = 50
 
         @JvmField
         var pidStablize: Long = 500

@@ -20,21 +20,12 @@ import org.firstinspires.ftc.teamcode.common.subsystems.outtake.Slides
 import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
-import org.firstinspires.ftc.teamcode.opmodes.tuning.SampleCameraRobot
 
-open class AutonRobot(
-    opMode: OpMode,
-) : SampleCameraRobot(opMode) {
-    override fun init() {
-        super.init()
-    }
-}
-
-@Autonomous(name = "Specimen Auton", preselectTeleOp = "Main Teleop Red")
+@Autonomous(name = "Specimen Auton Push", preselectTeleOp = "Main Teleop Red")
 // @TeleOp(name = "Specimen Auton", group = "Auton")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
-class SpecimenAuton : OpMode() {
+class SpecimenAutonPush : OpMode() {
     override val robot by lazy { AutonRobot(this) }
 
     val currentCommands = mutableListOf<String>()
@@ -80,29 +71,60 @@ class SpecimenAuton : OpMode() {
 
             fun releaseSpecimen() = outtake.open()
 
-            fun sweepSample(
-                startingPose: Array<Double>,
-                endingPose: Array<Double>,
-                sampleCount: Int,
-            ) = namedCommand(
-                "sweepSample$sampleCount",
-                SequentialCommandGroup(
-                    drive.pid(Pose2d(startingPose), tolerance = tolerance * 2.0),
-                    intake.sweepAsync().alongWith(WaitCommand(250L)),
-                    drive.pid(Pose2d(endingPose), tolerance = tolerance * 2.0),
-                    intake.arm.extended(),
-                ),
-            )
-
-            fun sweepSamples() =
-                namedCommand(
-                    "sweepSamples",
-                    SequentialCommandGroup(
-                        sweepSample(sweepFirstStartingPose, sweepFirstEndingPose, 0),
-                        sweepSample(sweepSecondStartingPose, sweepSecondEndingPose, 1),
-//                        sweepSample(sweepThirdStartingPose, sweepThirdEndingPose, 2),
+            fun pushSamples(): SequentialCommandGroup {
+                val pre1 = robot.drive.purePursuit("pre1", -180.0, useStuckDectector = true)
+                val pre2 = robot.drive.purePursuit("pre2", -180.0, useStuckDectector = true)
+                val push1 = robot.drive.pid(Pose2d(pushX, -40.0, -180.0), useStuckDectector = true)
+                val push2 = robot.drive.pid(Pose2d(pushX, -52.0, -180.0), useStuckDectector = true)
+                return SequentialCommandGroup(
+                    ParallelCommandGroup(
+                        pre1,
+                        WaitUntilCommand {
+                            val pp = pre1.purePursuit
+                            val pastSegment = pp.beziers.indexOf(pp.lastIntersection.line) >= 1
+                            val pastT = pp.lastIntersection.t > 0.0
+                            telemetry.addData("past segment", pastSegment)
+                            telemetry.addData("past t", pastT)
+                            return@WaitUntilCommand pastSegment && pastT
+                        }.andThen(
+                            InstantCommand({
+                                pre1.speed = pushSlowSpeed
+                            }),
+                        ),
                     ),
+                    InstantCommand({ println("Behind Sample 1 @ ${matchTimer.seconds()}") }),
+                    ParallelCommandGroup(
+                        push1,
+                        WaitUntilCommand({ drive.pose.x < slowThreshold }).andThen(
+                            InstantCommand({ push1.speed = slowSpeed }),
+                        ),
+                    ),
+                    InstantCommand({ println("Pushed Sample 1 @ ${matchTimer.seconds()}") }),
+                    ParallelCommandGroup(
+                        pre2,
+                        WaitUntilCommand {
+                            val pp = pre2.purePursuit
+                            val pastSegment = pp.beziers.indexOf(pp.lastIntersection.line) >= 1
+                            val pastT = pp.lastIntersection.t > 0.0
+                            telemetry.addData("past segment", pastSegment)
+                            telemetry.addData("past t", pastT)
+                            return@WaitUntilCommand pastSegment && pastT
+                        }.andThen(
+                            InstantCommand({
+                                pre2.speed = pushSlowSpeed
+                            }),
+                        ),
+                    ),
+                    InstantCommand({ println("Behind Sample 2 @ ${matchTimer.seconds()}") }),
+                    ParallelCommandGroup(
+                        push2,
+                        WaitUntilCommand({ drive.pose.x < slowThreshold }).andThen(
+                            InstantCommand({ push2.speed = slowSpeed }),
+                        ),
+                    ),
+                    InstantCommand({ println("Pushed Sample 2 @ ${matchTimer.seconds()}") }),
                 )
+            }
 
             fun pickupSpecimen(specimen: Int) =
                 namedCommand(
@@ -144,7 +166,7 @@ class SpecimenAuton : OpMode() {
                                 ),
                             ),
                         ),
-                        drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = slowSpeed),
+                        drive.pid(Pose2d(pickupPoseDeep), useStuckDectector = true, speed = grabSlowSpeed),
                         outtake.close(),
                         WaitCommand(pickupDuration),
                     ),
@@ -223,6 +245,7 @@ class SpecimenAuton : OpMode() {
                                 drive.pid(
                                     Pose2d(scoringPose),
                                     tolerance = tolerance * 2.0,
+                                    speed = pushSlowSpeed,
                                 ),
                             ),
                         ),
@@ -253,15 +276,10 @@ class SpecimenAuton : OpMode() {
                     scorePreloadSpecimen(),
                     InstantCommand({ println("Starting sample sweep @ ${matchTimer.seconds()}") }),
                     ParallelCommandGroup(
-                        drive.pid(Pose2d(exitingScoring)),
-                        intake.linkage.extendAsync(),
-                        intake.arm.extended(),
-                        intake.diffy.sweep(),
-                    ),
-                    ParallelCommandGroup(
-                        outtake.basePartial(),
-                        outtake.slides.goTo(Slides.State.BASE),
-                        sweepSamples(),
+                        WaitCommand(500).andThen(
+                            outtake.base(),
+                        ),
+                        pushSamples(),
                     ),
                     InstantCommand({ println("Starting specimen scoring @ ${matchTimer.seconds()}") }),
                     ParallelCommandGroup(
@@ -325,13 +343,19 @@ class SpecimenAuton : OpMode() {
         var parkPose = arrayOf(-54.0, -36.0, 180.0)
 
         @JvmField
-        var slowSpeed = .625
+        var pushSlowSpeed = .75
+
+        @JvmField
+        var grabSlowSpeed = .45
+
+        @JvmField
+        var slowSpeed = .5
 
         // make this pickup and scoring into a pure pursuit path
 
         // <editor-fold desc="Pickup Config">
         @JvmField
-        var pickupPose = arrayOf(-58.0, -36.0, 180.0)
+        var pickupPose = arrayOf(-50.0, -36.0, 180.0)
 
         @JvmField
         var pickupPoseDeep = arrayOf(-72.0, -36.0, 180.0)
@@ -342,7 +366,7 @@ class SpecimenAuton : OpMode() {
 
         // <editor-fold desc="Scoring Config">
         @JvmField
-        var scoringPose = arrayOf(-40.0, -2.0, 180.0)
+        var scoringPose = arrayOf(-38.0, -2.0, 180.0)
 
         @JvmField
         var scoringSlowSegment = 1
@@ -351,7 +375,7 @@ class SpecimenAuton : OpMode() {
         var scoringSlowT = 0.5
 
         @JvmField
-        var scoringPoseDeep = arrayOf(-32.0, -2.0, 180.0)
+        var scoringPoseDeep = arrayOf(-20.0, -2.0, 180.0)
 
         @JvmField
         var scoringOffset = arrayOf(0.0, 2.0, 0.0)
@@ -371,22 +395,10 @@ class SpecimenAuton : OpMode() {
 
         // <editor-fold desc="Sweep Poses">
         @JvmField
-        var sweepFirstStartingPose = arrayOf(-38.0, -28.5, -45.0)
+        var pushX = -52.0
 
         @JvmField
-        var sweepFirstEndingPose = arrayOf(-56.0, -28.5, -115.0)
-
-        @JvmField
-        var sweepSecondStartingPose = arrayOf(-39.0, -39.0, -45.0)
-
-        @JvmField
-        var sweepSecondEndingPose = arrayOf(-56.0, -39.0, -115.0)
-
-        @JvmField
-        var sweepThirdStartingPose = arrayOf(-38.0, -44.0, -45.0)
-
-        @JvmField
-        var sweepThirdEndingPose = arrayOf(-48.0, -42.0, -135.0)
+        var slowThreshold = -38.0
         // </editor-fold>
     }
 }

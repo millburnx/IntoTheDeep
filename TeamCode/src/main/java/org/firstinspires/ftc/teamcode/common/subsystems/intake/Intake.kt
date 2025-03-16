@@ -30,6 +30,13 @@ class Intake(
             diffy.hover(),
         )
 
+    fun extendLow() =
+        ParallelCommandGroup(
+            linkage.extend(),
+            arm.extendedManual(),
+            diffy.hover(),
+        )
+
     fun extendAsync() =
         ParallelCommandGroup(
             linkage.extendAsync(),
@@ -42,6 +49,14 @@ class Intake(
             WaitCommand(baseIntakeDuration),
             robot.intake.linkage.retractAsync(),
             arm.extended(),
+            diffy.hover(),
+        )
+
+    fun baseExtendLow() =
+        ParallelCommandGroup(
+            WaitCommand(baseIntakeDuration),
+            robot.intake.linkage.retractAsync(),
+            arm.extendedManual(),
             diffy.hover(),
         )
 

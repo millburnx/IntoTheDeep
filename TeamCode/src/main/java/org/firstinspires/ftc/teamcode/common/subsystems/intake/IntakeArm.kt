@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.common.utils.hardware.CachedServo
 enum class IntakeArmPosition {
     BASE,
     EXTENDED,
+    EXTENDED_MANUAL,
     FLOOR,
     SWEEP,
     SAFE,
@@ -33,6 +34,7 @@ class IntakeArm(
             when (state) {
                 IntakeArmPosition.BASE -> basePosition
                 IntakeArmPosition.EXTENDED -> extendedPosition
+                IntakeArmPosition.EXTENDED_MANUAL -> extendedManualPosition
                 IntakeArmPosition.FLOOR -> floorPosition
                 IntakeArmPosition.SWEEP -> sweepPosition
                 IntakeArmPosition.SAFE -> safePosition
@@ -45,6 +47,8 @@ class IntakeArm(
     fun base() = InstantCommand({ state = IntakeArmPosition.BASE })
 
     fun extended() = InstantCommand({ state = IntakeArmPosition.EXTENDED })
+
+    fun extendedManual() = InstantCommand({ state = IntakeArmPosition.EXTENDED_MANUAL })
 
     fun floor() = InstantCommand({ state = IntakeArmPosition.FLOOR })
 
@@ -60,6 +64,9 @@ class IntakeArm(
 
         @JvmField
         var extendedPosition = 0.6
+
+        @JvmField
+        var extendedManualPosition = .68
 
         @JvmField
         var floorPosition = 0.78

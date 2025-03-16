@@ -73,7 +73,7 @@ class OuttakeWrist(
         var specimenPosition = 0.3
 
         @JvmField
-        var autonSpecimenPosition = 0.1
+        var autonSpecimenPosition = 0.15
 
         @JvmField
         var pickupPosition = 0.4

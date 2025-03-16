@@ -29,7 +29,28 @@ class Diffy(
     var pitch: Double = transferPitch // up and down, ideally -1 to 1
     var roll: Double = transferRoll // rotate, ideally -1 to 1
 
-    override fun init() {}
+    fun restoreDiffyRotations() {
+        println("!!!!LAST $lastLeftRotations, $lastRightRotations")
+        setDiffyRotations(lastLeftRotations, lastRightRotations)
+    }
+
+    fun resetDiffyRotations() {
+        setDiffyRotations(0, 0)
+    }
+
+    fun setDiffyRotations(
+        left: Int,
+        right: Int,
+    ) {
+        this.left.rotations = left
+        lastLeftRotations = left
+        this.right.rotations = right
+        lastRightRotations = right
+    }
+
+    override fun init() {
+        restoreDiffyRotations()
+    }
 
     // run in a loo during init
     fun initLoopable() {
@@ -63,6 +84,9 @@ class Diffy(
         val rightTarget = pitch + roll
         left.power = pidLeft.calculate(left.position, leftTarget)
         right.power = pidLeft.calculate(right.position, rightTarget)
+
+        lastLeftRotations = left.rotations
+        lastRightRotations = right.rotations
     }
 
     fun transfer() = InstantCommand({ state = State.TRANSFER })
@@ -100,7 +124,7 @@ class Diffy(
         var hoverRoll = -.3
 
         @JvmField
-        var pickupPitch = hoverPitch
+        var pickupPitch = -.6
 
         @JvmField
         var sweepPitch = transferPitch
@@ -113,5 +137,8 @@ class Diffy(
 
         @JvmField
         var autonSpecimenRoll = transferRoll
+
+        var lastLeftRotations = 0
+        var lastRightRotations = 0
     }
 }

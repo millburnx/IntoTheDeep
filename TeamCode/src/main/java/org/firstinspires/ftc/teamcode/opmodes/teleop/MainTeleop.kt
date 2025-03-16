@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import org.firstinspires.ftc.teamcode.common.subsystems.drive.AutoPickup
+import org.firstinspires.ftc.teamcode.common.subsystems.intake.Diffy
 import org.firstinspires.ftc.teamcode.common.subsystems.intake.IntakeClaw
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeClaw
@@ -51,6 +52,23 @@ open class MainTeleopBlue : OpMode() {
                         EdgeDetector(button = gp2::square) {
                             toggles.autoPickup = !toggles.autoPickup
                         }
+
+                    val leftShiftDown =
+                        EdgeDetector(button = gp2::dpad_left) {
+                            intake.diffy.left.rotations -= 1
+                        }
+                    val leftShiftUp =
+                        EdgeDetector(button = gp2::left_bumper) {
+                            intake.diffy.left.rotations += 1
+                        }
+                    val rightShiftDown =
+                        EdgeDetector(button = gp2::dpad_right) {
+                            intake.diffy.right.rotations -= 1
+                        }
+                    val rightShiftUp =
+                        EdgeDetector(button = gp2::right_bumper) {
+                            intake.diffy.right.rotations += 1
+                        }
                     val toggleAssists =
                         EdgeDetector(gp2::triangle) {
                             useBasketAssist = !useBasketAssist
@@ -86,6 +104,7 @@ open class MainTeleopBlue : OpMode() {
                         EdgeDetector(
                             gp1::square,
                             SequentialCommandGroup(
+                                InstantCommand({ drive.pidManager.isOn = false }),
                                 intake.close(),
                                 conditionalCommand(
                                     WaitCommand(transferClawDelay)
@@ -133,12 +152,23 @@ open class MainTeleopBlue : OpMode() {
                         ) {
                             outtake.arm.state != OuttakeArmPosition.BASE
                         },
-                        if (useLinkage) intake.extend() else intake.baseExtend(),
-                        conditionalCommand(
+                        if (useLinkage) {
+                            ConditionalCommand(
+                                intake.extend(),
+                                intake.extendLow(),
+                            ) { toggles.autoPickup }
+                        } else {
+                            ConditionalCommand(
+                                intake.baseExtend(),
+                                intake.baseExtendLow(),
+                            ) { toggles.autoPickup }
+                        },
+                        ConditionalCommand(
                             WaitCommand(AutoPickup.cameraStablizationDuration).andThen(
                                 autoPickup.startScanning(),
                                 rumble,
                             ),
+                            InstantCommand({ robot.intake.diffy.state = Diffy.State.PICKUP }),
                         ) { toggles.autoPickup },
                     )
 
@@ -268,6 +298,10 @@ open class MainTeleopBlue : OpMode() {
             isRed = false
             FtcDashboard.getInstance().startCameraStream(camera.sampleDetector, 0.0)
             drive.pinPoint.recalibrateImu()
+            telemetry.addData("left", Diffy.lastLeftRotations)
+            telemetry.addData("right", Diffy.lastRightRotations)
+            telemetry.update()
+            intake.diffy.restoreDiffyRotations()
         }
         triggers
     }
@@ -378,16 +412,23 @@ open class MainTeleopBlue : OpMode() {
                 }
             }
 
+            if (robot.intake.diffy.state == Diffy.State.PICKUP && toggles.autoPickup == false) {
+                intake.diffy.roll = Diffy.hoverRoll + gp2.right_stick_x * diffyPower
+            }
+
             // we can make triggers do either rotate or slides based on the arm states?
 
-            telemetry.addData("pid | on", drive.pidManager.isOn)
-            telemetry.addData("pid | hold", drive.pidManager.isTeleopHolding)
+//            telemetry.addData("pid | on", drive.pidManager.isOn)
+//            telemetry.addData("pid | hold", drive.pidManager.isTeleopHolding)
             telemetry.addData("timer", teleopHoldTimer?.milliseconds() ?: -1.0)
             telemetry.addData("isRed", isRed)
-            telemetry.addData("pid | pid target", drive.pidManager.target)
-            telemetry.addData("slides", outtake.slides.position)
-            telemetry.addData("slides target", outtake.slides.actualTarget)
-            telemetry.addData("slides state", outtake.slides.state)
+            telemetry.addData("yellow", doYellow)
+            telemetry.addData("left", Diffy.lastLeftRotations)
+            telemetry.addData("right", Diffy.lastRightRotations)
+//            telemetry.addData("pid | pid target", drive.pidManager.target)
+//            telemetry.addData("slides", outtake.slides.position)
+//            telemetry.addData("slides target", outtake.slides.actualTarget)
+//            telemetry.addData("slides state", outtake.slides.state)
             telemetry.addData("toggles | autopickup", toggles.autoPickup)
             telemetry.addData("assists | basket assist", useBasketAssist)
             telemetry.addData("assists | rung assist", useRungAssist)
@@ -401,6 +442,9 @@ open class MainTeleopBlue : OpMode() {
 
         @JvmField
         var slideThreshold: Double = 0.25
+
+        @JvmField
+        var diffyPower: Double = -.25
 
         @JvmField
         var linkageRotationMultiplier: Double = 0.5
@@ -420,7 +464,7 @@ open class MainTeleopBlue : OpMode() {
         var transferClawDelay: Long = 250
 
         @JvmField
-        var outtakeFlipDelay: Long = 500
+        var outtakeFlipDelay: Long = 250
 
         @JvmField
         var specimenCloseDuration: Long = 250
@@ -435,7 +479,7 @@ open class MainTeleopBlue : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var baseIntakeDuration: Long = 1250
+        var baseIntakeDuration: Long = 1000
 
         @JvmField
         var intakeDuration: Long = 1000

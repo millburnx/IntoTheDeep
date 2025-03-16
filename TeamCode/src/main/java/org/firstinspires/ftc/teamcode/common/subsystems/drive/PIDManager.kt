@@ -156,7 +156,7 @@ class PIDCommand(
     val target: Pose2d,
     val tolerance: Pose2d = Pose2d(PIDSettings.tolerance, headingTolerance),
     val useStuckDectector: Boolean = false,
-    val speed: Double = 1.0,
+    var speed: Double = 1.0,
 ) : CommandBase() {
     val elapsedTime = ElapsedTime()
 

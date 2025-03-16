@@ -139,7 +139,7 @@ class Slides(
         var highRung: Double = 1300.0
 
         @JvmField
-        var autonHighRung: Double = 1750.0
+        var autonHighRung: Double = 1775.0
 
         @JvmField
         var highRungScore: Double = 2000.0
