@@ -79,7 +79,7 @@ open class MainTeleopBlue : OpMode() {
                     val liftResets =
                         EdgeDetector(
                             gp2::circle,
-                            outtake.slides.direct(Slides.rezeroPower),
+                            outtake.slides.goTo(Slides.State.REZERO),
                             SequentialCommandGroup(
                                 outtake.slides.rezeroCmd(),
                                 outtake.slides.goTo(Slides.State.BASE),
@@ -479,7 +479,7 @@ open class MainTeleopBlue : OpMode() {
         var intakePickupClawDelay: Long = 250
 
         @JvmField
-        var baseIntakeDuration: Long = 1000
+        var baseIntakeDuration: Long = 1250
 
         @JvmField
         var intakeDuration: Long = 1000

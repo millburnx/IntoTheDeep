@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.command.WaitUntilCommand
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.common.commands.outtake.SlidesCommand
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeArmPosition
 import org.firstinspires.ftc.teamcode.common.subsystems.outtake.OuttakeWristPosition
@@ -17,10 +18,10 @@ import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MainTeleopBlue.Companion.outtakeDropArmDelay
 
-@Autonomous(name = "Sample Auton", preselectTeleOp = "Main Teleop Red")
+@Autonomous(name = "Sample Auton", preselectTeleOp = "Main Teleop Blue")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
-class SampleAuton : OpMode() {
+open class SampleAuton : OpMode() {
     override val robot by lazy { AutonRobot(this) }
 
     override fun initialize() {
@@ -44,10 +45,12 @@ class SampleAuton : OpMode() {
 
         super.initialize()
 
-        val grab = {
-            SequentialCommandGroup(
+        fun grab(): SequentialCommandGroup {
+            val timeOutCV = ElapsedTime()
+            return SequentialCommandGroup(
+                InstantCommand({ timeOutCV.reset() }),
                 robot.autoPickup.startScanning(),
-                WaitUntilCommand { robot.autoPickup.lastTarget != null },
+                WaitUntilCommand { robot.autoPickup.lastTarget != null || timeOutCV.milliseconds() > timeOutCVDelay },
                 robot.autoPickup.stopScanning(),
                 robot.autoPickup.align(),
                 robot.intake.grab(),
@@ -103,7 +106,7 @@ class SampleAuton : OpMode() {
                 robot.macros.exitTransfer(),
                 up().alongWith(
                     WaitUntilCommand {
-                        robot.outtake.slides.position > Slides.min + (Slides.highBasket - Slides.min) / 2
+                        robot.outtake.slides.position > Slides.min + (Slides.highBasket - Slides.min) * 3 / 4
                     }.andThen(
                         robot.drive.pid(Pose2d(basketX, basketY, -45.0)),
                     ),
@@ -178,7 +181,7 @@ class SampleAuton : OpMode() {
         var sample1X = -47.0
 
         @JvmField
-        var sample1Y = 49.5
+        var sample1Y = 50.0
 
         @JvmField
         var sample2X = -47.0
@@ -209,6 +212,9 @@ class SampleAuton : OpMode() {
 
         @JvmField
         var pidStablize: Long = 500
+
+        @JvmField
+        var timeOutCVDelay: Long = 2000
     }
 
     override fun exec() {

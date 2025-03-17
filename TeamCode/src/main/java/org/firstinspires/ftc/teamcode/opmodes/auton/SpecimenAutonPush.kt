@@ -21,11 +21,11 @@ import org.firstinspires.ftc.teamcode.common.utils.OpMode
 import org.firstinspires.ftc.teamcode.common.utils.Pose2d
 import org.firstinspires.ftc.teamcode.common.utils.conditionalCommand
 
-@Autonomous(name = "Specimen Auton Push", preselectTeleOp = "Main Teleop Red")
+@Autonomous(name = "Specimen Auton Push", preselectTeleOp = "Main Teleop Blue")
 // @TeleOp(name = "Specimen Auton", group = "Auton")
 @Config
 @SuppressWarnings("detekt:MagicNumber", "detekt:SpreadOperator")
-class SpecimenAutonPush : OpMode() {
+open class SpecimenAutonPush : OpMode() {
     override val robot by lazy { AutonRobot(this) }
 
     val currentCommands = mutableListOf<String>()
@@ -183,10 +183,10 @@ class SpecimenAutonPush : OpMode() {
                 return Path(
                     listOf(
                         pickupPos,
-                        Vec2d(-48.0, pickupPos.y),
+                        Vec2d(-50.0, pickupPos.y),
                     ) +
                         listOf(
-                            Vec2d(-48, scoringPos.y) + offset,
+                            Vec2d(-54, scoringPos.y) + offset,
                             scoringPos + offset,
                             Vec2d(-36, scoringPos.y) + offset,
                         ) +

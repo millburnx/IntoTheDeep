@@ -68,7 +68,7 @@ class OuttakeArm(
 
     companion object {
         @JvmField
-        var basePosition = 0.6
+        var basePosition = 0.59
 
         @JvmField
         var transferPosition = 0.62
